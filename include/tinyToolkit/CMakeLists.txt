@@ -1,0 +1,40 @@
+#
+# 项目名
+#
+SET(PROGRAM_NAME tinyTools)
+
+
+#
+# 设置宏定义
+#
+ADD_DEFINITIONS(-DRAPIDJSON_SSE2
+				-DRAPIDJSON_HAS_STDSTRING
+)
+
+
+#
+# 获取当前目录下源文件
+#
+TRAVERSE_CURRENT_SOURCE_FILE(SOURCE_FILES)
+
+
+#
+# 链接源文件, 生成静态库文件
+#
+ADD_LIBRARY(${PROGRAM_NAME}	STATIC	${SOURCE_FILES})
+
+
+#
+# 链接库文件
+#
+IF (UNIX)
+
+	TRAVERSE_LIBRARY_FOR_PROGRAM_NAME(stdc++fs)
+
+ENDIF ()
+
+
+#
+# 库文件的生成目录
+#
+SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)

@@ -1,0 +1,146 @@
+#
+# cmake支持的最低版本
+#
+CMAKE_MINIMUM_REQUIRED(VERSION 3.8 FATAL_ERROR)
+
+
+#
+# 设置编译器
+#
+IF(WIN32)
+
+	MESSAGE(STATUS "Detected Windows System")
+
+ELSEIF(APPLE)
+
+	MESSAGE(STATUS "Detected Apple System")
+
+	SET(CMAKE_C_COMPILER	"clang")
+	SET(CMAKE_CXX_COMPILER	"clang++")
+
+ELSEIF (UNIX)
+
+	MESSAGE(STATUS "Detected Unix System")
+
+	SET(CMAKE_C_COMPILER	"gcc8.1.0")
+	SET(CMAKE_CXX_COMPILER	"g++8.1.0")
+
+ENDIF ()
+
+
+#
+# 检查编译模式
+#
+IF(NOT CMAKE_BUILD_TYPE)
+
+	SET(CMAKE_BUILD_TYPE Debug)
+
+ENDIF()
+
+
+IF(CONAN_LIBCXX STREQUAL "libstdc++11")
+
+	ADD_DEFINITIONS(
+		-D_GLIBCXX_USE_CXX11_ABI=1
+	)
+
+ELSE()
+
+	ADD_DEFINITIONS(
+		-D_GLIBCXX_USE_CXX11_ABI=0
+	)
+
+ENDIF ()
+
+
+#
+# 设置宏定义
+#
+IF(CMAKE_BUILD_TYPE STREQUAL Debug)
+
+	ADD_DEFINITIONS(
+		-DDEBUG
+	)
+
+ELSE()
+
+	ADD_DEFINITIONS(
+		-DRELEASE
+	)
+
+ENDIF ()
+
+
+#
+# 项目名
+#
+PROJECT(tinyToolkit VERSION 0.0.1)
+
+
+#
+# 设置工程组
+#
+SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
+
+
+#
+# 编译链接静态库
+#
+SET(BUILD_SHARED_LIBS OFF)
+
+
+#
+# 显示编译详细信息
+#
+SET(CMAKE_VERBOSE_MAKEFILE ON)
+
+
+#
+# 禁止在项目中build
+#
+SET(CMAKE_DISABLE_SOURCE_CHANGES ON)
+SET(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
+
+
+#
+# 添加rpath
+#
+SET(CMAKE_SKIP_BUILD_RPATH FALSE)
+SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
+
+#
+# 自己编写cmake模块的位置
+#
+SET(CMAKE_MODULE_PATH	${CMAKE_SOURCE_DIR}/cmake/check
+						${CMAKE_SOURCE_DIR}/cmake/traverse
+)
+
+
+#
+# 添加cmake模块
+#
+INCLUDE(TraverseSet)
+INCLUDE(TraverseFile)
+INCLUDE(TraverseSource)
+INCLUDE(TraverseInclude)
+INCLUDE(TraverseLibrary)
+INCLUDE(TraverseCMakeLists)
+INCLUDE(CheckPlatform)
+INCLUDE(CheckCompiler)
+
+
+#
+# 添加头文件路径
+#
+TRAVERSE_INCLUDE(${PROJECT_SOURCE_DIR}/
+				 ${PROJECT_SOURCE_DIR}/include
+)
+
+
+#
+# 添加下级项目
+#
+TRAVERSE_CURRENT_ADD_SUBDIRECTORY()

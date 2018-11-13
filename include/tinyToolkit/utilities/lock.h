@@ -139,8 +139,6 @@ namespace tinyToolkit
 		 */
 		void store(TypeT val)
 		{
-			std::atomic<std::string> al;
-
 			value = val;
 		}
 

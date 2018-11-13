@@ -215,6 +215,8 @@ public:
 				std::cout << iter << std::endl;
 			}
 
+#if TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_APPLE
+
 			std::cout << "trace file" << std::endl;
 
 			for (auto &iter : tinyToolkit::Filesystem::TraverseFile("../"))
@@ -242,6 +244,8 @@ public:
 			{
 				std::cout << iter.string() << std::endl;
 			}
+
+#endif
 		}
 	}
 };

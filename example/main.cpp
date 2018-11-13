@@ -16,7 +16,7 @@ int main(int argc, char * argv[])
 
 //	Pool::Test();
 
-	Debug::Test();
+//	Debug::Test();
 
 //	System::Test();
 

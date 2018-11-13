@@ -85,7 +85,7 @@
 
 #pragma comment(lib,"ws2_32.lib")
 
-#elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_LINUX
+#else
 
 #include <unistd.h>
 #include <execinfo.h>

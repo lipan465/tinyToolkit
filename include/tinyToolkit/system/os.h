@@ -30,25 +30,17 @@ namespace tinyToolkit
 		{
 			int64_t tid = 0;
 
-#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_FREE_BSD
-
-			thr_self(&tid);
-
-#elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
 			tid = ::GetCurrentThreadId();
 
-#elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
-
-			pthread_threadid_np(nullptr, &tid);
-
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_LINUX
 
-			tid =  syscall(SYS_gettid);
+			tid = ::syscall(SYS_gettid);
 
 #else
 
-			tid =  std::hash<std::thread::id>()(std::this_thread::get_id());  /// std::this_thread::get_id()慢得多(特别是在VS 2013下)
+			tid = static_cast<int64_t>(std::hash<std::thread::id>()(std::this_thread::get_id()));  /// std::this_thread::get_id()慢得多(特别是在VS 2013下)
 
 #endif
 

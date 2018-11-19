@@ -49,7 +49,7 @@ namespace tinyToolkit
 
 			return std::filesystem::exists(path);
 
-#elif
+#else
 
 #  if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 

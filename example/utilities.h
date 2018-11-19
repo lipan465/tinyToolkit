@@ -65,6 +65,13 @@ public:
 			FUNCTION_TEST(tinyToolkit::Time::Nanoseconds())
 			FUNCTION_TEST(tinyToolkit::Time::CurrentUTCTimeString())
 			FUNCTION_TEST(tinyToolkit::Time::CurrentLocalTimeString())
+
+			tinyToolkit::Timer timer;
+
+			timer.CommitOnce(1000, [](int x){ std::cout << tinyToolkit::Time::CurrentLocalTimeString() << " timer-1- : " << x << std::endl; }, 1);
+			timer.CommitOnce(4000, [](int x){ std::cout << tinyToolkit::Time::CurrentLocalTimeString() << " timer-2- : " << x << std::endl; }, 2);
+			timer.CommitCircle(2000, [](int x){ std::cout << tinyToolkit::Time::CurrentLocalTimeString() << " timer-3- : " << x << std::endl; }, 3);
+
 		}
 
 		{

@@ -28,7 +28,7 @@ namespace tinyToolkit
 		 * @param container 待清理容器
 		 *
 		 */
-		template <class TypeT>
+		template <typename TypeT>
 		static void Clear(TypeT & container)
 		{
 			TypeT().swap(container);

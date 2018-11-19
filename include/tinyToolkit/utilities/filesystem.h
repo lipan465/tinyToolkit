@@ -36,6 +36,52 @@ namespace tinyToolkit
 	public:
 		/**
 		 *
+		 * 文件是否存在
+		 *
+		 * @param path 文件路径
+		 *
+		 * @return 文件是否存在
+		 *
+		 */
+		static bool Exists(const char * path)
+		{
+#ifdef TINY_TOOLKIT_SUPPORT_FULL_CXX_17
+
+			return std::filesystem::exists(path);
+
+#elif
+
+#  if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+			auto attribs = GetFileAttributesA(path);
+
+			return attribs != INVALID_FILE_ATTRIBUTES && !(attribs & FILE_ATTRIBUTE_DIRECTORY);
+
+#  else
+
+			return access(path, F_OK) == 0;
+
+#  endif
+
+#endif
+		}
+
+		/**
+		 *
+		 * 文件是否存在
+		 *
+		 * @param path 文件路径
+		 *
+		 * @return 文件是否存在
+		 *
+		 */
+		static bool Exists(const std::string & path)
+		{
+			return Exists(path.data());
+		}
+
+		/**
+		 *
 		 * 读取文件内容
 		 *
 		 * @param path 待读取文件路径
@@ -239,7 +285,7 @@ namespace tinyToolkit
 		 * @return 写入结果
 		 *
 		 */
-		template<class It>
+		template<typename It>
 		static bool WriteFile(const char * path, const It & begin, const It & end)
 		{
 			if (path)
@@ -275,7 +321,7 @@ namespace tinyToolkit
 		 * @return 写入结果
 		 *
 		 */
-		template<class It>
+		template<typename It>
 		static bool WriteFile(const std::string & path, const It & begin, const It & end)
 		{
 			return WriteFile(path.data(), begin, end);
@@ -475,7 +521,7 @@ namespace tinyToolkit
 			return pos == std::string::npos ? "./" : path.substr(0, pos + 1);
 		}
 
-#ifdef TINY_TOOLKIT_SUPPORT_OTHER_CXX_17
+#ifdef TINY_TOOLKIT_SUPPORT_FULL_CXX_17
 
 		/**
 		 *

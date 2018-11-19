@@ -48,6 +48,22 @@ public:
 		}
 
 		{
+			std::cout << "-------------------------------------------------- watcher --------------------------------------------------" << std::endl;
+
+			tinyToolkit::Watcher watcher;
+
+			watcher.AddCallBack("t1", [](int oldValue, int newValue){ tinyToolkit::String::Print("t1 : {} --> {}\n", oldValue, newValue); });
+			watcher.AddCallBack("t2", [](int oldValue, int newValue){ tinyToolkit::String::Print("t2 : {} --> {}\n", oldValue, newValue); });
+
+			for (int i = 0; i < 10; ++i) {
+				watcher.Set("t1", i * 10 - 1);
+				watcher.Set("t2", i * 20 - 2);
+			}
+
+			watcher.Print();
+		}
+
+		{
 			std::cout << "-------------------------------------------------- exception --------------------------------------------------" << std::endl;
 
 			try

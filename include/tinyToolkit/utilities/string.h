@@ -1153,7 +1153,7 @@ namespace tinyToolkit
 		}
 	};
 
-	class HexString
+	class TINY_TOOLKIT_API HexString
 	{
 	public:
 		/**

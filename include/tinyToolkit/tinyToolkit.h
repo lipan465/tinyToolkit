@@ -15,6 +15,23 @@
 #include "id/unique.h"
 #include "id/snowflake.h"
 
+/// log
+#include "log/sink.h"
+#include "log/event.h"
+#include "log/detail.h"
+#include "log/filter.h"
+#include "log/layout.h"
+#include "log/fileSink.h"
+#include "log/transition.h"
+#include "log/syslogSink.h"
+#include "log/ostreamSink.h"
+#include "log/consoleSink.h"
+#include "log/simpleLayout.h"
+#include "log/patternLayout.h"
+#include "log/dailyFileSink.h"
+#include "log/stringQueueSink.h"
+#include "log/rotatingFileSink.h"
+
 /// pool
 #include "pool/thread.h"
 #include "pool/callback.h"
@@ -22,6 +39,7 @@
 
 /// debug
 #include "debug/trace.h"
+#include "debug/watcher.h"
 #include "debug/exception.h"
 
 /// common
@@ -50,6 +68,8 @@
 #include "utilities/lock.h"
 #include "utilities/math.h"
 #include "utilities/time.h"
+#include "utilities/option.h"
+#include "utilities/thread.h"
 #include "utilities/random.h"
 #include "utilities/string.h"
 #include "utilities/container.h"

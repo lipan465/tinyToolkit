@@ -16,7 +16,7 @@
 
 namespace tinyToolkit
 {
-	template <class TypeT>
+	template <typename TypeT>
 	class TINY_TOOLKIT_API Singleton
 	{
 	public:
@@ -31,7 +31,7 @@ namespace tinyToolkit
 		 * @return 单例对象引用
 		 *
 		 */
-		template <class... Args>
+		template <typename ... Args>
 		static TypeT & Instance(Args &&... args)
 		{
 			std::call_once(_onceFlag, [&](){ _instance = new TypeT(std::forward<Args>(args)...); });
@@ -75,7 +75,7 @@ namespace tinyToolkit
 		Singleton & operator=(const Singleton &) = delete;
 
 	protected:
-		class GarbageCollector
+		class TINY_TOOLKIT_API GarbageCollector
 		{
 		public:
 			/**
@@ -102,13 +102,13 @@ namespace tinyToolkit
 		static GarbageCollector _garbageCollector;
 	};
 
-	template <class TypeT>
+	template <typename TypeT>
 	TypeT * Singleton<TypeT>::_instance = nullptr;
 
-	template <class TypeT>
+	template <typename TypeT>
 	std::once_flag Singleton<TypeT>::_onceFlag;
 
-	template <class TypeT>
+	template <typename TypeT>
 	typename Singleton<TypeT>::GarbageCollector Singleton<TypeT>::_garbageCollector;
 }
 

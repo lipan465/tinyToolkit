@@ -77,12 +77,12 @@ namespace tinyToolkit
 		{
 			if (workerID < 0 || workerID > _workerIDMax)
 			{
-				throw tinyToolkit::String::Format("workerID can't be greater than {} or less than 0", _workerIDMax);
+				throw std::runtime_error(tinyToolkit::String::Format("workerID can't be greater than {} or less than 0", _workerIDMax));
 			}
 
 			if (dataCenterID < 0 || dataCenterID > _dataCenterIDMax)
 			{
-				throw tinyToolkit::String::Format("dataCenterID can't be greater than {} or less than 0", _dataCenterIDMax);
+				throw std::runtime_error(tinyToolkit::String::Format("dataCenterID can't be greater than {} or less than 0", _dataCenterIDMax));
 			}
 
 			_workerID = workerID;
@@ -104,7 +104,7 @@ namespace tinyToolkit
 
 			if (timeStamp < _lastTimeStamp)
 			{
-				throw "Clock moved backwards, Refusing to generate id";
+				throw std::runtime_error("Clock moved backwards, Refusing to generate id");
 			}
 
 			if (_lastTimeStamp == timeStamp)

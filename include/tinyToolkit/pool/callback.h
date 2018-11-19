@@ -20,21 +20,41 @@ namespace tinyToolkit
 	template<typename ReturnTypeT, typename ...Args>
 	class TINY_TOOLKIT_API CallBackPool
 	{
-		typedef ReturnTypeT (*FunctionTypeT)(Args...);
-
-		class Callback
+		class TINY_TOOLKIT_API Callback
 		{
 		public:
+			/**
+			 *
+			 * 构造函数
+			 *
+			 * @param id 序列号
+			 * @param function 函数
+			 *
+			 */
 			Callback(std::size_t id, std::function<ReturnTypeT(Args...)> function) : _id(id), _function(std::move(function))
 			{
 
 			}
 
+			/**
+			 *
+			 * 序列号
+			 *
+			 * @return 序列号
+			 *
+			 */
 			std::size_t ID() const
 			{
 				return _id;
 			}
 
+			/**
+			 *
+			 * 重构()操作
+			 *
+			 * @param args 参数
+			 *
+			 */
 			void operator () (Args &&... args)
 			{
 				if (_function)
@@ -50,16 +70,27 @@ namespace tinyToolkit
 		};
 
 	public:
+		/**
+		 *
+		 * 回调函数个数
+		 *
+		 * @return 回调函数个数
+		 *
+		 */
 		std::size_t Size()
 		{
 			return _pool.size();
 		}
 
-		std::size_t Register(FunctionTypeT function)
-		{
-			return Register(std::function<ReturnTypeT(Args...)>(function));
-		}
-
+		/**
+		 *
+		 * 注册
+		 *
+		 * @param function 函数
+		 *
+		 * @return 序列号
+		 *
+		 */
 		std::size_t Register(std::function<ReturnTypeT(Args...)> function)
 		{
 			auto callback = Callback(++_id, std::move(function));
@@ -69,6 +100,11 @@ namespace tinyToolkit
 			return callback.ID();
 		}
 
+		/**
+		 *
+		 * 注销
+		 *
+		 */
 		void UnRegister()
 		{
 			_id.store(0);
@@ -76,11 +112,25 @@ namespace tinyToolkit
 			tinyToolkit::Container::Clear(_pool);
 		}
 
+		/**
+		 *
+		 * 注销
+		 *
+		 * @param id 序列号
+		 *
+		 */
 		void UnRegister(std::size_t id)
 		{
 			_pool.erase(id);
 		}
 
+		/**
+		 *
+		 * 调用
+		 *
+		 * @param args 参数
+		 *
+		 */
 		void Call(Args &&... args)
 		{
 			for (auto &callback : _pool)
@@ -96,21 +146,37 @@ namespace tinyToolkit
 			}
 		}
 
+		/**
+		 *
+		 * 重构()操作
+		 *
+		 * @param args 参数
+		 *
+		 */
 		void operator () (Args &&... args)
 		{
 			Call(std::forward<Args>(args)...);
 		}
 
+		/**
+		 *
+		 * 重构-=操作
+		 *
+		 * @param id 序列号
+		 *
+		 */
 		void operator -= (std::size_t id)
 		{
 			UnRegister(id);
 		}
 
-		std::size_t operator += (FunctionTypeT function)
-		{
-			return Register(function);
-		}
-
+		/**
+		 *
+		 * 重构+=操作
+		 *
+		 * @param function 函数
+		 *
+		 */
 		std::size_t operator += (std::function<ReturnTypeT(Args...)> function)
 		{
 			return Register(function);

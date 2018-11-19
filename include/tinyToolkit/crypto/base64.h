@@ -279,7 +279,7 @@ namespace tinyToolkit
 					 */
 					if (*value != '=' && pos == 1)
 					{
-						throw "decrypt data is invalid";
+						throw std::runtime_error("Decrypt data is invalid");
 					}
 
 					continue;

@@ -109,6 +109,10 @@ public:
 		{
 			std::cout << "-------------------------------------------------- callbackPool --------------------------------------------------" << std::endl;
 
+			tinyToolkit::CallBackPool<void, int, int> backPool;
+
+			backPool.Register([](int x, int y){ std::cout << "x:" << x << ", y:" << y << std::endl; });
+
 			class X
 			{
 			public:
@@ -164,6 +168,8 @@ public:
 			protected:
 				std::size_t _index{ 0 };
 			};
+
+			backPool.Call(11, 22);
 
 			A a1;
 

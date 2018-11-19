@@ -50,24 +50,17 @@ namespace tinyToolkit
 		 *
 		 * 提交任务
 		 *
-		 * @tparam Func [function]
+		 * @tparam FunctionTypeT [function types]
 		 * @tparam Args [all types]
 		 *
-		 * @param func 待运行函数
-		 * @param args 待运行函数参数
-		 *
-		 * @return future对象(调用.get()获取返回值会等待任务执行完)
+		 * @param function 函数
+		 * @param args 参数
 		 *
 		 */
-		template<class Func, class... Args>
-		inline decltype(auto) Commit(Func && func, Args &&... args)
+		template<typename FunctionTypeT, typename ... Args>
+		void Commit(FunctionTypeT && function, Args &&... args)
 		{
-			using RetType = decltype(func(args...));
-
-			auto task = std::make_shared<std::packaged_task<RetType()>>(std::bind(std::forward<Func>(func),
-																				  std::forward<Args>(args)...));
-
-			auto res = task->get_future();
+			auto task = std::bind(std::forward<FunctionTypeT>(function), std::forward<Args>(args)...);
 
 			{
 				std::lock_guard<std::mutex> lock(_lock);
@@ -76,14 +69,12 @@ namespace tinyToolkit
 				(
 					[task]()
 					{
-						(*task)();
+						task();
 					}
 				);
 			}
 
 			_condition.notify_one();
-
-			return res;
 		};
 
 		/**

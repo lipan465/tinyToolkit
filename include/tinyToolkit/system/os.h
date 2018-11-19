@@ -40,7 +40,7 @@ namespace tinyToolkit
 
 #else
 
-			tid = static_cast<int64_t>(std::hash<std::thread::id>()(std::this_thread::get_id()));  /// std::this_thread::get_id()慢得多(特别是在VS 2013下)
+			tid = static_cast<int64_t>(std::hash<std::thread::id>()(std::this_thread::get_id()));
 
 #endif
 

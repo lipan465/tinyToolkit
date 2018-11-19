@@ -27,6 +27,7 @@
 /// std
 #include <set>
 #include <map>
+#include <any>
 #include <list>
 #include <array>
 #include <queue>
@@ -73,7 +74,7 @@
 
 #include <filesystem>
 
-#define TINY_TOOLKIT_SUPPORT_OTHER_CXX_17
+#define TINY_TOOLKIT_SUPPORT_FULL_CXX_17
 
 #endif
 
@@ -88,6 +89,7 @@
 #else
 
 #include <unistd.h>
+#include <syslog.h>
 #include <execinfo.h>
 #include <arpa/inet.h>
 #include <sys/syscall.h>
@@ -102,6 +104,10 @@ using ByteUnorderedSet = std::unordered_set<uint8_t>;
 using StringSet = std::set<std::string>;
 using StringVector = std::vector<std::string>;
 using StringUnorderedSet = std::unordered_set<std::string>;
+
+using ClockType = std::chrono::system_clock;
+using ClockDuration = std::chrono::system_clock::duration;
+using ClockTimePoint = std::chrono::system_clock::time_point;
 
 
 #endif // __TINY_TOOLKIT__COMMON__COMMON__H__

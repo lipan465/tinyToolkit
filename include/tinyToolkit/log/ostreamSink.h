@@ -6,7 +6,7 @@
  *
  *  作者: hm
  *
- *  说明: 输出流日志节点
+ *  说明: 日志输出流节点
  *
  */
 
@@ -16,24 +16,19 @@
 
 namespace tinyToolkit
 {
-	class TINY_TOOLKIT_API OStreamSink : public ILogSink
+	class TINY_TOOLKIT_API OStreamLogSink : public ILogSink
 	{
 	public:
 		/**
 		 *
 		 * 构造函数
 		 *
-		 */
-		OStreamSink() = default;
-
-		/**
-		 *
-		 * 构造函数
-		 *
+		 * @param name 节点名称
 		 * @param stream 输出流
 		 *
 		 */
-		explicit OStreamSink(std::shared_ptr<std::ostream> stream) : _stream(std::move(stream))
+		explicit OStreamLogSink(std::string name, std::shared_ptr<std::ostream> stream) : ILogSink(std::move(name)),
+																						  _stream(std::move(stream))
 		{
 
 		};
@@ -43,7 +38,7 @@ namespace tinyToolkit
 		 * 析构函数
 		 *
 		 */
-		~OStreamSink() override
+		~OStreamLogSink() override
 		{
 			Close();
 		}
@@ -107,18 +102,6 @@ namespace tinyToolkit
 			{
 				Flush();
 			}
-		}
-
-		/**
-		 *
-		 * 设置输出流
-		 *
-		 * @param stream 输出流
-		 *
-		 */
-		void SetStream(const std::shared_ptr<std::ostream> & stream)
-		{
-			_stream = stream;
 		}
 
 		/**

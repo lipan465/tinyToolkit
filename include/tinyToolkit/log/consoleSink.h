@@ -6,7 +6,7 @@
  *
  *  作者: hm
  *
- *  说明: 控制台日志节点
+ *  说明: 日志控制台节点
  *
  */
 
@@ -16,17 +16,19 @@
 
 namespace tinyToolkit
 {
-	class TINY_TOOLKIT_API ConsoleSink : public ILogSink
+	class TINY_TOOLKIT_API ConsoleLogSink : public ILogSink
 	{
 	public:
 		/**
 		 *
 		 * 构造函数
 		 *
+		 * @param name 节点名称
 		 * @param file 控制台对象
 		 *
 		 */
-		explicit ConsoleSink(FILE * console = stdout) : _console(console)
+		explicit ConsoleLogSink(std::string name, FILE * console = stdout) : ILogSink(std::move(name)),
+																			 _console(console)
 		{
 
 		}
@@ -36,7 +38,7 @@ namespace tinyToolkit
 		 * 析构函数
 		 *
 		 */
-		~ConsoleSink() override
+		~ConsoleLogSink() override
 		{
 			Close();
 		}

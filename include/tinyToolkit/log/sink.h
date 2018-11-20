@@ -24,8 +24,13 @@ namespace tinyToolkit
 		 *
 		 * 构造函数
 		 *
+		 * @param name 节点名称
+		 *
 		 */
-		ILogSink() = default;
+		explicit ILogSink(std::string name) : _name(std::move(name))
+		{
+
+		}
 
 		/**
 		 *
@@ -63,18 +68,6 @@ namespace tinyToolkit
 		 *
 		 */
 		virtual void Write(const LogEvent & event) = 0;
-
-		/**
-		 *
-		 * 设置日志优先级
-		 *
-		 * @param priority 日志优先级
-		 *
-		 */
-		void SetPriority(LOG_PRIORITY_TYPE priority)
-		{
-			_priority = priority;
-		}
 
 		/**
 		 *
@@ -122,14 +115,14 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 日志优先级
+		 * 节点名称
 		 *
-		 * @return 日志优先级
+		 * @return 节点名称
 		 *
 		 */
-		LOG_PRIORITY_TYPE Priority() const
+		const std::string & Name() const
 		{
-			return _priority;
+			return _name;
 		}
 
 		/**
@@ -159,10 +152,10 @@ namespace tinyToolkit
 	protected:
 		bool _autoFlush{ false };
 
+		std::string _name{ };
+
 		std::shared_ptr<ILogLayout> _layout;
 		std::shared_ptr<ILogFilter> _filter;
-
-		LOG_PRIORITY_TYPE _priority { LOG_PRIORITY_TYPE::INFO };
 	};
 }
 

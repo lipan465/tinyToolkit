@@ -43,7 +43,7 @@ namespace tinyToolkit
 		 * @return 文件是否存在
 		 *
 		 */
-		static bool Exists(const char * path)
+		static bool Exists(const std::string & path)
 		{
 #ifdef TINY_TOOLKIT_SUPPORT_FULL_CXX_17
 
@@ -51,61 +51,66 @@ namespace tinyToolkit
 
 #else
 
-#  if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+	#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-			auto attribs = GetFileAttributesA(path);
+			auto attribs = GetFileAttributesA(path.c_str());
 
 			return attribs != INVALID_FILE_ATTRIBUTES && !(attribs & FILE_ATTRIBUTE_DIRECTORY);
 
-#  else
+	#else
 
-			return access(path, F_OK) == 0;
+			return access(path.c_str(), F_OK) == 0;
 
-#  endif
+	#endif
 
 #endif
 		}
 
 		/**
 		 *
-		 * 文件是否存在
+		 * 删除文件
 		 *
 		 * @param path 文件路径
 		 *
-		 * @return 文件是否存在
+		 * @return 文件是否删除
 		 *
 		 */
-		static bool Exists(const std::string & path)
+		static bool Remove(const std::string & path)
 		{
-			return Exists(path.data());
+#ifdef TINY_TOOLKIT_SUPPORT_FULL_CXX_17
+
+			return std::filesystem::remove(path);
+
+#else
+
+			return std::remove(path.c_str()) == 0;
+
+#endif
 		}
 
 		/**
 		 *
-		 * 读取文件内容
+		 * 更改文件名称
 		 *
-		 * @param path 待读取文件路径
+		 * @param src 待更改文件路径
+		 * @param dst 被更改文件路径
 		 *
-		 * @return 读取结果
+		 * @return 文件是否更改
 		 *
 		 */
-		static std::optional<std::string> ReadAll(const char * path)
+		static bool Rename(const std::string & src, const std::string & dst)
 		{
-			if (path)
-			{
-				std::ifstream ifs(path, std::ios::binary);
+#ifdef TINY_TOOLKIT_SUPPORT_FULL_CXX_17
 
-				if (ifs.is_open())
-				{
-					std::string str((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
+			std::filesystem::rename(src, dst);
 
-					ifs.close();
+			return true;
 
-					return str;
-				}
-			}
+#else
 
-			return { };
+			return std::rename(src.c_str(), dst.c_str()) == 0;
+
+#endif
 		}
 
 		/**
@@ -119,7 +124,18 @@ namespace tinyToolkit
 		 */
 		static std::optional<std::string> ReadAll(const std::string & path)
 		{
-			return ReadAll(path.data());
+			std::ifstream ifs(path, std::ios::binary);
+
+			if (ifs.is_open())
+			{
+				std::string str((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
+
+				ifs.close();
+
+				return str;
+			}
+
+			return { };
 		}
 
 		/**
@@ -178,29 +194,31 @@ namespace tinyToolkit
 		 */
 		static std::size_t ReadFile(const std::string & path, std::vector<std::string> & container, bool keepEmpty = false)
 		{
-			return ReadFile(path.data(), container, keepEmpty);
-		}
+			std::ifstream ifs(path, std::ios::binary);
 
-		/**
-		 *
-		 * 读取文件内容
-		 *
-		 * @param path 待读取文件路径
-		 * @param keepEmpty 是否保留空行
-		 *
-		 * @return 结果容器
-		 *
-		 */
-		static std::vector<std::string> ReadFile(const char * path, bool keepEmpty = false)
-		{
-			std::vector<std::string> container;
-
-			if (path)
+			if (ifs.is_open())
 			{
-				ReadFile(path, container, keepEmpty);
+				std::string str{ };
+
+				while (!ifs.eof())
+				{
+					std::getline(ifs, str);
+
+					if (!ifs.good())
+					{
+						break;
+					}
+
+					if (keepEmpty || !str.empty())
+					{
+						container.push_back(str);
+					}
+				}
+
+				ifs.close();
 			}
 
-			return container;
+			return container.size();
 		}
 
 		/**
@@ -235,74 +253,17 @@ namespace tinyToolkit
 		 *
 		 */
 		template<typename ValueT>
-		static bool WriteFile(const char * path, ValueT && value)
-		{
-			if (path)
-			{
-				std::ofstream ofs(path, std::ios::binary);
-
-				if (ofs.is_open())
-				{
-					ofs << std::forward<ValueT>(value) << std::endl;;
-
-					ofs.close();
-
-					return true;
-				}
-			}
-
-			return false;
-		}
-
-		/**
-		 *
-		 * 写入文件
-		 *
-		 * @tparam ValueTypeT [all built-in types]
-		 *
-		 * @param path 待写入文件路径
-		 * @param value 待写入数据
-		 *
-		 * @return 写入结果
-		 *
-		 */
-		template<typename ValueT>
 		static bool WriteFile(const std::string & path, ValueT && value)
 		{
-			return WriteFile(path.data(), std::forward<ValueT>(value));
-		}
+			std::ofstream ofs(path, std::ios::binary);
 
-		/**
-		 *
-		 * 写入文件
-		 *
-		 * @tparam It [container iterator]
-		 *
-		 * @param path 待写入文件路径
-		 * @param begin 待写入数据迭代器头部
-		 * @param end 待写入数据迭代器尾部
-		 *
-		 * @return 写入结果
-		 *
-		 */
-		template<typename It>
-		static bool WriteFile(const char * path, const It & begin, const It & end)
-		{
-			if (path)
+			if (ofs.is_open())
 			{
-				std::ofstream ofs(path, std::ios::binary);
+				ofs << std::forward<ValueT>(value) << std::endl;
 
-				if (ofs.is_open())
-				{
-					for (auto iter = begin; iter != end; ++iter)
-					{
-						ofs << *iter << std::endl;
-					}
+				ofs.close();
 
-					ofs.close();
-
-					return true;
-				}
+				return true;
 			}
 
 			return false;
@@ -324,29 +285,18 @@ namespace tinyToolkit
 		template<typename It>
 		static bool WriteFile(const std::string & path, const It & begin, const It & end)
 		{
-			return WriteFile(path.data(), begin, end);
-		}
+			std::ofstream ofs(path, std::ios::binary);
 
-		/**
-		 * 创建文件
-		 *
-		 * @param path 待创建文件路径
-		 *
-		 * @return 创建结果
-		 *
-		 */
-		static bool CreateFile(const char * path)
-		{
-			if (path)
+			if (ofs.is_open())
 			{
-				std::ofstream ofs(path, std::ios::binary);
-
-				if (ofs.is_open())
+				for (auto iter = begin; iter != end; ++iter)
 				{
-					ofs.close();
-
-					return true;
+					ofs << *iter << std::endl;
 				}
+
+				ofs.close();
+
+				return true;
 			}
 
 			return false;
@@ -362,28 +312,16 @@ namespace tinyToolkit
 		 */
 		static bool CreateFile(const std::string & path)
 		{
-			return CreateFile(path.data());
-		}
+			std::ofstream ofs(path, std::ios::binary);
 
-		/**
-		 *
-		 * 文件名
-		 *
-		 * @param path 待处理文件路径
-		 *
-		 * @return 文件名
-		 *
-		 */
-		static std::string FileName(const char * path)
-		{
-			if (path)
+			if (ofs.is_open())
 			{
-				const char * tag = strrchr(path, TINY_TOOLKIT_FOLDER_SEP[0]);
+				ofs.close();
 
-				return tag == nullptr ? path : std::string(tag + 1, path + strlen(path));
+				return true;
 			}
 
-			return { };
+			return false;
 		}
 
 		/**
@@ -411,59 +349,19 @@ namespace tinyToolkit
 		 * @return 文件前缀
 		 *
 		 */
-		static std::string FileSteam(const char * path)
-		{
-			if (path)
-			{
-				std::string fileName = FileName(path);
-
-				size_t pos = fileName.rfind('.');
-
-				return pos == std::string::npos ? fileName : fileName.substr(0, pos);
-			}
-
-			return { };
-		}
-
-		/**
-		 *
-		 * 文件前缀
-		 *
-		 * @param path 待处理文件路径
-		 *
-		 * @return 文件前缀
-		 *
-		 */
 		static std::string FileSteam(const std::string & path)
 		{
-			std::string fileName = FileName(path);
+			std::size_t srcPos = path.rfind(TINY_TOOLKIT_FOLDER_SEP[0]);
+			std::size_t dstPos = path.rfind('.');
 
-			size_t pos = fileName.rfind('.');
-
-			return pos == std::string::npos ? fileName : fileName.substr(0, pos);
-		}
-
-		/**
-		 *
-		 * 文件扩展名
-		 *
-		 * @param path 待处理文件路径
-		 *
-		 * @return 文件扩展名
-		 *
-		 */
-		static std::string FileExtension(const char * path)
-		{
-			if (path)
+			if (srcPos == std::string::npos)
 			{
-				std::string fileName = FileName(path);
-
-				size_t pos = fileName.rfind('.');
-
-				return pos == std::string::npos ? "" : fileName.substr(pos);
+				return dstPos == std::string::npos ? path : path.substr(0, dstPos);
 			}
-
-			return { };
+			else
+			{
+				return (dstPos == std::string::npos || dstPos < srcPos) ? path.substr(srcPos + 1) : path.substr(srcPos + 1, dstPos);
+			}
 		}
 
 		/**
@@ -477,32 +375,17 @@ namespace tinyToolkit
 		 */
 		static std::string FileExtension(const std::string & path)
 		{
-			std::string fileName = FileName(path);
+			std::size_t srcPos = path.rfind(TINY_TOOLKIT_FOLDER_SEP[0]);
+			std::size_t dstPos = path.rfind('.');
 
-			size_t pos = fileName.rfind('.');
-
-			return pos == std::string::npos ? "" : fileName.substr(pos);
-		}
-
-		/**
-		 *
-		 * 父级路径
-		 *
-		 * @param path 待处理路径
-		 *
-		 * @return 父级路径
-		 *
-		 */
-		static std::string FileDirectory(const char * path)
-		{
-			if (path)
+			if (srcPos == std::string::npos)
 			{
-				const char * tag = strrchr(path, TINY_TOOLKIT_FOLDER_SEP[0]);
-
-				return tag == nullptr ? "./" : std::string(path, tag + 1);
+				return dstPos == std::string::npos ? "" : path.substr(dstPos);
 			}
-
-			return { };
+			else
+			{
+				return (dstPos == std::string::npos || dstPos < srcPos) ? "" : path.substr(dstPos);
+			}
 		}
 
 		/**

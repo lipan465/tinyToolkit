@@ -17,7 +17,7 @@
 
 namespace tinyToolkit
 {
-	class TINY_TOOLKIT_API LogPatternLayout : public ILogLayout
+	class TINY_TOOLKIT_API PatternLogLayout : public ILogLayout
 	{
 	public:
 		/**
@@ -27,19 +27,7 @@ namespace tinyToolkit
 		 * @param pattern 规则
 		 *
 		 */
-		explicit LogPatternLayout(const std::string & pattern)
-		{
-
-		}
-
-		/**
-		 *
-		 * 构造函数
-		 *
-		 * @param pattern 规则
-		 *
-		 */
-		explicit LogPatternLayout(const char * pattern) : _pattern(pattern)
+		explicit PatternLogLayout(std::string pattern) : _pattern(std::move(pattern))
 		{
 
 		}

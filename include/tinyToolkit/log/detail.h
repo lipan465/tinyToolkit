@@ -13,24 +13,15 @@
 
 #include "../system/os.h"
 #include "../utilities/time.h"
+#include "../utilities/lock.h"
 #include "../utilities/string.h"
+#include "../system/application.h"
 #include "../utilities/container.h"
 #include "../utilities/filesystem.h"
 
 
 namespace tinyToolkit
 {
-	/**
-	 *
-	 * 日志类型
-	 *
-	 */
-	enum class LOG_TYPE : uint8_t
-	{
-		SYNC,
-		ASYNC,
-	};
-
 	/**
 	 *
 	 * 日志操作

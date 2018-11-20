@@ -17,7 +17,7 @@
 
 namespace tinyToolkit
 {
-	class TINY_TOOLKIT_API LogSimpleLayout : public ILogLayout
+	class TINY_TOOLKIT_API SimpleLogLayout : public ILogLayout
 	{
 	public:
 		/**

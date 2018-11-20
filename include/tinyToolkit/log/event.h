@@ -34,7 +34,24 @@ namespace tinyToolkit
 		 * @param logPriority 日志优先级
 		 *
 		 */
-		explicit LogEvent(std::string logName, LOG_PRIORITY_TYPE logPriority) : name(std::move(logName)), priority(logPriority)
+		explicit LogEvent(std::string logName, LOG_PRIORITY_TYPE logPriority) : name(std::move(logName)),
+																				priority(logPriority)
+		{
+
+		}
+
+		/**
+		 *
+		 * 构造函数
+		 *
+		 * @param logName 事件名称
+		 * @param logMessage 日志信息
+		 * @param logPriority 日志优先级
+		 *
+		 */
+		explicit LogEvent(std::string logName, std::string logMessage, LOG_PRIORITY_TYPE logPriority) : name(std::move(logName)),
+																										message(std::move(logMessage)),
+																										priority(logPriority)
 		{
 
 		}

@@ -6,7 +6,7 @@
  *
  *  作者: hm
  *
- *  说明: 字符串队列日志节点
+ *  说明: 日志字符串队列节点
  *
  */
 
@@ -16,15 +16,27 @@
 
 namespace tinyToolkit
 {
-	class TINY_TOOLKIT_API StringQueueSink : public ILogSink
+	class TINY_TOOLKIT_API StringQueueLogSink : public ILogSink
 	{
 	public:
+		/**
+		 *
+		 * 构造函数
+		 *
+		 * @param name 节点名称
+		 *
+		 */
+		explicit StringQueueLogSink(std::string name) : ILogSink(std::move(name))
+		{
+
+		}
+
 		/**
 		 *
 		 * 析构函数
 		 *
 		 */
-		~StringQueueSink() override
+		~StringQueueLogSink() override
 		{
 			Close();
 		}

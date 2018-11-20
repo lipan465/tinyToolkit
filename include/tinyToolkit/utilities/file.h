@@ -34,22 +34,9 @@ namespace tinyToolkit
 		 * @param truncate 是否覆盖文件
 		 *
 		 */
-		LockFile(const char * path, bool truncate = false)
+		explicit LockFile(std::string path, bool truncate = false)
 		{
-			Open(path, truncate);
-		}
-
-		/**
-		 *
-		 * 构造函数
-		 *
-		 * @param path 待打开文件路径
-		 * @param truncate 是否覆盖文件
-		 *
-		 */
-		LockFile(const std::string & path, bool truncate = false)
-		{
-			Open(path, truncate);
+			Open(std::move(path), truncate);
 		}
 
 		/**
@@ -72,31 +59,16 @@ namespace tinyToolkit
 		 * @return 打开状态
 		 *
 		 */
-		bool Open(const char * path, bool truncate = false)
+		bool Open(std::string path, bool truncate = false)
 		{
 			if (IsOpen())
 			{
 				return false;
 			}
 
-			_path = path;
+			_path = std::move(path);
 
 			return Create() && Lock() && Execl(truncate);
-		}
-
-		/**
-		 *
-		 * 打开文件
-		 *
-		 * @param path 待打开文件路径
-		 * @param truncate 是否覆盖文件
-		 *
-		 * @return 打开状态
-		 *
-		 */
-		bool Open(const std::string & path, bool truncate = false)
-		{
-			return Open(path.data(), truncate);
 		}
 
 		/**

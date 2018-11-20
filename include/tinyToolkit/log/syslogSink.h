@@ -6,7 +6,7 @@
  *
  *  作者: hm
  *
- *  说明: 系统日志节点
+ *  说明: 日志系统节点
  *
  */
 
@@ -18,54 +18,21 @@ namespace tinyToolkit
 {
 	#if TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_WINDOWS
 
-	class TINY_TOOLKIT_API SyslogSink : public ILogSink
+	class TINY_TOOLKIT_API SyslogLogSink : public ILogSink
 	{
 	public:
 		/**
 		 *
 		 * 构造函数
 		 *
-		 */
-		SyslogSink()
-		{
-			::openlog(_idents, LOG_CONS | LOG_PID, _facility);
-		}
-
-		/**
-		 *
-		 * 构造函数
-		 *
-		 * @param facility 消息程序类型
-		 *
-		 */
-		explicit SyslogSink(int32_t facility) : _facility(facility)
-		{
-			::openlog(_idents, LOG_CONS | LOG_PID, _facility);
-		}
-
-		/**
-		 *
-		 * 构造函数
-		 *
-		 * @param idents 身份识别
-		 *
-		 */
-		explicit SyslogSink(const char * idents) : _idents(idents)
-		{
-			::openlog(_idents, LOG_CONS | LOG_PID, _facility);
-		}
-
-		/**
-		 *
-		 * 构造函数
-		 *
+		 * @param name 节点名称
 		 * @param idents 身份识别
 		 * @param facility 消息程序类型
 		 *
 		 */
-		explicit SyslogSink(const char * idents, int32_t facility) : _facility(facility), _idents(idents)
+		explicit SyslogLogSink(std::string name, const char * idents = nullptr, int32_t facility = LOG_USER) : ILogSink(std::move(name))
 		{
-			::openlog(_idents, LOG_CONS | LOG_PID, _facility);
+			::openlog(idents, LOG_CONS | LOG_PID, facility);
 		}
 
 		/**
@@ -73,7 +40,7 @@ namespace tinyToolkit
 		 * 析构函数
 		 *
 		 */
-		~SyslogSink() override
+		~SyslogLogSink() override
 		{
 			Close();
 		}
@@ -137,18 +104,13 @@ namespace tinyToolkit
 				{ LOG_PRIORITY_TYPE::EMERG, LOG_EMERG },
 			};
 
-			::syslog(priorities[event.priority] | _facility, "%s", Layout() ? Layout()->Format(event).data() : event.message.data());
+			::syslog(priorities[event.priority], "%s", Layout() ? Layout()->Format(event).data() : event.message.data());
 
 			if (_autoFlush)
 			{
 				Flush();
 			}
 		}
-
-	protected:
-		int32_t _facility{ LOG_USER };
-
-		const char * _idents{ nullptr };
 	};
 
 	#endif

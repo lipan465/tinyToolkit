@@ -6,7 +6,7 @@
  *
  *  作者: hm
  *
- *  说明: 时间文件日志节点
+ *  说明: 日志时间文件节点
  *
  */
 
@@ -17,52 +17,25 @@
 
 namespace tinyToolkit
 {
-	class TINY_TOOLKIT_API DailyFileSink : public ILogSink
+	class TINY_TOOLKIT_API DailyFileLogSink : public ILogSink
 	{
 	public:
 		/**
 		 *
 		 * 构造函数
 		 *
+		 * @param name 节点名称
 		 * @param path 日志路径
 		 * @param hour 时
 		 * @param minutes 分
 		 * @param seconds 秒
 		 *
 		 */
-		explicit DailyFileSink(const char * path, int32_t hour = 0, int32_t minutes = 0, int32_t seconds = 0) : _hour(hour),
-																												_minutes(minutes),
-																												_seconds(seconds),
-																												_path(path)
-
-		{
-			if (hour < 0 || hour > 23 || minutes < 0 || minutes > 59 || seconds < 0 || seconds > 59)
-			{
-				throw std::logic_error("Invalid Time");
-			}
-
-			if (!_file.Open(CalculatePath(_path)))
-			{
-				throw std::logic_error("Open daily log file failed : " + _file.Path());
-			}
-
-			RotatingTime();
-		}
-
-		/**
-		 *
-		 * 构造函数
-		 *
-		 * @param path 日志路径
-		 * @param hour 时
-		 * @param minutes 分
-		 * @param seconds 秒
-		 *
-		 */
-		explicit DailyFileSink(std::string path, int32_t hour, int32_t minutes, int32_t seconds) : _hour(hour),
-																								   _minutes(minutes),
-																								   _seconds(seconds),
-																								   _path(std::move(path))
+		explicit DailyFileLogSink(std::string name, std::string path, int32_t hour = 0, int32_t minutes = 0, int32_t seconds = 0) : ILogSink(std::move(name)),
+																																	_hour(hour),
+																																	_minutes(minutes),
+																																	_seconds(seconds),
+																																	_path(std::move(path))
 
 		{
 			if (hour < 0 || hour > 23 || minutes < 0 || minutes > 59 || seconds < 0 || seconds > 59)
@@ -83,7 +56,7 @@ namespace tinyToolkit
 		 * 析构函数
 		 *
 		 */
-		~DailyFileSink() override
+		~DailyFileLogSink() override
 		{
 			Close();
 		}

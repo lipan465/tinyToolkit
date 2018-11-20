@@ -6,7 +6,7 @@
  *
  *  作者: hm
  *
- *  说明: 回卷文件日志节点
+ *  说明: 日志回卷文件节点
  *
  */
 
@@ -17,40 +17,23 @@
 
 namespace tinyToolkit
 {
-	class TINY_TOOLKIT_API RotatingFileSink : public ILogSink
+	class TINY_TOOLKIT_API RotatingLogFileSink : public ILogSink
 	{
 	public:
 		/**
 		 *
 		 * 构造函数
 		 *
+		 * @param name 节点名称
 		 * @param path 日志路径
 		 * @param limit 日志大小限制
 		 * @param count 日志个数限制
 		 *
 		 */
-		explicit RotatingFileSink(const char * path, std::size_t limit = TINY_TOOLKIT_GB, std::size_t count = 10) : _count(count),
-																													_limit(limit),
-																													_path(path)
-		{
-			if (!_file.Open(CalculatePath(_path)))
-			{
-				throw std::logic_error("Open rotating log file failed : " + _file.Path());
-			}
-		}
-
-		/**
-		 *
-		 * 构造函数
-		 *
-		 * @param path 日志路径
-		 * @param limit 日志大小限制
-		 * @param count 日志个数限制
-		 *
-		 */
-		explicit RotatingFileSink(std::string path, std::size_t limit = TINY_TOOLKIT_GB, std::size_t count = 10) : _count(count),
-																												   _limit(limit),
-																												   _path(std::move(path))
+		explicit RotatingLogFileSink(std::string name, std::string path, std::size_t limit = TINY_TOOLKIT_GB, std::size_t count = 10) : ILogSink(std::move(name)),
+																																		_count(count),
+																																		_limit(limit),
+																																		_path(std::move(path))
 		{
 			if (!_file.Open(CalculatePath(_path)))
 			{
@@ -63,7 +46,7 @@ namespace tinyToolkit
 		 * 析构函数
 		 *
 		 */
-		~RotatingFileSink() override
+		~RotatingLogFileSink() override
 		{
 			Close();
 		}
@@ -115,8 +98,6 @@ namespace tinyToolkit
 				return;
 			}
 
-			_file.Write(Layout() ? Layout()->Format(event) : event.message);
-
 			if (_file.Size() > _limit)
 			{
 				_file.Close();
@@ -128,6 +109,8 @@ namespace tinyToolkit
 					throw std::logic_error("Open rotating log file failed : " + _file.Path());
 				}
 			}
+
+			_file.Write(Layout() ? Layout()->Format(event) : event.message);
 
 			if (_autoFlush)
 			{
@@ -186,12 +169,12 @@ namespace tinyToolkit
 
 				if (tinyToolkit::Filesystem::Exists(dstPath))
 				{
-					std::remove(dstPath.data());
+					tinyToolkit::Filesystem::Remove(dstPath);
 				}
 
 				if (tinyToolkit::Filesystem::Exists(srcPath))
 				{
-					std::rename(srcPath.data(), dstPath.data());
+					tinyToolkit::Filesystem::Rename(srcPath, dstPath);
 				}
 			}
 		}

@@ -6,7 +6,7 @@
  *
  *  作者: hm
  *
- *  说明: 文件日志节点
+ *  说明: 日志文件节点
  *
  */
 
@@ -17,36 +17,22 @@
 
 namespace tinyToolkit
 {
-	class TINY_TOOLKIT_API FileSink : public ILogSink
+	class TINY_TOOLKIT_API FileLogSink : public ILogSink
 	{
 	public:
 		/**
 		 *
 		 * 构造函数
 		 *
+		 * @param name 节点名称
 		 * @param path 日志路径
 		 * @param truncate 是否覆盖日志
 		 *
 		 */
-		explicit FileSink(const char * path, bool truncate = false)
+		explicit FileLogSink(std::string name, std::string path, bool truncate = false) : ILogSink(std::move(name)),
+																						  _path(std::move(path))
 		{
-			if (!_file.Open(path, truncate))
-			{
-				throw std::logic_error("Open log file failed : " + _file.Path());
-			}
-		}
-
-		/**
-		 *
-		 * 构造函数
-		 *
-		 * @param path 日志路径
-		 * @param truncate 是否覆盖日志
-		 *
-		 */
-		explicit FileSink(const std::string & path, bool truncate = false)
-		{
-			if (!_file.Open(path, truncate))
+			if (!_file.Open(_path, truncate))
 			{
 				throw std::logic_error("Open log file failed : " + _file.Path());
 			}
@@ -57,7 +43,7 @@ namespace tinyToolkit
 		 * 析构函数
 		 *
 		 */
-		~FileSink() override
+		~FileLogSink() override
 		{
 			Close();
 		}
@@ -155,6 +141,8 @@ namespace tinyToolkit
 
 	protected:
 		LogFile _file;
+
+		std::string _path{ };
 	};
 }
 

@@ -26,9 +26,9 @@ namespace tinyToolkit
 		 * @return 线程id
 		 *
 		 */
-		static int64_t ThreadID()
+		static uint64_t ThreadID()
 		{
-			int64_t tid = 0;
+			uint64_t tid = 0;
 
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
@@ -37,6 +37,10 @@ namespace tinyToolkit
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_LINUX
 
 			tid = ::syscall(SYS_gettid);
+
+#elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
+
+			pthread_threadid_np(nullptr, &tid);
 
 #else
 
@@ -54,7 +58,7 @@ namespace tinyToolkit
 		 * @return pid
 		 *
 		 */
-		static int64_t ProcessID()
+		static uint64_t ProcessID()
 		{
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 

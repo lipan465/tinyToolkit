@@ -23,10 +23,11 @@
 #include "log/layout.h"
 #include "log/logger.h"
 #include "log/fileSink.h"
-#include "log/syncLogger.h"
 #include "log/transition.h"
 #include "log/syslogSink.h"
 #include "log/timeFilter.h"
+#include "log/syncLogger.h"
+#include "log/asyncLogger.h"
 #include "log/regexFilter.h"
 #include "log/ostreamSink.h"
 #include "log/consoleSink.h"
@@ -46,8 +47,9 @@
 
 /// debug
 #include "debug/trace.h"
-#include "debug/watcher.h"
 #include "debug/exception.h"
+#include "debug/timeWatcher.h"
+#include "debug/valueWatcher.h"
 
 /// common
 #include "common/macro.h"

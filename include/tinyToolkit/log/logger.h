@@ -16,7 +16,6 @@
 
 namespace tinyToolkit
 {
-	template <typename MutexTypeT>
 	class TINY_TOOLKIT_API ILogger
 	{
 	public:
@@ -44,31 +43,17 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 关闭节点
+		 * 析构函数
 		 *
 		 */
-		virtual void Close() = 0;
+		virtual ~ILogger() = default;
 
 		/**
 		 *
-		 * 清空节点
+		 * 等待日志写入
 		 *
 		 */
-		virtual void Clear() = 0;
-
-		/**
-		 *
-		 * 刷新节点
-		 *
-		 */
-		virtual void Flush() = 0;
-
-		/**
-		 *
-		 * 重新打开节点
-		 *
-		 */
-		virtual void Reopen() = 0;
+		virtual void Wait() = 0;
 
 		/**
 		 *
@@ -79,8 +64,6 @@ namespace tinyToolkit
 		 */
 		void Debug(const std::string & message)
 		{
-			std::lock_guard<MutexTypeT> lock(_mutex);
-
 			Write(LOG_PRIORITY_TYPE::DEBUG, message);
 		}
 
@@ -97,8 +80,6 @@ namespace tinyToolkit
 		template<typename... Args>
 		void Debug(const char * fmt, Args &&... args)
 		{
-			std::lock_guard<MutexTypeT> lock(_mutex);
-
 			Write(LOG_PRIORITY_TYPE::DEBUG, fmt, std::forward<Args>(args)...);
 		}
 
@@ -111,8 +92,6 @@ namespace tinyToolkit
 		 */
 		void Info(const std::string & message)
 		{
-			std::lock_guard<MutexTypeT> lock(_mutex);
-
 			Write(LOG_PRIORITY_TYPE::INFO, message);
 		}
 
@@ -129,8 +108,6 @@ namespace tinyToolkit
 		template<typename... Args>
 		void Info(const char * fmt, Args &&... args)
 		{
-			std::lock_guard<MutexTypeT> lock(_mutex);
-
 			Write(LOG_PRIORITY_TYPE::INFO, fmt, std::forward<Args>(args)...);
 		}
 
@@ -143,8 +120,6 @@ namespace tinyToolkit
 		 */
 		void Notice(const std::string & message)
 		{
-			std::lock_guard<MutexTypeT> lock(_mutex);
-
 			Write(LOG_PRIORITY_TYPE::NOTICE, message);
 		}
 
@@ -161,8 +136,6 @@ namespace tinyToolkit
 		template<typename... Args>
 		void Notice(const char * fmt, Args &&... args)
 		{
-			std::lock_guard<MutexTypeT> lock(_mutex);
-
 			Write(LOG_PRIORITY_TYPE::NOTICE, fmt, std::forward<Args>(args)...);
 		}
 
@@ -175,8 +148,6 @@ namespace tinyToolkit
 		 */
 		void Warning(const std::string & message)
 		{
-			std::lock_guard<MutexTypeT> lock(_mutex);
-
 			Write(LOG_PRIORITY_TYPE::WARNING, message);
 		}
 
@@ -193,8 +164,6 @@ namespace tinyToolkit
 		template<typename... Args>
 		void Warning(const char * fmt, Args &&... args)
 		{
-			std::lock_guard<MutexTypeT> lock(_mutex);
-
 			Write(LOG_PRIORITY_TYPE::WARNING, fmt, std::forward<Args>(args)...);
 		}
 
@@ -207,8 +176,6 @@ namespace tinyToolkit
 		 */
 		void Error(const std::string & message)
 		{
-			std::lock_guard<MutexTypeT> lock(_mutex);
-
 			Write(LOG_PRIORITY_TYPE::ERROR, message);
 		}
 
@@ -225,8 +192,6 @@ namespace tinyToolkit
 		template<typename... Args>
 		void Error(const char * fmt, Args &&... args)
 		{
-			std::lock_guard<MutexTypeT> lock(_mutex);
-
 			Write(LOG_PRIORITY_TYPE::ERROR, fmt, std::forward<Args>(args)...);
 		}
 
@@ -239,8 +204,6 @@ namespace tinyToolkit
 		 */
 		void Critical(const std::string & message)
 		{
-			std::lock_guard<MutexTypeT> lock(_mutex);
-
 			Write(LOG_PRIORITY_TYPE::CRITICAL, message);
 		}
 
@@ -257,8 +220,6 @@ namespace tinyToolkit
 		template<typename... Args>
 		void Critical(const char * fmt, Args &&... args)
 		{
-			std::lock_guard<MutexTypeT> lock(_mutex);
-
 			Write(LOG_PRIORITY_TYPE::CRITICAL, fmt, std::forward<Args>(args)...);
 		}
 
@@ -271,8 +232,6 @@ namespace tinyToolkit
 		 */
 		void Alert(const std::string & message)
 		{
-			std::lock_guard<MutexTypeT> lock(_mutex);
-
 			Write(LOG_PRIORITY_TYPE::ALERT, message);
 		}
 
@@ -289,8 +248,6 @@ namespace tinyToolkit
 		template<typename... Args>
 		void Alert(const char * fmt, Args &&... args)
 		{
-			std::lock_guard<MutexTypeT> lock(_mutex);
-
 			Write(LOG_PRIORITY_TYPE::ALERT, fmt, std::forward<Args>(args)...);
 		}
 
@@ -303,8 +260,6 @@ namespace tinyToolkit
 		 */
 		void Fatal(const std::string & message)
 		{
-			std::lock_guard<MutexTypeT> lock(_mutex);
-
 			Write(LOG_PRIORITY_TYPE::FATAL, message);
 		}
 
@@ -321,8 +276,6 @@ namespace tinyToolkit
 		template<typename... Args>
 		void Fatal(const char * fmt, Args &&... args)
 		{
-			std::lock_guard<MutexTypeT> lock(_mutex);
-
 			Write(LOG_PRIORITY_TYPE::FATAL, fmt, std::forward<Args>(args)...);
 		}
 		/**
@@ -334,8 +287,6 @@ namespace tinyToolkit
 		 */
 		void Emerg(const std::string & message)
 		{
-			std::lock_guard<MutexTypeT> lock(_mutex);
-
 			Write(LOG_PRIORITY_TYPE::EMERG, message);
 		}
 
@@ -352,9 +303,49 @@ namespace tinyToolkit
 		template<typename... Args>
 		void Emerg(const char * fmt, Args &&... args)
 		{
-			std::lock_guard<MutexTypeT> lock(_mutex);
-
 			Write(LOG_PRIORITY_TYPE::EMERG, fmt, std::forward<Args>(args)...);
+		}
+
+		/**
+		 *
+		 * 删除节点
+		 *
+		 * @param name 节点名称
+		 *
+		 */
+		void DelSink(const std::string & name)
+		{
+			std::lock_guard<std::mutex> lock(_mutex);
+
+			_container.erase(name);
+		}
+
+		/**
+		 *
+		 * 删除节点
+		 *
+		 * @param sink 节点对象
+		 *
+		 */
+		void DelSink(const std::shared_ptr<ILogSink> & sink)
+		{
+			std::lock_guard<std::mutex> lock(_mutex);
+
+			_container.erase(sink->Name());
+		}
+
+		/**
+		 *
+		 * 添加日志节点
+		 *
+		 * @param sink 日志节点
+		 *
+		 */
+		void AddSink(const std::shared_ptr<ILogSink> & sink)
+		{
+			std::lock_guard<std::mutex> lock(_mutex);
+
+			_container.insert(std::make_pair(sink->Name(), sink));
 		}
 
 		/**
@@ -371,69 +362,88 @@ namespace tinyToolkit
 		template<class SinkTypeT, typename... Args>
 		void AddSink(const std::string & name, Args &&... args)
 		{
-			std::lock_guard<MutexTypeT> lock(_mutex);
+			std::lock_guard<std::mutex> lock(_mutex);
 
 			_container.insert(std::make_pair(name, std::make_shared<SinkTypeT>(name, std::forward<Args>(args)...)));
 		}
 
 		/**
 		 *
-		 * 添加日志节点
-		 *
-		 * @tparam It [container iterator]
-		 *
-		 * @param begin 起始迭代器
-		 * @param end 结尾迭代器
+		 * 关闭节点
 		 *
 		 */
-		template<class It>
-		void AddSink(const It & begin, const It & end)
+		void CloseSink()
 		{
-			std::lock_guard<MutexTypeT> lock(_mutex);
+			std::lock_guard<std::mutex> lock(_mutex);
 
-			_container.insert(begin, end);
+			for (auto &iter : _container)
+			{
+				iter.second->Close();
+			}
 		}
 
 		/**
 		 *
-		 * 添加日志节点
-		 *
-		 * @param sink 日志节点
+		 * 刷新节点
 		 *
 		 */
-		void AddSink(const std::shared_ptr<ILogSink> & sink)
+		void FlushSink()
 		{
-			std::lock_guard<MutexTypeT> lock(_mutex);
+			std::lock_guard<std::mutex> lock(_mutex);
 
-			_container.insert(std::make_pair(sink->Name(), sink));
+			for (auto &iter : _container)
+			{
+				iter.second->Flush();
+			}
 		}
 
 		/**
 		 *
-		 * 删除节点
-		 *
-		 * @param name 节点名称
+		 * 重新打开节点
 		 *
 		 */
-		void EraseSink(const std::string & name)
+		void ReopenSink()
 		{
-			std::lock_guard<MutexTypeT> lock(_mutex);
+			std::lock_guard<std::mutex> lock(_mutex);
 
-			_container.erase(name);
+			for (auto &iter : _container)
+			{
+				iter.second->Reopen();
+			}
 		}
 
 		/**
 		 *
-		 * 设置日志过滤器
+		 * 设置日志节点过滤器
 		 *
-		 * @param filter 日志过滤器
+		 * @param filter 日志节点过滤器
 		 *
 		 */
-		void SetFilter(const std::shared_ptr<ILogFilter> & filter)
+		void SetSinkFilter(const std::shared_ptr<ILogFilter> & filter)
 		{
-			std::lock_guard<MutexTypeT> lock(_mutex);
+			std::lock_guard<std::mutex> lock(_mutex);
 
-			_filter = filter;
+			for (auto &iter : _container)
+			{
+				iter.second->SetFilter(filter);
+			}
+		}
+
+		/**
+		 *
+		 * 设置日志节点布局
+		 *
+		 * @param layout 日志节点布局
+		 *
+		 */
+		void SetSinkLayout(const std::shared_ptr<ILogLayout> & layout)
+		{
+			std::lock_guard<std::mutex> lock(_mutex);
+
+			for (auto &iter : _container)
+			{
+				iter.second->SetLayout(layout);
+			}
 		}
 
 		/**
@@ -443,7 +453,7 @@ namespace tinyToolkit
 		 * @return 消息名称
 		 *
 		 */
-		const std::string & Name() const
+		const std::string & Name()
 		{
 			return _name;
 		}
@@ -457,25 +467,15 @@ namespace tinyToolkit
 		 * @return 日志节点
 		 *
 		 */
-		std::shared_ptr<ILogSink> & Sink(const std::string & name)
+		std::shared_ptr<ILogSink> & FindSink(const std::string & name)
 		{
-			std::lock_guard<MutexTypeT> lock(_mutex);
+			std::lock_guard<std::mutex> lock(_mutex);
 
-			return _container[name];
-		}
+			static std::shared_ptr<ILogSink> nullSink = nullptr;
 
-		/**
-		 *
-		 * 日志过滤器
-		 *
-		 * @return 日志过滤器
-		 *
-		 */
-		std::shared_ptr<ILogFilter> & Filter()
-		{
-			std::lock_guard<MutexTypeT> lock(_mutex);
+			auto iter = _container.find(name);
 
-			return _filter;
+			return iter == _container.end() ? nullSink : _container[name];
 		}
 
 	protected:
@@ -527,11 +527,9 @@ namespace tinyToolkit
 		}
 
 	protected:
-		MutexTypeT _mutex;
+		std::mutex _mutex{ };
 
 		std::string _name{ };
-
-		std::shared_ptr<ILogFilter> _filter;
 
 		std::unordered_map<std::string, std::shared_ptr<ILogSink>> _container{ };
 	};

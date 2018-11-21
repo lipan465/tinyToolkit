@@ -1,12 +1,12 @@
-#ifndef __TINY_TOOLKIT__DEBUG__WATCHER__H__
-#define __TINY_TOOLKIT__DEBUG__WATCHER__H__
+#ifndef __TINY_TOOLKIT__DEBUG__VALUE_WATCHER__H__
+#define __TINY_TOOLKIT__DEBUG__VALUE_WATCHER__H__
 
 
 /**
  *
  *  作者: hm
  *
- *  说明: 观察跟踪
+ *  说明: 数值观察
  *
  */
 
@@ -18,7 +18,7 @@
 namespace tinyToolkit
 {
 	template <typename ValueTypeT = int64_t>
-	class TINY_TOOLKIT_API Watcher
+	class TINY_TOOLKIT_API ValueWatcher
 	{
 		typedef std::function<void(ValueTypeT oldValue, ValueTypeT newValue)> FunctionType;
 
@@ -93,4 +93,4 @@ namespace tinyToolkit
 }
 
 
-#endif // __TINY_TOOLKIT__DEBUG__WATCHER__H__
+#endif // __TINY_TOOLKIT__DEBUG__VALUE_WATCHER__H__

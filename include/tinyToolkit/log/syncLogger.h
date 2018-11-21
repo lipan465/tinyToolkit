@@ -6,7 +6,7 @@
  *
  *  作者: hm
  *
- *  说明: 同步日志管理器
+ *  说明: 日志同步管理器
  *
  */
 
@@ -16,7 +16,7 @@
 
 namespace tinyToolkit
 {
-	class TINY_TOOLKIT_API SyncLogger : public ILogger<tinyToolkit::FakeMutex>
+	class TINY_TOOLKIT_API SyncLogger : public ILogger
 	{
 	public:
 		/**
@@ -24,7 +24,10 @@ namespace tinyToolkit
 		 * 构造函数
 		 *
 		 */
-		SyncLogger() = default;
+		SyncLogger() : ILogger()
+		{
+
+		}
 
 		/**
 		 *
@@ -40,53 +43,19 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 关闭日志
+		 * 析构函数
 		 *
 		 */
-		void Close() override
-		{
-			for (auto &iter : _container)
-			{
-				iter.second->Close();
-			}
-		}
+		~SyncLogger() override = default;
 
 		/**
 		 *
-		 * 清空节点
+		 * 等待日志写入
 		 *
 		 */
-		void Clear() override
+		void Wait() override
 		{
-			Close();
 
-			tinyToolkit::Container::Clear(_container);
-		}
-
-		/**
-		 *
-		 * 刷新日志
-		 *
-		 */
-		void Flush() override
-		{
-			for (auto &iter : _container)
-			{
-				iter.second->Flush();
-			}
-		}
-
-		/**
-		 *
-		 * 重新打开日志
-		 *
-		 */
-		void Reopen() override
-		{
-			for (auto &iter : _container)
-			{
-				iter.second->Reopen();
-			}
 		}
 
 	protected:
@@ -99,6 +68,8 @@ namespace tinyToolkit
 		 */
 		void Write(const LogEvent & event) override
 		{
+			std::lock_guard<std::mutex> lock(_mutex);
+
 			for (auto &iter : _container)
 			{
 				iter.second->Write(event);

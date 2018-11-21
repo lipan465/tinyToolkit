@@ -33,7 +33,7 @@ namespace tinyToolkit
 		{
 			return tinyToolkit::String::Format
 			(
-				"[{:04}-{:02}-{:02} {:02}:{:02}:{:02}.{:06}] [{}] [{}] {}",
+				"[{:04}-{:02}-{:02} {:02}:{:02}:{:02}.{:06}][{}][{}] {}{}",
 				event.tm.tm_year + 1900,
 				event.tm.tm_mon + 1,
 				event.tm.tm_mday,
@@ -43,7 +43,8 @@ namespace tinyToolkit
 				tinyToolkit::Time::Microseconds(event.time) % 1000000,
 				event.name,
 				LogPriority::Name(event.priority),
-				event.message
+				event.message,
+				TINY_TOOLKIT_EOL
 			);
 		}
 	};

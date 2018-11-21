@@ -63,7 +63,7 @@ namespace tinyToolkit
 			auto task = std::bind(std::forward<FunctionTypeT>(function), std::forward<Args>(args)...);
 
 			{
-				std::lock_guard<std::mutex> lock(_lock);
+				std::lock_guard<std::mutex> lock(_mutex);
 
 				_tasks.emplace
 				(
@@ -196,7 +196,7 @@ namespace tinyToolkit
 							std::function<void()> task;
 
 							{
-								std::unique_lock<std::mutex> lock(_lock);
+								std::unique_lock<std::mutex> lock(_mutex);
 
 								_condition.wait
 								(
@@ -204,8 +204,6 @@ namespace tinyToolkit
 
 									[this]
 									{
-										TINY_TOOLKIT_SLEEP_MS(10)
-
 										return !_tasks.empty() || _isClose.load();
 									}
 								);
@@ -232,7 +230,7 @@ namespace tinyToolkit
 		}
 
 	protected:
-		std::mutex _lock{ };
+		std::mutex _mutex{ };
 
 		std::condition_variable _condition{ };
 

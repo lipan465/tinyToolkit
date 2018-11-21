@@ -95,6 +95,18 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 是否自动刷新
+		 *
+		 * @return 是否自动刷新
+		 *
+		 */
+		bool IsAutoFlush() const
+		{
+			return _autoFlush;
+		}
+
+		/**
+		 *
 		 * 开启自动刷新
 		 *
 		 */

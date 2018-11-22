@@ -533,7 +533,314 @@ namespace tinyToolkit
 
 		std::unordered_map<std::string, std::shared_ptr<ILogSink>> _container{ };
 	};
-}
+
+	class TINY_TOOLKIT_API LoggerHelper
+	{
+	public:
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @param logger 日志对象
+		 * @param message 日志信息
+		 *
+		 */
+		static void Debug(ILogger & logger, const std::string & message)
+		{
+			logger.Debug(message);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @tparam Args [all built-in types]
+		 *
+		 * @param logger 日志对象
+		 * @param fmt 日志信息格式
+		 * @param args 日志信息参数
+		 *
+		 */
+		template <typename... Args>
+		static void Debug(ILogger & logger, const char * fmt, Args &&... args)
+		{
+			logger.Debug(fmt, std::forward<Args>(args)...);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @param logger 日志对象
+		 * @param message 日志信息
+		 *
+		 */
+		static void Info(ILogger & logger, const std::string & message)
+		{
+			logger.Info(message);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @tparam Args [all built-in types]
+		 *
+		 * @param logger 日志对象
+		 * @param fmt 日志信息格式
+		 * @param args 日志信息参数
+		 *
+		 */
+		template <typename... Args>
+		static void Info(ILogger & logger, const char * fmt, Args &&... args)
+		{
+			logger.Info(fmt, std::forward<Args>(args)...);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @param logger 日志对象
+		 * @param message 日志信息
+		 *
+		 */
+		static void Notice(ILogger & logger, const std::string & message)
+		{
+			logger.Notice(message);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @tparam Args [all built-in types]
+		 *
+		 * @param logger 日志对象
+		 * @param fmt 日志信息格式
+		 * @param args 日志信息参数
+		 *
+		 */
+		template <typename... Args>
+		static void Notice(ILogger & logger, const char * fmt, Args &&... args)
+		{
+			logger.Notice(fmt, std::forward<Args>(args)...);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @param logger 日志对象
+		 * @param message 日志信息
+		 *
+		 */
+		static void Warning(ILogger & logger, const std::string & message)
+		{
+			logger.Warning(message);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @tparam Args [all built-in types]
+		 *
+		 * @param logger 日志对象
+		 * @param fmt 日志信息格式
+		 * @param args 日志信息参数
+		 *
+		 */
+		template <typename... Args>
+		static void Warning(ILogger & logger, const char * fmt, Args &&... args)
+		{
+			logger.Warning(fmt, std::forward<Args>(args)...);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @param logger 日志对象
+		 * @param message 日志信息
+		 *
+		 */
+		static void Error(ILogger & logger, const std::string & message)
+		{
+			logger.Error(message);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @tparam Args [all built-in types]
+		 *
+		 * @param logger 日志对象
+		 * @param fmt 日志信息格式
+		 * @param args 日志信息参数
+		 *
+		 */
+		template <typename... Args>
+		static void Error(ILogger & logger, const char * fmt, Args &&... args)
+		{
+			logger.Error(fmt, std::forward<Args>(args)...);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @param logger 日志对象
+		 * @param message 日志信息
+		 *
+		 */
+		static void Critical(ILogger & logger, const std::string & message)
+		{
+			logger.Critical(message);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @tparam Args [all built-in types]
+		 *
+		 * @param logger 日志对象
+		 * @param fmt 日志信息格式
+		 * @param args 日志信息参数
+		 *
+		 */
+		template <typename... Args>
+		static void Critical(ILogger & logger, const char * fmt, Args &&... args)
+		{
+			logger.Critical(fmt, std::forward<Args>(args)...);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @param logger 日志对象
+		 * @param message 日志信息
+		 *
+		 */
+		static void Alert(ILogger & logger, const std::string & message)
+		{
+			logger.Alert(message);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @tparam Args [all built-in types]
+		 *
+		 * @param logger 日志对象
+		 * @param fmt 日志信息格式
+		 * @param args 日志信息参数
+		 *
+		 */
+		template <typename... Args>
+		static void Alert(ILogger & logger, const char * fmt, Args &&... args)
+		{
+			logger.Alert(fmt, std::forward<Args>(args)...);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @param logger 日志对象
+		 * @param message 日志信息
+		 *
+		 */
+		static void Fatal(ILogger & logger, const std::string & message)
+		{
+			logger.Fatal(message);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @tparam Args [all built-in types]
+		 *
+		 * @param logger 日志对象
+		 * @param fmt 日志信息格式
+		 * @param args 日志信息参数
+		 *
+		 */
+		template <typename... Args>
+		static void Fatal(ILogger & logger, const char * fmt, Args &&... args)
+		{
+			logger.Fatal(fmt, std::forward<Args>(args)...);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @param logger 日志对象
+		 * @param message 日志信息
+		 *
+		 */
+		static void Emerg(ILogger & logger, const std::string & message)
+		{
+			logger.Emerg(message);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @tparam Args [all built-in types]
+		 *
+		 * @param logger 日志对象
+		 * @param fmt 日志信息格式
+		 * @param args 日志信息参数
+		 *
+		 */
+		template <typename... Args>
+		static void Emerg(ILogger & logger, const char * fmt, Args &&... args)
+		{
+			logger.Emerg(fmt, std::forward<Args>(args)...);
+		}
+	};
+};
+
+
+#define TINY_TOOLKIT_LOG_DEBUG(logger, fmt, ...)		tinyToolkit::LoggerHelper::Debug(logger, fmt, ##__VA_ARGS__);
+#define TINY_TOOLKIT_LOG_INFO(logger, fmt, ...)			tinyToolkit::LoggerHelper::Info(logger, fmt, ##__VA_ARGS__);
+#define TINY_TOOLKIT_LOG_NOTICE(logger, fmt, ...)		tinyToolkit::LoggerHelper::Notice(logger, fmt, ##__VA_ARGS__);
+#define TINY_TOOLKIT_LOG_WARNING(logger, fmt, ...)		tinyToolkit::LoggerHelper::Warning(logger, fmt, ##__VA_ARGS__);
+#define TINY_TOOLKIT_LOG_ERROR(logger, fmt, ...)		tinyToolkit::LoggerHelper::Error(logger, fmt, ##__VA_ARGS__);
+#define TINY_TOOLKIT_LOG_CRITICAL(logger, fmt, ...)		tinyToolkit::LoggerHelper::Critical(logger, fmt, ##__VA_ARGS__);
+#define TINY_TOOLKIT_LOG_ALERT(logger, fmt, ...)		tinyToolkit::LoggerHelper::Alert(logger, fmt, ##__VA_ARGS__);
+#define TINY_TOOLKIT_LOG_FATAL(logger, fmt, ...)		tinyToolkit::LoggerHelper::Fatal(logger, fmt, ##__VA_ARGS__);
+#define TINY_TOOLKIT_LOG_EMERG(logger, fmt, ...)		tinyToolkit::LoggerHelper::Emerg(logger, fmt, ##__VA_ARGS__);
+
+
+#define TINY_TOOLKIT_SYNC_LOG_DEBUG(fmt, ...)			tinyToolkit::LoggerHelper::Debug(tinyToolkit::SyncLogger::Instance(), fmt, ##__VA_ARGS__);
+#define TINY_TOOLKIT_SYNC_LOG_INFO(fmt, ...)			tinyToolkit::LoggerHelper::Info(tinyToolkit::SyncLogger::Instance(), fmt, ##__VA_ARGS__);
+#define TINY_TOOLKIT_SYNC_LOG_NOTICE(fmt, ...)			tinyToolkit::LoggerHelper::Notice(tinyToolkit::SyncLogger::Instance(), fmt, ##__VA_ARGS__);
+#define TINY_TOOLKIT_SYNC_LOG_WARNING(fmt, ...)			tinyToolkit::LoggerHelper::Warning(tinyToolkit::SyncLogger::Instance(), fmt, ##__VA_ARGS__);
+#define TINY_TOOLKIT_SYNC_LOG_ERROR(fmt, ...)			tinyToolkit::LoggerHelper::Error(tinyToolkit::SyncLogger::Instance(), fmt, ##__VA_ARGS__);
+#define TINY_TOOLKIT_SYNC_LOG_CRITICAL(fmt, ...)		tinyToolkit::LoggerHelper::Critical(tinyToolkit::SyncLogger::Instance(), fmt, ##__VA_ARGS__);
+#define TINY_TOOLKIT_SYNC_LOG_ALERT(fmt, ...)			tinyToolkit::LoggerHelper::Alert(tinyToolkit::SyncLogger::Instance(), fmt, ##__VA_ARGS__);
+#define TINY_TOOLKIT_SYNC_LOG_FATAL(fmt, ...)			tinyToolkit::LoggerHelper::Fatal(tinyToolkit::SyncLogger::Instance(), fmt, ##__VA_ARGS__);
+#define TINY_TOOLKIT_SYNC_LOG_EMERG(fmt, ...)			tinyToolkit::LoggerHelper::Emerg(tinyToolkit::SyncLogger::Instance(), fmt, ##__VA_ARGS__);
+
+
+#define TINY_TOOLKIT_ASYNC_LOG_DEBUG(fmt, ...)			tinyToolkit::LoggerHelper::Debug(tinyToolkit::AsyncLogger::Instance(), fmt, ##__VA_ARGS__);
+#define TINY_TOOLKIT_ASYNC_LOG_INFO(fmt, ...)			tinyToolkit::LoggerHelper::Info(tinyToolkit::AsyncLogger::Instance(), fmt, ##__VA_ARGS__);
+#define TINY_TOOLKIT_ASYNC_LOG_NOTICE(fmt, ...)			tinyToolkit::LoggerHelper::Notice(tinyToolkit::AsyncLogger::Instance(), fmt, ##__VA_ARGS__);
+#define TINY_TOOLKIT_ASYNC_LOG_WARNING(fmt, ...)		tinyToolkit::LoggerHelper::Warning(tinyToolkit::AsyncLogger::Instance(), fmt, ##__VA_ARGS__);
+#define TINY_TOOLKIT_ASYNC_LOG_ERROR(fmt, ...)			tinyToolkit::LoggerHelper::Error(tinyToolkit::AsyncLogger::Instance(), fmt, ##__VA_ARGS__);
+#define TINY_TOOLKIT_ASYNC_LOG_CRITICAL(fmt, ...)		tinyToolkit::LoggerHelper::Critical(tinyToolkit::AsyncLogger::Instance(), fmt, ##__VA_ARGS__);
+#define TINY_TOOLKIT_ASYNC_LOG_ALERT(fmt, ...)			tinyToolkit::LoggerHelper::Alert(tinyToolkit::AsyncLogger::Instance(), fmt, ##__VA_ARGS__);
+#define TINY_TOOLKIT_ASYNC_LOG_FATAL(fmt, ...)			tinyToolkit::LoggerHelper::Fatal(tinyToolkit::AsyncLogger::Instance(), fmt, ##__VA_ARGS__);
+#define TINY_TOOLKIT_ASYNC_LOG_EMERG(fmt, ...)			tinyToolkit::LoggerHelper::Emerg(tinyToolkit::AsyncLogger::Instance(), fmt, ##__VA_ARGS__);
 
 
 #endif // __TINY_TOOLKIT__LOG__LOGGER__H__

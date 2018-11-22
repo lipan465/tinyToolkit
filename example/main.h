@@ -3,6 +3,7 @@
 
 
 #include "id.h"
+#include "log.h"
 #include "test.h"
 #include "pool.h"
 #include "debug.h"

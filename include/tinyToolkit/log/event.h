@@ -179,8 +179,8 @@ namespace tinyToolkit
 	public:
 		std::tm tm{ };
 
-		std::size_t threadID{ static_cast<size_t>(OS::ThreadID()) };
-		std::size_t processID{ static_cast<size_t>(OS::ProcessID()) };
+		std::size_t threadID{ OS::ThreadID() };
+		std::size_t processID{ OS::ProcessID() };
 
 		std::string name{ };
 		std::string message{ };

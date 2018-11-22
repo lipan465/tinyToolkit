@@ -55,6 +55,18 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 获取单例
+		 *
+		 * @return 单例对象引用
+		 *
+		 */
+		static AsyncLogger & Instance()
+		{
+			return Singleton<AsyncLogger>::Instance();
+		}
+
+		/**
+		 *
 		 * 等待日志写入
 		 *
 		 */

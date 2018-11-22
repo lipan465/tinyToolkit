@@ -36,7 +36,7 @@ namespace tinyToolkit
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_LINUX
 
-			tid = ::syscall(SYS_gettid);
+			tid = static_cast<uint64_t>(::syscall(SYS_gettid));
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
@@ -44,7 +44,7 @@ namespace tinyToolkit
 
 #else
 
-			tid = static_cast<int64_t>(std::hash<std::thread::id>()(std::this_thread::get_id()));
+			tid = static_cast<uint64_t>(std::hash<std::thread::id>()(std::this_thread::get_id()));
 
 #endif
 
@@ -66,7 +66,7 @@ namespace tinyToolkit
 
 #else
 
-			return ::getpid();
+			return static_cast<uint64_t>(::getpid());
 
 #endif
 		}

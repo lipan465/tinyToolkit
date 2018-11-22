@@ -21,16 +21,29 @@ namespace tinyToolkit
 	public:
 		/**
 		 *
+		 * 析构函数
+		 *
+		 */
+		~TimeWatcher()
+		{
+			Reset();
+		}
+
+		/**
+		 *
 		 * 重置
 		 *
 		 */
 		void Reset()
 		{
-			_max = 0;
-			_min = 0;
-			_all = 0;
 			_count = 0;
-			_elapsed = 0;
+
+			_max = 0.0;
+			_min = 0.0;
+			_avg = 0.0;
+			_all = 0.0;
+			_rate = 0.0;
+			_elapsed = 0.0;
 		}
 
 		/**
@@ -40,7 +53,7 @@ namespace tinyToolkit
 		 */
 		void Start()
 		{
-			_last = Time::TimePoint();
+			_head = Time::TimePoint();
 		}
 
 		/**
@@ -50,18 +63,39 @@ namespace tinyToolkit
 		 */
 		void Stop()
 		{
+			_all = Time::Microseconds(Time::TimePoint() - _head);
+
+			_avg = _all / _count;
+			_rate = _count / _all;
+		}
+
+		/**
+		 *
+		 * 开始间隔观察
+		 *
+		 */
+		void ElapsedStart()
+		{
+			_last = Time::TimePoint();
+		}
+
+		/**
+		 *
+		 * 停止间隔观察
+		 *
+		 */
+		void ElapsedStop()
+		{
 			++_count;
 
 			_elapsed = Time::Microseconds(Time::TimePoint() - _last);
 
-			_all += _elapsed;
-
-			if (_max == 0 || _max < _elapsed)
+			if (_max == 0.0 || _max < _elapsed)
 			{
 				_max = _elapsed;
 			}
 
-			if (_min == 0 || _min > _elapsed)
+			if (_min == 0.0 || _min > _elapsed)
 			{
 				_min = _elapsed;
 			}
@@ -74,7 +108,7 @@ namespace tinyToolkit
 		 * @return 最大观察时间
 		 *
 		 */
-		std::time_t Max() const
+		std::double_t Max() const
 		{
 			return _max;
 		}
@@ -86,9 +120,21 @@ namespace tinyToolkit
 		 * @return 最小观察时间
 		 *
 		 */
-		std::time_t Min() const
+		std::double_t Min() const
 		{
 			return _min;
+		}
+
+		/**
+		 *
+		 * 平均观察时间
+		 *
+		 * @return 平均观察时间
+		 *
+		 */
+		std::double_t Avg() const
+		{
+			return _avg;
 		}
 
 		/**
@@ -98,9 +144,21 @@ namespace tinyToolkit
 		 * @return 总观察时间
 		 *
 		 */
-		std::time_t All() const
+		std::double_t All() const
 		{
 			return _all;
+		}
+
+		/**
+		 *
+		 * 观察速率
+		 *
+		 * @return 观察速率
+		 *
+		 */
+		std::double_t Rate() const
+		{
+			return _rate;
 		}
 
 		/**
@@ -110,7 +168,7 @@ namespace tinyToolkit
 		 * @return 观察间隔
 		 *
 		 */
-		std::time_t Elapsed() const
+		std::double_t Elapsed() const
 		{
 			return _elapsed;
 		}
@@ -128,13 +186,16 @@ namespace tinyToolkit
 		}
 
 	protected:
-		std::time_t _max{ 0 };
-		std::time_t _min{ 0 };
-		std::time_t _all{ 0 };
-		std::time_t _elapsed{ 0 };
-
 		std::size_t _count{ 0 };
 
+		std::double_t _max{ 0.0 };
+		std::double_t _min{ 0.0 };
+		std::double_t _avg{ 0.0 };
+		std::double_t _all{ 0.0 };
+		std::double_t _rate{ 0.0 };
+		std::double_t _elapsed{ 0.0 };
+
+		ClockTimePoint _head{ Time::TimePoint() };
 		ClockTimePoint _last{ Time::TimePoint() };
 	};
 }

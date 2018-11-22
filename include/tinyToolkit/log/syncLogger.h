@@ -50,6 +50,18 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 获取单例
+		 *
+		 * @return 单例对象引用
+		 *
+		 */
+		static SyncLogger & Instance()
+		{
+			return Singleton<SyncLogger>::Instance();
+		}
+
+		/**
+		 *
 		 * 等待日志写入
 		 *
 		 */

@@ -5,6 +5,9 @@
 #include "../include/tinyToolkit/tinyToolkit.h"
 
 
+using namespace tinyToolkit;
+
+
 #define FUNCTION_TEST(func)																	\
 {																							\
 	std::cout	<< std::setw(100) << std::right << #func << "    " << func << std::endl;	\

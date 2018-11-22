@@ -86,4 +86,8 @@
 #include "utilities/filesystem.h"
 
 
+#define sSyncLogger		tinyToolkit::SyncLogger::Instance()
+#define sAsyncLogger	tinyToolkit::AsyncLogger::Instance()
+
+
 #endif // __TINY_TOOLKIT__TINY_TOOLKIT__H__

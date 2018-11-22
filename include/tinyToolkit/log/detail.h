@@ -16,6 +16,7 @@
 #include "../utilities/lock.h"
 #include "../utilities/string.h"
 #include "../system/application.h"
+#include "../utilities/singleton.h"
 #include "../utilities/container.h"
 #include "../utilities/filesystem.h"
 

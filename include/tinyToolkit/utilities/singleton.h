@@ -39,14 +39,6 @@ namespace tinyToolkit
 			return *_instance;
 		}
 
-	protected:
-		/**
-		 *
-		 * 构造函数
-		 *
-		 */
-		Singleton() = default;
-
 		/**
 		*
 		* 构造函数
@@ -55,13 +47,6 @@ namespace tinyToolkit
 		*
 		*/
 		Singleton(const Singleton &) = delete;
-
-		/**
-		 *
-		 * 析构函数
-		 *
-		 */
-		virtual ~Singleton() = default;
 
 		/**
 		*
@@ -73,6 +58,21 @@ namespace tinyToolkit
 		*
 		*/
 		Singleton & operator=(const Singleton &) = delete;
+
+	protected:
+		/**
+		 *
+		 * 构造函数
+		 *
+		 */
+		Singleton() = default;
+
+		/**
+		 *
+		 * 析构函数
+		 *
+		 */
+		virtual ~Singleton() = default;
 
 	protected:
 		class TINY_TOOLKIT_API GarbageCollector

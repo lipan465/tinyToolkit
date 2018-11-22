@@ -223,6 +223,55 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 转换时间戳
+		 *
+		 * @tparam CastTypeT [all build-in type]
+		 *
+		 * @return 转换时间戳
+		 *
+		 */
+		template <typename CastTypeT>
+		static CastTypeT Cast()
+		{
+			return Cast<CastTypeT>(TimePoint());
+		}
+
+		/**
+		 *
+		 * 转换时间戳
+		 *
+		 * @tparam CastTypeT [all build-in type]
+		 *
+		 * @param timesPoint 时间点
+		 *
+		 * @return 转换时间戳
+		 *
+		 */
+		template <typename CastTypeT>
+		static CastTypeT Cast(const ClockTimePoint & timesPoint)
+		{
+			return Cast<CastTypeT>(timesPoint.time_since_epoch());
+		}
+
+		/**
+		 *
+		 * 转换时间戳
+		 *
+		 * @tparam CastTypeT [all build-in type]
+		 *
+		 * @param duration 时间段
+		 *
+		 * @return 转换时间戳
+		 *
+		 */
+		template <typename CastTypeT>
+		static CastTypeT Cast(const ClockDuration & duration)
+		{
+			return std::chrono::duration_cast<std::chrono::duration<CastTypeT>>(duration).count();
+		}
+
+		/**
+		 *
 		 * 小时时间戳
 		 *
 		 * @return 小时时间戳

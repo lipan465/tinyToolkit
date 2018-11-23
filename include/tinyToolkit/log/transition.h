@@ -62,7 +62,7 @@ namespace tinyToolkit
 		 */
 		static int32_t Value(const std::string & week)
 		{
-			return Value(week.data());
+			return Value(week.c_str());
 		}
 
 		/**
@@ -172,7 +172,7 @@ namespace tinyToolkit
 		 */
 		static int32_t Value(const std::string & week)
 		{
-			return Value(week.data());
+			return Value(week.c_str());
 		}
 
 		/**
@@ -304,7 +304,7 @@ namespace tinyToolkit
 		 */
 		static LOG_PRIORITY_TYPE Value(const std::string & priority)
 		{
-			return Value(priority.data());
+			return Value(priority.c_str());
 		}
 	};
 }

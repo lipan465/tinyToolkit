@@ -108,7 +108,7 @@ namespace tinyToolkit
 				return;
 			}
 
-			if (tinyToolkit::Time::Seconds() >= _time)
+			if (Time::Seconds() >= _time)
 			{
 				_file.Close();
 
@@ -184,15 +184,15 @@ namespace tinyToolkit
 		 */
 		void RotatingTime()
 		{
-			std::tm date = tinyToolkit::Time::LocalTm();
+			std::tm date = Time::LocalTm();
 
 			date.tm_hour = _hour;
 			date.tm_min  = _minutes;
 			date.tm_sec  = _seconds;
 
-			_time = tinyToolkit::Time::FromTm(date);
+			_time = Time::FromTm(date);
 
-			if (_time < tinyToolkit::Time::Seconds())
+			if (_time < Time::Seconds())
 			{
 				_time += TINY_TOOLKIT_DAY;
 			}
@@ -213,29 +213,29 @@ namespace tinyToolkit
 
 			if (pos == std::string::npos)  /// name_2018_01_01_00_00_00
 			{
-				return tinyToolkit::String::Format
+				return String::Format
 				(
 					"{}_{}",
 					path,
-					tinyToolkit::Time::CurrentLocalTimeString("%4d_%02d_%02d_%02d_%02d_%02d")
+					Time::CurrentLocalTimeString("%4d_%02d_%02d_%02d_%02d_%02d")
 				);
 			}
 			else if (pos == 0)  /// 2018_01_01_00_00_00.log
 			{
-				return tinyToolkit::String::Format
+				return String::Format
 				(
 					"{}{}",
-					tinyToolkit::Time::CurrentLocalTimeString("%4d_%02d_%02d_%02d_%02d_%02d"),
+					Time::CurrentLocalTimeString("%4d_%02d_%02d_%02d_%02d_%02d"),
 					path
 				);
 			}
 			else   /// name_2018_01_01_00_00_00.log
 			{
-				return tinyToolkit::String::Format
+				return String::Format
 				(
 					"{}_{}{}",
 					path.substr(0, pos),
-					tinyToolkit::Time::CurrentLocalTimeString("%4d_%02d_%02d_%02d_%02d_%02d"),
+					Time::CurrentLocalTimeString("%4d_%02d_%02d_%02d_%02d_%02d"),
 					path.substr(pos)
 				);
 			}

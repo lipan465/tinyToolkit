@@ -113,7 +113,7 @@ namespace tinyToolkit
 
 				case 'c':  /// 当前区域的日期和时间 (2018-01-01 00:00:00.000000)
 				{
-					value += tinyToolkit::String::Format
+					value += String::Format
 					(
 						"{:04}-{:02}-{:02} {:02}:{:02}:{:02}.{:06}",
 						event.tm.tm_year + 1900,
@@ -122,7 +122,7 @@ namespace tinyToolkit
 						event.tm.tm_hour,
 						event.tm.tm_min,
 						event.tm.tm_sec,
-						tinyToolkit::Time::Microseconds(event.time) % 1000000
+						Time::Microseconds(event.time) % 1000000
 					);
 
 					break;
@@ -135,42 +135,42 @@ namespace tinyToolkit
 
 				case 'd':  /// 按月计的日期 (01..31)
 				{
-					value += tinyToolkit::String::Format("{:02}", event.tm.tm_mday);
+					value += String::Format("{:02}", event.tm.tm_mday);
 
 					break;
 				}
 
 				case 'D':  /// 按月计的日期 (mm/dd/yy)
 				{
-					value += tinyToolkit::String::Format("{:02}{:02}{:02}", event.tm.tm_mon + 1, event.tm.tm_mday, event.tm.tm_year % 100);
+					value += String::Format("{:02}{:02}{:02}", event.tm.tm_mon + 1, event.tm.tm_mday, event.tm.tm_year % 100);
 
 					break;
 				}
 
 				case 'e':  /// 按月计的日期, 添加空格 ( 1..31)
 				{
-					value += tinyToolkit::String::Format("{:2}", event.tm.tm_mday);
+					value += String::Format("{:2}", event.tm.tm_mday);
 
 					break;
 				}
 
 				case 'E':  /// 微秒 (000000-999999)
 				{
-					value += tinyToolkit::String::Format("{:06}", tinyToolkit::Time::Nanoseconds(event.time) % 1000000);
+					value += String::Format("{:06}", Time::Nanoseconds(event.time) % 1000000);
 
 					break;
 				}
 
 				case 'f':  /// 毫秒 (000-999)
 				{
-					value += tinyToolkit::String::Format("{:03}", tinyToolkit::Time::Milliseconds(event.time) % 1000);
+					value += String::Format("{:03}", Time::Milliseconds(event.time) % 1000);
 
 					break;
 				}
 
 				case 'F':  /// 完整日期格式 (2018-01-01)
 				{
-					value += tinyToolkit::String::Format
+					value += String::Format
 					(
 						"{:04}-{:02}-{:02}",
 						event.tm.tm_year + 1900,
@@ -204,7 +204,7 @@ namespace tinyToolkit
 
 				case 'H':  /// 小时 (00..23)
 				{
-					value += tinyToolkit::String::Format("{:02}", event.tm.tm_hour);
+					value += String::Format("{:02}", event.tm.tm_hour);
 
 					break;
 				}
@@ -218,14 +218,14 @@ namespace tinyToolkit
 
 				case 'I':  /// 小时 (01..12)
 				{
-					value += tinyToolkit::String::Format("{:02}", event.tm.tm_hour > 12 ? event.tm.tm_hour - 12 : event.tm.tm_hour);
+					value += String::Format("{:02}", event.tm.tm_hour > 12 ? event.tm.tm_hour - 12 : event.tm.tm_hour);
 
 					break;
 				}
 
 				case 'j':  /// 按年计的日期 (001..366)
 				{
-					value += tinyToolkit::String::Format("{:03}", event.tm.tm_yday + 1);
+					value += String::Format("{:03}", event.tm.tm_yday + 1);
 
 					break;
 				}
@@ -267,14 +267,14 @@ namespace tinyToolkit
 
 				case 'm':  /// 月份 (01..12)
 				{
-					value += tinyToolkit::String::Format("{:02}", event.tm.tm_mon + 1);
+					value += String::Format("{:02}", event.tm.tm_mon + 1);
 
 					break;
 				}
 
 				case 'M':  /// 分钟 (00..59)
 				{
-					value += tinyToolkit::String::Format("{:02}", event.tm.tm_min);
+					value += String::Format("{:02}", event.tm.tm_min);
 
 					break;
 				}
@@ -288,7 +288,7 @@ namespace tinyToolkit
 
 				case 'N': /// 纳秒 (000000000-999999999)
 				{
-					value += tinyToolkit::String::Format("{:09}", tinyToolkit::Time::Nanoseconds(event.time) % 1000000000);
+					value += String::Format("{:09}", Time::Nanoseconds(event.time) % 1000000000);
 
 					break;
 				}
@@ -309,7 +309,7 @@ namespace tinyToolkit
 
 				case 'r':  /// 12小时时钟时间 (hh:mm:ss [AM/PM])
 				{
-					value += tinyToolkit::String::Format
+					value += String::Format
 					(
 						"{:02}:{:02}:{:02} {}",
 						event.tm.tm_hour,
@@ -323,7 +323,7 @@ namespace tinyToolkit
 
 				case 'R':  /// 24小时时间的时和分 (hh:mm)
 				{
-					value += tinyToolkit::String::Format
+					value += String::Format
 					(
 						"{:02}:{:02}",
 						event.tm.tm_hour,
@@ -335,14 +335,14 @@ namespace tinyToolkit
 
 				case 's':  /// 自UTC时间 1970-01-01 00:00:00 以来所经过的秒数 (GNU扩充)
 				{
-					value += std::to_string(tinyToolkit::Time::Seconds(event.time));
+					value += std::to_string(Time::Seconds(event.time));
 
 					break;
 				}
 
 				case 'S':  /// 秒数 (00..60)
 				{
-					value += tinyToolkit::String::Format("{:02}", event.tm.tm_sec);
+					value += String::Format("{:02}", event.tm.tm_sec);
 
 					break;
 				}
@@ -356,7 +356,7 @@ namespace tinyToolkit
 
 				case 'T':  /// 时间 (hh:mm:ss)
 				{
-					value += tinyToolkit::String::Format
+					value += String::Format
 					(
 						"{:02}:{:02}:{:02}",
 						event.tm.tm_hour,
@@ -398,14 +398,14 @@ namespace tinyToolkit
 
 				case 'x':  /// 日期描述 (mm/dd/yy)
 				{
-					value += tinyToolkit::String::Format("{:02}{:02}{:02}", event.tm.tm_mon + 1, event.tm.tm_mday, event.tm.tm_year % 100);
+					value += String::Format("{:02}{:02}{:02}", event.tm.tm_mon + 1, event.tm.tm_mday, event.tm.tm_year % 100);
 
 					break;
 				}
 
 				case 'X':  /// 时间描述 (hh:mm:ss)
 				{
-					value += tinyToolkit::String::Format
+					value += String::Format
 					(
 						"{:02}:{:02}:{:02}",
 						event.tm.tm_hour,
@@ -442,7 +442,7 @@ namespace tinyToolkit
 
 				case '+': /// 完整格式化
 				{
-					value += tinyToolkit::String::Format
+					value += String::Format
 					(
 						"[{:04}-{:02}-{:02} {:02}:{:02}:{:02}.{:06}] [{}] [{}] {}",
 						event.tm.tm_year + 1900,
@@ -451,7 +451,7 @@ namespace tinyToolkit
 						event.tm.tm_hour,
 						event.tm.tm_min,
 						event.tm.tm_sec,
-						tinyToolkit::Time::Microseconds(event.time) % 1000000,
+						Time::Microseconds(event.time) % 1000000,
 						event.name,
 						LogPriority::Name(event.priority),
 						event.message

@@ -24,6 +24,82 @@ namespace tinyToolkit
 	class TINY_TOOLKIT_API Application
 	{
 	public:
+#if TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		/**
+		 *
+		 * 复制进程
+		 *
+		 * @param isCloseIO 是否关闭输出
+		 *
+		 * @return 复制结果
+		 *
+		 */
+		static bool Fork(bool isCloseIO = true)
+		{
+			/**
+			 *
+			 * fork函数返回两个值
+			 *
+			 * 对于子进程, 返回0
+			 *
+			 * 对于父进程, 返回子进程ID
+			 *
+			 */
+			pid_t pid = ::fork();
+
+			if (pid < 0)
+			{
+			return false;
+			}
+
+			if (pid != 0)  /// 父进程
+			{
+				exit(0);
+			}
+
+			/**
+			 *
+			 * 当进程是会话的领头进程时setsid()调用失败并返回(-1)
+			 *
+			 * setsid()调用成功后, 返回新的会话的ID, 调用setsid函数的进程成为新的会话的领头进程, 并与其父进程的会话组和进程组脱离
+			 *
+			 * 由于会话对控制终端的独占性, 进程同时与控制终端脱离
+			 *
+			 *
+			 * 之前parent和child运行在同一个session里, parent是会话(session)的领头进程
+			 *
+			 * 所以作为session头的parent如果exit结束执行的话,那么会话 session组中的所有进程将都被杀死
+			 *
+			 * 执行setsid()之后, child将重新获得一个新的会话(session)id
+			 *
+			 * 这时parent退出之后, 将不会影响到child了
+			 *
+			 */
+			pid = setsid();
+
+			if (pid < -1)
+			{
+				return false;
+			}
+
+			if (isCloseIO)
+			{
+				int32_t fd = ::open("/dev/null", O_RDWR, 0);
+
+				if (fd != -1)
+				{
+					::dup2(fd, STDIN_FILENO);   /// 关闭标准输入
+					::dup2(fd, STDOUT_FILENO);  /// 关闭标准输出
+					::dup2(fd, STDERR_FILENO);  /// 关闭标准错误输出
+
+					::close(fd);
+				}
+			}
+
+			return true;
+		}
+
 		/**
 		 *
 		 * 进程是否存在
@@ -33,13 +109,13 @@ namespace tinyToolkit
 		 */
 		static bool Exist()
 		{
-			static std::pair<tinyToolkit::LockFile, bool> value({ }, true);
+			static std::pair<LockFile, bool> value({ }, true);
 
 			if (value.second)
 			{
-				if (value.first.Open(tinyToolkit::String::Format("/var/run/{}.pid", Name()), true))
+				if (value.first.Open(String::Format("/var/run/{}.pid", Name()), true))
 				{
-					value.first << std::to_string(tinyToolkit::OS::ProcessID());
+					value.first << std::to_string(OS::ProcessID());
 				}
 
 				value.second = false;
@@ -47,6 +123,8 @@ namespace tinyToolkit
 
 			return !value.first.IsOpen();
 		}
+
+#endif
 
 		/**
 		 *
@@ -86,7 +164,7 @@ namespace tinyToolkit
 				date.tm_min  = static_cast<int32_t>(strtol(__TIME__ + 3, nullptr, 10));
 				date.tm_sec  = static_cast<int32_t>(strtol(__TIME__ + 6, nullptr, 10));
 
-				value.first = tinyToolkit::Time::FromTm(date);
+				value.first = Time::FromTm(date);
 
 				value.second = false;
 			}
@@ -107,7 +185,7 @@ namespace tinyToolkit
 
 			if (value.second)
 			{
-				value.first = tinyToolkit::Filesystem::FileName(Path());
+				value.first = Filesystem::FileName(Path());
 
 				value.second = false;
 			}
@@ -128,7 +206,7 @@ namespace tinyToolkit
 
 			if (value.second)
 			{
-				char str[TINY_TOOLKIT_KB] = { 0 };
+				char str[TINY_TOOLKIT_MB] = { 0 };
 
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
@@ -161,7 +239,7 @@ namespace tinyToolkit
 
 			if (value.second)
 			{
-				value.first = tinyToolkit::Filesystem::FileSteam(Path());
+				value.first = Filesystem::FileSteam(Path());
 
 				value.second = false;
 			}
@@ -182,7 +260,7 @@ namespace tinyToolkit
 
 			if (value.second)
 			{
-				value.first = tinyToolkit::Filesystem::FileExtension(Path());
+				value.first = Filesystem::FileExtension(Path());
 
 				value.second = false;
 			}
@@ -203,7 +281,7 @@ namespace tinyToolkit
 
 			if (value.second)
 			{
-				value.first = tinyToolkit::Filesystem::FileDirectory(Path());
+				value.first = Filesystem::FileDirectory(Path());
 
 				value.second = false;
 			}
@@ -224,7 +302,7 @@ namespace tinyToolkit
 
 			if (value.second)
 			{
-				value.first = tinyToolkit::Time::FormatTimeString(CompileTime());
+				value.first = Time::FormatTimeString(CompileTime());
 
 				value.second = false;
 			}

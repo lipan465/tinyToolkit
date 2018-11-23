@@ -55,8 +55,8 @@ namespace tinyToolkit
 		 */
 		void SetTime(std::time_t head, std::time_t tail)
 		{
-			_time.first = tinyToolkit::Time::TimePoint(head);
-			_time.second = tinyToolkit::Time::TimePoint(tail);
+			_time.first = Time::TimePoint(head);
+			_time.second = Time::TimePoint(tail);
 		}
 
 		/**

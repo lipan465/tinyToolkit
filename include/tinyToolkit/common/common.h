@@ -24,10 +24,21 @@
 #include <cassert>
 #include <fcntl.h>
 
-/// std
+
+/// common
+#include "macro.h"
+#include "version.h"
+#include "support.h"
+#include "platform.h"
+#include "compiler.h"
+#include "function.h"
+
+
+/// c++11
+#if TINY_TOOLKIT_CXX_SUPPORT >= 11
+
 #include <set>
 #include <map>
-#include <any>
 #include <list>
 #include <array>
 #include <queue>
@@ -47,8 +58,6 @@
 #include <numeric>
 #include <sstream>
 #include <fstream>
-#include <variant>
-#include <optional>
 #include <iostream>
 #include <algorithm>
 #include <exception>
@@ -59,22 +68,24 @@
 #include <unordered_map>
 #include <condition_variable>
 
-/// common
-#include "macro.h"
-#include "version.h"
-#include "support.h"
-#include "platform.h"
-#include "compiler.h"
-#include "function.h"
+#endif
 
 
-/// 支持其余c++17
-#if (TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS && defined(_HAS_CXX17)) || \
-	(TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_LINUX && TINY_TOOLKIT_COMPILER_VERSION >= 80100)
+/// c++14
+#if TINY_TOOLKIT_CXX_SUPPORT >= 14
 
+
+#endif
+
+
+/// c++17
+#if TINY_TOOLKIT_CXX_SUPPORT >= 17
+
+#include <any>
+#include <variant>
+#include <optional>
 #include <filesystem>
-
-#define TINY_TOOLKIT_SUPPORT_FULL_CXX_17
+#include <string_view>
 
 #endif
 
@@ -93,6 +104,7 @@
 #include <execinfo.h>
 #include <arpa/inet.h>
 #include <sys/syscall.h>
+#include <net/ethernet.h>
 
 #endif
 

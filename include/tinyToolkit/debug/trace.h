@@ -35,12 +35,7 @@ namespace tinyToolkit
 		template <typename... Args>
 		static void Debug(const char * file, const int32_t line, const char * func, const char * format, Args &&... args)
 		{
-			std::cout << std::endl << tinyToolkit::String::Format("[{}:{} {}] {}",
-																  file,
-																  line,
-																  func,
-																  tinyToolkit::String::Format(format, std::forward<Args>(args)...))
-					  << std::endl;
+			std::cout << std::endl << String::Format("[{}:{} {}] {}", file, line, func, String::Format(format, std::forward<Args>(args)...)) << std::endl;
 		}
 
 		/**
@@ -59,12 +54,7 @@ namespace tinyToolkit
 		template <typename... Args>
 		static void Debug(const char * file, const int32_t line, const char * func, const std::string & format, Args &&... args)
 		{
-			std::cout << std::endl << tinyToolkit::String::Format("{[}:{} {}] {}",
-																  file,
-																  line,
-																  func,
-																  tinyToolkit::String::Format(format, std::forward<Args>(args)...))
-					  << std::endl;
+			std::cout << std::endl << String::Format("{[}:{} {}] {}", file, line, func, String::Format(format, std::forward<Args>(args)...)) << std::endl;
 		}
 
 		/**
@@ -97,7 +87,7 @@ namespace tinyToolkit
 		template <typename... Args>
 		static void Fatal(const char * file, int32_t line, const char * func, const char * format, Args &&... args)
 		{
-			ExceptionHelper::Throw<SystemExitException>(file, line, func, tinyToolkit::String::Format(format, std::forward<Args>(args)...));
+			ExceptionHelper::Throw<SystemExitException>(file, line, func, String::Format(format, std::forward<Args>(args)...));
 		}
 
 		/**
@@ -116,7 +106,7 @@ namespace tinyToolkit
 		template <typename... Args>
 		static void Fatal(const char * file, int32_t line, const char * func, const std::string & format, Args &&... args)
 		{
-			ExceptionHelper::Throw<SystemExitException>(file, line, func, tinyToolkit::String::Format(format, std::forward<Args>(args)...));
+			ExceptionHelper::Throw<SystemExitException>(file, line, func, String::Format(format, std::forward<Args>(args)...));
 		}
 
 		/**
@@ -151,7 +141,7 @@ namespace tinyToolkit
 		template <typename... Args>
 		static void Assert(const char * file, const int32_t line, const char * func, const char * cond, const char * format, Args &&... args)
 		{
-			ExceptionHelper::Throw<AssertException>(file, line, func, tinyToolkit::String::Format(format, std::forward<Args>(args)...), cond);
+			ExceptionHelper::Throw<AssertException>(file, line, func, String::Format(format, std::forward<Args>(args)...), cond);
 		}
 
 		/**
@@ -171,7 +161,7 @@ namespace tinyToolkit
 		template <typename... Args>
 		static void Assert(const char * file, const int32_t line, const char * func, const char * cond, const std::string & format, Args &&... args)
 		{
-			ExceptionHelper::Throw<AssertException>(file, line, func, tinyToolkit::String::Format(format, std::forward<Args>(args)...), cond);
+			ExceptionHelper::Throw<AssertException>(file, line, func, String::Format(format, std::forward<Args>(args)...), cond);
 		}
 	};
 }
@@ -183,11 +173,11 @@ namespace tinyToolkit
 
 #ifdef DEBUG
 
-#define TINY_TOOLKIT_ASSERT(cond, ...)	if (!(cond)) { tinyToolkit::TraceHelper::Assert(TINY_TOOLKIT_FILE, TINY_TOOLKIT_LINE, TINY_TOOLKIT_FUNC, #cond, ##__VA_ARGS__); }
+#define TINY_TOOLKIT_ASSERT(cond, ...)	if (!(cond)) tinyToolkit::TraceHelper::Assert(TINY_TOOLKIT_FILE, TINY_TOOLKIT_LINE, TINY_TOOLKIT_FUNC, #cond, ##__VA_ARGS__);
 
 #else
 
-#define TINY_TOOLKIT_ASSERT(cond, ...)	{ }
+#define TINY_TOOLKIT_ASSERT(cond, ...)
 
 #endif
 

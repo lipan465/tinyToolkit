@@ -1,7 +1,7 @@
 #
 # 项目名
 #
-SET(PROGRAM_NAME tinyTools)
+SET(PROGRAM_NAME tinyToolkit)
 
 
 #

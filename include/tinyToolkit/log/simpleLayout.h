@@ -31,7 +31,7 @@ namespace tinyToolkit
 		 */
 		std::string Format(const LogEvent & event) override
 		{
-			return tinyToolkit::String::Format
+			return String::Format
 			(
 				"[{:04}-{:02}-{:02} {:02}:{:02}:{:02}.{:06}][{}][{}] {}{}",
 				event.tm.tm_year + 1900,
@@ -40,7 +40,7 @@ namespace tinyToolkit
 				event.tm.tm_hour,
 				event.tm.tm_min,
 				event.tm.tm_sec,
-				tinyToolkit::Time::Microseconds(event.time) % 1000000,
+				Time::Microseconds(event.time) % 1000000,
 				event.name,
 				LogPriority::Name(event.priority),
 				event.message,

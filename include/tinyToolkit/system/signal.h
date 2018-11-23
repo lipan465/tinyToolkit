@@ -2,6 +2,9 @@
 #define __TINY_TOOLKIT__SYSTEM__SIGNAL__H__
 
 
+#if TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_WINDOWS
+
+
 /**
  *
  *  作者: hm
@@ -16,8 +19,6 @@
 
 namespace tinyToolkit
 {
-#if TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_WINDOWS
-
 	class TINY_TOOLKIT_API Signal
 	{
 	public:
@@ -219,9 +220,10 @@ namespace tinyToolkit
 			sigaction(signalNo, &iSig, &oSig);
 		}
 	};
-
-#endif
 }
+
+
+#endif // TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_WINDOWS
 
 
 #endif // __TINY_TOOLKIT__SYSTEM__SIGNAL__H__

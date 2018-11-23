@@ -185,7 +185,7 @@ namespace tinyToolkit
 		std::string name{ };
 		std::string message{ };
 
-		ClockTimePoint time{ Time::TimePoint() };
+		ClockTimePoint time{ };
 
 		LOG_OPTION_TYPE option{ LOG_OPTION_TYPE::WRITE };
 		LOG_PRIORITY_TYPE priority{ LOG_PRIORITY_TYPE::INFO };

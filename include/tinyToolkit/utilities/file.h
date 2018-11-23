@@ -2,6 +2,9 @@
 #define __TINY_TOOLKIT__UTILITIES__FILE__H__
 
 
+#if TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_WINDOWS
+
+
 /**
  *
  *  作者: hm
@@ -183,7 +186,7 @@ namespace tinyToolkit
 		 */
 		bool Write(const std::string & value, std::size_t size)
 		{
-			return Write(value.data(), size);
+			return Write(value.c_str(), size);
 		}
 
 		/**
@@ -299,7 +302,7 @@ namespace tinyToolkit
 
 		bool Create()
 		{
-			_fd = open(_path.data(), O_WRONLY | O_CREAT, 0644);
+			_fd = open(_path.c_str(), O_WRONLY | O_CREAT, 0644);
 
 			return IsOpen();
 		}
@@ -310,6 +313,9 @@ namespace tinyToolkit
 		std::string _path{ };
 	};
 }
+
+
+#endif // TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_WINDOWS
 
 
 #endif // __TINY_TOOLKIT__UTILITIES__FILE__H__

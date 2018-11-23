@@ -45,7 +45,7 @@ namespace tinyToolkit
 		 */
 		static bool Exists(const std::string & path)
 		{
-#ifdef TINY_TOOLKIT_SUPPORT_FULL_CXX_17
+#ifdef TINY_TOOLKIT_CXX_17
 
 			return std::filesystem::exists(path);
 
@@ -77,7 +77,7 @@ namespace tinyToolkit
 		 */
 		static bool Remove(const std::string & path)
 		{
-#ifdef TINY_TOOLKIT_SUPPORT_FULL_CXX_17
+#ifdef TINY_TOOLKIT_CXX_17
 
 			return std::filesystem::remove(path);
 
@@ -100,7 +100,7 @@ namespace tinyToolkit
 		 */
 		static bool Rename(const std::string & src, const std::string & dst)
 		{
-#ifdef TINY_TOOLKIT_SUPPORT_FULL_CXX_17
+#ifdef TINY_TOOLKIT_CXX_17
 
 			std::filesystem::rename(src, dst);
 
@@ -122,7 +122,7 @@ namespace tinyToolkit
 		 * @return 读取结果
 		 *
 		 */
-		static std::optional<std::string> ReadAll(const std::string & path)
+		static std::string ReadAll(const std::string & path)
 		{
 			std::ifstream ifs(path, std::ios::binary);
 
@@ -404,7 +404,7 @@ namespace tinyToolkit
 			return pos == std::string::npos ? "./" : path.substr(0, pos + 1);
 		}
 
-#ifdef TINY_TOOLKIT_SUPPORT_FULL_CXX_17
+#if TINY_TOOLKIT_CXX_SUPPORT >= 17
 
 		/**
 		 *

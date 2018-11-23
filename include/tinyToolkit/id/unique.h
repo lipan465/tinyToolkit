@@ -39,7 +39,7 @@ namespace tinyToolkit
 		UniqueID()
 		{
 			_id.key.count = 0;
-			_id.key.times = static_cast<uint32_t>(tinyToolkit::Time::Seconds());
+			_id.key.times = static_cast<uint32_t>(Time::Seconds());
 		}
 
 		/**
@@ -51,7 +51,7 @@ namespace tinyToolkit
 		 */
 		static uint64_t Get()
 		{
-			return tinyToolkit::Singleton<UniqueID>::Instance().Create();
+			return Singleton<UniqueID>::Instance().Create();
 		}
 
 	protected:
@@ -64,7 +64,7 @@ namespace tinyToolkit
 		 */
 		uint64_t Create()
 		{
-			auto timeStamp = static_cast<uint32_t>(tinyToolkit::Time::Seconds());
+			auto timeStamp = static_cast<uint32_t>(Time::Seconds());
 
 			if (timeStamp != _id.key.times)
 			{

@@ -104,7 +104,7 @@ namespace tinyToolkit
 				{ LOG_PRIORITY_TYPE::EMERG, LOG_EMERG },
 			};
 
-			::syslog(priorities[event.priority], "%s", Layout() ? Layout()->Format(event).data() : event.message.data());
+			::syslog(priorities[event.priority], "%s", Layout() ? Layout()->Format(event).c_str() : event.message.c_str());
 
 			if (_autoFlush)
 			{

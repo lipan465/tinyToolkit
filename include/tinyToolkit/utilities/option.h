@@ -334,11 +334,11 @@ namespace tinyToolkit
 						throw std::invalid_argument("Arg need input : " + std::string(argv[i]));
 					}
 
-					_parse.insert(std::make_pair(opt, std::make_shared<OptionValue>(iter->second->Description().data(), val.data())));
+					_parse.insert(std::make_pair(opt, std::make_shared<OptionValue>(iter->second->Description().c_str(), val.c_str())));
 				}
 				else
 				{
-					_parse.insert(std::make_pair(opt, std::make_shared<OptionValue>(iter->second->Description().data())));
+					_parse.insert(std::make_pair(opt, std::make_shared<OptionValue>(iter->second->Description().c_str())));
 				}
 			}
 

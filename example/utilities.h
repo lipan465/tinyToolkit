@@ -203,9 +203,11 @@ public:
 				std::cout << "write failed" << std::endl;
 			}
 
-			if (auto value{ tinyToolkit::Filesystem::ReadAll("1.txt") })
+			auto value = tinyToolkit::Filesystem::ReadAll("1.txt");
+
+			if (!value.empty())
 			{
-				std::cout << "tinyToolkit::Filesystem::ReadAll(\"1.txt\") : " << value.value() << std::endl;
+				std::cout << "tinyToolkit::Filesystem::ReadAll(\"1.txt\") : " << value << std::endl;
 			}
 
 			std::cout << "v1:" << std::endl;
@@ -222,7 +224,7 @@ public:
 				std::cout << iter << std::endl;
 			}
 
-#if TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_APPLE
+#if TINY_TOOLKIT_CXX_SUPPORT >= 17
 
 			std::cout << "trace file" << std::endl;
 

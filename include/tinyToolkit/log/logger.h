@@ -24,7 +24,7 @@ namespace tinyToolkit
 		 * 构造函数
 		 *
 		 */
-		ILogger() : _name(tinyToolkit::Application::Name())
+		ILogger() : _name(Application::Name())
 		{
 
 		}
@@ -486,7 +486,7 @@ namespace tinyToolkit
 		 * @param event 日志事件
 		 *
 		 */
-		virtual void Write(const LogEvent & event) = 0;
+		virtual void Write(LogEvent & event) = 0;
 
 		/**
 		 *
@@ -499,8 +499,6 @@ namespace tinyToolkit
 		void Write(LOG_PRIORITY_TYPE priority, const std::string & message)
 		{
 			LogEvent event(_name, message, priority);
-
-			tinyToolkit::Time::LocalTm(tinyToolkit::Time::Seconds(event.time), event.tm);
 
 			Write(event);
 		}
@@ -519,9 +517,7 @@ namespace tinyToolkit
 		template<typename... Args>
 		void Write(LOG_PRIORITY_TYPE priority, const char * fmt, Args &&... args)
 		{
-			LogEvent event(_name, tinyToolkit::String::Format(fmt, std::forward<Args>(args)...), priority);
-
-			tinyToolkit::Time::LocalTm(tinyToolkit::Time::Seconds(event.time), event.tm);
+			LogEvent event(_name, String::Format(fmt, std::forward<Args>(args)...), priority);
 
 			Write(event);
 		}

@@ -59,7 +59,7 @@ namespace tinyToolkit
 		 */
 		static uint64_t Get(int32_t dataCenterID = 0, int32_t workerID = 0)
 		{
-			return tinyToolkit::Singleton<Snowflake>::Instance().Create(dataCenterID, workerID);
+			return Singleton<Snowflake>::Instance().Create(dataCenterID, workerID);
 		}
 
 	protected:
@@ -77,12 +77,12 @@ namespace tinyToolkit
 		{
 			if (workerID < 0 || workerID > _workerIDMax)
 			{
-				throw std::runtime_error(tinyToolkit::String::Format("workerID can't be greater than {} or less than 0", _workerIDMax));
+				throw std::runtime_error(String::Format("workerID can't be greater than {} or less than 0", _workerIDMax));
 			}
 
 			if (dataCenterID < 0 || dataCenterID > _dataCenterIDMax)
 			{
-				throw std::runtime_error(tinyToolkit::String::Format("dataCenterID can't be greater than {} or less than 0", _dataCenterIDMax));
+				throw std::runtime_error(String::Format("dataCenterID can't be greater than {} or less than 0", _dataCenterIDMax));
 			}
 
 			_workerID = workerID;
@@ -100,7 +100,7 @@ namespace tinyToolkit
 		 */
 		uint64_t NextID()
 		{
-			auto timeStamp = tinyToolkit::Time::Milliseconds();
+			auto timeStamp = Time::Milliseconds();
 
 			if (timeStamp < _lastTimeStamp)
 			{
@@ -143,11 +143,11 @@ namespace tinyToolkit
 		 */
 		std::time_t TilNextMillis(std::time_t lastTimestamp)
 		{
-			auto timeStamp = tinyToolkit::Time::Milliseconds();
+			auto timeStamp = Time::Milliseconds();
 
 			while (timeStamp <= lastTimestamp)
 			{
-				timeStamp = tinyToolkit::Time::Milliseconds();
+				timeStamp = Time::Milliseconds();
 			}
 
 			return timeStamp;
@@ -171,7 +171,7 @@ namespace tinyToolkit
 
 		int32_t _sequenceMask{ 0 };
 
-		std::time_t _baseTimeStamp{ tinyToolkit::Time::Milliseconds() };
+		std::time_t _baseTimeStamp{ Time::Milliseconds() };
 		std::time_t _lastTimeStamp{ 0 };
 	};
 }

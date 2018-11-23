@@ -119,8 +119,8 @@ namespace tinyToolkit
 				else
 				{
 					tempStr += "%";
-					tempStr += tinyToolkit::Bytes::AsHex(static_cast<uint8_t>(byte >> 4));
-					tempStr += tinyToolkit::Bytes::AsHex(static_cast<uint8_t>(byte % 16));
+					tempStr += Bytes::AsHex(static_cast<uint8_t>(byte >> 4));
+					tempStr += Bytes::AsHex(static_cast<uint8_t>(byte % 16));
 				}
 			}
 
@@ -139,7 +139,7 @@ namespace tinyToolkit
 		 */
 		static std::string Encode(const std::string & value, std::size_t size)
 		{
-			return Encode(value.data(), size);
+			return Encode(value.c_str(), size);
 		}
 
 		/**
@@ -229,8 +229,8 @@ namespace tinyToolkit
 				}
 				else if (value[i] == '%')
 				{
-					uint8_t high = tinyToolkit::Bytes::AsChar(value[++i]);
-					uint8_t low  = tinyToolkit::Bytes::AsChar(value[++i]);
+					uint8_t high = Bytes::AsChar(value[++i]);
+					uint8_t low  = Bytes::AsChar(value[++i]);
 
 					tempStr += high * 16 + low;
 				}
@@ -255,7 +255,7 @@ namespace tinyToolkit
 		 */
 		static std::string Decode(const std::string & value, std::size_t size)
 		{
-			return Decode(value.data(), size);
+			return Decode(value.c_str(), size);
 		}
 	};
 }

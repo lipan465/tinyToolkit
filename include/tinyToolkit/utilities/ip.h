@@ -77,7 +77,7 @@ namespace tinyToolkit
 		 */
 		static uint32_t AsNetByte(const std::string & value)
 		{
-			return AsNetByte(value.data());
+			return AsNetByte(value.c_str());
 		}
 
 		/**
@@ -127,7 +127,7 @@ namespace tinyToolkit
 		 */
 		static uint32_t AsHostByte(const std::string & value)
 		{
-			return AsHostByte(value.data());
+			return AsHostByte(value.c_str());
 		}
 
 		/**

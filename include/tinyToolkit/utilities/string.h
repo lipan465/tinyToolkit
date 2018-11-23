@@ -12,6 +12,7 @@
 
 
 #include "../3rd/fmt/fmt.h"
+
 #include "../common/common.h"
 
 
@@ -1055,7 +1056,7 @@ namespace tinyToolkit
 		 */
 		static std::string AsHexString(const std::string & value, std::size_t size, bool reverse = false)
 		{
-			return AsHexString(value.data(), size, reverse);
+			return AsHexString(value.c_str(), size, reverse);
 		}
 
 		/**
@@ -1244,7 +1245,7 @@ namespace tinyToolkit
 		 */
 		static std::string AsString(const std::string & value, std::size_t size, bool reverse = false)
 		{
-			return AsString(value.data(), size, reverse);
+			return AsString(value.c_str(), size, reverse);
 		}
 	};
 };

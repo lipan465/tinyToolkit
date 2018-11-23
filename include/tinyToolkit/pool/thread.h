@@ -101,7 +101,7 @@ namespace tinyToolkit
 				}
 			}
 
-			tinyToolkit::Container::Clear(_pool);
+			Container::Clear(_pool);
 		}
 
 		/**
@@ -113,7 +113,7 @@ namespace tinyToolkit
 		{
 			while (!IsComplete())
 			{
-				TINY_TOOLKIT_SLEEP_MS(10)
+				TINY_TOOLKIT_YIELD()
 			}
 		}
 

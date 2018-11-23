@@ -23,6 +23,19 @@ namespace tinyToolkit
 		typedef std::function<void(ValueTypeT oldValue, ValueTypeT newValue)> FunctionType;
 
 	public:
+		/**
+		 *
+		 * 析构函数
+		 *
+		 */
+		~ValueWatcher()
+		{
+			for (auto &iter : _callbackPool)
+			{
+				TINY_TOOLKIT_DELETE_PTR(iter.second)
+			}
+		}
+
 		void Set(const char * key, ValueTypeT value)
 		{
 			std::lock_guard<std::mutex> lock(_lock);
@@ -62,7 +75,7 @@ namespace tinyToolkit
 
 			if (iter == _callbackPool.end())
 			{
-				_callbackPool.insert(std::make_pair(key, new tinyToolkit::CallBackPool<void, ValueTypeT, ValueTypeT>));
+				_callbackPool.insert(std::make_pair(key, new CallBackPool<void, ValueTypeT, ValueTypeT>));
 
 				iter = _callbackPool.find(key);
 			}
@@ -72,23 +85,23 @@ namespace tinyToolkit
 
 		void Print()
 		{
-			tinyToolkit::String::Print("+--------------------------------------------------|--------------------------------------------------+\n");
-			tinyToolkit::String::Print("|{:^50}|{:^50}|\n", "Key", "Value");
+			String::Print("+--------------------------------------------------|--------------------------------------------------+\n");
+			String::Print("|{:^50}|{:^50}|\n", "Key", "Value");
 
 			for (auto &iter : _valuePool)
 			{
-				tinyToolkit::String::Print("+--------------------------------------------------|--------------------------------------------------+\n");
-				tinyToolkit::String::Print("|{:^50}|{:^50}|\n", iter.first, iter.second);
+				String::Print("+--------------------------------------------------|--------------------------------------------------+\n");
+				String::Print("|{:^50}|{:^50}|\n", iter.first, iter.second);
 			}
 
-			tinyToolkit::String::Print("+--------------------------------------------------|--------------------------------------------------+\n");
+			String::Print("+--------------------------------------------------|--------------------------------------------------+\n");
 		}
 
 	protected:
 		std::mutex _lock;
 
 		std::unordered_map<std::string, ValueTypeT> _valuePool;
-		std::unordered_map<std::string, tinyToolkit::CallBackPool<void, ValueTypeT, ValueTypeT> *> _callbackPool;
+		std::unordered_map<std::string, CallBackPool<void, ValueTypeT, ValueTypeT> *> _callbackPool;
 	};
 }
 

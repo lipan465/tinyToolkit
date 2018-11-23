@@ -78,15 +78,43 @@ namespace tinyToolkit
 		 * @param event 日志事件
 		 *
 		 */
-		void Write(const LogEvent & event) override
+		void Write(LogEvent & event) override
 		{
 			std::lock_guard<std::mutex> lock(_mutex);
+
+			event.time = Time::TimePoint();
+
+			std::time_t second = Time::Seconds(event.time);
+
+			if (second == _second)  /// 同一秒生成的日志
+			{
+				/// 不需要处理
+			}
+			else if (second / 60 == _minutes)  /// 同一分钟生成的日志
+			{
+				_second = second;
+
+				_tm.tm_sec = static_cast<int32_t>(_second % 60);  /// 更新秒
+			}
+			else  /// 不同分钟生成的日志
+			{
+				_minutes = second / 60;
+
+				Time::LocalTm(second, _tm);  /// 重新处理
+			}
+
+			event.tm = _tm;
 
 			for (auto &iter : _container)
 			{
 				iter.second->Write(event);
 			}
 		}
+
+	protected:
+		std::tm _tm{ };
+		std::time_t _second{ 0 };
+		std::time_t _minutes{ 0 };
 	};
 }
 

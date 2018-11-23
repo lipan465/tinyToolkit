@@ -94,7 +94,7 @@ namespace tinyToolkit
 			{
 				std::string value(Layout() ? Layout()->Format(event) : event.message);
 
-				::fwrite(value.data(), sizeof(char), value.size(), _console);
+				::fwrite(value.c_str(), sizeof(char), value.size(), _console);
 			}
 
 			if (_autoFlush)

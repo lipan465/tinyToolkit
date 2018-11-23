@@ -762,7 +762,7 @@ namespace tinyToolkit
 		Timer()
 		{
 			_tick.store(0);
-			_lastTime.store(tinyToolkit::Time::Milliseconds());
+			_lastTime.store(Time::Milliseconds());
 
 			_thread = std::thread(&Timer::ThreadProcess, this);
 		}
@@ -908,7 +908,7 @@ namespace tinyToolkit
 		 */
 		void Update()
 		{
-			std::time_t now = tinyToolkit::Time::Milliseconds();
+			std::time_t now = Time::Milliseconds();
 
 			if (now < _lastTime.load())
 			{

@@ -167,14 +167,14 @@ namespace tinyToolkit
 				std::string srcPath = CalculatePath(_path, i - 1);
 				std::string dstPath = CalculatePath(_path, i);
 
-				if (tinyToolkit::Filesystem::Exists(dstPath))
+				if (Filesystem::Exists(dstPath))
 				{
-					tinyToolkit::Filesystem::Remove(dstPath);
+					Filesystem::Remove(dstPath);
 				}
 
-				if (tinyToolkit::Filesystem::Exists(srcPath))
+				if (Filesystem::Exists(srcPath))
 				{
-					tinyToolkit::Filesystem::Rename(srcPath, dstPath);
+					Filesystem::Rename(srcPath, dstPath);
 				}
 			}
 		}
@@ -200,15 +200,15 @@ namespace tinyToolkit
 
 			if (pos == std::string::npos)  /// name_1
 			{
-				return tinyToolkit::String::Format("{}_{}", path, index);
+				return String::Format("{}_{}", path, index);
 			}
 			else if (pos == 0)  /// 1.log
 			{
-				return tinyToolkit::String::Format("{}{}", index, path);
+				return String::Format("{}{}", index, path);
 			}
 			else  /// name_1.log
 			{
-				return tinyToolkit::String::Format("{}_{}{}", path.substr(0, pos), index, path.substr(pos));
+				return String::Format("{}_{}{}", path.substr(0, pos), index, path.substr(pos));
 			}
 		}
 

@@ -109,7 +109,7 @@ namespace tinyToolkit
 		{
 			_id.store(0);
 
-			tinyToolkit::Container::Clear(_pool);
+			Container::Clear(_pool);
 		}
 
 		/**

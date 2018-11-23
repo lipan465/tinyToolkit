@@ -43,9 +43,8 @@ namespace tinyToolkit
 				return false;
 			}
 
-			_applicationThreadStatus = true;
-
-			_applicationThread = std::thread(&ApplicationThread::ThreadProcess, this);
+			_status = true;
+			_thread = std::thread(&ApplicationThread::ThreadProcess, this);
 
 			return true;
 		}
@@ -59,11 +58,11 @@ namespace tinyToolkit
 		{
 			if (ApplicationThreadStatus())
 			{
-				if (_applicationThread.joinable())
+				if (_thread.joinable())
 				{
-					_applicationThreadStatus = false;
+					_status = false;
 
-					_applicationThread.join();
+					_thread.join();
 				}
 			}
 		}
@@ -77,7 +76,7 @@ namespace tinyToolkit
 		{
 			while (ApplicationThreadStatus())
 			{
-				TINY_TOOLKIT_SLEEP_MS(10);
+				TINY_TOOLKIT_YIELD()
 			}
 		}
 
@@ -90,7 +89,7 @@ namespace tinyToolkit
 		 */
 		bool ApplicationThreadStatus() const
 		{
-			return _applicationThreadStatus;
+			return _status;
 		}
 
 	protected:
@@ -99,20 +98,12 @@ namespace tinyToolkit
 		 * app线程逻辑函数
 		 *
 		 */
-		virtual void ThreadProcess()
-		{
-			while (ApplicationThreadStatus())
-			{
-				TINY_TOOLKIT_SLEEP_S(1)
+		virtual void ThreadProcess() = 0;
 
-				break;
-			}
-		}
+	private:
+		bool _status{ false };
 
-	protected:
-		bool _applicationThreadStatus{ false };
-
-		std::thread _applicationThread;
+		std::thread _thread;
 	};
 }
 

@@ -135,11 +135,11 @@ namespace tinyToolkit
 
 			_isNew = false;
 
-			tinyToolkit::Container::Clear(_hex16);
-			tinyToolkit::Container::Clear(_hex32);
-			tinyToolkit::Container::Clear(_str16);
-			tinyToolkit::Container::Clear(_str32);
-			tinyToolkit::Container::Clear(_value);
+			Container::Clear(_hex16);
+			Container::Clear(_hex32);
+			Container::Clear(_str16);
+			Container::Clear(_str32);
+			Container::Clear(_value);
 
 			memset(reinterpret_cast<void *>(&_context), 0, sizeof(Context));
 
@@ -228,7 +228,7 @@ namespace tinyToolkit
 		 */
 		void Update(const std::string & value, std::size_t size)
 		{
-			Update(value.data(), size);
+			Update(value.c_str(), size);
 		}
 
 		/**
@@ -413,8 +413,8 @@ namespace tinyToolkit
 				_str16.assign(reinterpret_cast<const char *>(data) + 4, sizeof(data) / 2);
 				_str32.assign(reinterpret_cast<const char *>(data) + 0, sizeof(data) / 1);
 
-				_hex16.assign(tinyToolkit::String::AsHexString(data + 4, sizeof(data) / 2, false));
-				_hex32.assign(tinyToolkit::String::AsHexString(data + 0, sizeof(data) / 1, false));
+				_hex16.assign(String::AsHexString(data + 4, sizeof(data) / 2, false));
+				_hex32.assign(String::AsHexString(data + 0, sizeof(data) / 1, false));
 			}
 		}
 

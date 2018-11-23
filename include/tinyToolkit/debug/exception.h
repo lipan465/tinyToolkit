@@ -36,12 +36,12 @@ namespace tinyToolkit
 		{
 			if (_message.empty())
 			{
-				_what += tinyToolkit::String::Format("{}:{} in {}", file, line, func);
+				_what += String::Format("{}:{} in {}", file, line, func);
 				_what += TINY_TOOLKIT_EOL;
 			}
 			else
 			{
-				_what += tinyToolkit::String::Format("[{}:{} in {}] {}", file, line, func, _message);
+				_what += String::Format("[{}:{} in {}] {}", file, line, func, _message);
 				_what += TINY_TOOLKIT_EOL;
 			}
 
@@ -62,7 +62,7 @@ namespace tinyToolkit
 		 */
 		const char * what() const noexcept override
 		{
-			return _what.data();
+			return _what.c_str();
 		}
 
 		/**

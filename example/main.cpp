@@ -13,7 +13,7 @@
 int main(int argc, const char * argv[])
 {
 //	ID::Test();
-	Log::Test();
+//	Log::Test();
 //	Pool::Test();
 //	Debug::Test();
 //	System::Test();

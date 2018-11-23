@@ -153,7 +153,7 @@ namespace tinyToolkit
 		 */
 		static std::string Encode(const std::string & value, std::size_t size)
 		{
-			return Encode(value.data(), size);
+			return Encode(value.c_str(), size);
 		}
 
 		/**
@@ -351,7 +351,7 @@ namespace tinyToolkit
 		 */
 		static std::string Decode(const std::string & value, std::size_t size)
 		{
-			return Decode(value.data(), size);
+			return Decode(value.c_str(), size);
 		}
 	};
 }

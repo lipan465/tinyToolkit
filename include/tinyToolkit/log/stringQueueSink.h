@@ -68,7 +68,7 @@ namespace tinyToolkit
 		 */
 		void Reopen() override
 		{
-			tinyToolkit::Container::Clear(_queue);
+			Container::Clear(_queue);
 		}
 
 		/**

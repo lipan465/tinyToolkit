@@ -52,7 +52,7 @@ namespace tinyToolkit
 		 */
 		void SetTime(std::time_t time)
 		{
-			_time = tinyToolkit::Time::TimePoint(time);
+			_time = Time::TimePoint(time);
 		}
 
 		/**

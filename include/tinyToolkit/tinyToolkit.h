@@ -15,6 +15,12 @@
 #include "id/unique.h"
 #include "id/snowflake.h"
 
+/// 3rd
+#include "3rd/httpClient.h"
+#include "3rd/sqliteClient.h"
+#include "3rd/opensslClient.h"
+#include "3rd/memcachedClient.h"
+
 /// log
 #include "log/sink.h"
 #include "log/event.h"
@@ -85,9 +91,13 @@
 #include "utilities/singleton.h"
 #include "utilities/filesystem.h"
 
-
-#define sSyncLogger		tinyToolkit::SyncLogger::Instance()
-#define sAsyncLogger	tinyToolkit::AsyncLogger::Instance()
+/// 3rd/rapidjson
+#include "3rd/rapidjson/writer.h"
+#include "3rd/rapidjson/reader.h"
+#include "3rd/rapidjson/pointer.h"
+#include "3rd/rapidjson/document.h"
+#include "3rd/rapidjson/error/en.h"
+#include "3rd/rapidjson/stringbuffer.h"
 
 
 #endif // __TINY_TOOLKIT__TINY_TOOLKIT__H__

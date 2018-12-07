@@ -1,12 +1,12 @@
-#ifndef __TINY_TOOLKIT__UTILITIES__RANDOM__H__
-#define __TINY_TOOLKIT__UTILITIES__RANDOM__H__
+#ifndef __TINY_TOOLKIT__ID__RANDOM__H__
+#define __TINY_TOOLKIT__ID__RANDOM__H__
 
 
 /**
  *
  *  作者: hm
  *
- *  说明: 随机数处理
+ *  说明: 随机数
  *
  */
 
@@ -78,4 +78,4 @@ namespace tinyToolkit
 }
 
 
-#endif // __TINY_TOOLKIT__UTILITIES__RANDOM__H__
+#endif // __TINY_TOOLKIT__ID__RANDOM__H__

@@ -206,7 +206,7 @@ namespace tinyToolkit
 
 			if (value.second)
 			{
-				char str[TINY_TOOLKIT_MB] = { 0 };
+				char str[TINY_TOOLKIT_PATH_MAX] = { 0 };
 
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 

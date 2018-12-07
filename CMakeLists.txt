@@ -38,6 +38,9 @@ IF(NOT CMAKE_BUILD_TYPE)
 ENDIF()
 
 
+#
+# 兼容低版本abi
+#
 IF(CONAN_LIBCXX STREQUAL "libstdc++11")
 
 	ADD_DEFINITIONS(

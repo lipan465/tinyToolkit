@@ -293,7 +293,7 @@ namespace tinyToolkit
 		 * @param argv 解析选项流
 		 *
 		 */
-		void Parse(int32_t argc, const char * argv[])
+		void Parse(int32_t argc, char ** argv)
 		{
 			Define("help",    "display help message",    "Help options");
 			Define("version", "display version message", "Version options");
@@ -303,35 +303,37 @@ namespace tinyToolkit
 
 			for (int32_t i = 1; i < argc; ++i)
 			{
-				if (strncmp(argv[i], "--", 2) != 0)
+				const char * value = argv[i];
+
+				if (strncmp(value, "--", 2) != 0)
 				{
-					throw std::invalid_argument("Arg invalid : " + std::string(argv[i]));
+					throw std::invalid_argument("Arg invalid : " + std::string(value));
 				}
 
-				const char * find = strstr(argv[i] + 2, "=");
+				const char * find = strstr(value + 2, "=");
 
 				if (find)
 				{
 					val.assign(find + 1);
-					opt.assign(argv[i] + 2, find);
+					opt.assign(value + 2, find);
 				}
 				else
 				{
-					opt.assign(argv[i] + 2);
+					opt.assign(value + 2);
 				}
 
 				auto iter = _options.find(opt);
 
 				if (_options.end() == iter)
 				{
-					throw std::invalid_argument("Arg invalid : " + std::string(argv[i]));
+					throw std::invalid_argument("Arg invalid : " + std::string(value));
 				}
 
 				if (iter->second->IsArg())
 				{
 					if (find == nullptr)
 					{
-						throw std::invalid_argument("Arg need input : " + std::string(argv[i]));
+						throw std::invalid_argument("Arg need input : " + std::string(value));
 					}
 
 					_parse.insert(std::make_pair(opt, std::make_shared<OptionValue>(iter->second->Description().c_str(), val.c_str())));

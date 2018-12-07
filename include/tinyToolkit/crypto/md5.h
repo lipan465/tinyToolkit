@@ -12,7 +12,7 @@
 
 
 #include "../utilities/string.h"
-#include "../utilities/container.h"
+#include "../container/operator.h"
 
 
 namespace tinyToolkit
@@ -135,11 +135,11 @@ namespace tinyToolkit
 
 			_isNew = false;
 
-			Container::Clear(_hex16);
-			Container::Clear(_hex32);
-			Container::Clear(_str16);
-			Container::Clear(_str32);
-			Container::Clear(_value);
+			ContainerOperator::Clear(_hex16);
+			ContainerOperator::Clear(_hex32);
+			ContainerOperator::Clear(_str16);
+			ContainerOperator::Clear(_str32);
+			ContainerOperator::Clear(_value);
 
 			memset(reinterpret_cast<void *>(&_context), 0, sizeof(Context));
 

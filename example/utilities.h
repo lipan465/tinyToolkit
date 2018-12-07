@@ -203,11 +203,11 @@ public:
 				std::cout << "write failed" << std::endl;
 			}
 
-			auto value = tinyToolkit::Filesystem::ReadAll("1.txt");
+			auto value = tinyToolkit::Filesystem::Content("1.txt");
 
 			if (!value.empty())
 			{
-				std::cout << "tinyToolkit::Filesystem::ReadAll(\"1.txt\") : " << value << std::endl;
+				std::cout << "tinyToolkit::Filesystem::Content(\"1.txt\") : " << value << std::endl;
 			}
 
 			std::cout << "v1:" << std::endl;

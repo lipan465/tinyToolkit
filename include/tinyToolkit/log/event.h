@@ -71,22 +71,6 @@ namespace tinyToolkit
 		 * 构造函数
 		 *
 		 * @param logName 事件名称
-		 * @param logOption 日志操作
-		 * @param logPriority 日志优先级
-		 *
-		 */
-		explicit LogEvent(std::string logName, LOG_OPTION_TYPE logOption, LOG_PRIORITY_TYPE logPriority) : name(std::move(logName)),
-																										   option(logOption),
-																										   priority(logPriority)
-		{
-
-		}
-
-		/**
-		 *
-		 * 构造函数
-		 *
-		 * @param logName 事件名称
 		 * @param logMessage 日志信息
 		 * @param logOption 日志操作
 		 *
@@ -118,10 +102,17 @@ namespace tinyToolkit
 		 *
 		 * 构造函数
 		 *
-		 * @param rhs 实例化对象
+		 * @param logName 事件名称
+		 * @param logOption 日志操作
+		 * @param logPriority 日志优先级
 		 *
 		 */
-		LogEvent(const LogEvent & rhs) = default;
+		explicit LogEvent(std::string logName, LOG_OPTION_TYPE logOption, LOG_PRIORITY_TYPE logPriority) : name(std::move(logName)),
+																										   option(logOption),
+																										   priority(logPriority)
+		{
+
+		}
 
 		/**
 		 *
@@ -144,18 +135,20 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 重载=操作
+		 * 构造函数
 		 *
-		 * @param rhs 实例化对象
+		 * @param lhs 实例化对象
 		 *
 		 */
-		LogEvent & operator=(const LogEvent & rhs) = default;
+		LogEvent(const LogEvent & lhs) = default;
 
 		/**
 		 *
 		 * 重载=操作
 		 *
 		 * @param rhs 实例化对象
+		 *
+		 * @return 实例化对象
 		 *
 		 */
 		LogEvent & operator=(LogEvent && rhs) noexcept
@@ -175,6 +168,17 @@ namespace tinyToolkit
 
 			return *this;
 		}
+
+		/**
+		 *
+		 * 重载=操作
+		 *
+		 * @param lhs 实例化对象
+		 *
+		 * @return 实例化对象
+		 *
+		 */
+		LogEvent & operator=(const LogEvent & lhs) = default;
 
 	public:
 		std::tm tm{ };

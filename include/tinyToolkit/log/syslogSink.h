@@ -93,7 +93,7 @@ namespace tinyToolkit
 
 			static std::unordered_map<LOG_PRIORITY_TYPE, int32_t> priorities
 			{
-				{ LOG_PRIORITY_TYPE::DEBUG, LOG_DEBUG },
+				{ LOG_PRIORITY_TYPE::DEBUGS, LOG_DEBUG },
 				{ LOG_PRIORITY_TYPE::INFO, LOG_INFO },
 				{ LOG_PRIORITY_TYPE::NOTICE, LOG_NOTICE },
 				{ LOG_PRIORITY_TYPE::WARNING, LOG_WARNING },

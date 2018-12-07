@@ -11,8 +11,7 @@
  */
 
 
-#include "../utilities/time.h"
-#include "../utilities/container.h"
+#include "../container/operator.h"
 
 
 namespace tinyToolkit
@@ -109,7 +108,7 @@ namespace tinyToolkit
 		{
 			_id.store(0);
 
-			Container::Clear(_pool);
+			ContainerOperator::Clear(_pool);
 		}
 
 		/**
@@ -153,7 +152,7 @@ namespace tinyToolkit
 		 * @param args 参数
 		 *
 		 */
-		void operator () (Args &&... args)
+		void operator()(Args &&... args)
 		{
 			Call(std::forward<Args>(args)...);
 		}
@@ -165,7 +164,7 @@ namespace tinyToolkit
 		 * @param id 序列号
 		 *
 		 */
-		void operator -= (std::size_t id)
+		void operator-=(std::size_t id)
 		{
 			UnRegister(id);
 		}
@@ -177,9 +176,9 @@ namespace tinyToolkit
 		 * @param function 函数
 		 *
 		 */
-		std::size_t operator += (std::function<ReturnTypeT(Args...)> function)
+		std::size_t operator+=(std::function<ReturnTypeT(Args...)> function)
 		{
-			return Register(function);
+			return Register(std::move(function));
 		}
 
 	protected:

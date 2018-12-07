@@ -25,17 +25,15 @@ namespace tinyToolkit
 		 *
 		 * @tparam Args [all built-in types]
 		 *
-		 * @param file 文件
-		 * @param line 行号
-		 * @param func 函数
+		 * @param fileLine 文件信息
 		 * @param format 格式化
 		 * @param args 参数
 		 *
 		 */
 		template <typename... Args>
-		static void Debug(const char * file, const int32_t line, const char * func, const char * format, Args &&... args)
+		static void Debug(const FileLine & fileLine, const char * format, Args &&... args)
 		{
-			std::cout << std::endl << String::Format("[{}:{} {}] {}", file, line, func, String::Format(format, std::forward<Args>(args)...)) << std::endl;
+			std::cout << std::endl << String::Format("[{}] {}", fileLine.Message(), String::Format(format, std::forward<Args>(args)...)) << std::endl;
 		}
 
 		/**
@@ -44,31 +42,27 @@ namespace tinyToolkit
 		 *
 		 * @tparam Args [all built-in types]
 		 *
-		 * @param file 文件
-		 * @param line 行号
-		 * @param func 函数
+		 * @param fileLine 文件信息
 		 * @param format 格式化
 		 * @param args 参数
 		 *
 		 */
 		template <typename... Args>
-		static void Debug(const char * file, const int32_t line, const char * func, const std::string & format, Args &&... args)
+		static void Debug(const FileLine & fileLine, const std::string & format, Args &&... args)
 		{
-			std::cout << std::endl << String::Format("{[}:{} {}] {}", file, line, func, String::Format(format, std::forward<Args>(args)...)) << std::endl;
+			std::cout << std::endl << String::Format("[{}] {}", fileLine.Message(), String::Format(format, std::forward<Args>(args)...)) << std::endl;
 		}
 
 		/**
 		 *
 		 * 致命异常
 		 *
-		 * @param file 文件
-		 * @param line 行号
-		 * @param func 函数
+		 * @param fileLine 文件信息
 		 *
 		 */
-		static void Fatal(const char * file, int32_t line, const char * func)
+		static void Fatal(const FileLine & fileLine)
 		{
-			ExceptionHelper::Throw<SystemExitException>(file, line, func);
+			ExceptionHelper::Throw<SystemExitException>(fileLine);
 		}
 
 		/**
@@ -77,17 +71,15 @@ namespace tinyToolkit
 		 *
 		 * @tparam Args [all built-in types]
 		 *
-		 * @param file 文件
-		 * @param line 行号
-		 * @param func 函数
+		 * @param fileLine 文件信息
 		 * @param format 格式化
 		 * @param args 参数
 		 *
 		 */
 		template <typename... Args>
-		static void Fatal(const char * file, int32_t line, const char * func, const char * format, Args &&... args)
+		static void Fatal(const FileLine & fileLine, const char * format, Args &&... args)
 		{
-			ExceptionHelper::Throw<SystemExitException>(file, line, func, String::Format(format, std::forward<Args>(args)...));
+			ExceptionHelper::Throw<SystemExitException>(fileLine, String::Format(format, std::forward<Args>(args)...));
 		}
 
 		/**
@@ -96,52 +88,28 @@ namespace tinyToolkit
 		 *
 		 * @tparam Args [all built-in types]
 		 *
-		 * @param file 文件名
-		 * @param line 行号
-		 * @param func 函数名
+		 * @param fileLine 文件信息
 		 * @param format 格式化
 		 * @param args 参数
 		 *
 		 */
 		template <typename... Args>
-		static void Fatal(const char * file, int32_t line, const char * func, const std::string & format, Args &&... args)
+		static void Fatal(const FileLine & fileLine, const std::string & format, Args &&... args)
 		{
-			ExceptionHelper::Throw<SystemExitException>(file, line, func, String::Format(format, std::forward<Args>(args)...));
+			ExceptionHelper::Throw<SystemExitException>(fileLine, String::Format(format, std::forward<Args>(args)...));
 		}
 
 		/**
 		 *
 		 * 断言异常
 		 *
-		 * @param file 文件
-		 * @param line 行号
-		 * @param func 函数
+		 * @param fileLine 文件信息
 		 * @param cond 判断表达式
 		 *
 		 */
-		static void Assert(const char * file, int32_t line, const char * func, const char * cond)
+		static void Assert(const FileLine & fileLine, const char * cond)
 		{
-			ExceptionHelper::Throw<AssertException>(file, line, func, "", cond);
-		}
-
-		/**
-		 *
-		 * 断言异常
-		 *
-		 * @tparam Args [all built-in types]
-		 *
-		 * @param file 文件
-		 * @param line 行号
-		 * @param func 函数
-		 * @param cond 判断表达式
-		 * @param format 格式化
-		 * @param args 参数
-		 *
-		 */
-		template <typename... Args>
-		static void Assert(const char * file, const int32_t line, const char * func, const char * cond, const char * format, Args &&... args)
-		{
-			ExceptionHelper::Throw<AssertException>(file, line, func, String::Format(format, std::forward<Args>(args)...), cond);
+			ExceptionHelper::Throw<AssertException>(fileLine, "", cond);
 		}
 
 		/**
@@ -150,30 +118,46 @@ namespace tinyToolkit
 		 *
 		 * @tparam Args [all built-in types]
 		 *
-		 * @param file 文件
-		 * @param line 行号
-		 * @param func 函数
+		 * @param fileLine 文件信息
 		 * @param cond 判断表达式
 		 * @param format 格式化
 		 * @param args 参数
 		 *
 		 */
 		template <typename... Args>
-		static void Assert(const char * file, const int32_t line, const char * func, const char * cond, const std::string & format, Args &&... args)
+		static void Assert(const FileLine & fileLine, const char * cond, const char * format, Args &&... args)
 		{
-			ExceptionHelper::Throw<AssertException>(file, line, func, String::Format(format, std::forward<Args>(args)...), cond);
+			ExceptionHelper::Throw<AssertException>(fileLine, String::Format(format, std::forward<Args>(args)...), cond);
+		}
+
+		/**
+		 *
+		 * 断言异常
+		 *
+		 * @tparam Args [all built-in types]
+		 *
+		 * @param fileLine 文件信息
+		 * @param cond 判断表达式
+		 * @param format 格式化
+		 * @param args 参数
+		 *
+		 */
+		template <typename... Args>
+		static void Assert(const FileLine & fileLine, const char * cond, const std::string & format, Args &&... args)
+		{
+			ExceptionHelper::Throw<AssertException>(fileLine, String::Format(format, std::forward<Args>(args)...), cond);
 		}
 	};
 }
 
 
-#define TINY_TOOLKIT_DEBUG(...)			tinyToolkit::TraceHelper::Debug(TINY_TOOLKIT_FILE, TINY_TOOLKIT_LINE, TINY_TOOLKIT_FUNC, ##__VA_ARGS__);
-#define TINY_TOOLKIT_FATAL(...)			tinyToolkit::TraceHelper::Fatal(TINY_TOOLKIT_FILE, TINY_TOOLKIT_LINE, TINY_TOOLKIT_FUNC, ##__VA_ARGS__);
+#define TINY_TOOLKIT_DEBUG(...)			tinyToolkit::TraceHelper::Debug(TINY_TOOLKIT_FILE_LINE, ##__VA_ARGS__);
+#define TINY_TOOLKIT_FATAL(...)			tinyToolkit::TraceHelper::Fatal(TINY_TOOLKIT_FILE_LINE, ##__VA_ARGS__);
 
 
 #ifdef DEBUG
 
-#define TINY_TOOLKIT_ASSERT(cond, ...)	if (!(cond)) tinyToolkit::TraceHelper::Assert(TINY_TOOLKIT_FILE, TINY_TOOLKIT_LINE, TINY_TOOLKIT_FUNC, #cond, ##__VA_ARGS__);
+#define TINY_TOOLKIT_ASSERT(cond, ...)	if (!(cond)) tinyToolkit::TraceHelper::Assert(TINY_TOOLKIT_FILE_LINE, #cond, ##__VA_ARGS__);
 
 #else
 

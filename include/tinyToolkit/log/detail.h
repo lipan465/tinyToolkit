@@ -16,8 +16,8 @@
 #include "../utilities/lock.h"
 #include "../utilities/string.h"
 #include "../system/application.h"
+#include "../container/operator.h"
 #include "../utilities/singleton.h"
-#include "../utilities/container.h"
 #include "../utilities/filesystem.h"
 
 
@@ -42,7 +42,7 @@ namespace tinyToolkit
 	 */
 	enum class LOG_PRIORITY_TYPE : uint8_t
 	{
-		DEBUG,
+		DEBUGS,
 		INFO,
 		NOTICE,
 		WARNING,

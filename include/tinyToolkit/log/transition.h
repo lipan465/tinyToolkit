@@ -252,7 +252,7 @@ namespace tinyToolkit
 		{
 			static std::unordered_map<LOG_PRIORITY_TYPE, std::string> PriorityName
 			{
-				{ LOG_PRIORITY_TYPE::DEBUG, "DEBUG" },
+				{ LOG_PRIORITY_TYPE::DEBUGS, "DEBUG" },
 				{ LOG_PRIORITY_TYPE::INFO, "INFO" },
 				{ LOG_PRIORITY_TYPE::NOTICE, "NOTICE" },
 				{ LOG_PRIORITY_TYPE::WARNING, "WARNING" },
@@ -279,7 +279,7 @@ namespace tinyToolkit
 		{
 			static std::unordered_map<std::string, LOG_PRIORITY_TYPE> PriorityValue
 			{
-				{ "DEBUG", LOG_PRIORITY_TYPE::DEBUG },
+				{ "DEBUG", LOG_PRIORITY_TYPE::DEBUGS },
 				{ "INFO", LOG_PRIORITY_TYPE::INFO },
 				{ "NOTICE", LOG_PRIORITY_TYPE::NOTICE },
 				{ "WARNING", LOG_PRIORITY_TYPE::WARNING },

@@ -64,7 +64,7 @@ namespace tinyToolkit
 		 */
 		void Debug(const std::string & message)
 		{
-			Write(LOG_PRIORITY_TYPE::DEBUG, message);
+			Write(LOG_PRIORITY_TYPE::DEBUGS, message);
 		}
 
 		/**
@@ -80,7 +80,7 @@ namespace tinyToolkit
 		template<typename... Args>
 		void Debug(const char * fmt, Args &&... args)
 		{
-			Write(LOG_PRIORITY_TYPE::DEBUG, fmt, std::forward<Args>(args)...);
+			Write(LOG_PRIORITY_TYPE::DEBUGS, fmt, std::forward<Args>(args)...);
 		}
 
 		/**

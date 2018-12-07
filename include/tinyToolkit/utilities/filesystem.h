@@ -45,7 +45,7 @@ namespace tinyToolkit
 		 */
 		static bool Exists(const std::string & path)
 		{
-#ifdef TINY_TOOLKIT_CXX_17
+#if TINY_TOOLKIT_CXX_SUPPORT >= 17
 
 			return std::filesystem::exists(path);
 
@@ -77,7 +77,7 @@ namespace tinyToolkit
 		 */
 		static bool Remove(const std::string & path)
 		{
-#ifdef TINY_TOOLKIT_CXX_17
+#if TINY_TOOLKIT_CXX_SUPPORT >= 17
 
 			return std::filesystem::remove(path);
 
@@ -100,7 +100,7 @@ namespace tinyToolkit
 		 */
 		static bool Rename(const std::string & src, const std::string & dst)
 		{
-#ifdef TINY_TOOLKIT_CXX_17
+#if TINY_TOOLKIT_CXX_SUPPORT >= 17
 
 			std::filesystem::rename(src, dst);
 
@@ -115,14 +115,48 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 读取文件内容
+		 * 文件大小
+		 *
+		 * @param path 文件路径
+		 *
+		 * @return 文件大小
+		 *
+		 */
+		static std::size_t Size(const std::string & path)
+		{
+#if TINY_TOOLKIT_CXX_SUPPORT >= 17
+
+			return std::filesystem::file_size(path);
+
+#else
+
+			std::ifstream ifs(path, std::ifstream::ate | std::ifstream::binary);
+
+			if (ifs.is_open())
+			{
+				std::size_t size = static_cast<std::size_t>(ifs.tellg());
+
+				ifs.close();
+
+				return size;
+			}
+			else
+			{
+				throw std::runtime_error("Failed open file : " + path);
+			}
+#endif
+		}
+
+		/**
+		 *
+		 * 文件内容
 		 *
 		 * @param path 待读取文件路径
 		 *
-		 * @return 读取结果
+		 * @return 文件内容
 		 *
 		 */
-		static std::string ReadAll(const std::string & path)
+		static std::string Content(const std::string & path)
 		{
 			std::ifstream ifs(path, std::ios::binary);
 
@@ -134,51 +168,10 @@ namespace tinyToolkit
 
 				return str;
 			}
-
-			return { };
-		}
-
-		/**
-		 *
-		 * 读取文件内容
-		 *
-		 * @param path 待读取文件路径
-		 * @param container 结果容器
-		 * @param keepEmpty 是否保留空行
-		 *
-		 * @return 读取行数
-		 *
-		 */
-		static std::size_t ReadFile(const char * path, std::vector<std::string> & container, bool keepEmpty = false)
-		{
-			if (path)
+			else
 			{
-				std::ifstream ifs(path, std::ios::binary);
-
-				if (ifs.is_open())
-				{
-					std::string str{ };
-
-					while (!ifs.eof())
-					{
-						std::getline(ifs, str);
-
-						if (!ifs.good())  // 检查文件流是否正常
-						{
-							break;
-						}
-
-						if (keepEmpty || !str.empty())
-						{
-							container.push_back(str);
-						}
-					}
-
-					ifs.close();
-				}
+				throw std::runtime_error("Failed open file : " + path);
 			}
-
-			return container.size();
 		}
 
 		/**
@@ -326,6 +319,44 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 创建文件夹
+		 *
+		 * @param path 待创建文件路径
+		 *
+		 * @return 创建结果
+		 *
+		 */
+		static bool CreateDirectory(const std::string & path)
+		{
+#if TINY_TOOLKIT_CXX_SUPPORT >= 17
+
+			return std::filesystem::create_directory(path);
+
+#else
+
+	#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+			if (_mkdir(path.c_str()) == -1)
+			{
+				return Exists(path);
+			}
+
+	#else
+
+			if (mkdir(path.c_str(), 0777) == -1)
+			{
+				return Exists(path);
+			}
+
+	#endif
+
+			return true;
+
+#endif
+		}
+
+		/**
+		 *
 		 * 文件名
 		 *
 		 * @param path 待处理文件路径
@@ -401,7 +432,7 @@ namespace tinyToolkit
 		{
 			std::size_t pos = path.rfind(TINY_TOOLKIT_FOLDER_SEP[0]);
 
-			return pos == std::string::npos ? "./" : path.substr(0, pos + 1);
+			return pos == std::string::npos ? TINY_TOOLKIT_FOLDER_EOL : path.substr(0, pos + 1);
 		}
 
 #if TINY_TOOLKIT_CXX_SUPPORT >= 17

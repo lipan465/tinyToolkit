@@ -12,6 +12,7 @@
 
 
 #include "../utilities/string.h"
+#include "../utilities/fileLine.h"
 
 
 namespace tinyToolkit
@@ -23,25 +24,22 @@ namespace tinyToolkit
 		 *
 		 * 构造函数
 		 *
-		 * @param file 文件
-		 * @param line 行号
-		 * @param func 函数
+		 * @param fileLine 文件信息
 		 * @param message 信息
 		 * @param option 操作
 		 *
 		 */
-		IException(const char * file, int32_t line, const char * func, std::string message = "", std::string option = "")
-			: _option(std::move(option))
-			, _message(std::move(message))
+		explicit IException(const FileLine & fileLine, std::string message = "", std::string option = "") : _option(std::move(option)),
+																											_message(std::move(message))
 		{
 			if (_message.empty())
 			{
-				_what += String::Format("{}:{} in {}", file, line, func);
+				_what += fileLine.Message();
 				_what += TINY_TOOLKIT_EOL;
 			}
 			else
 			{
-				_what += String::Format("[{}:{} in {}] {}", file, line, func, _message);
+				_what += String::Format("[{}] {}", fileLine.Message(), _message);
 				_what += TINY_TOOLKIT_EOL;
 			}
 
@@ -89,6 +87,8 @@ namespace tinyToolkit
 			return _message;
 		}
 
+#if TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_WINDOWS
+
 		/**
 		 *
 		 * 打印堆栈信息
@@ -96,12 +96,6 @@ namespace tinyToolkit
 		 */
 		void PrintStackTrace()
 		{
-#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
-
-
-
-#else
-
 			void * array[TINY_TOOLKIT_KB];
 
 			int32_t size = backtrace(array, TINY_TOOLKIT_KB);
@@ -119,9 +113,9 @@ namespace tinyToolkit
 
 				free(stackString);
 			}
+		}
 
 #endif
-		}
 
 	protected:
 		mutable std::string _what{ };
@@ -159,16 +153,14 @@ namespace tinyToolkit
 		 * @tparam ErrorTypeT [debug exception types]
 		 * @tparam Args [all built-in types]
 		 *
-		 * @param file 文件名
-		 * @param line 行号
-		 * @param func 函数名
+		 * @param fileLine 文件信息
 		 * @param args 参数
 		 *
 		 */
 		template <typename ErrorTypeT, typename... Args>
-		static void Throw(const char * file, int32_t line, const char * func, Args &&... args)
+		static void Throw(const FileLine & fileLine, Args &&... args)
 		{
-			throw ErrorTypeT(file, line, func, std::forward<Args>(args)...);
+			throw ErrorTypeT(fileLine, std::forward<Args>(args)...);
 		}
 
 		/**
@@ -178,18 +170,16 @@ namespace tinyToolkit
 		 * @tparam ErrorTypeT [debug exception types]
 		 * @tparam Args [all built-in types]
 		 *
-		 * @param file 文件名
-		 * @param line 行号
-		 * @param func 函数名
+		 * @param fileLine 文件信息
 		 * @param args 参数
 		 *
 		 * @return 异常类型实例
 		 *
 		 */
 		template <typename ErrorTypeT, typename... Args>
-		static ErrorTypeT Create(const char * file, int32_t line, const char * func, Args &&... args)
+		static ErrorTypeT Create(const FileLine & fileLine, Args &&... args)
 		{
-			return ErrorTypeT(file, line, func, std::forward<Args>(args)...);
+			return ErrorTypeT(fileLine, std::forward<Args>(args)...);
 		}
 
 		/**
@@ -199,26 +189,24 @@ namespace tinyToolkit
 		 * @tparam ErrorTypeT [debug exception types]
 		 * @tparam Args [all built-in types]
 		 *
-		 * @param file 文件名
-		 * @param line 行号
-		 * @param func 函数名
+		 * @param fileLine 文件信息
 		 * @param args 参数
 		 *
 		 * @return 异常类型实例智能指针
 		 *
 		 */
 		template <typename ErrorTypeT, typename... Args>
-		static std::exception_ptr CreatePoint(const char * file, int32_t line, const char * func, Args &&... args)
+		static std::exception_ptr CreatePoint(const FileLine & fileLine, Args &&... args)
 		{
-			return std::make_exception_ptr(ErrorTypeT(file, line, func, std::forward<Args>(args)...));
+			return std::make_exception_ptr(ErrorTypeT(fileLine, std::forward<Args>(args)...));
 		}
 	};
 }
 
 
-#define TINY_TOOLKIT_EXCEPTION_THROW(type, ...)			tinyToolkit::ExceptionHelper::Throw<type>(TINY_TOOLKIT_FILE, TINY_TOOLKIT_LINE, TINY_TOOLKIT_FUNC, ##__VA_ARGS__);
-#define TINY_TOOLKIT_EXCEPTION_CREATE(type, ...)		tinyToolkit::ExceptionHelper::Create<type>(TINY_TOOLKIT_FILE, TINY_TOOLKIT_LINE, TINY_TOOLKIT_FUNC, ##__VA_ARGS__);
-#define TINY_TOOLKIT_EXCEPTION_CREATE_POINT(type, ...)	tinyToolkit::ExceptionHelper::CreatePoint<type>(TINY_TOOLKIT_FILE, TINY_TOOLKIT_LINE, TINY_TOOLKIT_FUNC, ##__VA_ARGS__);
+#define TINY_TOOLKIT_EXCEPTION_THROW(type, ...)			tinyToolkit::ExceptionHelper::Throw<type>(TINY_TOOLKIT_FILE_LINE, ##__VA_ARGS__);
+#define TINY_TOOLKIT_EXCEPTION_CREATE(type, ...)		tinyToolkit::ExceptionHelper::Create<type>(TINY_TOOLKIT_FILE_LINE, ##__VA_ARGS__);
+#define TINY_TOOLKIT_EXCEPTION_CREATE_POINT(type, ...)	tinyToolkit::ExceptionHelper::CreatePoint<type>(TINY_TOOLKIT_FILE_LINE, ##__VA_ARGS__);
 
 
 #endif // __TINY_TOOLKIT__DEBUG__EXCEPTION__H__

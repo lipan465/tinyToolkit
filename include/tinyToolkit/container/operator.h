@@ -1,12 +1,12 @@
-#ifndef __TINY_TOOLKIT__UTILITIES__CONTAINER__H__
-#define __TINY_TOOLKIT__UTILITIES__CONTAINER__H__
+#ifndef __TINY_TOOLKIT__CONTAINER__OPERATOR__H__
+#define __TINY_TOOLKIT__CONTAINER__OPERATOR__H__
 
 
 /**
  *
  *  作者: hm
  *
- *  说明: 容器处理
+ *  说明: 容器操作
  *
  */
 
@@ -16,7 +16,7 @@
 
 namespace tinyToolkit
 {
-	class TINY_TOOLKIT_API Container
+	class TINY_TOOLKIT_API ContainerOperator
 	{
 	public:
 		/**
@@ -37,4 +37,4 @@ namespace tinyToolkit
 }
 
 
-#endif // __TINY_TOOLKIT__UTILITIES__CONTAINER__H__
+#endif // __TINY_TOOLKIT__CONTAINER__OPERATOR__H__

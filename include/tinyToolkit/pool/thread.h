@@ -11,7 +11,7 @@
  */
 
 
-#include "../utilities/container.h"
+#include "../container/operator.h"
 
 
 namespace tinyToolkit
@@ -101,7 +101,7 @@ namespace tinyToolkit
 				}
 			}
 
-			Container::Clear(_pool);
+			ContainerOperator::Clear(_pool);
 		}
 
 		/**

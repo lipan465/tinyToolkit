@@ -443,20 +443,18 @@ namespace tinyToolkit
 
 					if (iter.second->IsArg())
 					{
-						auto value = std::any_cast<std::string>(iter.second->Value());
-
 						std::cout << "arg";
 
-						if (value.empty())
+						if (iter.second->Value().empty())
 						{
 							std::cout << "  ";
 						}
 						else
 						{
-							std::cout << "(" << value << ")";
+							std::cout << "(" << iter.second->Value() << ")";
 						}
 
-						auto size = static_cast<int32_t>(_valSize - value.size());
+						auto size = static_cast<int32_t>(_valSize - iter.second->Value().size());
 
 						if (size > 0)
 						{

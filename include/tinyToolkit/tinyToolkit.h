@@ -56,6 +56,14 @@
 #include "log/rotatingFileSink.h"
 #include "log/priorityRangeFilter.h"
 
+/// test
+#include "test/case.h"
+#include "test/info.h"
+#include "test/unit.h"
+#include "test/result.h"
+#include "test/compare.h"
+#include "test/environment.h"
+
 /// pool
 #include "pool/thread.h"
 #include "pool/callback.h"
@@ -93,7 +101,6 @@
 /// utilities
 #include "utilities/ip.h"
 #include "utilities/file.h"
-#include "utilities/byte.h"
 #include "utilities/lock.h"
 #include "utilities/math.h"
 #include "utilities/time.h"

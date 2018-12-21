@@ -139,32 +139,7 @@ namespace tinyToolkit
 
 			if (value.second)
 			{
-				static std::map<std::string, uint32_t> month
-				{
-					{ "Jan", 1  },
-					{ "Feb", 2  },
-					{ "Mar", 3  },
-					{ "Apr", 4  },
-					{ "May", 5  },
-					{ "Jun", 6  },
-					{ "Jul", 7  },
-					{ "Aug", 8  },
-					{ "Sep", 9  },
-					{ "Oct", 10 },
-					{ "Nov", 11 },
-					{ "Dec", 12 },
-				};
-
-				std::tm date = { 0 };
-
-				date.tm_year = static_cast<int32_t>(strtol(__DATE__ + 7, nullptr, 10)) - 1900;
-				date.tm_mon  = month[std::string(__DATE__, __DATE__ + 3)] - 1;
-				date.tm_mday = static_cast<int32_t>(strtol(__DATE__ + 4, nullptr, 10));
-				date.tm_hour = static_cast<int32_t>(strtol(__TIME__ + 0, nullptr, 10));
-				date.tm_min  = static_cast<int32_t>(strtol(__TIME__ + 3, nullptr, 10));
-				date.tm_sec  = static_cast<int32_t>(strtol(__TIME__ + 6, nullptr, 10));
-
-				value.first = Time::FromTm(date);
+				value.first = Time::FromTimeString(CompileTimeString().c_str());
 
 				value.second = false;
 			}
@@ -185,7 +160,7 @@ namespace tinyToolkit
 
 			if (value.second)
 			{
-				value.first = Filesystem::FileName(Path());
+				value.first = Filesystem::Name(Path());
 
 				value.second = false;
 			}
@@ -211,6 +186,14 @@ namespace tinyToolkit
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
 				GetModuleFileName(nullptr, str, sizeof(str));
+
+#elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
+
+				uint32_t size = TINY_TOOLKIT_PATH_MAX;
+
+				_NSGetExecutablePath(str, &size);
+
+				str[size] = '\0';
 
 #else
 
@@ -239,7 +222,7 @@ namespace tinyToolkit
 
 			if (value.second)
 			{
-				value.first = Filesystem::FileSteam(Path());
+				value.first = Filesystem::Steam(Name());
 
 				value.second = false;
 			}
@@ -260,7 +243,7 @@ namespace tinyToolkit
 
 			if (value.second)
 			{
-				value.first = Filesystem::FileExtension(Path());
+				value.first = Filesystem::Extension(Name());
 
 				value.second = false;
 			}
@@ -281,7 +264,7 @@ namespace tinyToolkit
 
 			if (value.second)
 			{
-				value.first = Filesystem::FileDirectory(Path());
+				value.first = Filesystem::CurrentDirectory();
 
 				value.second = false;
 			}
@@ -302,7 +285,27 @@ namespace tinyToolkit
 
 			if (value.second)
 			{
-				value.first = Time::FormatTimeString(CompileTime());
+				value.first = String::Format
+				(
+					"{:04d}-{:02d}-{:02d} {}",
+
+					(((__DATE__[7] - '0') * 10 + (__DATE__[8] - '0')) * 10 + (__DATE__[9] - '0')) * 10 + (__DATE__[10] - '0'),
+
+					__DATE__[2] == 'n' ? 1 :
+					__DATE__[2] == 'b' ? 2 :
+					__DATE__[2] == 'r' ? (__DATE__[0] == 'M' ? 3 : 4) :
+					__DATE__[2] == 'y' ? 5 :
+					__DATE__[2] == 'n' ? 6 :
+					__DATE__[2] == 'l' ? 7 :
+					__DATE__[2] == 'g' ? 8 :
+					__DATE__[2] == 'p' ? 9 :
+					__DATE__[2] == 't' ? 10 :
+					__DATE__[2] == 'v' ? 11 : 12,
+
+					(__DATE__[4] == ' ' ? 0 : __DATE__[4] - '0') * 10 + (__DATE__[5] - '0'),
+
+					__TIME__
+				);
 
 				value.second = false;
 			}

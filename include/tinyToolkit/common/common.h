@@ -97,10 +97,17 @@
 #  include <direct.h>
 #  include <windows.h>
 #
+#  define strcasecmp _stricmp
+#
 #  pragma comment(lib,"ws2_32.lib")
+#
+# elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
+#
+#  include <mach-o/dyld.h>
 #
 #else
 #
+#  include <cxxabi.h>
 #  include <unistd.h>
 #  include <syslog.h>
 #  include <execinfo.h>

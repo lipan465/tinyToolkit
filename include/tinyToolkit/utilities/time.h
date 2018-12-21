@@ -11,6 +11,7 @@
  */
 
 
+#include "../3rd/fmt/fmt.h"
 #include "../common/common.h"
 
 
@@ -31,8 +32,8 @@ namespace tinyToolkit
 		 */
 		static bool IsSameYear(std::time_t sSeconds, std::time_t dSeconds)
 		{
-			std::tm src = UTCTm(sSeconds);
-			std::tm dst = UTCTm(dSeconds);
+			std::tm src = LocalTm(sSeconds);
+			std::tm dst = LocalTm(dSeconds);
 
 			return (src.tm_year == dst.tm_year);
 		}
@@ -49,8 +50,8 @@ namespace tinyToolkit
 		 */
 		static bool IsSameMonth(std::time_t sSeconds, std::time_t dSeconds)
 		{
-			std::tm src = UTCTm(sSeconds);
-			std::tm dst = UTCTm(dSeconds);
+			std::tm src = LocalTm(sSeconds);
+			std::tm dst = LocalTm(dSeconds);
 
 			return (src.tm_year == dst.tm_year &&
 					src.tm_mon == dst.tm_mon);
@@ -68,8 +69,8 @@ namespace tinyToolkit
 		 */
 		static bool IsSameDay(std::time_t sSeconds, std::time_t dSeconds)
 		{
-			std::tm src = UTCTm(sSeconds);
-			std::tm dst = UTCTm(dSeconds);
+			std::tm src = LocalTm(sSeconds);
+			std::tm dst = LocalTm(dSeconds);
 
 			return (src.tm_year == dst.tm_year &&
 					src.tm_mon == dst.tm_mon &&
@@ -88,8 +89,8 @@ namespace tinyToolkit
 		 */
 		static bool IsSameHour(std::time_t sSeconds, std::time_t dSeconds)
 		{
-			std::tm src = UTCTm(sSeconds);
-			std::tm dst = UTCTm(dSeconds);
+			std::tm src = LocalTm(sSeconds);
+			std::tm dst = LocalTm(dSeconds);
 
 			return (src.tm_year == dst.tm_year &&
 					src.tm_mon == dst.tm_mon &&
@@ -109,8 +110,8 @@ namespace tinyToolkit
 		 */
 		static bool IsSameMinute(std::time_t sSeconds, std::time_t dSeconds)
 		{
-			std::tm src = UTCTm(sSeconds);
-			std::tm dst = UTCTm(dSeconds);
+			std::tm src = LocalTm(sSeconds);
+			std::tm dst = LocalTm(dSeconds);
 
 			return (src.tm_year == dst.tm_year &&
 					src.tm_mon == dst.tm_mon &&
@@ -574,6 +575,21 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 日期字符串转换成秒数时间戳
+		 *
+		 * @param value 日期字符串
+		 * @param format 格式
+		 *
+		 * @return 秒数时间戳
+		 *
+		 */
+		static std::time_t FromTimeString(const std::string & value, const char * format = "%4d-%02d-%02d %02d:%02d:%02d")
+		{
+			return FromTimeString(value.c_str(), format);
+		}
+
+		/**
+		 *
 		 * 格式化日期字符串
 		 *
 		 * @param seconds 秒数时间戳
@@ -611,6 +627,184 @@ namespace tinyToolkit
 			snprintf(str, sizeof(str), format, now.tm_year + 1900, now.tm_mon + 1, now.tm_mday, now.tm_hour, now.tm_min, now.tm_sec);
 
 			return str;
+		}
+
+		/**
+		 *
+		 * 格式化时间间隔字符串
+		 *
+		 * @param seconds 秒数时间戳
+		 *
+		 * @return 时间间隔字符串
+		 *
+		 */
+		static std::string FormatElapsedString(std::time_t seconds)
+		{
+			std::time_t dayVal = 0;
+			std::time_t hourVal = 0;
+			std::time_t minuteVal = 0;
+			std::time_t secondVal = 0;
+
+			if (seconds < 60)  /// 1 minute = 60 second
+			{
+				secondVal = seconds;
+			}
+			else if (seconds < 3600)  /// 1 hour = 60 minute = 60 * 60 second
+			{
+				minuteVal = (seconds) / 60;
+				secondVal = (seconds - minuteVal * 60);
+			}
+			else if (seconds < 86400)  /// 1 day = 24 hour = 24 * 60 minute = 24 * 60 * 60 second
+			{
+				hourVal = (seconds) / 3600;
+				minuteVal = (seconds - hourVal * 3600) / 60;
+				secondVal = (seconds - hourVal * 3600 - minuteVal * 60);
+			}
+			else
+			{
+				dayVal = (seconds) / 86400;
+				hourVal = (seconds - dayVal * 86400) / 3600;
+				minuteVal = (seconds - dayVal * 86400 - hourVal * 3600) / 60;
+				secondVal = (seconds - dayVal * 86400 - hourVal * 3600 - minuteVal * 60);
+			}
+
+			return fmt::format
+			(
+				"{}{}{}{} s",
+				dayVal ? fmt::format("{} d ", dayVal) : "",
+				hourVal ? fmt::format("{} h ", hourVal) : "",
+				minuteVal ? fmt::format("{} m ", minuteVal) : "",
+				secondVal
+			);
+		}
+
+		/**
+		 *
+		 * 格式化时间间隔字符串
+		 *
+		 * @param seconds 毫秒时间戳
+		 *
+		 * @return 时间间隔字符串
+		 *
+		 */
+		static std::string FormatMillisecondElapsedString(std::time_t  milliseconds)
+		{
+			std::time_t dayVal = 0;
+			std::time_t hourVal = 0;
+			std::time_t minuteVal = 0;
+			std::time_t secondVal = 0;
+			std::time_t millisecondVal = 0;
+
+			if (milliseconds < 1000)  /// 1 second = 1000 millisecond
+			{
+				millisecondVal = milliseconds;
+			}
+			else if (milliseconds < 60000)  /// 1 minute = 60 second = 60 * 1000 millisecond
+			{
+				secondVal = (milliseconds) / 1000;
+				millisecondVal = (milliseconds - secondVal * 1000);
+			}
+			else if (milliseconds < 3600000)  /// 1 hour = 60 minute = 60 * 60 second = 60 * 60 * 1000 millisecond
+			{
+				minuteVal = (milliseconds) / 60000;
+				secondVal = (milliseconds - minuteVal * 60000) / 1000;
+				millisecondVal = (milliseconds - minuteVal * 60000 - secondVal * 1000);
+			}
+			else if (milliseconds < 86400000)  /// 1 day = 24 hour = 24 * 60 minute = 24 * 60 * 60 second = 24 * 60 * 60 * 1000 millisecond
+			{
+				hourVal = (milliseconds) / 3600000;
+				minuteVal = (milliseconds - hourVal * 3600000) / 60000;
+				secondVal = (milliseconds - hourVal * 3600000 - minuteVal * 60000) / 1000;
+				millisecondVal = (milliseconds - hourVal * 3600000 - minuteVal * 60000 - secondVal * 1000);
+			}
+			else
+			{
+				dayVal = (milliseconds) / 86400000;
+				hourVal = (milliseconds - dayVal * 86400000) / 3600000;
+				minuteVal = (milliseconds - dayVal * 86400000 - hourVal * 3600000) / 60000;
+				secondVal = (milliseconds - dayVal * 86400000 - hourVal * 3600000 - minuteVal * 60000) / 1000;
+				millisecondVal = (milliseconds - dayVal * 86400000 - hourVal * 3600000 - minuteVal * 60000 - secondVal * 1000);
+			}
+
+			return fmt::format
+			(
+				"{}{}{}{}{} ms",
+				dayVal ? fmt::format("{} d ", dayVal) : "",
+				hourVal ? fmt::format("{} h ", hourVal) : "",
+				minuteVal ? fmt::format("{} m ", minuteVal) : "",
+				secondVal ? fmt::format("{} s ", secondVal) : "",
+				millisecondVal
+			);
+		}
+
+		/**
+		 *
+		 * 格式化时间间隔字符串
+		 *
+		 * @param seconds 微秒时间戳
+		 *
+		 * @return 时间间隔字符串
+		 *
+		 */
+		static std::string FormatMicrosecondElapsedString(std::time_t  microseconds)
+		{
+			std::time_t dayVal = 0;
+			std::time_t hourVal = 0;
+			std::time_t minuteVal = 0;
+			std::time_t secondVal = 0;
+			std::time_t millisecondVal = 0;
+			std::time_t microsecondVal = 0;
+
+			if (microseconds < 1000)  /// 1 millisecond = 1000 microsecond
+			{
+				microsecondVal = microseconds;
+			}
+			else if (microseconds < 1000000)  /// 1 second = 1000 millisecond = 1000000 microsecond
+			{
+				millisecondVal = (microseconds) / 1000;
+				microsecondVal = (microseconds - millisecondVal * 1000);
+			}
+			else if (microseconds < 60000000)  /// 1 minute = 60 second = 60000 millisecond = 60000000 microsecond
+			{
+				secondVal = (microseconds) / 1000000;
+				millisecondVal = (microseconds - secondVal * 1000000) / 1000;
+				microsecondVal = (microseconds - secondVal * 1000000 - millisecondVal * 1000);
+			}
+			else if (microseconds < 3600000000)  /// 1 hour = 60 minute = 3600 second = 3600000 millisecond = 3600000000 microsecond
+			{
+				minuteVal = (microseconds) / 60000000;
+				secondVal = (microseconds - minuteVal * 60000000) / 1000000;
+				millisecondVal = (microseconds - minuteVal * 60000000 - secondVal * 1000000) / 1000;
+				microsecondVal = (microseconds - minuteVal * 60000000 - secondVal * 1000000 - millisecondVal * 1000);
+			}
+			else if (microseconds < 86400000000)  /// 1 day = 24 hour = 1440 minute = 86400 second = 86400000 millisecond = 86400000000
+			{
+				hourVal = (microseconds) / 3600000000;
+				minuteVal = (microseconds - hourVal * 3600000000) / 60000000;
+				secondVal = (microseconds - hourVal * 3600000000 - minuteVal * 60000000) / 1000000;
+				millisecondVal = (microseconds - hourVal * 3600000000 - minuteVal * 60000000 - secondVal * 1000000) / 1000;
+				microsecondVal = (microseconds - hourVal * 3600000000 - minuteVal * 60000000 - secondVal * 1000000 - millisecondVal * 1000);
+			}
+			else
+			{
+				dayVal = (microseconds) / 86400000000;
+				hourVal = (microseconds - dayVal * 86400000000) / 3600000000;
+				minuteVal = (microseconds - dayVal * 86400000000 - hourVal * 3600000000) / 60000000;
+				secondVal = (microseconds - dayVal * 86400000000 - hourVal * 3600000000 - minuteVal * 60000000) / 1000000;
+				millisecondVal = (microseconds - dayVal * 86400000000 - hourVal * 3600000000 - minuteVal * 60000000 - secondVal * 1000000) / 1000;
+				microsecondVal = (microseconds - dayVal * 86400000000 - hourVal * 3600000000 - minuteVal * 60000000 - secondVal * 1000000 - millisecondVal * 1000);
+			}
+
+			return fmt::format
+			(
+				"{}{}{}{}{}{} us",
+				dayVal ? fmt::format("{} d ", dayVal) : "",
+				hourVal ? fmt::format("{} h ", hourVal) : "",
+				minuteVal ? fmt::format("{} m ", minuteVal) : "",
+				secondVal ? fmt::format("{} s ", secondVal) : "",
+				millisecondVal ? fmt::format("{} ms ", millisecondVal) : "",
+				microsecondVal
+			);
 		}
 
 		/**

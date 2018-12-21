@@ -17,7 +17,7 @@
 
 namespace tinyToolkit
 {
-	class TINY_TOOLKIT_API ILogFilter
+	class TINY_TOOLKIT_API ILogFilter : public std::enable_shared_from_this<ILogFilter>
 	{
 	public:
 		/**
@@ -33,37 +33,6 @@ namespace tinyToolkit
 		 *
 		 */
 		virtual ~ILogFilter() = default;
-
-		/**
-		 *
-		 * 添加过滤器
-		 *
-		 * @param filter 过滤器
-		 *
-		 */
-		void AddFilter(const std::shared_ptr<ILogFilter> & filter)
-		{
-			ILogFilter * end = this;
-
-			while (end->Next())
-			{
-				end = end->Next().get();
-			}
-
-			end->SetNextFilter(filter);
-		}
-
-		/**
-		 *
-		 * 设置下一个过滤器
-		 *
-		 * @param filter 过滤器
-		 *
-		 */
-		void SetNextFilter(const std::shared_ptr<ILogFilter> & filter)
-		{
-			_nextFilter = filter;
-		}
 
 		/**
 		 *
@@ -87,6 +56,39 @@ namespace tinyToolkit
 			}
 
 			return false;
+		}
+
+		/**
+		 *
+		 * 添加过滤器
+		 *
+		 * @param filter 过滤器
+		 *
+		 */
+		std::shared_ptr<ILogFilter> AddFilter(const std::shared_ptr<ILogFilter> & filter)
+		{
+			ILogFilter * end = this;
+
+			while (end->Next())
+			{
+				end = end->Next().get();
+			}
+
+			return end->SetNextFilter(filter);
+		}
+
+		/**
+		 *
+		 * 设置下一个过滤器
+		 *
+		 * @param filter 过滤器
+		 *
+		 */
+		std::shared_ptr<ILogFilter> SetNextFilter(std::shared_ptr<ILogFilter> filter)
+		{
+			_nextFilter = std::move(filter);
+
+			return shared_from_this();
 		}
 
 	protected:

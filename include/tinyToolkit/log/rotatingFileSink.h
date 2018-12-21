@@ -17,7 +17,7 @@
 
 namespace tinyToolkit
 {
-	class TINY_TOOLKIT_API RotatingLogFileSink : public ILogSink
+	class TINY_TOOLKIT_API RotatingFileLogSink : public ILogSink
 	{
 	public:
 		/**
@@ -30,7 +30,7 @@ namespace tinyToolkit
 		 * @param count 日志个数限制
 		 *
 		 */
-		explicit RotatingLogFileSink(std::string name, std::string path, std::size_t limit = TINY_TOOLKIT_GB, std::size_t count = 10) : ILogSink(std::move(name)),
+		explicit RotatingFileLogSink(std::string name, std::string path, std::size_t limit = TINY_TOOLKIT_GB, std::size_t count = 10) : ILogSink(std::move(name)),
 																																		_count(count),
 																																		_limit(limit),
 																																		_path(std::move(path))
@@ -46,7 +46,7 @@ namespace tinyToolkit
 		 * 析构函数
 		 *
 		 */
-		~RotatingLogFileSink() override
+		~RotatingFileLogSink() override
 		{
 			Close();
 		}

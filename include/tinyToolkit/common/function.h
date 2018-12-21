@@ -38,8 +38,4 @@ public:											\
 #define TINY_TOOLKIT_DELETE_ARR(p)		if (p) { delete[] (p); (p) = nullptr; }
 
 
-#define TINY_TOOLKIT_MAX_VALUE(a, b)	(a > b) ? (a) : (b)
-#define TINY_TOOLKIT_MIN_VALUE(a, b)	(a < b) ? (a) : (b)
-
-
 #endif // __TINY_TOOLKIT__COMMON__FUNCTION__H__

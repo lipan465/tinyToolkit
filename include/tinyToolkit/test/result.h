@@ -23,10 +23,10 @@ namespace tinyToolkit
 		 *
 		 * 构造函数
 		 *
-		 * @param result 结果
+		 * @param status 状态
 		 *
 		 */
-		explicit TestResult(bool result) : _result(result)
+		explicit TestResult(bool status) : _status(status)
 		{
 
 		}
@@ -38,7 +38,7 @@ namespace tinyToolkit
 		 * @param rhs 实例化对象
 		 *
 		 */
-		TestResult(TestResult && rhs) noexcept : _result(rhs._result),
+		TestResult(TestResult && rhs) noexcept : _status(rhs._status),
 												 _message(std::move(rhs._message))
 		{
 
@@ -69,7 +69,19 @@ namespace tinyToolkit
 		 */
 		explicit operator bool() const
 		{
-			return _result;
+			return _status;
+		}
+
+		/**
+		 *
+		 * 状态
+		 *
+		 * @return 状态
+		 *
+		 */
+		bool Status() const
+		{
+			return _status;
 		}
 
 		/**
@@ -112,7 +124,7 @@ namespace tinyToolkit
 		 */
 		TestResult & operator=(TestResult && rhs) noexcept
 		{
-			_result = rhs._result;
+			_status = rhs._status;
 			_message = std::move(rhs._message);
 
 			return *this;
@@ -129,15 +141,20 @@ namespace tinyToolkit
 		{
 			if (this != &lhs)
 			{
-				_result = lhs._result;
+				_status = lhs._status;
 				_message = lhs._message;
+
+				if (!_status)
+				{
+					std::cout << _message << std::endl;
+				}
 			}
 
 			return *this;
 		}
 
 	protected:
-		bool _result{ true };
+		bool _status{ true };
 
 		Message _message{};
 	};

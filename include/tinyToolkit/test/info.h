@@ -13,6 +13,7 @@
 
 #include "result.h"
 
+#include "../debug/timeWatcher.h"
 #include "../utilities/fileLine.h"
 
 
@@ -27,14 +28,13 @@ namespace tinyToolkit
 		 *
 		 * @param prefix 前缀
 		 * @param suffix 后缀
-		 * @param fileLine 文件信息
 		 *
 		 */
-		TestInfo(const char * prefix, const char * suffix, FileLine fileLine) : _fileLine(std::move(fileLine)),
-																				_prefix(prefix),
-																				_suffix(suffix)
+		TestInfo(const char * prefix, const char * suffix) : _prefix(prefix), _suffix(suffix)
 		{
-
+			_name += prefix;
+			_name += ".";
+			_name += suffix;
 		}
 
 		/**
@@ -44,34 +44,48 @@ namespace tinyToolkit
 		 */
 		void Run()
 		{
+			_watcher.Start();
+
+			TestLogic();
+
+			_watcher.Stop();
+		}
+
+		/**
+		 *
+		 * 测试逻辑
+		 *
+		 */
+		virtual void TestLogic()
+		{
 
 		}
 
 		/**
 		 *
-		 * 刷新
-		 *
-		 * @param result 结果
-		 * @param message 信息
+		 * 设置环境
 		 *
 		 */
-		void Flush(bool result, const Message & message)
+		virtual void SetUp()
 		{
-			if (result)
-			{
-				_result = TestSuccessResult();
-			}
-			else
-			{
-				_result = TestFailureResult() << message;
-			}
+
+		}
+
+		/**
+		 *
+		 * 销毁环境
+		 *
+		 */
+		virtual void TearDown()
+		{
+
 		}
 
 		/**
 		 *
 		 * 前缀
 		 *
-		 * @return 测试用例前缀
+		 * @return 测试信息前缀
 		 *
 		 */
 		const char * Prefix() const
@@ -83,7 +97,7 @@ namespace tinyToolkit
 		 *
 		 * 后缀
 		 *
-		 * @return 测试用例后缀
+		 * @return 测试信息后缀
 		 *
 		 */
 		const char * Suffix() const
@@ -93,14 +107,14 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 文件信息
+		 * 名称
 		 *
-		 * @return 文件信息
+		 * @return 测试信息名称
 		 *
 		 */
-		const FileLine & FileInfo() const
+		const std::string & Name() const
 		{
-			return _fileLine;
+			return _name;
 		}
 
 		/**
@@ -110,23 +124,34 @@ namespace tinyToolkit
 		 * @return 测试结果
 		 *
 		 */
-		const TestResult & Result() const
+		TestResult & Result()
 		{
 			return _result;
 		}
 
-	protected:
-		FileLine _fileLine;
+		/**
+		 *
+		 * 观察用时
+		 *
+		 * @return 观察用时
+		 *
+		 */
+		const TimeWatcher & Watcher() const
+		{
+			return _watcher;
+		}
 
+	private:
 		TestResult _result{ true };
+
+		TimeWatcher _watcher{ };
+
+		std::string _name{ };
 
 		const char * _prefix{ nullptr };
 		const char * _suffix{ nullptr };
 	};
 }
-
-
-#define TINY_TOOLKIT_TEST_INFO(prefix, suffix)	tinyToolkit::TestInfo(prefix, suffix, TINY_TOOLKIT_FILE_LINE)
 
 
 #endif // __TINY_TOOLKIT__TEST__INFO__H__

@@ -125,7 +125,7 @@ namespace tinyToolkit
 
 			return static_cast<uint64_t >
 			(
-				((timeStamp - _baseTimeStamp) << _timeStampLeftShift) |
+				((_lastTimeStamp - _baseTimeStamp) << _timeStampLeftShift) |
 				(_dataCenterID << _dataCenterIDShift) |
 				(_workerID << _workerIDShift) |
 				_sequence
@@ -172,7 +172,7 @@ namespace tinyToolkit
 		int32_t _sequenceMask{ 0 };
 
 		std::time_t _baseTimeStamp{ Time::Milliseconds() };
-		std::time_t _lastTimeStamp{ 0 };
+		std::time_t _lastTimeStamp{ Time::Milliseconds() };
 	};
 }
 

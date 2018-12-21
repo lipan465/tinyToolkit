@@ -176,7 +176,7 @@ namespace tinyToolkit
 		 */
 		void Error(const std::string & message)
 		{
-			Write(LOG_PRIORITY_TYPE::ERROR, message);
+			Write(LOG_PRIORITY_TYPE::ERRORS, message);
 		}
 
 		/**
@@ -192,7 +192,7 @@ namespace tinyToolkit
 		template<typename... Args>
 		void Error(const char * fmt, Args &&... args)
 		{
-			Write(LOG_PRIORITY_TYPE::ERROR, fmt, std::forward<Args>(args)...);
+			Write(LOG_PRIORITY_TYPE::ERRORS, fmt, std::forward<Args>(args)...);
 		}
 
 		/**
@@ -336,39 +336,6 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 添加日志节点
-		 *
-		 * @param sink 日志节点
-		 *
-		 */
-		void AddSink(const std::shared_ptr<ILogSink> & sink)
-		{
-			std::lock_guard<std::mutex> lock(_mutex);
-
-			_container.insert(std::make_pair(sink->Name(), sink));
-		}
-
-		/**
-		 *
-		 * 添加日志节点
-		 *
-		 * @tparam SinkTypeT [sink types]
-		 * @tparam Args [all types]
-		 *
-		 * @param name 节点名称
-		 * @param args 节点参数
-		 *
-		 */
-		template<class SinkTypeT, typename... Args>
-		void AddSink(const std::string & name, Args &&... args)
-		{
-			std::lock_guard<std::mutex> lock(_mutex);
-
-			_container.insert(std::make_pair(name, std::make_shared<SinkTypeT>(name, std::forward<Args>(args)...)));
-		}
-
-		/**
-		 *
 		 * 关闭节点
 		 *
 		 */
@@ -409,6 +376,36 @@ namespace tinyToolkit
 			for (auto &iter : _container)
 			{
 				iter.second->Reopen();
+			}
+		}
+
+		/**
+		 *
+		 * 设置日志节点自动刷新
+		 *
+		 */
+		void EnableSinkAutoFlush()
+		{
+			std::lock_guard<std::mutex> lock(_mutex);
+
+			for (auto &iter : _container)
+			{
+				iter.second->EnableAutoFlush();
+			}
+		}
+
+		/**
+		 *
+		 * 禁止日志节点自动刷新
+		 *
+		 */
+		void DisableSinkAutoFlush()
+		{
+			std::lock_guard<std::mutex> lock(_mutex);
+
+			for (auto &iter : _container)
+			{
+				iter.second->DisableAutoFlush();
 			}
 		}
 
@@ -460,6 +457,45 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 添加日志节点
+		 *
+		 * @param sink 日志节点
+		 *
+		 */
+		std::shared_ptr<ILogSink> AddSink(std::shared_ptr<ILogSink> sink)
+		{
+			std::lock_guard<std::mutex> lock(_mutex);
+
+			_container.insert(std::make_pair(sink->Name(), sink));
+
+			return sink;
+		}
+
+		/**
+		 *
+		 * 添加日志节点
+		 *
+		 * @tparam SinkTypeT [sink types]
+		 * @tparam Args [all types]
+		 *
+		 * @param name 节点名称
+		 * @param args 节点参数
+		 *
+		 */
+		template<class SinkTypeT, typename... Args>
+		std::shared_ptr<ILogSink> AddSink(const std::string & name, Args &&... args)
+		{
+			std::lock_guard<std::mutex> lock(_mutex);
+
+			auto sink = std::make_shared<SinkTypeT>(name, std::forward<Args>(args)...);
+
+			_container.insert(std::make_pair(sink->Name(), sink));
+
+			return sink;
+		}
+
+		/**
+		 *
 		 * 日志节点
 		 *
 		 * @param name 节点名称
@@ -467,7 +503,7 @@ namespace tinyToolkit
 		 * @return 日志节点
 		 *
 		 */
-		std::shared_ptr<ILogSink> & FindSink(const std::string & name)
+		const std::shared_ptr<ILogSink> & FindSink(const std::string & name)
 		{
 			std::lock_guard<std::mutex> lock(_mutex);
 
@@ -550,6 +586,32 @@ namespace tinyToolkit
 		 *
 		 * 写入日志
 		 *
+		 * @param logger 日志对象
+		 * @param message 日志信息
+		 *
+		 */
+		static void Debug(ILogger * logger, const std::string & message)
+		{
+			logger->Debug(message);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @param logger 日志对象
+		 * @param message 日志信息
+		 *
+		 */
+		static void Debug(std::shared_ptr<ILogger> & logger, const std::string & message)
+		{
+			logger->Debug(message);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
 		 * @tparam Args [all built-in types]
 		 *
 		 * @param logger 日志对象
@@ -567,6 +629,40 @@ namespace tinyToolkit
 		 *
 		 * 写入日志
 		 *
+		 * @tparam Args [all built-in types]
+		 *
+		 * @param logger 日志对象
+		 * @param fmt 日志信息格式
+		 * @param args 日志信息参数
+		 *
+		 */
+		template <typename... Args>
+		static void Debug(ILogger * logger, const char * fmt, Args &&... args)
+		{
+			logger->Debug(fmt, std::forward<Args>(args)...);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @tparam Args [all built-in types]
+		 *
+		 * @param logger 日志对象
+		 * @param fmt 日志信息格式
+		 * @param args 日志信息参数
+		 *
+		 */
+		template <typename... Args>
+		static void Debug(std::shared_ptr<ILogger> & logger, const char * fmt, Args &&... args)
+		{
+			logger->Debug(fmt, std::forward<Args>(args)...);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
 		 * @param logger 日志对象
 		 * @param message 日志信息
 		 *
@@ -574,6 +670,32 @@ namespace tinyToolkit
 		static void Info(ILogger & logger, const std::string & message)
 		{
 			logger.Info(message);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @param logger 日志对象
+		 * @param message 日志信息
+		 *
+		 */
+		static void Info(ILogger * logger, const std::string & message)
+		{
+			logger->Info(message);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @param logger 日志对象
+		 * @param message 日志信息
+		 *
+		 */
+		static void Info(std::shared_ptr<ILogger> & logger, const std::string & message)
+		{
+			logger->Info(message);
 		}
 
 		/**
@@ -597,6 +719,40 @@ namespace tinyToolkit
 		 *
 		 * 写入日志
 		 *
+		 * @tparam Args [all built-in types]
+		 *
+		 * @param logger 日志对象
+		 * @param fmt 日志信息格式
+		 * @param args 日志信息参数
+		 *
+		 */
+		template <typename... Args>
+		static void Info(ILogger * logger, const char * fmt, Args &&... args)
+		{
+			logger->Info(fmt, std::forward<Args>(args)...);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @tparam Args [all built-in types]
+		 *
+		 * @param logger 日志对象
+		 * @param fmt 日志信息格式
+		 * @param args 日志信息参数
+		 *
+		 */
+		template <typename... Args>
+		static void Info(std::shared_ptr<ILogger> & logger, const char * fmt, Args &&... args)
+		{
+			logger->Info(fmt, std::forward<Args>(args)...);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
 		 * @param logger 日志对象
 		 * @param message 日志信息
 		 *
@@ -604,6 +760,32 @@ namespace tinyToolkit
 		static void Notice(ILogger & logger, const std::string & message)
 		{
 			logger.Notice(message);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @param logger 日志对象
+		 * @param message 日志信息
+		 *
+		 */
+		static void Notice(ILogger * logger, const std::string & message)
+		{
+			logger->Notice(message);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @param logger 日志对象
+		 * @param message 日志信息
+		 *
+		 */
+		static void Notice(std::shared_ptr<ILogger> & logger, const std::string & message)
+		{
+			logger->Notice(message);
 		}
 
 		/**
@@ -627,6 +809,40 @@ namespace tinyToolkit
 		 *
 		 * 写入日志
 		 *
+		 * @tparam Args [all built-in types]
+		 *
+		 * @param logger 日志对象
+		 * @param fmt 日志信息格式
+		 * @param args 日志信息参数
+		 *
+		 */
+		template <typename... Args>
+		static void Notice(ILogger * logger, const char * fmt, Args &&... args)
+		{
+			logger->Notice(fmt, std::forward<Args>(args)...);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @tparam Args [all built-in types]
+		 *
+		 * @param logger 日志对象
+		 * @param fmt 日志信息格式
+		 * @param args 日志信息参数
+		 *
+		 */
+		template <typename... Args>
+		static void Notice(std::shared_ptr<ILogger> & logger, const char * fmt, Args &&... args)
+		{
+			logger->Notice(fmt, std::forward<Args>(args)...);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
 		 * @param logger 日志对象
 		 * @param message 日志信息
 		 *
@@ -634,6 +850,32 @@ namespace tinyToolkit
 		static void Warning(ILogger & logger, const std::string & message)
 		{
 			logger.Warning(message);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @param logger 日志对象
+		 * @param message 日志信息
+		 *
+		 */
+		static void Warning(ILogger * logger, const std::string & message)
+		{
+			logger->Warning(message);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @param logger 日志对象
+		 * @param message 日志信息
+		 *
+		 */
+		static void Warning(std::shared_ptr<ILogger> & logger, const std::string & message)
+		{
+			logger->Warning(message);
 		}
 
 		/**
@@ -657,6 +899,40 @@ namespace tinyToolkit
 		 *
 		 * 写入日志
 		 *
+		 * @tparam Args [all built-in types]
+		 *
+		 * @param logger 日志对象
+		 * @param fmt 日志信息格式
+		 * @param args 日志信息参数
+		 *
+		 */
+		template <typename... Args>
+		static void Warning(ILogger * logger, const char * fmt, Args &&... args)
+		{
+			logger->Warning(fmt, std::forward<Args>(args)...);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @tparam Args [all built-in types]
+		 *
+		 * @param logger 日志对象
+		 * @param fmt 日志信息格式
+		 * @param args 日志信息参数
+		 *
+		 */
+		template <typename... Args>
+		static void Warning(std::shared_ptr<ILogger> & logger, const char * fmt, Args &&... args)
+		{
+			logger->Warning(fmt, std::forward<Args>(args)...);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
 		 * @param logger 日志对象
 		 * @param message 日志信息
 		 *
@@ -664,6 +940,32 @@ namespace tinyToolkit
 		static void Error(ILogger & logger, const std::string & message)
 		{
 			logger.Error(message);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @param logger 日志对象
+		 * @param message 日志信息
+		 *
+		 */
+		static void Error(ILogger * logger, const std::string & message)
+		{
+			logger->Error(message);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @param logger 日志对象
+		 * @param message 日志信息
+		 *
+		 */
+		static void Error(std::shared_ptr<ILogger> & logger, const std::string & message)
+		{
+			logger->Error(message);
 		}
 
 		/**
@@ -687,6 +989,40 @@ namespace tinyToolkit
 		 *
 		 * 写入日志
 		 *
+		 * @tparam Args [all built-in types]
+		 *
+		 * @param logger 日志对象
+		 * @param fmt 日志信息格式
+		 * @param args 日志信息参数
+		 *
+		 */
+		template <typename... Args>
+		static void Error(ILogger * logger, const char * fmt, Args &&... args)
+		{
+			logger->Error(fmt, std::forward<Args>(args)...);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @tparam Args [all built-in types]
+		 *
+		 * @param logger 日志对象
+		 * @param fmt 日志信息格式
+		 * @param args 日志信息参数
+		 *
+		 */
+		template <typename... Args>
+		static void Error(std::shared_ptr<ILogger> & logger, const char * fmt, Args &&... args)
+		{
+			logger->Error(fmt, std::forward<Args>(args)...);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
 		 * @param logger 日志对象
 		 * @param message 日志信息
 		 *
@@ -694,6 +1030,32 @@ namespace tinyToolkit
 		static void Critical(ILogger & logger, const std::string & message)
 		{
 			logger.Critical(message);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @param logger 日志对象
+		 * @param message 日志信息
+		 *
+		 */
+		static void Critical(ILogger * logger, const std::string & message)
+		{
+			logger->Critical(message);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @param logger 日志对象
+		 * @param message 日志信息
+		 *
+		 */
+		static void Critical(std::shared_ptr<ILogger> & logger, const std::string & message)
+		{
+			logger->Critical(message);
 		}
 
 		/**
@@ -717,6 +1079,40 @@ namespace tinyToolkit
 		 *
 		 * 写入日志
 		 *
+		 * @tparam Args [all built-in types]
+		 *
+		 * @param logger 日志对象
+		 * @param fmt 日志信息格式
+		 * @param args 日志信息参数
+		 *
+		 */
+		template <typename... Args>
+		static void Critical(ILogger * logger, const char * fmt, Args &&... args)
+		{
+			logger->Critical(fmt, std::forward<Args>(args)...);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @tparam Args [all built-in types]
+		 *
+		 * @param logger 日志对象
+		 * @param fmt 日志信息格式
+		 * @param args 日志信息参数
+		 *
+		 */
+		template <typename... Args>
+		static void Critical(std::shared_ptr<ILogger> & logger, const char * fmt, Args &&... args)
+		{
+			logger->Critical(fmt, std::forward<Args>(args)...);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
 		 * @param logger 日志对象
 		 * @param message 日志信息
 		 *
@@ -724,6 +1120,32 @@ namespace tinyToolkit
 		static void Alert(ILogger & logger, const std::string & message)
 		{
 			logger.Alert(message);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @param logger 日志对象
+		 * @param message 日志信息
+		 *
+		 */
+		static void Alert(ILogger * logger, const std::string & message)
+		{
+			logger->Alert(message);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @param logger 日志对象
+		 * @param message 日志信息
+		 *
+		 */
+		static void Alert(std::shared_ptr<ILogger> & logger, const std::string & message)
+		{
+			logger->Alert(message);
 		}
 
 		/**
@@ -747,6 +1169,40 @@ namespace tinyToolkit
 		 *
 		 * 写入日志
 		 *
+		 * @tparam Args [all built-in types]
+		 *
+		 * @param logger 日志对象
+		 * @param fmt 日志信息格式
+		 * @param args 日志信息参数
+		 *
+		 */
+		template <typename... Args>
+		static void Alert(ILogger * logger, const char * fmt, Args &&... args)
+		{
+			logger->Alert(fmt, std::forward<Args>(args)...);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @tparam Args [all built-in types]
+		 *
+		 * @param logger 日志对象
+		 * @param fmt 日志信息格式
+		 * @param args 日志信息参数
+		 *
+		 */
+		template <typename... Args>
+		static void Alert(std::shared_ptr<ILogger> & logger, const char * fmt, Args &&... args)
+		{
+			logger->Alert(fmt, std::forward<Args>(args)...);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
 		 * @param logger 日志对象
 		 * @param message 日志信息
 		 *
@@ -754,6 +1210,32 @@ namespace tinyToolkit
 		static void Fatal(ILogger & logger, const std::string & message)
 		{
 			logger.Fatal(message);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @param logger 日志对象
+		 * @param message 日志信息
+		 *
+		 */
+		static void Fatal(ILogger * logger, const std::string & message)
+		{
+			logger->Fatal(message);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @param logger 日志对象
+		 * @param message 日志信息
+		 *
+		 */
+		static void Fatal(std::shared_ptr<ILogger> & logger, const std::string & message)
+		{
+			logger->Fatal(message);
 		}
 
 		/**
@@ -777,6 +1259,40 @@ namespace tinyToolkit
 		 *
 		 * 写入日志
 		 *
+		 * @tparam Args [all built-in types]
+		 *
+		 * @param logger 日志对象
+		 * @param fmt 日志信息格式
+		 * @param args 日志信息参数
+		 *
+		 */
+		template <typename... Args>
+		static void Fatal(ILogger * logger, const char * fmt, Args &&... args)
+		{
+			logger->Fatal(fmt, std::forward<Args>(args)...);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @tparam Args [all built-in types]
+		 *
+		 * @param logger 日志对象
+		 * @param fmt 日志信息格式
+		 * @param args 日志信息参数
+		 *
+		 */
+		template <typename... Args>
+		static void Fatal(std::shared_ptr<ILogger> & logger, const char * fmt, Args &&... args)
+		{
+			logger->Fatal(fmt, std::forward<Args>(args)...);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
 		 * @param logger 日志对象
 		 * @param message 日志信息
 		 *
@@ -784,6 +1300,32 @@ namespace tinyToolkit
 		static void Emerg(ILogger & logger, const std::string & message)
 		{
 			logger.Emerg(message);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @param logger 日志对象
+		 * @param message 日志信息
+		 *
+		 */
+		static void Emerg(ILogger * logger, const std::string & message)
+		{
+			logger->Emerg(message);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @param logger 日志对象
+		 * @param message 日志信息
+		 *
+		 */
+		static void Emerg(std::shared_ptr<ILogger> & logger, const std::string & message)
+		{
+			logger->Emerg(message);
 		}
 
 		/**
@@ -801,6 +1343,40 @@ namespace tinyToolkit
 		static void Emerg(ILogger & logger, const char * fmt, Args &&... args)
 		{
 			logger.Emerg(fmt, std::forward<Args>(args)...);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @tparam Args [all built-in types]
+		 *
+		 * @param logger 日志对象
+		 * @param fmt 日志信息格式
+		 * @param args 日志信息参数
+		 *
+		 */
+		template <typename... Args>
+		static void Emerg(ILogger * logger, const char * fmt, Args &&... args)
+		{
+			logger->Emerg(fmt, std::forward<Args>(args)...);
+		}
+
+		/**
+		 *
+		 * 写入日志
+		 *
+		 * @tparam Args [all built-in types]
+		 *
+		 * @param logger 日志对象
+		 * @param fmt 日志信息格式
+		 * @param args 日志信息参数
+		 *
+		 */
+		template <typename... Args>
+		static void Emerg(std::shared_ptr<ILogger> & logger, const char * fmt, Args &&... args)
+		{
+			logger->Emerg(fmt, std::forward<Args>(args)...);
 		}
 	};
 };

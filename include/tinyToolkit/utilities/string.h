@@ -1061,54 +1061,6 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 转换本地字符串
-		 *
-		 * @tparam TypeT [all types]
-		 *
-		 * @param value 待转换数据
-		 *
-		 * @return 本地字符串
-		 *
-		 */
-		template<typename TypeT>
-		static std::string AsLocalString(TypeT && value)
-		{
-			static std::locale loc("");
-
-			std::stringstream ss;
-
-			ss.imbue(loc);
-
-			ss << value;
-
-			return ss.str();
-		}
-
-		/**
-		 *
-		 * 转换本地字符串
-		 *
-		 * @param value 待转换浮点数数据
-		 * @param bit 浮点数位数
-		 *
-		 * @return 本地字符串
-		 *
-		 */
-		static std::string AsLocalString(double value, int32_t bit)
-		{
-			static std::locale loc("");
-
-			std::stringstream ss;
-
-			ss.imbue(loc);
-
-			ss << std::fixed << std::setprecision(bit) << value;
-
-			return ss.str();
-		}
-
-		/**
-		 *
 		 * 类型转换
 		 *
 		 * @tparam TypeT [all types]
@@ -1169,6 +1121,20 @@ namespace tinyToolkit
 		static uint8_t AsByte(const char * value)
 		{
 			return static_cast<uint8_t>(strtol(value, nullptr, 16));
+		}
+
+		/**
+		 *
+		 * 转换字符
+		 *
+		 * @param value 待转换字符串
+		 *
+		 * @return 转换后字符
+		 *
+		 */
+		static uint8_t AsByte(const std::string & value)
+		{
+			return AsByte(value.c_str());
 		}
 
 		/**

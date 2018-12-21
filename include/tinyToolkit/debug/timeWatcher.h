@@ -40,8 +40,8 @@ namespace tinyToolkit
 
 			_max = 0.0;
 			_min = 0.0;
-			_avg = 0.0;
 			_all = 0.0;
+			_avg = 0.0;
 			_rate = 0.0;
 			_elapsed = 0.0;
 		}
@@ -65,8 +65,11 @@ namespace tinyToolkit
 		{
 			_all = Time::Microseconds(Time::TimePoint() - _head);
 
-			_avg = _all / _count;
-			_rate = _count / _all;
+			if (_count > 0)
+			{
+				_avg = _all / _count;
+				_rate = _count / _all;
+			}
 		}
 
 		/**
@@ -127,18 +130,6 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 平均观察时间
-		 *
-		 * @return 平均观察时间
-		 *
-		 */
-		std::double_t Avg() const
-		{
-			return _avg;
-		}
-
-		/**
-		 *
 		 * 总观察时间
 		 *
 		 * @return 总观察时间
@@ -147,6 +138,18 @@ namespace tinyToolkit
 		std::double_t All() const
 		{
 			return _all;
+		}
+
+		/**
+		 *
+		 * 平均观察时间
+		 *
+		 * @return 平均观察时间
+		 *
+		 */
+		std::double_t Avg() const
+		{
+			return _avg;
 		}
 
 		/**
@@ -190,8 +193,8 @@ namespace tinyToolkit
 
 		std::double_t _max{ 0.0 };
 		std::double_t _min{ 0.0 };
-		std::double_t _avg{ 0.0 };
 		std::double_t _all{ 0.0 };
+		std::double_t _avg{ 0.0 };
 		std::double_t _rate{ 0.0 };
 		std::double_t _elapsed{ 0.0 };
 

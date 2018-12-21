@@ -46,13 +46,17 @@ namespace tinyToolkit
 		INFO,
 		NOTICE,
 		WARNING,
-		ERROR,
+		ERRORS,
 		CRITICAL,
 		ALERT,
 		FATAL,
 		EMERG,
 	};
 }
+
+
+using LOG_OPTION_TYPE = tinyToolkit::LOG_OPTION_TYPE;
+using LOG_PRIORITY_TYPE = tinyToolkit::LOG_PRIORITY_TYPE;
 
 
 #endif // __TINY_TOOLKIT__LOG__DETAIL__H__

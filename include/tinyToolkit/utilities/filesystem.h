@@ -53,9 +53,7 @@ namespace tinyToolkit
 
 	#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-			auto attribs = GetFileAttributesA(path.c_str());
-
-			return attribs != INVALID_FILE_ATTRIBUTES && !(attribs & FILE_ATTRIBUTE_DIRECTORY);
+			return _access(path.c_str(), S_OK) == 0;
 
 	#else
 
@@ -108,7 +106,48 @@ namespace tinyToolkit
 
 #else
 
-			return std::rename(src.c_str(), dst.c_str()) == 0;
+			if (std::rename(src.c_str(), dst.c_str()) == 0)
+			{
+				return true;
+			}
+			else
+			{
+				throw std::runtime_error("Failed Rename " + src + " to " + dst);
+			}
+
+#endif
+		}
+
+		/**
+		 *
+		 * 是否为目录
+		 *
+		 * @param path 待检测文件路径
+		 *
+		 * @return 是否为目录
+		 *
+		 */
+		static bool IsDirectory(const std::string & path)
+		{
+#if TINY_TOOLKIT_CXX_SUPPORT >= 17
+
+			return std::filesystem::is_directory(path);
+
+#else
+
+	#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+			return GetFileAttributesA(path.c_str()) & FILE_ATTRIBUTE_DIRECTORY;
+
+	#else
+
+			struct stat status;
+
+			stat(path.c_str(), &status);
+
+			return S_ISDIR(status.st_mode);
+
+	#endif
 
 #endif
 		}
@@ -210,6 +249,10 @@ namespace tinyToolkit
 
 				ifs.close();
 			}
+			else
+			{
+				throw std::runtime_error("Failed open file : " + path);
+			}
 
 			return container.size();
 		}
@@ -252,14 +295,16 @@ namespace tinyToolkit
 
 			if (ofs.is_open())
 			{
-				ofs << std::forward<ValueT>(value) << std::endl;
+				ofs << std::forward<ValueT>(value);
 
 				ofs.close();
 
 				return true;
 			}
-
-			return false;
+			else
+			{
+				throw std::runtime_error("Failed open file : " + path);
+			}
 		}
 
 		/**
@@ -284,15 +329,17 @@ namespace tinyToolkit
 			{
 				for (auto iter = begin; iter != end; ++iter)
 				{
-					ofs << *iter << std::endl;
+					ofs << *iter << TINY_TOOLKIT_EOL;
 				}
 
 				ofs.close();
 
 				return true;
 			}
-
-			return false;
+			else
+			{
+				throw std::runtime_error("Failed open file : " + path);
+			}
 		}
 
 		/**
@@ -357,6 +404,68 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 创建层级目录
+		 *
+		 * @param path 待创建目录路径
+		 *
+		 * @return 创建结果
+		 *
+		 */
+		static bool CreateDirectories(const std::string & path)
+		{
+#if TINY_TOOLKIT_CXX_SUPPORT >= 17
+
+			return std::filesystem::create_directories(path);
+
+#else
+
+			std::size_t size = path.size();
+
+			for (int32_t i = 0; i < size; ++i)
+			{
+				if (i == size - 1)
+				{
+					if (!CreateDirectory(path))
+					{
+						return false;
+					}
+				}
+				else if (path[i] == TINY_TOOLKIT_FOLDER_SEP[0])
+				{
+					if (!CreateDirectory(path.substr(0, i)))
+					{
+						return false;
+					}
+				}
+			}
+
+			return true;
+
+#endif
+		}
+
+		/**
+		 *
+		 * 当前目录
+		 *
+		 * @return 当前目录
+		 *
+		 */
+		static std::string CurrentDirectory()
+		{
+#if TINY_TOOLKIT_CXX_SUPPORT >= 17
+
+			return std::filesystem::current_path();
+
+#else
+
+			return ParentDirectory("");
+
+#endif
+		}
+
+		/**
+		 *
 		 * 文件名
 		 *
 		 * @param path 待处理文件路径
@@ -364,7 +473,7 @@ namespace tinyToolkit
 		 * @return 文件名
 		 *
 		 */
-		static std::string FileName(const std::string & path)
+		static std::string Name(const std::string & path)
 		{
 			std::size_t pos = path.rfind(TINY_TOOLKIT_FOLDER_SEP[0]);
 
@@ -380,7 +489,7 @@ namespace tinyToolkit
 		 * @return 文件前缀
 		 *
 		 */
-		static std::string FileSteam(const std::string & path)
+		static std::string Steam(const std::string & path)
 		{
 			std::size_t srcPos = path.rfind(TINY_TOOLKIT_FOLDER_SEP[0]);
 			std::size_t dstPos = path.rfind('.');
@@ -391,8 +500,40 @@ namespace tinyToolkit
 			}
 			else
 			{
-				return (dstPos == std::string::npos || dstPos < srcPos) ? path.substr(srcPos + 1) : path.substr(srcPos + 1, dstPos);
+				return (dstPos == std::string::npos || dstPos < srcPos) ? path.substr(srcPos + 1) : path.substr(srcPos + 1, dstPos - srcPos - 1);
 			}
+		}
+
+		/**
+		 *
+		 * 绝对路径
+		 *
+		 * @param path 待处理路径
+		 *
+		 * @return 绝对路径
+		 *
+		 */
+		static std::string Canonical(const std::string & path)
+		{
+#if TINY_TOOLKIT_CXX_SUPPORT >= 17
+
+			return std::filesystem::canonical(path);
+
+#else
+
+			char directory[TINY_TOOLKIT_PATH_MAX + 1] = { 0 };
+
+	#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+			return _fullpath(directory, path.c_str(), TINY_TOOLKIT_PATH_MAX) ? directory : TINY_TOOLKIT_FOLDER_EOL;
+
+	#else
+
+			return realpath(path.c_str(), directory) ? directory : TINY_TOOLKIT_FOLDER_EOL;
+
+	#endif
+
+#endif
 		}
 
 		/**
@@ -404,7 +545,7 @@ namespace tinyToolkit
 		 * @return 文件扩展名
 		 *
 		 */
-		static std::string FileExtension(const std::string & path)
+		static std::string Extension(const std::string & path)
 		{
 			std::size_t srcPos = path.rfind(TINY_TOOLKIT_FOLDER_SEP[0]);
 			std::size_t dstPos = path.rfind('.');
@@ -428,11 +569,28 @@ namespace tinyToolkit
 		 * @return 父级路径
 		 *
 		 */
-		static std::string FileDirectory(const std::string & path)
+		static std::string ParentDirectory(const std::string & path)
 		{
 			std::size_t pos = path.rfind(TINY_TOOLKIT_FOLDER_SEP[0]);
 
-			return pos == std::string::npos ? TINY_TOOLKIT_FOLDER_EOL : path.substr(0, pos + 1);
+			if (pos == std::string::npos)
+			{
+				char directory[TINY_TOOLKIT_PATH_MAX + 1] = { 0 };
+
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+				return _getcwd(directory, TINY_TOOLKIT_PATH_MAX) ? directory : TINY_TOOLKIT_FOLDER_EOL;
+
+#else
+
+				return getcwd(directory, TINY_TOOLKIT_PATH_MAX) ? directory : TINY_TOOLKIT_FOLDER_EOL;
+
+#endif
+			}
+			else
+			{
+				return path.substr(0, pos + 1);
+			}
 		}
 
 #if TINY_TOOLKIT_CXX_SUPPORT >= 17

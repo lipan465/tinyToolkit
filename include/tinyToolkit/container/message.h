@@ -24,10 +24,7 @@ namespace tinyToolkit
 		 * 构造函数
 		 *
 		 */
-		Message()
-		{
-			_stream.precision(std::numeric_limits<double>::digits10 + 2);
-		}
+		Message() = default;
 
 		/**
 		 *
@@ -36,9 +33,14 @@ namespace tinyToolkit
 		 * @param rhs 实例化对象
 		 *
 		 */
-		Message(Message && rhs) noexcept : _stream(std::move(rhs._stream))
+		Message(Message && rhs) noexcept
 		{
+			auto pos = rhs.String().size();
 
+			_stream = std::move(rhs._stream);
+
+			_stream.seekg(pos);
+			_stream.seekp(pos);
 		}
 
 		/**
@@ -48,9 +50,9 @@ namespace tinyToolkit
 		 * @param lhs 实例化对象
 		 *
 		 */
-		Message(const Message & lhs) : _stream(lhs.String())
+		Message(const Message & lhs)
 		{
-
+			_stream << lhs.String();
 		}
 
 		/**
@@ -72,7 +74,12 @@ namespace tinyToolkit
 		 */
 		Message & operator=(Message && rhs) noexcept
 		{
+			auto pos = rhs.String().size();
+
 			_stream = std::move(rhs._stream);
+
+			_stream.seekg(pos);
+			_stream.seekp(pos);
 
 			return *this;
 		}

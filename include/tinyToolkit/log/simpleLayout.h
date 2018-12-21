@@ -33,7 +33,7 @@ namespace tinyToolkit
 		{
 			return String::Format
 			(
-				"[{:04}-{:02}-{:02} {:02}:{:02}:{:02}.{:06}][{}][{}] {}{}",
+				"[{:04}-{:02}-{:02} {:02}:{:02}:{:02}.{:06}][{}][{:<8}] {}{}",
 				event.tm.tm_year + 1900,
 				event.tm.tm_mon + 1,
 				event.tm.tm_mday,

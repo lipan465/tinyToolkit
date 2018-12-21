@@ -167,6 +167,8 @@ namespace tinyToolkit
 				}
 				else
 				{
+					_len += len;
+
 					size -= len;
 				}
 			}
@@ -219,6 +221,18 @@ namespace tinyToolkit
 			Write(value);
 
 			return *this;
+		}
+
+		/**
+		 *
+		 * 文件大小
+		 *
+		 * @return 文件大小
+		 *
+		 */
+		std::size_t Size() const
+		{
+			return _len;
 		}
 
 		/**
@@ -309,6 +323,8 @@ namespace tinyToolkit
 
 	protected:
 		int32_t _fd{ -1 };
+
+		std::size_t _len{ 0 };
 
 		std::string _path{ };
 	};

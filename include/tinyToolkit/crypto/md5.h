@@ -137,8 +137,6 @@ namespace tinyToolkit
 
 			ContainerOperator::Clear(_hex16);
 			ContainerOperator::Clear(_hex32);
-			ContainerOperator::Clear(_str16);
-			ContainerOperator::Clear(_str32);
 			ContainerOperator::Clear(_value);
 
 			memset(reinterpret_cast<void *>(&_context), 0, sizeof(Context));
@@ -273,34 +271,6 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 转换后的16位字符串
-		 *
-		 * @return 字符串
-		 *
-		 */
-		const std::string & Str16()
-		{
-			ContextDigest();
-
-			return _str16;
-		}
-
-		/**
-		 *
-		 * 转换后的32位字符串
-		 *
-		 * @return 字符串
-		 *
-		 */
-		const std::string & Str32()
-		{
-			ContextDigest();
-
-			return _str32;
-		}
-
-		/**
-		 *
 		 * 待转换字符串
 		 *
 		 * @return 字符串
@@ -409,9 +379,6 @@ namespace tinyToolkit
 				uint8_t data[16] = { 0 };
 
 				FinalDigest(temp._context, data);
-
-				_str16.assign(reinterpret_cast<const char *>(data) + 4, sizeof(data) / 2);
-				_str32.assign(reinterpret_cast<const char *>(data) + 0, sizeof(data) / 1);
 
 				_hex16.assign(String::AsHexString(data + 4, sizeof(data) / 2, false));
 				_hex32.assign(String::AsHexString(data + 0, sizeof(data) / 1, false));
@@ -604,8 +571,6 @@ namespace tinyToolkit
 
 		std::string _hex16{ };
 		std::string _hex32{ };
-		std::string _str16{ };
-		std::string _str32{ };
 		std::string _value{ };
 	};
 }

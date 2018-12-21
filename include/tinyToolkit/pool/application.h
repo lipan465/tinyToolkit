@@ -64,6 +64,16 @@ namespace tinyToolkit
 		 */
 		~ApplicationPool()
 		{
+			Release();
+		}
+
+		/**
+		 *
+		 * 释放
+		 *
+		 */
+		void Release()
+		{
 			while (_listHead)
 			{
 				DelChunkList(_listHead);

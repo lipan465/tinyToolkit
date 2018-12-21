@@ -11,7 +11,7 @@
  */
 
 
-#include "../utilities/string.h"
+#include "../common/common.h"
 
 
 namespace tinyToolkit
@@ -304,7 +304,9 @@ namespace tinyToolkit
 					case 1:
 					{
 						bin |= ch >> 4;
-						res += bin;
+
+						res.push_back(static_cast<char>(bin));
+
 						bin = (ch & 0x0f) << 4;
 
 						break;
@@ -313,7 +315,9 @@ namespace tinyToolkit
 					case 2:
 					{
 						bin |= ch >> 2;
-						res += bin;
+
+						res.push_back(static_cast<char>(bin));
+
 						bin = (ch & 0x03) << 6;
 
 						break;
@@ -322,7 +326,8 @@ namespace tinyToolkit
 					case 3:
 					{
 						bin |= ch;
-						res += bin;
+
+						res.push_back(static_cast<char>(bin));
 
 						break;
 					}

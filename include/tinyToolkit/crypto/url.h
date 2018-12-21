@@ -11,8 +11,7 @@
  */
 
 
-#include "../utilities/byte.h"
-#include "../utilities/string.h"
+#include "../common/common.h"
 
 
 namespace tinyToolkit
@@ -111,16 +110,16 @@ namespace tinyToolkit
 				{
 					tempStr += "+";
 				}
-				else if (byte == '-' || byte == '_' || byte == '.'  || byte == '!' ||
-						 byte == '~' || byte == '*' || byte == '\'' || byte == '(' || byte == ')')
+				else if (byte == '-' || byte == '_' || byte == '.' || byte == '!' ||
+						 byte == '~' || byte == '*' || byte == '(' || byte == ')')
 				{
 					tempStr += byte;
 				}
 				else
 				{
 					tempStr += "%";
-					tempStr += Bytes::AsHex(static_cast<uint8_t>(byte >> 4));
-					tempStr += Bytes::AsHex(static_cast<uint8_t>(byte % 16));
+					tempStr += AsHex(static_cast<uint8_t>(byte >> 4));
+					tempStr += AsHex(static_cast<uint8_t>(byte % 16));
 				}
 			}
 
@@ -225,18 +224,18 @@ namespace tinyToolkit
 			{
 				if (value[i] == '+')
 				{
-					tempStr += ' ';
+					tempStr.push_back(' ');
 				}
 				else if (value[i] == '%')
 				{
-					uint8_t high = Bytes::AsChar(value[++i]);
-					uint8_t low  = Bytes::AsChar(value[++i]);
+					uint8_t high = AsChar(value[++i]);
+					uint8_t low  = AsChar(value[++i]);
 
-					tempStr += high * 16 + low;
+					tempStr.push_back(static_cast<char>(high * 16 + low));
 				}
 				else
 				{
-					tempStr += value[i];
+					tempStr.push_back(value[i]);
 				}
 			}
 
@@ -256,6 +255,35 @@ namespace tinyToolkit
 		static std::string Decode(const std::string & value, std::size_t size)
 		{
 			return Decode(value.c_str(), size);
+		}
+
+	protected:
+		/**
+		 *
+		 * 字符对应的16进制
+		 *
+		 * @param value 待转换字符
+		 *
+		 * @return 16进制字符
+		 *
+		 */
+		static uint8_t AsHex(uint8_t value)
+		{
+			return static_cast<uint8_t>(value > 9 ? value - 10 + 'a': value + '0');
+		}
+
+		/**
+		 *
+		 * 16进制对应的字符
+		 *
+		 * @param value 待转换字符
+		 *
+		 * @return 字符
+		 *
+		 */
+		static uint8_t AsChar(uint8_t value)
+		{
+			return static_cast<uint8_t>(::isdigit(value) == 0 ? value + 10 - 'a' : value - '0');
 		}
 	};
 }

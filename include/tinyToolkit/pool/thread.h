@@ -31,9 +31,8 @@ namespace tinyToolkit
 			_isClose.store(false);
 
 			_freeSize.store(size);
-			_threadSize.store(size);
 
-			Create();
+			Create(size);
 		}
 
 		/**
@@ -79,7 +78,7 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 销毁线程池
+		 * 释放
 		 *
 		 */
 		void Release()
@@ -106,44 +105,32 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 等待所有线程执行
+		 * 等待
 		 *
 		 */
 		void Wait()
 		{
 			while (!IsComplete())
 			{
-				TINY_TOOLKIT_YIELD()
+				TINY_TOOLKIT_SLEEP_MS(10)
 			}
 		}
 
 		/**
 		 *
-		 * 线程池是否执行完毕
+		 * 是否执行完毕
 		 *
 		 * @return 状态
 		 *
 		 */
 		bool IsComplete()
 		{
-			return _tasks.empty() && _freeSize == _threadSize;
+			return _tasks.empty() && _freeSize.load() == _pool.size();
 		}
 
 		/**
 		 *
-		 * 线程池是否开启
-		 *
-		 * @return 状态
-		 *
-		 */
-		bool IsStart() const
-		{
-			return !_isClose.load();
-		}
-
-		/**
-		 *
-		 * 线程池是否关闭
+		 * 是否关闭
 		 *
 		 * @return 状态
 		 *
@@ -174,7 +161,7 @@ namespace tinyToolkit
 		 */
 		std::size_t ThreadSize() const
 		{
-			return _threadSize.load();
+			return _pool.size();
 		}
 
 	protected:
@@ -182,10 +169,12 @@ namespace tinyToolkit
 		 *
 		 * 创建线程
 		 *
+		 * @param size 线程个数
+		 *
 		 */
-		void Create()
+		void Create(std::size_t size)
 		{
-			for (std::size_t i = 0; i < _threadSize.load(); ++i)
+			for (std::size_t i = 0; i < size; ++i)
 			{
 				_pool.emplace_back
 				(
@@ -239,7 +228,6 @@ namespace tinyToolkit
 		std::vector<std::thread> _pool{ };
 
 		std::atomic<std::size_t> _freeSize{ 0 };
-		std::atomic<std::size_t> _threadSize{ 0 };
 
 		std::queue<std::function<void()>> _tasks{ };
 	};

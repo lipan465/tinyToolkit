@@ -139,6 +139,7 @@ namespace tinyToolkit
 			 *
 			 * SIGQUIT  和SIGINT类似, 但由QUIT字符(通常是Ctrl-\)来控制.
 			 * 			进程在因收到SIGQUIT退出时会产生core文件, 在这个意义上类似于一个程序错误信号
+			 * 			本信号不能被阻塞、处理和忽略.
 			 *
 			 * SIGKILL  用来立即结束程序的运行.
 			 * 			如果管理员发现某个进程终止不了, 可尝试发送这个信号
@@ -157,11 +158,11 @@ namespace tinyToolkit
 			 *
 			 */
 			RegisterAction(SIGINT,  handler);
-			RegisterAction(SIGQUIT, handler);
+//			RegisterAction(SIGQUIT, handler);
 			RegisterAction(SIGABRT, handler);
-			RegisterAction(SIGKILL, handler);
+//			RegisterAction(SIGKILL, handler);
 			RegisterAction(SIGTERM, handler);
-			RegisterAction(SIGSTOP, handler);
+//			RegisterAction(SIGSTOP, handler);
 			RegisterAction(SIGTSTP, handler);
 		}
 

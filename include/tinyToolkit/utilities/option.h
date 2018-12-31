@@ -196,6 +196,18 @@ namespace tinyToolkit
 	public:
 		/**
 		 *
+		 * 获取单例
+		 *
+		 * @return 单例对象引用
+		 *
+		 */
+		static OptionManager & Instance()
+		{
+			return Singleton<OptionManager>::Instance();
+		}
+
+		/**
+		 *
 		 * 是否为空
 		 *
 		 * @return 是否为空
@@ -293,7 +305,7 @@ namespace tinyToolkit
 		 * @param argv 解析选项流
 		 *
 		 */
-		void Parse(int32_t argc, char ** argv)
+		void Parse(int32_t argc, char const ** argv)
 		{
 			Define("help",    "display help message",    "Help options");
 			Define("version", "display version message", "Version options");

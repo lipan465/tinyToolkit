@@ -65,7 +65,7 @@ namespace tinyToolkit
 		 * @param filter 过滤器
 		 *
 		 */
-		std::shared_ptr<ILogFilter> AddFilter(const std::shared_ptr<ILogFilter> & filter)
+		std::shared_ptr<ILogFilter> AddFilter(std::shared_ptr<ILogFilter> filter)
 		{
 			ILogFilter * end = this;
 
@@ -74,7 +74,7 @@ namespace tinyToolkit
 				end = end->Next().get();
 			}
 
-			return end->SetNextFilter(filter);
+			return end->SetNextFilter(std::move(filter));
 		}
 
 		/**

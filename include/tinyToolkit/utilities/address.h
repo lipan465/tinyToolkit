@@ -1,12 +1,12 @@
-#ifndef __TINY_TOOLKIT__UTILITIES__IP__H__
-#define __TINY_TOOLKIT__UTILITIES__IP__H__
+#ifndef __TINY_TOOLKIT__UTILITIES__ADDRESS__H__
+#define __TINY_TOOLKIT__UTILITIES__ADDRESS__H__
 
 
 /**
  *
  *  作者: hm
  *
- *  说明: ip处理
+ *  说明: 地址处理
  *
  */
 
@@ -16,7 +16,7 @@
 
 namespace tinyToolkit
 {
-	class TINY_TOOLKIT_API IP
+	class TINY_TOOLKIT_API Address
 	{
 		/**
 		 *
@@ -132,6 +132,114 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 转换网络字节序范围
+		 *
+		 * @param value 待转换字符串
+		 * @param head 转换后字节序范围首部
+		 * @param tail 转换后字节序范围尾部
+		 *
+		 * @return 是否转换成功
+		 *
+		 */
+		static bool FromString(const std::string & value, uint32_t & head, uint32_t & tail)
+		{
+			std::size_t pos = value.find('-');
+
+			if (pos == std::string::npos)
+			{
+				pos = value.find('/');
+
+				if (pos == std::string::npos)  /// a.b.c.d
+				{
+					head = AsNetByte(value);
+					tail = head;
+				}
+				else
+				{
+					if (value.find('.', pos + 1) == std::string::npos)  /// a.b.c.d/e
+					{
+						int64_t mask = strtol(value.substr(pos + 1).data(), nullptr, 10);
+
+						if (32 < mask || mask < 0)
+						{
+							return false;
+						}
+
+						head = AsNetByte(value.substr(0, pos));
+						tail = head | ~(mask == 0 ? 0 : htonl(0xFFFFFFFF << (32 - mask)));
+					}
+					else  /// a.b.c.d/a.b.c.d
+					{
+						head = AsNetByte(value.substr(0, pos));
+						tail = AsNetByte(value.substr(pos + 1));
+					}
+				}
+			}
+			else  /// a.b.c.d-a.b.c.d
+			{
+				head = AsNetByte(value.substr(0, pos));
+				tail = AsNetByte(value.substr(pos + 1));
+			}
+
+			return head <= tail;
+		}
+
+		/**
+		 *
+		 * 转换主机字节序范围
+		 *
+		 * @param value 待转换字符串
+		 * @param head 转换后字节序范围首部
+		 * @param tail 转换后字节序范围尾部
+		 *
+		 * @return 是否转换成功
+		 *
+		 */
+		static bool AsHostByte(const std::string & value, uint32_t & head, uint32_t & tail)
+		{
+			std::size_t pos = value.find('-');
+
+			if (pos == std::string::npos)
+			{
+				pos = value.find('/');
+
+				if (pos == std::string::npos)  /// a.b.c.d
+				{
+					head = AsHostByte(value);
+					tail = head;
+				}
+				else
+				{
+					if (value.find('.', pos + 1) == std::string::npos)  /// a.b.c.d/e
+					{
+						int64_t mask = strtol(value.substr(pos + 1).data(), nullptr, 10);
+
+						if (32 < mask || mask < 0)
+						{
+							return false;
+						}
+
+						head = AsHostByte(value.substr(0, pos));
+						tail = head | ~(mask == 0 ? 0 : 0xFFFFFFFF << (32 - mask));
+					}
+					else  /// a.b.c.d/a.b.c.d
+					{
+						head = AsHostByte(value.substr(0, pos));
+						tail = AsHostByte(value.substr(pos + 1));
+					}
+				}
+			}
+			else  /// a.b.c.d-a.b.c.d
+			{
+				head = AsHostByte(value.substr(0, pos));
+				tail = AsHostByte(value.substr(pos + 1));
+			}
+
+			return head <= tail;
+		}
+
+		/**
+		 *
 		 * 转换为字符串
 		 *
 		 * @param value 待转换主机字节序
@@ -150,4 +258,4 @@ namespace tinyToolkit
 }
 
 
-#endif // __TINY_TOOLKIT__UTILITIES__IP__H__
+#endif // __TINY_TOOLKIT__UTILITIES__ADDRESS__H__

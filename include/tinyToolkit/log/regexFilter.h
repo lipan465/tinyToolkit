@@ -38,6 +38,18 @@ namespace tinyToolkit
 		 * @param rule 过滤规则
 		 *
 		 */
+		explicit RegexLogFilter(const char * rule)
+		{
+			SetPriority(rule);
+		}
+
+		/**
+		 *
+		 * 构造函数
+		 *
+		 * @param rule 过滤规则
+		 *
+		 */
 		explicit RegexLogFilter(const std::string & rule)
 		{
 			SetPriority(rule);
@@ -52,6 +64,20 @@ namespace tinyToolkit
 		 */
 		void SetPriority(const std::regex & rule)
 		{
+			_rule = rule;
+		}
+
+		/**
+		 *
+		 * 设置过滤规则
+		 *
+		 * @param rule 过滤规则
+		 *
+		 */
+		void SetPriority(const char * rule)
+		{
+			assert(rule);
+
 			_rule = rule;
 		}
 

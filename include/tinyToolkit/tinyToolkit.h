@@ -99,7 +99,6 @@
 #include "container/operator.h"
 
 /// utilities
-#include "utilities/ip.h"
 #include "utilities/file.h"
 #include "utilities/lock.h"
 #include "utilities/math.h"
@@ -107,6 +106,7 @@
 #include "utilities/option.h"
 #include "utilities/thread.h"
 #include "utilities/string.h"
+#include "utilities/address.h"
 #include "utilities/copyable.h"
 #include "utilities/fileLine.h"
 #include "utilities/singleton.h"

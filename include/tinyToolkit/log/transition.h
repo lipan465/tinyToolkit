@@ -30,6 +30,8 @@ namespace tinyToolkit
 		 */
 		static int32_t Value(const char * week)
 		{
+			assert(week);
+
 			static std::unordered_map<std::string, int32_t> WeekValue
 			{
 				{ "Sun", 0 },
@@ -123,13 +125,15 @@ namespace tinyToolkit
 		 *
 		 * 月份数值
 		 *
-		 * @param week 月份名称
+		 * @param month 月份名称
 		 *
 		 * @return 月份数值
 		 *
 		 */
-		static int32_t Value(const char * week)
+		static int32_t Value(const char * month)
 		{
+			assert(month);
+
 			static std::unordered_map<std::string, int32_t> MonthValue
 			{
 				{ "Jan", 0 },
@@ -158,7 +162,7 @@ namespace tinyToolkit
 				{ "December", 11 },
 			};
 
-			return MonthValue[week];
+			return MonthValue[month];
 		}
 
 		/**
@@ -170,21 +174,21 @@ namespace tinyToolkit
 		 * @return 月份数值
 		 *
 		 */
-		static int32_t Value(const std::string & week)
+		static int32_t Value(const std::string & month)
 		{
-			return Value(week.c_str());
+			return Value(month.c_str());
 		}
 
 		/**
 		 *
 		 * 月份缩略名称
 		 *
-		 * @param week 月份数值
+		 * @param month 月份数值
 		 *
 		 * @return 月份缩略名称
 		 *
 		 */
-		static std::string & Name(int32_t week)
+		static std::string & Name(int32_t month)
 		{
 			static std::unordered_map<int32_t, std::string> MonthName
 			{
@@ -202,19 +206,19 @@ namespace tinyToolkit
 				{ 11, "December", },
 			};
 
-			return MonthName[week];
+			return MonthName[month];
 		}
 
 		/**
 		 *
 		 * 月份名称
 		 *
-		 * @param week 月份数值
+		 * @param month 月份数值
 		 *
 		 * @return 月份名称
 		 *
 		 */
-		static std::string & SimpleName(int32_t week)
+		static std::string & SimpleName(int32_t month)
 		{
 			static std::unordered_map<int32_t, std::string> MonthName
 			{
@@ -232,7 +236,7 @@ namespace tinyToolkit
 				{ 11, "Dec", },
 			};
 
-			return MonthName[week];
+			return MonthName[month];
 		}
 	};
 
@@ -277,6 +281,8 @@ namespace tinyToolkit
 		 */
 		static LOG_PRIORITY_TYPE Value(const char * priority)
 		{
+			assert(priority);
+
 			static std::unordered_map<std::string, LOG_PRIORITY_TYPE> PriorityValue
 			{
 				{ "DEBUG", LOG_PRIORITY_TYPE::DEBUGS },

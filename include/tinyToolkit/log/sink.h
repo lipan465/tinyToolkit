@@ -146,6 +146,19 @@ namespace tinyToolkit
 		}
 
 		/**
+		 * 添加设置日志过滤器
+		 *
+		 * @param filter 日志过滤器
+		 *
+		 */
+		std::shared_ptr<ILogSink> AddFilter(std::shared_ptr<ILogFilter> filter)
+		{
+			_filter->AddFilter(std::move(filter));
+
+			return shared_from_this();
+		}
+
+		/**
 		 *
 		 * 日志布局
 		 *

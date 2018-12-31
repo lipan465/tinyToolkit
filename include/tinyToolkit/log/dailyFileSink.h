@@ -184,13 +184,7 @@ namespace tinyToolkit
 		 */
 		void RotatingTime()
 		{
-			std::tm date = Time::LocalTm();
-
-			date.tm_hour = _hour;
-			date.tm_min  = _minutes;
-			date.tm_sec  = _seconds;
-
-			_time = Time::FromTm(date);
+			_time = Time::CurrentDayTime(_hour, _minutes, _seconds);
 
 			if (_time < Time::Seconds())
 			{

@@ -23,7 +23,7 @@
 #include <cstdint>
 #include <cassert>
 #include <fcntl.h>
-
+#include <unistd.h>
 
 /// common
 #include "macro.h"
@@ -113,8 +113,10 @@
 #  include <execinfo.h>
 #  include <sys/stat.h>
 #  include <arpa/inet.h>
+#  include <sys/ioctl.h>
 #  include <sys/syscall.h>
 #  include <net/ethernet.h>
+#  include <netinet/if_ether.h>
 #
 #endif
 

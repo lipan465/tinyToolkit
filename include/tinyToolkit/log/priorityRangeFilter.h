@@ -40,10 +40,38 @@ namespace tinyToolkit
 		 * @param tail 日志优先级
 		 *
 		 */
+		void SetPriority(const char * head, const char * tail)
+		{
+			_priority.first = LogPriority::Value(head);
+			_priority.second = LogPriority::Value(tail);
+		}
+
+		/**
+		 *
+		 * 设置日志优先级
+		 *
+		 * @param head 日志优先级
+		 * @param tail 日志优先级
+		 *
+		 */
 		void SetPriority(LOG_PRIORITY_TYPE head, LOG_PRIORITY_TYPE tail)
 		{
 			_priority.first = head;
 			_priority.second = tail;
+		}
+
+		/**
+		 *
+		 * 设置日志优先级
+		 *
+		 * @param head 日志优先级
+		 * @param tail 日志优先级
+		 *
+		 */
+		void SetPriority(const std::string & head, const std::string & tail)
+		{
+			_priority.first = LogPriority::Value(head);
+			_priority.second = LogPriority::Value(tail);
 		}
 
 	protected:

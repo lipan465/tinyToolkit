@@ -411,6 +411,46 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 设置日志节点布局
+		 *
+		 * @param layout 日志节点布局
+		 *
+		 */
+		void SetSinkLayout(const std::shared_ptr<ILogLayout> & layout)
+		{
+			std::lock_guard<std::mutex> lock(_mutex);
+
+			for (auto &iter : _container)
+			{
+				iter.second->SetLayout(layout);
+			}
+		}
+
+		/**
+		 *
+		 * 设置日志节点布局
+		 *
+		 * @tparam LayoutTypeT [all layout types]
+		 * @tparam Args [all built-in types]
+		 *
+		 * @param args 日志节点布局参数
+		 *
+		 */
+		template<typename LayoutTypeT, typename... Args>
+		void SetSinkLayout(Args &&... args)
+		{
+			std::lock_guard<std::mutex> lock(_mutex);
+
+			auto filter = std::make_shared<LayoutTypeT>(std::forward<Args>(args)...);
+
+			for (auto &iter : _container)
+			{
+				iter.second->SetLayout(filter);
+			}
+		}
+
+		/**
+		 *
 		 * 设置日志节点过滤器
 		 *
 		 * @param filter 日志节点过滤器
@@ -428,18 +468,24 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 设置日志节点布局
+		 * 设置日志节点过滤器
 		 *
-		 * @param layout 日志节点布局
+		 * @tparam FilterTypeT [all filter types]
+		 * @tparam Args [all built-in types]
+		 *
+		 * @param args 日志节点过滤器参数
 		 *
 		 */
-		void SetSinkLayout(const std::shared_ptr<ILogLayout> & layout)
+		template<typename FilterTypeT, typename... Args>
+		void SetSinkFilter(Args &&... args)
 		{
 			std::lock_guard<std::mutex> lock(_mutex);
 
+			auto filter = std::make_shared<FilterTypeT>(std::forward<Args>(args)...);
+
 			for (auto &iter : _container)
 			{
-				iter.second->SetLayout(layout);
+				iter.second->SetFilter(filter);
 			}
 		}
 
@@ -492,6 +538,45 @@ namespace tinyToolkit
 			_container.insert(std::make_pair(sink->Name(), sink));
 
 			return sink;
+		}
+
+		/**
+		 *
+		 * 设置日志节点过滤器
+		 *
+		 * @param filter 日志节点过滤器
+		 *
+		 */
+		void AddSinkFilter(const std::shared_ptr<ILogFilter> & filter)
+		{
+			std::lock_guard<std::mutex> lock(_mutex);
+
+			for (auto &iter : _container)
+			{
+				iter.second->AddFilter(filter);
+			}
+		}
+
+		/**
+		 *
+		 * 设置日志节点过滤器
+		 *
+		 * @tparam FilterTypeT [all filter types]
+		 *
+		 * @param args 日志节点过滤器参数
+		 *
+		 */
+		template<typename FilterTypeT, typename... Args>
+		void AddSinkFilter(Args &&... args)
+		{
+			std::lock_guard<std::mutex> lock(_mutex);
+
+			auto filter = std::make_shared<FilterTypeT>(std::forward<Args>(args)...);
+
+			for (auto &iter : _container)
+			{
+				iter.second->AddFilter(filter);
+			}
 		}
 
 		/**

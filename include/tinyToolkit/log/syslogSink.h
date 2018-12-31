@@ -32,7 +32,7 @@ namespace tinyToolkit
 		 */
 		explicit SyslogLogSink(std::string name, const char * idents = nullptr, int32_t facility = LOG_USER) : ILogSink(std::move(name))
 		{
-			::openlog(idents, LOG_CONS | LOG_PID, facility);
+			::openlog(idents, LOG_CONS, facility);
 		}
 
 		/**

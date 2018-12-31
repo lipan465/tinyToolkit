@@ -537,6 +537,54 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 下一天指定时间的时间戳
+		 *
+		 * @param hour 时
+		 * @param minutes 分
+		 * @param seconds 秒
+		 *
+		 * @return 下一天指定时间的时间戳
+		 *
+		 */
+		static std::time_t NextDayTime(int32_t hour = 0, int32_t minutes = 0, int32_t seconds = 0)
+		{
+			if (hour < 0 || hour > 23 || minutes < 0 || minutes > 59 || seconds < 0 || seconds > 59)
+			{
+				throw std::logic_error("Invalid Time");
+			}
+
+			return CurrentDayTime(hour, minutes, seconds) + TINY_TOOLKIT_DAY;
+		}
+
+		/**
+		 *
+		 * 当天指定时间的时间戳
+		 *
+		 * @param hour 时
+		 * @param minutes 分
+		 * @param seconds 秒
+		 *
+		 * @return 当天指定时间的时间戳
+		 *
+		 */
+		static std::time_t CurrentDayTime(int32_t hour = 0, int32_t minutes = 0, int32_t seconds = 0)
+		{
+			if (hour < 0 || hour > 23 || minutes < 0 || minutes > 59 || seconds < 0 || seconds > 59)
+			{
+				throw std::logic_error("Invalid Time");
+			}
+
+			std::tm date = LocalTm();
+
+			date.tm_hour = hour;
+			date.tm_min  = minutes;
+			date.tm_sec  = seconds;
+
+			return FromTm(date);
+		}
+
+		/**
+		 *
 		 * tm转换成秒数时间戳
 		 *
 		 * @param date 时间结构体

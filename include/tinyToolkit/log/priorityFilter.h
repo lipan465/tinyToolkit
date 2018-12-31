@@ -26,9 +26,57 @@ namespace tinyToolkit
 		 * @param priority 日志优先级
 		 *
 		 */
+		explicit PriorityLogFilter(const char * priority)
+		{
+			SetPriority(priority);
+		}
+
+		/**
+		 *
+		 * 构造函数
+		 *
+		 * @param priority 日志优先级
+		 *
+		 */
+		explicit PriorityLogFilter(const std::string & priority)
+		{
+			SetPriority(priority);
+		}
+
+		/**
+		 *
+		 * 构造函数
+		 *
+		 * @param priority 日志优先级
+		 *
+		 */
 		explicit PriorityLogFilter(LOG_PRIORITY_TYPE priority)
 		{
 			SetPriority(priority);
+		}
+
+		/**
+		 *
+		 * 设置日志优先级
+		 *
+		 * @param priority 日志优先级
+		 *
+		 */
+		void SetPriority(const char * priority)
+		{
+			_priority = LogPriority::Value(priority);
+		}
+
+		/**
+		 *
+		 * 设置日志优先级
+		 *
+		 * @param priority 日志优先级
+		 *
+		 */
+		void SetPriority(const std::string & priority)
+		{
+			_priority = LogPriority::Value(priority);
 		}
 
 		/**

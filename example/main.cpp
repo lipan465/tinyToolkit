@@ -823,7 +823,7 @@ TEST(System, Application)
 	EXPECT_EQ(tinyToolkit::Application::CompileTime(), tinyToolkit::Time::FromTimeString(tinyToolkit::Application::CompileTimeString()));
 
 	EXPECT_STR_EQ(tinyToolkit::Application::Steam().c_str(), "example");
-	EXPECT_STR_EQ(tinyToolkit::Application::Path().c_str(), (tinyToolkit::Application::Directory() + TINY_TOOLKIT_FOLDER_SEP + tinyToolkit::Application::Name()).c_str());
+	EXPECT_STR_EQ(tinyToolkit::Application::Path().c_str(), (tinyToolkit::Application::CurrentDirectory() + TINY_TOOLKIT_FOLDER_SEP + tinyToolkit::Application::Name()).c_str());
 }
 
 
@@ -901,26 +901,26 @@ TEST(Container, Message)
 
 TEST(Utilities, IP)
 {
-	EXPECT_STR_EQ(tinyToolkit::IP::AsString(16951488).c_str(), "1.2.168.192");
-	EXPECT_STR_EQ(tinyToolkit::IP::AsString(3232236033).c_str(), "192.168.2.1");
+	EXPECT_STR_EQ(tinyToolkit::Address::AsString(16951488).c_str(), "1.2.168.192");
+	EXPECT_STR_EQ(tinyToolkit::Address::AsString(3232236033).c_str(), "192.168.2.1");
 
-	EXPECT_EQ(tinyToolkit::IP::AsNetByte(16951488), 3232236033);
-	EXPECT_EQ(tinyToolkit::IP::AsNetByte(3232236033), 16951488);
+	EXPECT_EQ(tinyToolkit::Address::AsNetByte(16951488), 3232236033);
+	EXPECT_EQ(tinyToolkit::Address::AsNetByte(3232236033), 16951488);
 
-	EXPECT_EQ(tinyToolkit::IP::AsNetByte("192.168.2.1"), 16951488);
-	EXPECT_EQ(tinyToolkit::IP::AsNetByte("1.2.168.192"), 3232236033);
+	EXPECT_EQ(tinyToolkit::Address::AsNetByte("192.168.2.1"), 16951488);
+	EXPECT_EQ(tinyToolkit::Address::AsNetByte("1.2.168.192"), 3232236033);
 
-	EXPECT_EQ(tinyToolkit::IP::AsNetByte(std::string("192.168.2.1")), 16951488);
-	EXPECT_EQ(tinyToolkit::IP::AsNetByte(std::string("1.2.168.192")), 3232236033);
+	EXPECT_EQ(tinyToolkit::Address::AsNetByte(std::string("192.168.2.1")), 16951488);
+	EXPECT_EQ(tinyToolkit::Address::AsNetByte(std::string("1.2.168.192")), 3232236033);
 
-	EXPECT_EQ(tinyToolkit::IP::AsHostByte(16951488), 3232236033);
-	EXPECT_EQ(tinyToolkit::IP::AsHostByte(3232236033), 16951488);
+	EXPECT_EQ(tinyToolkit::Address::AsHostByte(16951488), 3232236033);
+	EXPECT_EQ(tinyToolkit::Address::AsHostByte(3232236033), 16951488);
 
-	EXPECT_EQ(tinyToolkit::IP::AsHostByte("192.168.2.1"), 3232236033);
-	EXPECT_EQ(tinyToolkit::IP::AsHostByte("1.2.168.192"), 16951488);
+	EXPECT_EQ(tinyToolkit::Address::AsHostByte("192.168.2.1"), 3232236033);
+	EXPECT_EQ(tinyToolkit::Address::AsHostByte("1.2.168.192"), 16951488);
 
-	EXPECT_EQ(tinyToolkit::IP::AsHostByte(std::string("192.168.2.1")), 3232236033);
-	EXPECT_EQ(tinyToolkit::IP::AsHostByte(std::string("1.2.168.192")), 16951488);
+	EXPECT_EQ(tinyToolkit::Address::AsHostByte(std::string("192.168.2.1")), 3232236033);
+	EXPECT_EQ(tinyToolkit::Address::AsHostByte(std::string("1.2.168.192")), 16951488);
 }
 
 
@@ -1081,7 +1081,7 @@ TEST(Utilities, Option)
 	EXPECT_FALSE(manager.Has(std::string("next")));
 	EXPECT_FALSE(manager.Has(std::string("need")));
 
-	char * arg[] = { "example", "--test", "--next=456", "--need=abc" };
+	const char * arg[] = { "example", "--test", "--next=456", "--need=abc" };
 
 	manager.Parse(4, arg);
 

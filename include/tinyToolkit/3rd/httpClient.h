@@ -555,6 +555,7 @@ namespace tinyToolkit
 		{
 			return curl_global_init(CURL_GLOBAL_ALL) == CURLE_OK;
 		}
+
 	protected:
 		/**
 		 *

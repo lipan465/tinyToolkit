@@ -258,7 +258,7 @@ namespace tinyToolkit
 		 * @return 程序目录
 		 *
 		 */
-		static const std::string & Directory()
+		static const std::string & CurrentDirectory()
 		{
 			static std::pair<std::string, bool> value({}, true);
 

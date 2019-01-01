@@ -45,7 +45,7 @@ namespace tinyToolkit
 		 */
 		static bool Exists(const std::string & path)
 		{
-#if TINY_TOOLKIT_CXX_SUPPORT >= 17
+#if TINY_TOOLKIT_CXX_SUPPORT >= 17 && TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_APPLE
 
 			return std::filesystem::exists(path);
 
@@ -75,7 +75,7 @@ namespace tinyToolkit
 		 */
 		static bool Remove(const std::string & path)
 		{
-#if TINY_TOOLKIT_CXX_SUPPORT >= 17
+#if TINY_TOOLKIT_CXX_SUPPORT >= 17 && TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_APPLE
 
 			return std::filesystem::remove(path);
 
@@ -98,7 +98,7 @@ namespace tinyToolkit
 		 */
 		static bool Rename(const std::string & src, const std::string & dst)
 		{
-#if TINY_TOOLKIT_CXX_SUPPORT >= 17
+#if TINY_TOOLKIT_CXX_SUPPORT >= 17 && TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_APPLE
 
 			std::filesystem::rename(src, dst);
 
@@ -129,7 +129,7 @@ namespace tinyToolkit
 		 */
 		static bool IsDirectory(const std::string & path)
 		{
-#if TINY_TOOLKIT_CXX_SUPPORT >= 17
+#if TINY_TOOLKIT_CXX_SUPPORT >= 17 && TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_APPLE
 
 			return std::filesystem::is_directory(path);
 
@@ -163,7 +163,7 @@ namespace tinyToolkit
 		 */
 		static std::size_t Size(const std::string & path)
 		{
-#if TINY_TOOLKIT_CXX_SUPPORT >= 17
+#if TINY_TOOLKIT_CXX_SUPPORT >= 17 && TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_APPLE
 
 			return std::filesystem::file_size(path);
 
@@ -375,7 +375,7 @@ namespace tinyToolkit
 		 */
 		static bool CreateDirectory(const std::string & path)
 		{
-#if TINY_TOOLKIT_CXX_SUPPORT >= 17
+#if TINY_TOOLKIT_CXX_SUPPORT >= 17 && TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_APPLE
 
 			return std::filesystem::create_directory(path);
 
@@ -413,7 +413,7 @@ namespace tinyToolkit
 		 */
 		static bool CreateDirectories(const std::string & path)
 		{
-#if TINY_TOOLKIT_CXX_SUPPORT >= 17
+#if TINY_TOOLKIT_CXX_SUPPORT >= 17 && TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_APPLE
 
 			return std::filesystem::create_directories(path);
 
@@ -453,7 +453,7 @@ namespace tinyToolkit
 		 */
 		static std::string CurrentDirectory()
 		{
-#if TINY_TOOLKIT_CXX_SUPPORT >= 17
+#if TINY_TOOLKIT_CXX_SUPPORT >= 17 && TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_APPLE
 
 			return std::filesystem::current_path();
 
@@ -515,7 +515,7 @@ namespace tinyToolkit
 		 */
 		static std::string Canonical(const std::string & path)
 		{
-#if TINY_TOOLKIT_CXX_SUPPORT >= 17
+#if TINY_TOOLKIT_CXX_SUPPORT >= 17 && TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_APPLE
 
 			return std::filesystem::canonical(path);
 
@@ -593,7 +593,7 @@ namespace tinyToolkit
 			}
 		}
 
-#if TINY_TOOLKIT_CXX_SUPPORT >= 17
+#if TINY_TOOLKIT_CXX_SUPPORT >= 17 && TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_APPLE
 
 		/**
 		 *

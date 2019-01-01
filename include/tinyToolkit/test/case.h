@@ -35,6 +35,13 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 析构函数
+		 *
+		 */
+		virtual ~TestCase() = default;
+
+		/**
+		 *
 		 * 启动
 		 *
 		 */

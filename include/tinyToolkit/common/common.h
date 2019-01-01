@@ -79,7 +79,7 @@
 
 
 /// c++17
-#if TINY_TOOLKIT_CXX_SUPPORT >= 17
+#if TINY_TOOLKIT_CXX_SUPPORT >= 17 && TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_APPLE
 #
 #  include <any>
 #  include <variant>
@@ -103,7 +103,17 @@
 #
 # elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 #
+#  include <cxxabi.h>
+#  include <unistd.h>
+#  include <syslog.h>
+#  include <execinfo.h>
+#  include <sys/stat.h>
+#  include <arpa/inet.h>
+#  include <sys/ioctl.h>
 #  include <mach-o/dyld.h>
+#  include <sys/syscall.h>
+#  include <net/ethernet.h>
+#  include <netinet/if_ether.h>
 #
 #else
 #

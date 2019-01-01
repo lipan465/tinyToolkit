@@ -26,9 +26,9 @@ namespace tinyToolkit
 		 * @return 线程id
 		 *
 		 */
-		static std::size_t ThreadID()
+		static uint64_t ThreadID()
 		{
-			std::size_t tid = 0;
+			uint64_t tid = 0;
 
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
@@ -36,7 +36,7 @@ namespace tinyToolkit
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_LINUX
 
-			tid = static_cast<std::size_t>(::syscall(SYS_gettid));
+			tid = static_cast<uint64_tt>(::syscall(SYS_gettid));
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
@@ -44,7 +44,7 @@ namespace tinyToolkit
 
 #else
 
-			tid = static_cast<std::size_t>(std::hash<std::thread::id>()(std::this_thread::get_id()));
+			tid = static_cast<uint64_t>(std::hash<std::thread::id>()(std::this_thread::get_id()));
 
 #endif
 
@@ -58,7 +58,7 @@ namespace tinyToolkit
 		 * @return pid
 		 *
 		 */
-		static std::size_t ProcessID()
+		static uint64_t ProcessID()
 		{
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
@@ -66,7 +66,7 @@ namespace tinyToolkit
 
 #else
 
-			return static_cast<std::size_t>(::getpid());
+			return static_cast<uint64_t>(::getpid());
 
 #endif
 		}

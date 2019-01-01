@@ -39,6 +39,13 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 析构函数
+		 *
+		 */
+		virtual ~TestInfo() = default;
+
+		/**
+		 *
 		 * 启动
 		 *
 		 */

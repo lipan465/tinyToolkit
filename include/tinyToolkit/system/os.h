@@ -36,7 +36,7 @@ namespace tinyToolkit
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_LINUX
 
-			tid = static_cast<uint64_tt>(::syscall(SYS_gettid));
+			tid = static_cast<uint64_t>(::syscall(SYS_gettid));
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 

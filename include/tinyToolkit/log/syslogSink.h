@@ -113,7 +113,7 @@ namespace tinyToolkit
 		}
 	};
 
-	#endif
+	#endif // TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_WINDOWS
 }
 
 

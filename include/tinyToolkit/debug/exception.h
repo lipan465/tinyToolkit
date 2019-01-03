@@ -11,6 +11,8 @@
  */
 
 
+#include "backtrace.h"
+
 #include "../utilities/string.h"
 #include "../utilities/fileLine.h"
 
@@ -96,23 +98,7 @@ namespace tinyToolkit
 		 */
 		void PrintStackTrace()
 		{
-			void * array[TINY_TOOLKIT_KB];
-
-			int32_t size = backtrace(array, TINY_TOOLKIT_KB);
-
-			char ** stackString = backtrace_symbols(array, size);
-
-			if (stackString)
-			{
-				std::cerr << "Exception StackTrace : " << std::endl;
-
-				for (int32_t i = 0; i < size; ++i)
-				{
-					std::cerr << "    at " << stackString[i] << std::endl;
-				}
-
-				free(stackString);
-			}
+			Backtrace::Print();
 		}
 
 #endif

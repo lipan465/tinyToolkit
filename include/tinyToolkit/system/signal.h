@@ -2,9 +2,6 @@
 #define __TINY_TOOLKIT__SYSTEM__SIGNAL__H__
 
 
-#if TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_WINDOWS
-
-
 /**
  *
  *  作者: hm
@@ -14,11 +11,13 @@
  */
 
 
-#include "../common/common.h"
+#include "../debug/backtrace.h"
 
 
 namespace tinyToolkit
 {
+	#if TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_WINDOWS
+
 	class TINY_TOOLKIT_API Signal
 	{
 	public:
@@ -60,11 +59,16 @@ namespace tinyToolkit
 		{
 			/**
 			 *
+			 * SIGHUP 终端关闭时.
+			 * 		  系统对SIGHUP信号的默认处理是终止收到该信号的进程.
+			 * 		  所以若程序中没有捕捉该信号, 当收到该信号时, 进程就会退出.
+			 *
 			 * SIGPIPE 产生信号时就不会中止程序, 直接把这个信号忽略掉
 			 *
 			 * SIGCHLD 产生信号时就不会僵尸进程, 直接把这个信号忽略掉
 			 *
 			 */
+			RegisterAction(SIGHUP, SIG_IGN);
 			RegisterAction(SIGPIPE, SIG_IGN);
 			RegisterAction(SIGCHLD, SIG_IGN);
 		}
@@ -76,50 +80,7 @@ namespace tinyToolkit
 		 */
 		static void RegisterStackTrace()
 		{
-			RegisterFrame
-			(
-				[](int32_t signalNo)
-				{
-					void * array[TINY_TOOLKIT_KB];
-
-					int32_t size = backtrace(array, TINY_TOOLKIT_KB);
-
-					char ** stackString = backtrace_symbols(array, size);
-
-					if (stackString)
-					{
-						std::cerr << "Signal " << signalNo << " StackTrace : " << std::endl;
-
-						for (int32_t i = 0; i < size; ++i)
-						{
-							std::cerr << "    at " << stackString[i] << std::endl;
-						}
-
-						free(stackString);
-					}
-
-					Raise(SIGABRT);
-				}
-			);
-		}
-
-		/**
-		 *
-		 * 注册信号
-		 *
-		 * @param handler 信号触发时调用的函数
-		 *
-		 */
-		static void RegisterRefresh(void(* handler)(int))
-		{
-			/**
-			 *
-			 * SIGHUP 终端关闭时.
-			 * 		  系统对SIGHUP信号的默认处理是终止收到该信号的进程.
-			 * 		  所以若程序中没有捕捉该信号, 当收到该信号时, 进程就会退出.
-			 *
-			 */
-			RegisterAction(SIGHUP, handler);
+			RegisterFrame(Backtrace::Print);
 		}
 
 		/**
@@ -134,8 +95,6 @@ namespace tinyToolkit
 			/**
 			 *
 			 * SIGINT   程序终止(interrupt)信号, 在用户键入INTR字符(通常是Ctrl-C)时发出, 用于通知前台进程组终止进程
-			 *
-			 * SIGABRT  调用abort函数生成的信号
 			 *
 			 * SIGQUIT  和SIGINT类似, 但由QUIT字符(通常是Ctrl-\)来控制.
 			 * 			进程在因收到SIGQUIT退出时会产生core文件, 在这个意义上类似于一个程序错误信号
@@ -159,7 +118,6 @@ namespace tinyToolkit
 			 */
 			RegisterAction(SIGINT,  handler);
 //			RegisterAction(SIGQUIT, handler);
-			RegisterAction(SIGABRT, handler);
 //			RegisterAction(SIGKILL, handler);
 			RegisterAction(SIGTERM, handler);
 //			RegisterAction(SIGSTOP, handler);
@@ -177,9 +135,12 @@ namespace tinyToolkit
 		{
 			/**
 			 *
+			 * SIGABRT 调用abort函数生成的信号
+			 *
 			 * SIGSEGV 进程执行了一个无效的内存引用, 或发生段错误时发送给它的信号
 			 *
 			 */
+			RegisterAction(SIGABRT, handler);
 			RegisterAction(SIGSEGV, handler);
 		}
 
@@ -193,17 +154,16 @@ namespace tinyToolkit
 		 */
 		static void RegisterAction(int signalNo, void(* handler)(int))
 		{
-			struct sigaction iSig = { };
-			struct sigaction oSig = { };
+			struct sigaction action = { };
 
-			iSig.sa_flags = SA_SIGINFO;
-			iSig.sa_handler = handler;
+			action.sa_flags = SA_SIGINFO;
+			action.sa_handler = handler;
 
-			sigemptyset(&iSig.sa_mask);  // 用来将参数信号集初始化并清空
+			sigemptyset(&action.sa_mask);  /// 用来将参数信号集初始化并清空
 
 #ifdef SA_RESTART
 
-			iSig.sa_flags |= SA_RESTART;
+			action.sa_flags |= SA_RESTART;
 
 #endif // SA_RESTART
 
@@ -218,13 +178,12 @@ namespace tinyToolkit
 			 * oact 一般为NULL
 			 *
 			 */
-			sigaction(signalNo, &iSig, &oSig);
+			sigaction(signalNo, &action, nullptr);
 		}
 	};
+
+	#endif // TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_WINDOWS
 }
-
-
-#endif // TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_WINDOWS
 
 
 #endif // __TINY_TOOLKIT__SYSTEM__SIGNAL__H__

@@ -2,9 +2,6 @@
 #define __TINY_TOOLKIT__UTILITIES__FILE__H__
 
 
-#if TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_WINDOWS
-
-
 /**
  *
  *  作者: hm
@@ -19,6 +16,8 @@
 
 namespace tinyToolkit
 {
+	#if TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_WINDOWS
+
 	class TINY_TOOLKIT_API LockFile
 	{
 	public:
@@ -328,10 +327,9 @@ namespace tinyToolkit
 
 		std::string _path{ };
 	};
+
+	#endif // TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_WINDOWS
 }
-
-
-#endif // TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_WINDOWS
 
 
 #endif // __TINY_TOOLKIT__UTILITIES__FILE__H__

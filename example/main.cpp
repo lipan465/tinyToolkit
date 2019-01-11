@@ -1,5 +1,3 @@
-#include <utility>
-
 /**
  *
  *  作者: hm
@@ -768,7 +766,6 @@ TEST(System, Signal)
 	tinyToolkit::Signal::RegisterStackTrace();
 
 	tinyToolkit::Signal::RegisterFrame([](int signalNo){ signalStatus = signalNo * 1; });
-	tinyToolkit::Signal::RegisterRefresh([](int signalNo){ signalStatus = signalNo * 2; });
 	tinyToolkit::Signal::RegisterTerminate([](int signalNo){ signalStatus = signalNo * 3; });
 
 	tinyToolkit::Signal::Kill(static_cast<int32_t>(tinyToolkit::OS::ProcessID()), SIGTERM);
@@ -790,10 +787,6 @@ TEST(System, Signal)
 	tinyToolkit::Signal::Raise(SIGCHLD);
 
 	EXPECT_EQ(signalStatus, SIGTSTP * 3);
-
-	tinyToolkit::Signal::Raise(SIGHUP);
-
-	EXPECT_EQ(signalStatus, SIGHUP * 2);
 
 	tinyToolkit::Signal::Raise(SIGSEGV);
 

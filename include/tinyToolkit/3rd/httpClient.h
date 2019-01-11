@@ -99,6 +99,7 @@ namespace tinyToolkit
 			params.clear();
 			cookie.clear();
 			userAgent.clear();
+			requestOption.clear();
 
 			if (headers)
 			{
@@ -126,6 +127,7 @@ namespace tinyToolkit
 		std::string params{ };
 		std::string cookie{ };
 		std::string userAgent{ };
+		std::string requestOption{ };
 
 		struct curl_slist * headers{ nullptr };
 	};
@@ -176,6 +178,7 @@ namespace tinyToolkit
 			GET,
 			PUT,
 			POST,
+			OTHER,
 		};
 
 	public:
@@ -210,38 +213,56 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * get操作(http)
+		 * get操作
 		 *
 		 * @return 操作结果
 		 *
 		 */
 		bool Get()
 		{
+			SetRequestOption("GET");
+
 			return Launch(HTTP_OPTION_TYPE::GET);
 		}
 
 		/**
 		 *
-		 * put操作(http)
+		 * put操作
 		 *
 		 * @return 操作结果
 		 *
 		 */
 		bool Put()
 		{
+			SetRequestOption("PUT");
+
 			return Launch(HTTP_OPTION_TYPE::PUT);
 		}
 
 		/**
 		 *
-		 * post操作(http)
+		 * post操作
 		 *
 		 * @return 操作结果
 		 *
 		 */
 		bool Post()
 		{
+			SetRequestOption("POST");
+
 			return Launch(HTTP_OPTION_TYPE::POST);
+		}
+
+		/**
+		 *
+		 * 请求操作
+		 *
+		 * @return 操作结果
+		 *
+		 */
+		bool Request()
+		{
+			return Launch(HTTP_OPTION_TYPE::OTHER);
 		}
 
 		/**
@@ -302,6 +323,18 @@ namespace tinyToolkit
 		void SetUrl(std::string url)
 		{
 			_session.url = std::move(url);
+		}
+
+		/**
+		 *
+		 * 设置请求方式
+		 *
+		 * @param requestOption 请求方式
+		 *
+		 */
+		void SetRequestOption(std::string requestOption)
+		{
+			_session.requestOption = std::move(requestOption);
 		}
 
 		/**
@@ -717,8 +750,6 @@ namespace tinyToolkit
 			{
 				case HTTP_OPTION_TYPE::GET:
 				{
-					curl_easy_setopt(_curl, CURLOPT_HTTPGET, 1L);  /// 设置get操作
-
 					break;
 				}
 
@@ -748,6 +779,8 @@ namespace tinyToolkit
 
 				default:
 				{
+					curl_easy_setopt(_curl, CURLOPT_CUSTOMREQUEST, _session.requestOption.c_str());  /// 设置自定义请求方式
+
 					break;
 				}
 			}

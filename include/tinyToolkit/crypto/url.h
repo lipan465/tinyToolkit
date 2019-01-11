@@ -269,7 +269,7 @@ namespace tinyToolkit
 		 */
 		static uint8_t AsHex(uint8_t value)
 		{
-			return static_cast<uint8_t>(value > 9 ? value - 10 + 'a': value + '0');
+			return static_cast<uint8_t>(value > 9 ? value - 10 + 'A': value + '0');
 		}
 
 		/**
@@ -283,7 +283,7 @@ namespace tinyToolkit
 		 */
 		static uint8_t AsChar(uint8_t value)
 		{
-			return static_cast<uint8_t>(::isdigit(value) == 0 ? value + 10 - 'a' : value - '0');
+			return static_cast<uint8_t>(::isdigit(value) == 0 ? value + 10 - 'A' : value - '0');
 		}
 	};
 }

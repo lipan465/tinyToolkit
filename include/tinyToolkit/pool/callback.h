@@ -130,7 +130,7 @@ namespace tinyToolkit
 		 * @param args 参数
 		 *
 		 */
-		void Call(Args &&... args)
+		void Call(Args ... args)
 		{
 			for (auto &callback : _pool)
 			{
@@ -152,7 +152,7 @@ namespace tinyToolkit
 		 * @param args 参数
 		 *
 		 */
-		void operator()(Args &&... args)
+		void operator()(Args ... args)
 		{
 			Call(std::forward<Args>(args)...);
 		}

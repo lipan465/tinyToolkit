@@ -258,13 +258,13 @@ namespace tinyToolkit
 		 * @return 程序目录
 		 *
 		 */
-		static const std::string & CurrentDirectory()
+		static const std::string & Directory()
 		{
 			static std::pair<std::string, bool> value({}, true);
 
 			if (value.second)
 			{
-				value.first = Filesystem::CurrentDirectory();
+				value.first = Filesystem::ParentDirectory(Path());
 
 				value.second = false;
 			}

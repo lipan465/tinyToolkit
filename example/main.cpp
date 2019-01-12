@@ -697,7 +697,7 @@ TEST(Crypto, UrlTransform)
 {
 	{
 		const char * src = "b+-f*0^1$8%7';2^#$)(_c)&$#!!^9";
-		const char * dst = "b%2b-f*0%5e1%248%257%27%3b2%5e%23%24)(_c)%26%24%23!!%5e9";
+		const char * dst = "b%2B-f*0%5E1%248%257%27%3B2%5E%23%24)(_c)%26%24%23!!%5E9";
 
 		EXPECT_STR_EQ(tinyToolkit::UrlTransform::Encode(src).c_str(), dst);
 		EXPECT_STR_EQ(tinyToolkit::UrlTransform::Decode(dst).c_str(), src);
@@ -705,7 +705,7 @@ TEST(Crypto, UrlTransform)
 
 	{
 		const char * src = "b+-f*0^1$8%7';2^#$)(_c)&$#!!^9";
-		const char * dst = "b%2b-f*0%5e1%248%257%27%3b2%5e%23%24)(_c)%26%24%23!!%5e9";
+		const char * dst = "b%2B-f*0%5E1%248%257%27%3B2%5E%23%24)(_c)%26%24%23!!%5E9";
 
 		EXPECT_STR_EQ(tinyToolkit::UrlTransform::Encode(reinterpret_cast<const uint8_t *>(src)).c_str(), dst);
 		EXPECT_STR_EQ(tinyToolkit::UrlTransform::Decode(reinterpret_cast<const uint8_t *>(dst)).c_str(), src);
@@ -713,7 +713,7 @@ TEST(Crypto, UrlTransform)
 
 	{
 		const char * src = "b+-f*0^1$8%7';2^#$)(_c)&$#!!^9";
-		const char * dst = "b%2b-f*0%5e1%248%257%27%3b2%5e%23%24)(_c)%26%24%23!!%5e9";
+		const char * dst = "b%2B-f*0%5E1%248%257%27%3B2%5E%23%24)(_c)%26%24%23!!%5E9";
 
 		EXPECT_STR_EQ(tinyToolkit::UrlTransform::Encode(std::string(src)).c_str(), dst);
 		EXPECT_STR_EQ(tinyToolkit::UrlTransform::Decode(std::string(dst)).c_str(), src);
@@ -816,7 +816,7 @@ TEST(System, Application)
 	EXPECT_EQ(tinyToolkit::Application::CompileTime(), tinyToolkit::Time::FromTimeString(tinyToolkit::Application::CompileTimeString()));
 
 	EXPECT_STR_EQ(tinyToolkit::Application::Steam().c_str(), "example");
-	EXPECT_STR_EQ(tinyToolkit::Application::Path().c_str(), (tinyToolkit::Application::CurrentDirectory() + TINY_TOOLKIT_FOLDER_SEP + tinyToolkit::Application::Name()).c_str());
+	EXPECT_STR_EQ(tinyToolkit::Application::Path().c_str(), (tinyToolkit::Application::Directory() + TINY_TOOLKIT_FOLDER_SEP + tinyToolkit::Application::Name()).c_str());
 }
 
 
@@ -1220,7 +1220,7 @@ TEST(Utilities, Filesystem)
 {
 	tinyToolkit::StringVector strVector{ "1", "2", "3", "", "", "6", "", "8" };
 
-	std::string sf = tinyToolkit::String::Format("fileSystem{}", TINY_TOOLKIT_FOLDER_SEP);
+	std::string sf = tinyToolkit::String::Format("fileSystem");
 	std::string s1 = tinyToolkit::String::Format("fileSystem{}1.txt", TINY_TOOLKIT_FOLDER_SEP);
 	std::string s2 = tinyToolkit::String::Format("fileSystem{}2.txt", TINY_TOOLKIT_FOLDER_SEP);
 	std::string sa = tinyToolkit::String::Format("fileSystem{}a.txt", TINY_TOOLKIT_FOLDER_SEP);

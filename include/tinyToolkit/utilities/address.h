@@ -82,6 +82,60 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 转换网络字节序范围
+		 *
+		 * @param value 待转换字符串
+		 * @param head 转换后字节序范围首部
+		 * @param tail 转换后字节序范围尾部
+		 *
+		 * @return 是否转换成功
+		 *
+		 */
+		static bool AsNetByte(const std::string & value, uint32_t & head, uint32_t & tail)
+		{
+			std::size_t pos = value.find('-');
+
+			if (pos == std::string::npos)
+			{
+				pos = value.find('/');
+
+				if (pos == std::string::npos)  /// a.b.c.d
+				{
+					head = AsNetByte(value);
+					tail = head;
+				}
+				else
+				{
+					if (value.find('.', pos + 1) == std::string::npos)  /// a.b.c.d/e
+					{
+						int64_t mask = strtol(value.substr(pos + 1).data(), nullptr, 10);
+
+						if (32 < mask || mask < 0)
+						{
+							return false;
+						}
+
+						head = AsNetByte(value.substr(0, pos));
+						tail = head | ~(mask == 0 ? 0 : htonl(0xFFFFFFFF << (32 - mask)));
+					}
+					else  /// a.b.c.d/a.b.c.d
+					{
+						head = AsNetByte(value.substr(0, pos));
+						tail = AsNetByte(value.substr(pos + 1));
+					}
+				}
+			}
+			else  /// a.b.c.d-a.b.c.d
+			{
+				head = AsNetByte(value.substr(0, pos));
+				tail = AsNetByte(value.substr(pos + 1));
+			}
+
+			return head <= tail;
+		}
+
+		/**
+		 *
 		 * 转换主机字节序
 		 *
 		 * @param value 待转换网络字节序
@@ -128,60 +182,6 @@ namespace tinyToolkit
 		static uint32_t AsHostByte(const std::string & value)
 		{
 			return AsHostByte(value.c_str());
-		}
-
-		/**
-		 *
-		 * 转换网络字节序范围
-		 *
-		 * @param value 待转换字符串
-		 * @param head 转换后字节序范围首部
-		 * @param tail 转换后字节序范围尾部
-		 *
-		 * @return 是否转换成功
-		 *
-		 */
-		static bool FromString(const std::string & value, uint32_t & head, uint32_t & tail)
-		{
-			std::size_t pos = value.find('-');
-
-			if (pos == std::string::npos)
-			{
-				pos = value.find('/');
-
-				if (pos == std::string::npos)  /// a.b.c.d
-				{
-					head = AsNetByte(value);
-					tail = head;
-				}
-				else
-				{
-					if (value.find('.', pos + 1) == std::string::npos)  /// a.b.c.d/e
-					{
-						int64_t mask = strtol(value.substr(pos + 1).data(), nullptr, 10);
-
-						if (32 < mask || mask < 0)
-						{
-							return false;
-						}
-
-						head = AsNetByte(value.substr(0, pos));
-						tail = head | ~(mask == 0 ? 0 : htonl(0xFFFFFFFF << (32 - mask)));
-					}
-					else  /// a.b.c.d/a.b.c.d
-					{
-						head = AsNetByte(value.substr(0, pos));
-						tail = AsNetByte(value.substr(pos + 1));
-					}
-				}
-			}
-			else  /// a.b.c.d-a.b.c.d
-			{
-				head = AsNetByte(value.substr(0, pos));
-				tail = AsNetByte(value.substr(pos + 1));
-			}
-
-			return head <= tail;
 		}
 
 		/**

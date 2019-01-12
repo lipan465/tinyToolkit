@@ -589,7 +589,7 @@ namespace tinyToolkit
 			}
 			else
 			{
-				return path.substr(0, pos + 1);
+				return path.substr(0, pos);
 			}
 		}
 

@@ -236,7 +236,7 @@ namespace tinyToolkit
 		}
 	};
 
-	class SqliteQuery
+	class TINY_TOOLKIT_API SqliteQuery
 	{
 	public:
 		/**
@@ -392,7 +392,7 @@ namespace tinyToolkit
 		std::unordered_map<std::string, std::size_t> & _field;
 	};
 
-	class SqliteDataBase
+	class TINY_TOOLKIT_API SqliteDataBase
 	{
 	public:
 		/**

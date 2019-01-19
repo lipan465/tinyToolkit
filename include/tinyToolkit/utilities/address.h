@@ -42,15 +42,24 @@ namespace tinyToolkit
 		 *
 		 * 转换网络字节序
 		 *
-		 * @param value 待转换主机字节序
+		 * @param value 待转换字符串
 		 *
 		 * @return 网络字节序
 		 *
 		 */
-		static uint32_t AsNetByte(uint32_t value)
-		{
-			return htonl(value);
-		}
+		static uint32_t AsNetByte(const char * value);
+
+
+		/**
+		 *
+		 * 转换主机字节序
+		 *
+		 * @param value 待转换字符串
+		 *
+		 * @return 主机字节序
+		 *
+		 */
+		static uint32_t AsHostByte(const char * value);
 
 		/**
 		 *
@@ -61,24 +70,18 @@ namespace tinyToolkit
 		 * @return 网络字节序
 		 *
 		 */
-		static uint32_t AsNetByte(const char * value)
-		{
-			return inet_addr(value);
-		}
+		static uint32_t AsNetByte(const std::string & value);
 
 		/**
 		 *
-		 * 转换网络字节序
+		 * 转换主机字节序
 		 *
 		 * @param value 待转换字符串
 		 *
-		 * @return 网络字节序
+		 * @return 主机字节序
 		 *
 		 */
-		static uint32_t AsNetByte(const std::string & value)
-		{
-			return AsNetByte(value.c_str());
-		}
+		static uint32_t AsHostByte(const std::string & value);
 
 		/**
 		 *
@@ -91,98 +94,7 @@ namespace tinyToolkit
 		 * @return 是否转换成功
 		 *
 		 */
-		static bool AsNetByte(const std::string & value, uint32_t & head, uint32_t & tail)
-		{
-			std::size_t pos = value.find('-');
-
-			if (pos == std::string::npos)
-			{
-				pos = value.find('/');
-
-				if (pos == std::string::npos)  /// a.b.c.d
-				{
-					head = AsNetByte(value);
-					tail = head;
-				}
-				else
-				{
-					if (value.find('.', pos + 1) == std::string::npos)  /// a.b.c.d/e
-					{
-						int64_t mask = strtol(value.substr(pos + 1).data(), nullptr, 10);
-
-						if (32 < mask || mask < 0)
-						{
-							return false;
-						}
-
-						head = AsNetByte(value.substr(0, pos));
-						tail = head | ~(mask == 0 ? 0 : htonl(0xFFFFFFFF << (32 - mask)));
-					}
-					else  /// a.b.c.d/a.b.c.d
-					{
-						head = AsNetByte(value.substr(0, pos));
-						tail = AsNetByte(value.substr(pos + 1));
-					}
-				}
-			}
-			else  /// a.b.c.d-a.b.c.d
-			{
-				head = AsNetByte(value.substr(0, pos));
-				tail = AsNetByte(value.substr(pos + 1));
-			}
-
-			return head <= tail;
-		}
-
-		/**
-		 *
-		 * 转换主机字节序
-		 *
-		 * @param value 待转换网络字节序
-		 *
-		 * @return 主机字节序
-		 *
-		 */
-		static uint32_t AsHostByte(uint32_t value)
-		{
-			return ntohl(value);
-		}
-
-		/**
-		 *
-		 * 转换主机字节序
-		 *
-		 * @param value 待转换字符串
-		 *
-		 * @return 主机字节序
-		 *
-		 */
-		static uint32_t AsHostByte(const char * value)
-		{
-#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
-
-			return ntohl(AsNetByte(value));
-
-#else
-
-			return inet_network(value);
-
-#endif
-		}
-
-		/**
-		 *
-		 * 转换主机字节序
-		 *
-		 * @param value 待转换字符串
-		 *
-		 * @return 主机字节序
-		 *
-		 */
-		static uint32_t AsHostByte(const std::string & value)
-		{
-			return AsHostByte(value.c_str());
-		}
+		static bool AsNetByte(const std::string & value, uint32_t & head, uint32_t & tail);
 
 		/**
 		 *
@@ -195,48 +107,29 @@ namespace tinyToolkit
 		 * @return 是否转换成功
 		 *
 		 */
-		static bool AsHostByte(const std::string & value, uint32_t & head, uint32_t & tail)
-		{
-			std::size_t pos = value.find('-');
+		static bool AsHostByte(const std::string & value, uint32_t & head, uint32_t & tail);
 
-			if (pos == std::string::npos)
-			{
-				pos = value.find('/');
+		/**
+		 *
+		 * 解析域名
+		 *
+		 * @param host 待解析域名
+		 *
+		 * @return 解析后域名
+		 *
+		 */
+		static std::string ParseHost(const char * host);
 
-				if (pos == std::string::npos)  /// a.b.c.d
-				{
-					head = AsHostByte(value);
-					tail = head;
-				}
-				else
-				{
-					if (value.find('.', pos + 1) == std::string::npos)  /// a.b.c.d/e
-					{
-						int64_t mask = strtol(value.substr(pos + 1).data(), nullptr, 10);
-
-						if (32 < mask || mask < 0)
-						{
-							return false;
-						}
-
-						head = AsHostByte(value.substr(0, pos));
-						tail = head | ~(mask == 0 ? 0 : 0xFFFFFFFF << (32 - mask));
-					}
-					else  /// a.b.c.d/a.b.c.d
-					{
-						head = AsHostByte(value.substr(0, pos));
-						tail = AsHostByte(value.substr(pos + 1));
-					}
-				}
-			}
-			else  /// a.b.c.d-a.b.c.d
-			{
-				head = AsHostByte(value.substr(0, pos));
-				tail = AsHostByte(value.substr(pos + 1));
-			}
-
-			return head <= tail;
-		}
+		/**
+		 *
+		 * 解析域名
+		 *
+		 * @param host 待解析域名
+		 *
+		 * @return 解析后域名
+		 *
+		 */
+		static std::string ParseHost(const std::string & host);
 
 		/**
 		 *
@@ -247,13 +140,7 @@ namespace tinyToolkit
 		 * @return 字符串
 		 *
 		 */
-		static std::string AsString(uint32_t value)
-		{
-			return  std::to_string((value >> 24) & 0xFF) + "." +
-					std::to_string((value >> 16) & 0xFF) + "." +
-					std::to_string((value >>  8) & 0xFF) + "." +
-					std::to_string((value >>  0) & 0xFF);
-		}
+		static std::string AsString(uint32_t value);
 	};
 }
 

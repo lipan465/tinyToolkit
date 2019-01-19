@@ -268,7 +268,7 @@ namespace tinyToolkit
  */
 #define TINY_TOOLKIT_TEST_REGISTER(prefix, suffix, parent)																						\
 																																				\
-class TINY_TOOLKIT_TEST_CLASS_NAME(prefix, suffix) : public parent																				\
+class TINY_TOOLKIT_API TINY_TOOLKIT_TEST_CLASS_NAME(prefix, suffix) : public parent																				\
 {																																				\
 public:																																			\
 	TINY_TOOLKIT_TEST_CLASS_NAME(prefix, suffix)() : parent(#prefix, #suffix)																	\

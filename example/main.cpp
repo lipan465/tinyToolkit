@@ -892,7 +892,7 @@ TEST(Container, Message)
 }
 
 
-TEST(Utilities, IP)
+TEST(Utilities, Address)
 {
 	EXPECT_STR_EQ(tinyToolkit::Address::AsString(16951488).c_str(), "1.2.168.192");
 	EXPECT_STR_EQ(tinyToolkit::Address::AsString(3232236033).c_str(), "192.168.2.1");
@@ -914,6 +914,8 @@ TEST(Utilities, IP)
 
 	EXPECT_EQ(tinyToolkit::Address::AsHostByte(std::string("192.168.2.1")), 3232236033);
 	EXPECT_EQ(tinyToolkit::Address::AsHostByte(std::string("1.2.168.192")), 16951488);
+
+	EXPECT_FALSE(tinyToolkit::Address::ParseHost("www.baidu.com").empty());
 }
 
 

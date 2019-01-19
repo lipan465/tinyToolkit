@@ -36,10 +36,7 @@ namespace tinyToolkit
 		 * @param truncate 是否覆盖文件
 		 *
 		 */
-		explicit LockFile(std::string path, bool truncate = false)
-		{
-			Open(std::move(path), truncate);
-		}
+		explicit LockFile(std::string path, bool truncate = false);
 
 		/**
 		 *
@@ -58,54 +55,28 @@ namespace tinyToolkit
 		 * @param path 待打开文件路径
 		 * @param truncate 是否覆盖文件
 		 *
-		 * @return 打开状态
+		 * @return 是否打开成功
 		 *
 		 */
-		bool Open(std::string path, bool truncate = false)
-		{
-			if (IsOpen())
-			{
-				return false;
-			}
-
-			_path = std::move(path);
-
-			return Create() && Lock() && Execl(truncate);
-		}
+		bool Open(std::string path, bool truncate = false);
 
 		/**
 		 *
 		 * 关闭文件
 		 *
-		 * @return 关闭状态
+		 * @return 是否关闭成功
 		 *
 		 */
-		bool Close()
-		{
-			if (_fd > 0)
-			{
-				if (::close(_fd) == -1)
-				{
-					return false;
-				}
-
-				_fd = -1;
-			}
-
-			return true;
-		}
+		bool Close();
 
 		/**
 		 *
 		 * 是否已经打开文件
 		 *
-		 * @return 打开状态
+		 * @return 是否已经打开文件
 		 *
 		 */
-		bool IsOpen()
-		{
-			return _fd > 0;
-		}
+		bool IsOpen();
 
 		/**
 		 *
@@ -113,15 +84,10 @@ namespace tinyToolkit
 		 *
 		 * @param value 待写入数据
 		 *
-		 * @return 写入状态
+		 * @return 是否写入成功
 		 *
 		 */
-		bool Write(const char * value)
-		{
-			assert(value);
-
-			return Write(value, strlen(value));
-		}
+		bool Write(const char * value);
 
 		/**
 		 *
@@ -129,13 +95,10 @@ namespace tinyToolkit
 		 *
 		 * @param value 待写入数据
 		 *
-		 * @return 写入状态
+		 * @return 是否写入成功
 		 *
 		 */
-		bool Write(const std::string & value)
-		{
-			return Write(value, value.size());
-		}
+		bool Write(const std::string & value);
 
 		/**
 		 *
@@ -144,36 +107,10 @@ namespace tinyToolkit
 		 * @param value 待写入数据
 		 * @param size 待写入数据长度
 		 *
-		 * @return 写入状态
+		 * @return 是否写入成功
 		 *
 		 */
-		bool Write(const char * value, std::size_t size)
-		{
-			assert(value);
-
-			if (!IsOpen())
-			{
-				return false;
-			}
-
-			while (size > 0)
-			{
-				ssize_t len = ::write(_fd, value, size);
-
-				if (len == -1)
-				{
-					return false;
-				}
-				else
-				{
-					_len += len;
-
-					size -= len;
-				}
-			}
-
-			return true;
-		}
+		bool Write(const char * value, std::size_t size);
 
 		/**
 		 *
@@ -182,13 +119,10 @@ namespace tinyToolkit
 		 * @param value 待写入数据
 		 * @param size 待写入数据长度
 		 *
-		 * @return 写入状态
+		 * @return 是否写入成功
 		 *
 		 */
-		bool Write(const std::string & value, std::size_t size)
-		{
-			return Write(value.c_str(), size);
-		}
+		bool Write(const std::string & value, std::size_t size);
 
 		/**
 		 *
@@ -199,12 +133,7 @@ namespace tinyToolkit
 		 * @return 实例化对象
 		 *
 		 */
-		LockFile & operator << (const char * value)
-		{
-			Write(value);
-
-			return *this;
-		}
+		LockFile & operator << (const char * value);
 
 		/**
 		 *
@@ -215,12 +144,7 @@ namespace tinyToolkit
 		 * @return 实例化对象
 		 *
 		 */
-		LockFile & operator << (const std::string & value)
-		{
-			Write(value);
-
-			return *this;
-		}
+		LockFile & operator << (const std::string & value);
 
 		/**
 		 *
@@ -229,10 +153,7 @@ namespace tinyToolkit
 		 * @return 文件大小
 		 *
 		 */
-		std::size_t Size() const
-		{
-			return _len;
-		}
+		std::size_t Size() const;
 
 		/**
 		 *
@@ -241,84 +162,37 @@ namespace tinyToolkit
 		 * @return 文件路径
 		 *
 		 */
-		const std::string & Path() const
-		{
-			return _path;
-		}
+		const std::string & Path() const;
 
 	protected:
-		bool Lock()
-		{
-			struct flock lock =
-			{
-				.l_type = F_WRLCK,  /// 加锁的类型: 只读锁(F_RDLCK), 读写锁(F_WRLCK), 或是解锁(F_UNLCK)
-				.l_whence = SEEK_SET,  /// 加锁部分的开始位置
-				.l_start = 0,  /// 加锁部分的开始位置
-				.l_len = 0,  /// 加锁的长度
-			};
+		/**
+		 *
+		 * 锁定
+		 *
+		 * @return 是否锁定成功
+		 *
+		 */
+		bool Lock();
 
-			if (fcntl(_fd, F_SETLK, &lock) == -1)  /// 尝试在整个文件上设置锁定
-			{
-				Close();
+		/**
+		 *
+		 * 创建文件
+		 *
+		 * @return 是否创建成功
+		 *
+		 */
+		bool Create();
 
-				if (errno == EACCES || errno == EAGAIN)
-				{
-					/// 代表这个文件已经被别的进程锁定
-				}
-
-				return false;
-			}
-
-			return true;
-		}
-
-		bool Execl(bool truncate)
-		{
-			if (truncate)
-			{
-				if (ftruncate(_fd, 0) == -1)  /// 清空文件
-				{
-					Close();
-
-					return false;
-				}
-			}
-
-			int32_t val = fcntl(_fd, F_GETFD, 0);  /// 获得文件描述符标记
-
-			if (val == -1)
-			{
-				Close();
-
-				return false;
-			}
-
-			/**
-			 *
-			 * 对描述符设置了FD_CLOEXEC
-			 *
-			 * 使用execl执行的程序里, 此描述符被关闭, 不能再使用它
-			 * 使用fork调用的子进程中, 此描述符并不关闭, 仍可使用
-			 *
-			 */
-			val |= FD_CLOEXEC;
-
-			if (fcntl(_fd, F_SETFD, val) == -1)  /// 设置文件描述符标记
-			{
-				Close();
-
-				return false;
-			}
-
-			return true;
-		}
-
-		bool Create()
-		{
-			_fd = open(_path.c_str(), O_WRONLY | O_CREAT, 0644);
-
-			return IsOpen();
-		}
+		/**
+		 *
+		 * 设置描诉符
+		 *
+		 * @param truncate 是否清空文件
+		 *
+		 * @return 是否设置成功
+		 *
+		 */
+		bool Execl(bool truncate);
 
 	protected:
 		int32_t _fd{ -1 };

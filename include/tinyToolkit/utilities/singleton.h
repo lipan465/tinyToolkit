@@ -40,23 +40,23 @@ namespace tinyToolkit
 		}
 
 		/**
-		*
-		* 构造函数
-		*
-		* @param rhs 实例化对象
-		*
-		*/
+		 *
+		 * 构造函数
+		 *
+		 * @param rhs 实例化对象
+		 *
+		 */
 		Singleton(const Singleton &) = delete;
 
 		/**
-		*
-		* 函数重载
-		*
-		* @param rhs 待赋值实例化
-		*
-		* @return 实例化对象
-		*
-		*/
+		 *
+		 * 函数重载
+		 *
+		 * @param rhs 待赋值实例化
+		 *
+		 * @return 实例化对象
+		 *
+		 */
 		Singleton & operator=(const Singleton &) = delete;
 
 	protected:

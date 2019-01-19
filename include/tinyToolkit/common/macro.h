@@ -41,25 +41,59 @@
 
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 #
+#  ifndef TINY_TOOLKIT_EOL
 #  define TINY_TOOLKIT_EOL "\r\n"
+#  endif
 #
+#  ifndef TINY_TOOLKIT_FILE
 #  define TINY_TOOLKIT_FILE __FILE__
-#  define TINY_TOOLKIT_LINE __LINE__
-#  define TINY_TOOLKIT_FUNC __FUNCTION__
+#  endif
 #
+#  ifndef TINY_TOOLKIT_LINE
+#  define TINY_TOOLKIT_LINE __LINE__
+#  endif
+#
+#  ifndef TINY_TOOLKIT_FUNC
+#  define TINY_TOOLKIT_FUNC __FUNCTION__
+#  endif
+#
+#  ifndef TINY_TOOLKIT_FOLDER_SEP
 #  define TINY_TOOLKIT_FOLDER_SEP "\\"
+#  endif
+#
+#  ifndef TINY_TOOLKIT_FOLDER_EOL
 #  define TINY_TOOLKIT_FOLDER_EOL ".\\"
+#  endif
 #
 #else
 #
+#  ifndef TINY_TOOLKIT_EPOLL_COUNT
+#  define TINY_TOOLKIT_EPOLL_COUNT 10240
+#  endif
+#
+#  ifndef TINY_TOOLKIT_EOL
 #  define TINY_TOOLKIT_EOL "\n"
+#  endif
 #
+#  ifndef TINY_TOOLKIT_FILE
 #  define TINY_TOOLKIT_FILE __FILE__
-#  define TINY_TOOLKIT_LINE __LINE__
-#  define TINY_TOOLKIT_FUNC __PRETTY_FUNCTION__
+#  endif
 #
+#  ifndef TINY_TOOLKIT_LINE
+#  define TINY_TOOLKIT_LINE __LINE__
+#  endif
+#
+#  ifndef TINY_TOOLKIT_FUNC
+#  define TINY_TOOLKIT_FUNC __PRETTY_FUNCTION__
+#  endif
+#
+#  ifndef TINY_TOOLKIT_FOLDER_SEP
 #  define TINY_TOOLKIT_FOLDER_SEP "/"
+#  endif
+#
+#  ifndef TINY_TOOLKIT_FOLDER_EOL
 #  define TINY_TOOLKIT_FOLDER_EOL "./"
+#  endif
 #
 #endif
 

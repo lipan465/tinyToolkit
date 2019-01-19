@@ -11,7 +11,6 @@
  */
 
 
-#include "../3rd/fmt/fmt.h"
 #include "../common/common.h"
 
 
@@ -30,13 +29,7 @@ namespace tinyToolkit
 		 * @return 状态
 		 *
 		 */
-		static bool IsSameYear(std::time_t sSeconds, std::time_t dSeconds)
-		{
-			std::tm src = LocalTm(sSeconds);
-			std::tm dst = LocalTm(dSeconds);
-
-			return (src.tm_year == dst.tm_year);
-		}
+		static bool IsSameYear(std::time_t sSeconds, std::time_t dSeconds);
 
 		/**
 		 *
@@ -48,14 +41,7 @@ namespace tinyToolkit
 		 * @return 状态
 		 *
 		 */
-		static bool IsSameMonth(std::time_t sSeconds, std::time_t dSeconds)
-		{
-			std::tm src = LocalTm(sSeconds);
-			std::tm dst = LocalTm(dSeconds);
-
-			return (src.tm_year == dst.tm_year &&
-					src.tm_mon == dst.tm_mon);
-		}
+		static bool IsSameMonth(std::time_t sSeconds, std::time_t dSeconds);
 
 		/**
 		 *
@@ -67,15 +53,7 @@ namespace tinyToolkit
 		 * @return 状态
 		 *
 		 */
-		static bool IsSameDay(std::time_t sSeconds, std::time_t dSeconds)
-		{
-			std::tm src = LocalTm(sSeconds);
-			std::tm dst = LocalTm(dSeconds);
-
-			return (src.tm_year == dst.tm_year &&
-					src.tm_mon == dst.tm_mon &&
-					src.tm_mday == dst.tm_mday);
-		}
+		static bool IsSameDay(std::time_t sSeconds, std::time_t dSeconds);
 
 		/**
 		 *
@@ -87,16 +65,7 @@ namespace tinyToolkit
 		 * @return 状态
 		 *
 		 */
-		static bool IsSameHour(std::time_t sSeconds, std::time_t dSeconds)
-		{
-			std::tm src = LocalTm(sSeconds);
-			std::tm dst = LocalTm(dSeconds);
-
-			return (src.tm_year == dst.tm_year &&
-					src.tm_mon == dst.tm_mon &&
-					src.tm_mday == dst.tm_mday &&
-					src.tm_hour == dst.tm_hour);
-		}
+		static bool IsSameHour(std::time_t sSeconds, std::time_t dSeconds);
 
 		/**
 		 *
@@ -108,17 +77,7 @@ namespace tinyToolkit
 		 * @return 状态
 		 *
 		 */
-		static bool IsSameMinute(std::time_t sSeconds, std::time_t dSeconds)
-		{
-			std::tm src = LocalTm(sSeconds);
-			std::tm dst = LocalTm(dSeconds);
-
-			return (src.tm_year == dst.tm_year &&
-					src.tm_mon == dst.tm_mon &&
-					src.tm_mday == dst.tm_mday &&
-					src.tm_hour == dst.tm_hour &&
-					src.tm_min == dst.tm_min);
-		}
+		static bool IsSameMinute(std::time_t sSeconds, std::time_t dSeconds);
 
 		/**
 		 *
@@ -127,10 +86,7 @@ namespace tinyToolkit
 		 * @return 时间结构体
 		 *
 		 */
-		static std::tm UTCTm()
-		{
-			return UTCTm(Seconds());
-		}
+		static std::tm UTCTm();
 
 		/**
 		 *
@@ -141,14 +97,7 @@ namespace tinyToolkit
 		 * @return 时间结构体
 		 *
 		 */
-		static std::tm UTCTm(std::time_t seconds)
-		{
-			std::tm tm = { };
-
-			UTCTm(seconds, tm);
-
-			return tm;
-		}
+		static std::tm UTCTm(std::time_t seconds);
 
 		/**
 		 *
@@ -158,18 +107,7 @@ namespace tinyToolkit
 		 * @param tm 时间结构体
 		 *
 		 */
-		static void UTCTm(std::time_t seconds, std::tm & tm)
-		{
-#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
-
-			gmtime_s(&tm, &seconds);
-
-#else
-
-			gmtime_r(&seconds, &tm);
-
-#endif
-		}
+		static void UTCTm(std::time_t seconds, std::tm & tm);
 
 		/**
 		 *
@@ -178,10 +116,7 @@ namespace tinyToolkit
 		 * @return 时间结构体
 		 *
 		 */
-		static std::tm LocalTm()
-		{
-			return LocalTm(Seconds());
-		}
+		static std::tm LocalTm();
 
 		/**
 		 *
@@ -192,14 +127,7 @@ namespace tinyToolkit
 		 * @return 时间结构体
 		 *
 		 */
-		static std::tm LocalTm(std::time_t seconds)
-		{
-			std::tm tm = { };
-
-			LocalTm(seconds, tm);
-
-			return tm;
-		}
+		static std::tm LocalTm(std::time_t seconds);
 
 		/**
 		 *
@@ -209,18 +137,7 @@ namespace tinyToolkit
 		 * @param tm 时间结构体
 		 *
 		 */
-		static void LocalTm(std::time_t seconds, std::tm & tm)
-		{
-#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
-
-			localtime_s(&tm, &seconds);
-
-#else
-
-			localtime_r(&seconds, &tm);
-
-#endif
-		}
+		static void LocalTm(std::time_t seconds, std::tm & tm);
 
 		/**
 		 *
@@ -278,10 +195,7 @@ namespace tinyToolkit
 		 * @return 小时时间戳
 		 *
 		 */
-		static std::time_t Hours()
-		{
-			return Hours(TimePoint());
-		}
+		static std::time_t Hours();
 
 		/**
 		 *
@@ -292,10 +206,7 @@ namespace tinyToolkit
 		 * @return 小时时间戳
 		 *
 		 */
-		static std::time_t Hours(const ClockTimePoint & timesPoint)
-		{
-			return Hours(timesPoint.time_since_epoch());
-		}
+		static std::time_t Hours(const ClockTimePoint & timesPoint);
 
 		/**
 		 *
@@ -306,10 +217,7 @@ namespace tinyToolkit
 		 * @return 小时时间戳
 		 *
 		 */
-		static std::time_t Hours(const ClockDuration & duration)
-		{
-			return std::chrono::duration_cast<std::chrono::hours>(duration).count();
-		}
+		static std::time_t Hours(const ClockDuration & duration);
 
 		/**
 		 *
@@ -318,10 +226,7 @@ namespace tinyToolkit
 		 * @return 分钟时间戳
 		 *
 		 */
-		static std::time_t Minutes()
-		{
-			return Minutes(TimePoint());
-		}
+		static std::time_t Minutes();
 
 		/**
 		 *
@@ -332,10 +237,7 @@ namespace tinyToolkit
 		 * @return 分钟时间戳
 		 *
 		 */
-		static std::time_t Minutes(const ClockTimePoint & timesPoint)
-		{
-			return Minutes(timesPoint.time_since_epoch());
-		}
+		static std::time_t Minutes(const ClockTimePoint & timesPoint);
 
 		/**
 		 *
@@ -346,10 +248,7 @@ namespace tinyToolkit
 		 * @return 分钟时间戳
 		 *
 		 */
-		static std::time_t Minutes(const ClockDuration & duration)
-		{
-			return std::chrono::duration_cast<std::chrono::minutes>(duration).count();
-		}
+		static std::time_t Minutes(const ClockDuration & duration);
 
 		/**
 		 *
@@ -358,10 +257,7 @@ namespace tinyToolkit
 		 * @return 秒数时间戳
 		 *
 		 */
-		static std::time_t Seconds()
-		{
-			return Seconds(TimePoint());
-		}
+		static std::time_t Seconds();
 
 		/**
 		 *
@@ -372,10 +268,7 @@ namespace tinyToolkit
 		 * @return 秒数时间戳
 		 *
 		 */
-		static std::time_t Seconds(const ClockTimePoint & timesPoint)
-		{
-			return Seconds(timesPoint.time_since_epoch());
-		}
+		static std::time_t Seconds(const ClockTimePoint & timesPoint);
 
 		/**
 		 *
@@ -386,10 +279,7 @@ namespace tinyToolkit
 		 * @return 秒数时间戳
 		 *
 		 */
-		static std::time_t Seconds(const ClockDuration & duration)
-		{
-			return std::chrono::duration_cast<std::chrono::seconds>(duration).count();
-		}
+		static std::time_t Seconds(const ClockDuration & duration);
 
 		/**
 		 *
@@ -398,10 +288,7 @@ namespace tinyToolkit
 		 * @return 毫秒时间戳
 		 *
 		 */
-		static std::time_t Milliseconds()
-		{
-			return Milliseconds(TimePoint());
-		}
+		static std::time_t Milliseconds();
 
 		/**
 		 *
@@ -412,10 +299,7 @@ namespace tinyToolkit
 		 * @return 毫秒时间戳
 		 *
 		 */
-		static std::time_t Milliseconds(const ClockTimePoint & timesPoint)
-		{
-			return Milliseconds(timesPoint.time_since_epoch());
-		}
+		static std::time_t Milliseconds(const ClockTimePoint & timesPoint);
 
 		/**
 		 *
@@ -426,10 +310,7 @@ namespace tinyToolkit
 		 * @return 毫秒时间戳
 		 *
 		 */
-		static std::time_t Milliseconds(const ClockDuration & duration)
-		{
-			return std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
-		}
+		static std::time_t Milliseconds(const ClockDuration & duration);
 
 		/**
 		 *
@@ -438,10 +319,7 @@ namespace tinyToolkit
 		 * @return 微秒时间戳
 		 *
 		 */
-		static std::time_t Microseconds()
-		{
-			return Microseconds(TimePoint());
-		}
+		static std::time_t Microseconds();
 
 		/**
 		 *
@@ -452,10 +330,7 @@ namespace tinyToolkit
 		 * @return 微秒时间戳
 		 *
 		 */
-		static std::time_t Microseconds(const ClockTimePoint & timesPoint)
-		{
-			return Microseconds(timesPoint.time_since_epoch());
-		}
+		static std::time_t Microseconds(const ClockTimePoint & timesPoint);
 
 		/**
 		 *
@@ -466,10 +341,7 @@ namespace tinyToolkit
 		 * @return 微秒时间戳
 		 *
 		 */
-		static std::time_t Microseconds(const ClockDuration & duration)
-		{
-			return std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
-		}
+		static std::time_t Microseconds(const ClockDuration & duration);
 
 		/**
 		 *
@@ -478,10 +350,7 @@ namespace tinyToolkit
 		 * @return 纳秒时间戳
 		 *
 		 */
-		static std::time_t Nanoseconds()
-		{
-			return Nanoseconds(TimePoint());
-		}
+		static std::time_t Nanoseconds();
 
 		/**
 		 *
@@ -492,10 +361,7 @@ namespace tinyToolkit
 		 * @return 纳秒时间戳
 		 *
 		 */
-		static std::time_t Nanoseconds(const ClockTimePoint & timesPoint)
-		{
-			return Nanoseconds(timesPoint.time_since_epoch());
-		}
+		static std::time_t Nanoseconds(const ClockTimePoint & timesPoint);
 
 		/**
 		 *
@@ -506,10 +372,7 @@ namespace tinyToolkit
 		 * @return 纳秒时间戳
 		 *
 		 */
-		static std::time_t Nanoseconds(const ClockDuration & duration)
-		{
-			return std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count();
-		}
+		static std::time_t Nanoseconds(const ClockDuration & duration);
 
 		/**
 		 *
@@ -518,22 +381,7 @@ namespace tinyToolkit
 		 * @return 时区
 		 *
 		 */
-		static std::time_t TimeZone()
-		{
-			static std::pair<std::time_t, bool> value(0, true);
-
-			if (value.second)
-			{
-				std::tm utc   = UTCTm();
-				std::tm local = LocalTm();
-
-				value.first = (FromTm(local) - FromTm(utc)) / TINY_TOOLKIT_HOUR;
-
-				value.second = false;
-			}
-
-			return value.first;
-		}
+		static std::time_t TimeZone();
 
 		/**
 		 *
@@ -546,15 +394,7 @@ namespace tinyToolkit
 		 * @return 下一天指定时间的时间戳
 		 *
 		 */
-		static std::time_t NextDayTime(int32_t hour = 0, int32_t minutes = 0, int32_t seconds = 0)
-		{
-			if (hour < 0 || hour > 23 || minutes < 0 || minutes > 59 || seconds < 0 || seconds > 59)
-			{
-				throw std::logic_error("Invalid Time");
-			}
-
-			return CurrentDayTime(hour, minutes, seconds) + TINY_TOOLKIT_DAY;
-		}
+		static std::time_t NextDayTime(int32_t hour = 0, int32_t minutes = 0, int32_t seconds = 0);
 
 		/**
 		 *
@@ -567,21 +407,7 @@ namespace tinyToolkit
 		 * @return 当天指定时间的时间戳
 		 *
 		 */
-		static std::time_t CurrentDayTime(int32_t hour = 0, int32_t minutes = 0, int32_t seconds = 0)
-		{
-			if (hour < 0 || hour > 23 || minutes < 0 || minutes > 59 || seconds < 0 || seconds > 59)
-			{
-				throw std::logic_error("Invalid Time");
-			}
-
-			std::tm date = LocalTm();
-
-			date.tm_hour = hour;
-			date.tm_min  = minutes;
-			date.tm_sec  = seconds;
-
-			return FromTm(date);
-		}
+		static std::time_t CurrentDayTime(int32_t hour = 0, int32_t minutes = 0, int32_t seconds = 0);
 
 		/**
 		 *
@@ -592,10 +418,7 @@ namespace tinyToolkit
 		 * @return 秒数时间戳
 		 *
 		 */
-		static std::time_t FromTm(std::tm & date)
-		{
-			return std::mktime(&date);
-		}
+		static std::time_t FromTm(std::tm & date);
 
 		/**
 		 *
@@ -607,19 +430,7 @@ namespace tinyToolkit
 		 * @return 秒数时间戳
 		 *
 		 */
-		static std::time_t FromTimeString(const char * value, const char * format = "%4d-%02d-%02d %02d:%02d:%02d")
-		{
-			assert(value && format);
-
-			std::tm now = { 0 };
-
-			sscanf(value, format, &now.tm_year, &now.tm_mon, &now.tm_mday, &now.tm_hour, &now.tm_min, &now.tm_sec);
-
-			now.tm_year -= 1900;
-			now.tm_mon -= 1;
-
-			return FromTm(now);
-		}
+		static std::time_t FromTimeString(const char * value, const char * format = "%4d-%02d-%02d %02d:%02d:%02d");
 
 		/**
 		 *
@@ -631,10 +442,7 @@ namespace tinyToolkit
 		 * @return 秒数时间戳
 		 *
 		 */
-		static std::time_t FromTimeString(const std::string & value, const char * format = "%4d-%02d-%02d %02d:%02d:%02d")
-		{
-			return FromTimeString(value.c_str(), format);
-		}
+		static std::time_t FromTimeString(const std::string & value, const char * format = "%4d-%02d-%02d %02d:%02d:%02d");
 
 		/**
 		 *
@@ -646,12 +454,7 @@ namespace tinyToolkit
 		 * @return 日期字符串
 		 *
 		 */
-		static std::string FormatTimeString(std::time_t seconds, const char * format = "%4d-%02d-%02d %02d:%02d:%02d")
-		{
-			assert(format);
-
-			return FormatTimeString(seconds, TimeZone(), format);
-		}
+		static std::string FormatTimeString(std::time_t seconds, const char * format = "%4d-%02d-%02d %02d:%02d:%02d");
 
 		/**
 		 *
@@ -664,18 +467,7 @@ namespace tinyToolkit
 		 * @return 日期字符串
 		 *
 		 */
-		static std::string FormatTimeString(std::time_t seconds, std::time_t timeZone, const char * format = "%4d-%02d-%02d %02d:%02d:%02d")
-		{
-			assert(format);
-
-			char str[128] = { 0 };
-
-			std::tm now = UTCTm(seconds + timeZone * TINY_TOOLKIT_HOUR);
-
-			snprintf(str, sizeof(str), format, now.tm_year + 1900, now.tm_mon + 1, now.tm_mday, now.tm_hour, now.tm_min, now.tm_sec);
-
-			return str;
-		}
+		static std::string FormatTimeString(std::time_t seconds, std::time_t timeZone, const char * format = "%4d-%02d-%02d %02d:%02d:%02d");
 
 		/**
 		 *
@@ -686,45 +478,7 @@ namespace tinyToolkit
 		 * @return 时间间隔字符串
 		 *
 		 */
-		static std::string FormatElapsedString(std::time_t seconds)
-		{
-			std::time_t dayVal = 0;
-			std::time_t hourVal = 0;
-			std::time_t minuteVal = 0;
-			std::time_t secondVal = 0;
-
-			if (seconds < 60)  /// 1 minute = 60 second
-			{
-				secondVal = seconds;
-			}
-			else if (seconds < 3600)  /// 1 hour = 60 minute = 60 * 60 second
-			{
-				minuteVal = (seconds) / 60;
-				secondVal = (seconds - minuteVal * 60);
-			}
-			else if (seconds < 86400)  /// 1 day = 24 hour = 24 * 60 minute = 24 * 60 * 60 second
-			{
-				hourVal = (seconds) / 3600;
-				minuteVal = (seconds - hourVal * 3600) / 60;
-				secondVal = (seconds - hourVal * 3600 - minuteVal * 60);
-			}
-			else
-			{
-				dayVal = (seconds) / 86400;
-				hourVal = (seconds - dayVal * 86400) / 3600;
-				minuteVal = (seconds - dayVal * 86400 - hourVal * 3600) / 60;
-				secondVal = (seconds - dayVal * 86400 - hourVal * 3600 - minuteVal * 60);
-			}
-
-			return fmt::format
-			(
-				"{}{}{}{} s",
-				dayVal ? fmt::format("{} d ", dayVal) : "",
-				hourVal ? fmt::format("{} h ", hourVal) : "",
-				minuteVal ? fmt::format("{} m ", minuteVal) : "",
-				secondVal
-			);
-		}
+		static std::string FormatElapsedString(std::time_t seconds);
 
 		/**
 		 *
@@ -735,55 +489,7 @@ namespace tinyToolkit
 		 * @return 时间间隔字符串
 		 *
 		 */
-		static std::string FormatMillisecondElapsedString(std::time_t  milliseconds)
-		{
-			std::time_t dayVal = 0;
-			std::time_t hourVal = 0;
-			std::time_t minuteVal = 0;
-			std::time_t secondVal = 0;
-			std::time_t millisecondVal = 0;
-
-			if (milliseconds < 1000)  /// 1 second = 1000 millisecond
-			{
-				millisecondVal = milliseconds;
-			}
-			else if (milliseconds < 60000)  /// 1 minute = 60 second = 60 * 1000 millisecond
-			{
-				secondVal = (milliseconds) / 1000;
-				millisecondVal = (milliseconds - secondVal * 1000);
-			}
-			else if (milliseconds < 3600000)  /// 1 hour = 60 minute = 60 * 60 second = 60 * 60 * 1000 millisecond
-			{
-				minuteVal = (milliseconds) / 60000;
-				secondVal = (milliseconds - minuteVal * 60000) / 1000;
-				millisecondVal = (milliseconds - minuteVal * 60000 - secondVal * 1000);
-			}
-			else if (milliseconds < 86400000)  /// 1 day = 24 hour = 24 * 60 minute = 24 * 60 * 60 second = 24 * 60 * 60 * 1000 millisecond
-			{
-				hourVal = (milliseconds) / 3600000;
-				minuteVal = (milliseconds - hourVal * 3600000) / 60000;
-				secondVal = (milliseconds - hourVal * 3600000 - minuteVal * 60000) / 1000;
-				millisecondVal = (milliseconds - hourVal * 3600000 - minuteVal * 60000 - secondVal * 1000);
-			}
-			else
-			{
-				dayVal = (milliseconds) / 86400000;
-				hourVal = (milliseconds - dayVal * 86400000) / 3600000;
-				minuteVal = (milliseconds - dayVal * 86400000 - hourVal * 3600000) / 60000;
-				secondVal = (milliseconds - dayVal * 86400000 - hourVal * 3600000 - minuteVal * 60000) / 1000;
-				millisecondVal = (milliseconds - dayVal * 86400000 - hourVal * 3600000 - minuteVal * 60000 - secondVal * 1000);
-			}
-
-			return fmt::format
-			(
-				"{}{}{}{}{} ms",
-				dayVal ? fmt::format("{} d ", dayVal) : "",
-				hourVal ? fmt::format("{} h ", hourVal) : "",
-				minuteVal ? fmt::format("{} m ", minuteVal) : "",
-				secondVal ? fmt::format("{} s ", secondVal) : "",
-				millisecondVal
-			);
-		}
+		static std::string FormatMillisecondElapsedString(std::time_t  milliseconds);
 
 		/**
 		 *
@@ -794,66 +500,7 @@ namespace tinyToolkit
 		 * @return 时间间隔字符串
 		 *
 		 */
-		static std::string FormatMicrosecondElapsedString(std::time_t  microseconds)
-		{
-			std::time_t dayVal = 0;
-			std::time_t hourVal = 0;
-			std::time_t minuteVal = 0;
-			std::time_t secondVal = 0;
-			std::time_t millisecondVal = 0;
-			std::time_t microsecondVal = 0;
-
-			if (microseconds < 1000)  /// 1 millisecond = 1000 microsecond
-			{
-				microsecondVal = microseconds;
-			}
-			else if (microseconds < 1000000)  /// 1 second = 1000 millisecond = 1000000 microsecond
-			{
-				millisecondVal = (microseconds) / 1000;
-				microsecondVal = (microseconds - millisecondVal * 1000);
-			}
-			else if (microseconds < 60000000)  /// 1 minute = 60 second = 60000 millisecond = 60000000 microsecond
-			{
-				secondVal = (microseconds) / 1000000;
-				millisecondVal = (microseconds - secondVal * 1000000) / 1000;
-				microsecondVal = (microseconds - secondVal * 1000000 - millisecondVal * 1000);
-			}
-			else if (microseconds < 3600000000)  /// 1 hour = 60 minute = 3600 second = 3600000 millisecond = 3600000000 microsecond
-			{
-				minuteVal = (microseconds) / 60000000;
-				secondVal = (microseconds - minuteVal * 60000000) / 1000000;
-				millisecondVal = (microseconds - minuteVal * 60000000 - secondVal * 1000000) / 1000;
-				microsecondVal = (microseconds - minuteVal * 60000000 - secondVal * 1000000 - millisecondVal * 1000);
-			}
-			else if (microseconds < 86400000000)  /// 1 day = 24 hour = 1440 minute = 86400 second = 86400000 millisecond = 86400000000
-			{
-				hourVal = (microseconds) / 3600000000;
-				minuteVal = (microseconds - hourVal * 3600000000) / 60000000;
-				secondVal = (microseconds - hourVal * 3600000000 - minuteVal * 60000000) / 1000000;
-				millisecondVal = (microseconds - hourVal * 3600000000 - minuteVal * 60000000 - secondVal * 1000000) / 1000;
-				microsecondVal = (microseconds - hourVal * 3600000000 - minuteVal * 60000000 - secondVal * 1000000 - millisecondVal * 1000);
-			}
-			else
-			{
-				dayVal = (microseconds) / 86400000000;
-				hourVal = (microseconds - dayVal * 86400000000) / 3600000000;
-				minuteVal = (microseconds - dayVal * 86400000000 - hourVal * 3600000000) / 60000000;
-				secondVal = (microseconds - dayVal * 86400000000 - hourVal * 3600000000 - minuteVal * 60000000) / 1000000;
-				millisecondVal = (microseconds - dayVal * 86400000000 - hourVal * 3600000000 - minuteVal * 60000000 - secondVal * 1000000) / 1000;
-				microsecondVal = (microseconds - dayVal * 86400000000 - hourVal * 3600000000 - minuteVal * 60000000 - secondVal * 1000000 - millisecondVal * 1000);
-			}
-
-			return fmt::format
-			(
-				"{}{}{}{}{}{} us",
-				dayVal ? fmt::format("{} d ", dayVal) : "",
-				hourVal ? fmt::format("{} h ", hourVal) : "",
-				minuteVal ? fmt::format("{} m ", minuteVal) : "",
-				secondVal ? fmt::format("{} s ", secondVal) : "",
-				millisecondVal ? fmt::format("{} ms ", millisecondVal) : "",
-				microsecondVal
-			);
-		}
+		static std::string FormatMicrosecondElapsedString(std::time_t  microseconds);
 
 		/**
 		 *
@@ -864,10 +511,7 @@ namespace tinyToolkit
 		 * @return 日期字符串
 		 *
 		 */
-		static std::string CurrentUTCTimeString(const char * format = "%4d-%02d-%02d %02d:%02d:%02d")
-		{
-			return FormatTimeString(Seconds(), 0, format);
-		}
+		static std::string CurrentUTCTimeString(const char * format = "%4d-%02d-%02d %02d:%02d:%02d");
 
 		/**
 		 *
@@ -878,10 +522,7 @@ namespace tinyToolkit
 		 * @return 日期字符串
 		 *
 		 */
-		static std::string CurrentLocalTimeString(const char * format = "%4d-%02d-%02d %02d:%02d:%02d")
-		{
-			return FormatTimeString(Seconds(), format);
-		}
+		static std::string CurrentLocalTimeString(const char * format = "%4d-%02d-%02d %02d:%02d:%02d");
 
 		/**
 		 *
@@ -890,10 +531,7 @@ namespace tinyToolkit
 		 * @return 时间点
 		 *
 		 */
-		static ClockTimePoint TimePoint()
-		{
-			return ClockType::now();
-		}
+		static ClockTimePoint TimePoint();
 
 		/**
 		 *
@@ -904,10 +542,7 @@ namespace tinyToolkit
 		 * @return 时间点
 		 *
 		 */
-		static ClockTimePoint TimePoint(std::time_t time)
-		{
-			return std::chrono::time_point_cast<ClockDuration>(std::chrono::time_point<ClockType, std::chrono::seconds>(std::chrono::seconds(time)));
-		}
+		static ClockTimePoint TimePoint(std::time_t time);
 
 		/**
 		 *
@@ -918,16 +553,7 @@ namespace tinyToolkit
 		 * @return 时间点
 		 *
 		 */
-		static ClockTimePoint TimePoint(const struct timeval & time)
-		{
-			return std::chrono::time_point<ClockType, ClockDuration>
-			(
-				std::chrono::duration_cast<ClockDuration>
-				(
-					std::chrono::seconds(time.tv_sec) + std::chrono::microseconds(time.tv_usec)
-				)
-			);
-		}
+		static ClockTimePoint TimePoint(const struct timeval & time);
 
 		/**
 		 *
@@ -938,36 +564,49 @@ namespace tinyToolkit
 		 * @return 时间点
 		 *
 		 */
-		static ClockTimePoint TimePoint(const struct timespec & time)
-		{
-			return std::chrono::time_point<ClockType, ClockDuration>
-			(
-				std::chrono::duration_cast<ClockDuration>
-				(
-					std::chrono::seconds(time.tv_sec) + std::chrono::nanoseconds(time.tv_nsec)
-				)
-			);
-		}
+		static ClockTimePoint TimePoint(const struct timespec & time);
 
-		static ClockDuration TimeDuration()
-		{
-			return TimePoint().time_since_epoch();
-		}
+		/**
+		 *
+		 * 时间段
+		 *
+		 * @return 时间段
+		 *
+		 */
+		static ClockDuration TimeDuration();
 
-		static ClockDuration TimeDuration(std::time_t time)
-		{
-			return TimePoint(time).time_since_epoch();
-		}
+		/**
+		 *
+		 * 时间段
+		 *
+		 * @param time 秒数时间戳
+		 *
+		 * @return 时间段
+		 *
+		 */
+		static ClockDuration TimeDuration(std::time_t time);
 
-		static ClockDuration TimeDuration(const struct timeval & time)
-		{
-			return TimePoint(time).time_since_epoch();
-		}
+		/**
+		 *
+		 * 时间段
+		 *
+		 * @param time 时间结构体
+		 *
+		 * @return 时间段
+		 *
+		 */
+		static ClockDuration TimeDuration(const struct timeval & time);
 
-		static ClockDuration TimeDuration(const struct timespec & time)
-		{
-			return TimePoint(time).time_since_epoch();
-		}
+		/**
+		 *
+		 * 时间段
+		 *
+		 * @param time 时间结构体
+		 *
+		 * @return 时间段
+		 *
+		 */
+		static ClockDuration TimeDuration(const struct timespec & time);
 	};
 
 

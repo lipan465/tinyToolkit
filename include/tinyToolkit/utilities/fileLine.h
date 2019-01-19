@@ -28,14 +28,7 @@ namespace tinyToolkit
 		 * @param func 函数
 		 *
 		 */
-		FileLine(const char * file, int32_t line, const char * func) : _line(line), _file(file), _func(func)
-		{
-			_message += _file;
-			_message += ":";
-			_message += std::to_string(_line);
-			_message += " in ";
-			_message += _func;
-		}
+		FileLine(const char * file, int32_t line, const char * func);
 
 		/**
 		 *
@@ -44,10 +37,7 @@ namespace tinyToolkit
 		 * @return 行号
 		 *
 		 */
-		int32_t Line() const
-		{
-			return _line;
-		}
+		int32_t Line() const;
 
 		/**
 		 *
@@ -56,10 +46,7 @@ namespace tinyToolkit
 		 * @return 文件
 		 *
 		 */
-		const std::string & File() const
-		{
-			return _file;
-		}
+		const char * File() const;
 
 		/**
 		 *
@@ -68,10 +55,7 @@ namespace tinyToolkit
 		 * @return 函数
 		 *
 		 */
-		const std::string & Function() const
-		{
-			return _func;
-		}
+		const char * Function() const;
 
 		/**
 		 *
@@ -80,35 +64,16 @@ namespace tinyToolkit
 		 * @return 信息
 		 *
 		 */
-		const std::string & Message() const
-		{
-			return _message;
-		}
+		const std::string & Message() const;
 
 	protected:
-		int32_t _line;
+		int32_t _line{ 0 };
 
-		std::string _file;
-		std::string _func;
+		const char * _file{ nullptr };
+		const char * _func{ nullptr };
+
 		std::string _message{ };
 	};
-
-	/**
-	 *
-	 * 重载<<操作
-	 *
-	 * @param os 输出流
-	 * @param info 信息
-	 *
-	 * @return 输出流
-	 *
-	 */
-	std::ostream & operator << (std::ostream & os, tinyToolkit::FileLine const & info)
-	{
-		os << info.Message();
-
-		return os;
-	}
 }
 
 

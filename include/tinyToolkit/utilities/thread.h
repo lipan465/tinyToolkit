@@ -24,10 +24,7 @@ namespace tinyToolkit
 		 * 析构函数
 		 *
 		 */
-		virtual ~ApplicationThread()
-		{
-			StopApplicationThread();
-		}
+		virtual ~ApplicationThread();
 
 		/**
 		 *
@@ -36,49 +33,21 @@ namespace tinyToolkit
 		 * @return 是否启动成功
 		 *
 		 */
-		bool StartApplicationThread()
-		{
-			if (ApplicationThreadStatus())
-			{
-				return false;
-			}
-
-			_status = true;
-			_thread = std::thread(&ApplicationThread::ThreadProcess, this);
-
-			return true;
-		}
+		bool StartApplicationThread();
 
 		/**
 		 *
 		 * 停止线程
 		 *
 		 */
-		void StopApplicationThread()
-		{
-			if (ApplicationThreadStatus())
-			{
-				if (_thread.joinable())
-				{
-					_status = false;
-
-					_thread.join();
-				}
-			}
-		}
+		void StopApplicationThread();
 
 		/**
 		 *
 		 * 等待线程执行结束
 		 *
 		 */
-		void WaitApplicationThread() const
-		{
-			while (ApplicationThreadStatus())
-			{
-				TINY_TOOLKIT_YIELD()
-			}
-		}
+		void WaitApplicationThread() const;
 
 		/**
 		 *
@@ -87,10 +56,7 @@ namespace tinyToolkit
 		 * @return app线程状态
 		 *
 		 */
-		bool ApplicationThreadStatus() const
-		{
-			return _status;
-		}
+		bool ApplicationThreadStatus() const;
 
 	protected:
 		/**

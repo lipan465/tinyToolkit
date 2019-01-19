@@ -28,12 +28,7 @@ namespace tinyToolkit
 		 * @return 检测结果
 		 *
 		 */
-		static bool IsIP(const char * value)
-		{
-			static std::regex rule("^(([01]?[0-9]{1,2}|2[0-4][0-9]|25[0-5])(\\.([01]?[0-9]{1,2}|2[0-4][0-9]|25[0-5])){3}|([0-9a-fA-F]{1,4}:)+:?([0-9a-fA-F]{1,4}:)*[0-9a-fA-F]{1,4})$");
-
-			return std::regex_match(value, rule);
-		}
+		static bool IsIP(const char * value);
 
 		/***
 		 *
@@ -44,12 +39,7 @@ namespace tinyToolkit
 		 * @return 检测结果
 		 *
 		 */
-		static bool IsIP(const std::string & value)
-		{
-			static std::regex rule("^(([01]?[0-9]{1,2}|2[0-4][0-9]|25[0-5])(\\.([01]?[0-9]{1,2}|2[0-4][0-9]|25[0-5])){3}|([0-9a-fA-F]{1,4}:)+:?([0-9a-fA-F]{1,4}:)*[0-9a-fA-F]{1,4})$");
-
-			return std::regex_match(value, rule);
-		}
+		static bool IsIP(const std::string & value);
 
 		/***
 		 *

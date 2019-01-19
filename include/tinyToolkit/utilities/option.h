@@ -26,15 +26,7 @@ namespace tinyToolkit
 		 * @param description 描述
 		 *
 		 */
-		explicit OptionValue(const char * description)
-		{
-			_isArg = false;
-
-			if (description)
-			{
-				_description = description;
-			}
-		}
+		explicit OptionValue(const char * description);
 
 		/**
 		 *
@@ -44,17 +36,7 @@ namespace tinyToolkit
 		 * @param value 数值
 		 *
 		 */
-		OptionValue(const char * description, const char * value) : OptionValue(description)
-		{
-			_isArg = true;
-
-			if (value)
-			{
-				_value = value;
-
-				_hasValue = true;
-			}
-		}
+		OptionValue(const char * description, const char * value);
 
 		/**
 		 *
@@ -63,10 +45,7 @@ namespace tinyToolkit
 		 * @return 是否是参数
 		 *
 		 */
-		bool IsArg() const
-		{
-			return _isArg;
-		}
+		bool IsArg() const;
 
 		/**
 		 *
@@ -75,10 +54,7 @@ namespace tinyToolkit
 		 * @return 是否有数值
 		 *
 		 */
-		bool HasValue() const
-		{
-			return _hasValue;
-		}
+		bool HasValue() const;
 
 		/**
 		 *
@@ -87,10 +63,7 @@ namespace tinyToolkit
 		 * @return 数值
 		 *
 		 */
-		const std::string & Value() const
-		{
-			return _value;
-		}
+		const std::string & Value() const;
 
 		/**
 		 *
@@ -99,10 +72,7 @@ namespace tinyToolkit
 		 * @return 描述
 		 *
 		 */
-		const std::string & Description() const
-		{
-			return _description;
-		}
+		const std::string & Description() const;
 
 	protected:
 		bool _isArg{ false };
@@ -125,17 +95,7 @@ namespace tinyToolkit
 		 * @return 添加状态
 		 *
 		 */
-		bool AddOption(const char * option, const char * description)
-		{
-			if (HasOption(option))
-			{
-				return false;
-			}
-
-			_options.insert(std::make_pair(option, std::make_shared<OptionValue>(description)));
-
-			return true;
-		}
+		bool AddOption(const char * option, const char * description);
 
 		/**
 		 *
@@ -148,17 +108,7 @@ namespace tinyToolkit
 		 * @return 添加状态
 		 *
 		 */
-		bool AddOption(const char * option, const char * description, const char * value)
-		{
-			if (HasOption(option))
-			{
-				return false;
-			}
-
-			_options.insert(std::make_pair(option, std::make_shared<OptionValue>(description, value)));
-
-			return true;
-		}
+		bool AddOption(const char * option, const char * description, const char * value);
 
 		/**
 		 *
@@ -167,10 +117,7 @@ namespace tinyToolkit
 		 * @return 选项容器
 		 *
 		 */
-		const std::unordered_map<std::string, std::shared_ptr<OptionValue>> & Options() const
-		{
-			return _options;
-		}
+		const std::unordered_map<std::string, std::shared_ptr<OptionValue>> & Options() const;
 
 	protected:
 		/**
@@ -182,10 +129,7 @@ namespace tinyToolkit
 		 * @return 是否存在
 		 *
 		 */
-		bool HasOption(const char * option)
-		{
-			return _options.find(option) != _options.end();
-		}
+		bool HasOption(const char * option);
 
 	protected:
 		std::unordered_map<std::string, std::shared_ptr<OptionValue>> _options{ };
@@ -201,10 +145,7 @@ namespace tinyToolkit
 		 * @return 单例对象引用
 		 *
 		 */
-		static OptionManager & Instance()
-		{
-			return Singleton<OptionManager>::Instance();
-		}
+		static OptionManager & Instance();
 
 		/**
 		 *
@@ -213,10 +154,7 @@ namespace tinyToolkit
 		 * @return 是否为空
 		 *
 		 */
-		bool Empty()
-		{
-			return _parse.empty();
-		}
+		bool Empty();
 
 		/**
 		 *
@@ -227,10 +165,7 @@ namespace tinyToolkit
 		 * @return 是否存在
 		 *
 		 */
-		bool Has(const char * option)
-		{
-			return _parse.find(option) != _parse.end();
-		}
+		bool Has(const char * option);
 
 		/**
 		 *
@@ -241,10 +176,7 @@ namespace tinyToolkit
 		 * @return 是否存在
 		 *
 		 */
-		bool Has(const std::string & option)
-		{
-			return _parse.find(option) != _parse.end();
-		}
+		bool Has(const std::string & option);
 
 		/**
 		 *
@@ -255,15 +187,7 @@ namespace tinyToolkit
 		 * @param groupName 组名
 		 *
 		 */
-		void Define(const char * option, const char * description, const char * groupName = nullptr)
-		{
-			if (GetGroup(groupName ? groupName : "Allowed options")->AddOption(option, description))
-			{
-				UpdateAlignment(option, { });
-
-				_options.insert(std::make_pair(option, std::make_shared<OptionValue>(description)));
-			}
-		}
+		void Define(const char * option, const char * description, const char * groupName = nullptr);
 
 		/**
 		 *
@@ -275,15 +199,7 @@ namespace tinyToolkit
 		 * @param groupName 组名
 		 *
 		 */
-		void DefineArg(const char * option, const char * description, const char * value = nullptr, const char * groupName = nullptr)
-		{
-			if (GetGroup(groupName ? groupName : "Allowed options")->AddOption(option, description, value))
-			{
-				UpdateAlignment(option, value);
-
-				_options.insert(std::make_pair(option, std::make_shared<OptionValue>(description, value)));
-			}
-		}
+		void DefineArg(const char * option, const char * description, const char * value = nullptr, const char * groupName = nullptr);
 
 		/**
 		 *
@@ -292,10 +208,7 @@ namespace tinyToolkit
 		 * @param version 版本号
 		 *
 		 */
-		void DefineVersion(std::string version)
-		{
-			_version = std::move(version);
-		}
+		void DefineVersion(std::string version);
 
 		/**
 		 *
@@ -305,69 +218,7 @@ namespace tinyToolkit
 		 * @param argv 解析选项流
 		 *
 		 */
-		void Parse(int32_t argc, char const ** argv)
-		{
-			Define("help",    "display help message",    "Help options");
-			Define("version", "display version message", "Version options");
-
-			std::string opt;
-			std::string val;
-
-			for (int32_t i = 1; i < argc; ++i)
-			{
-				const char * value = argv[i];
-
-				if (strncmp(value, "--", 2) != 0)
-				{
-					throw std::invalid_argument("Arg invalid : " + std::string(value));
-				}
-
-				const char * find = strstr(value + 2, "=");
-
-				if (find)
-				{
-					val.assign(find + 1);
-					opt.assign(value + 2, find);
-				}
-				else
-				{
-					opt.assign(value + 2);
-				}
-
-				auto iter = _options.find(opt);
-
-				if (_options.end() == iter)
-				{
-					throw std::invalid_argument("Arg invalid : " + std::string(value));
-				}
-
-				if (iter->second->IsArg())
-				{
-					if (find == nullptr)
-					{
-						throw std::invalid_argument("Arg need input : " + std::string(value));
-					}
-
-					_parse.insert(std::make_pair(opt, std::make_shared<OptionValue>(iter->second->Description().c_str(), val.c_str())));
-				}
-				else
-				{
-					_parse.insert(std::make_pair(opt, std::make_shared<OptionValue>(iter->second->Description().c_str())));
-				}
-			}
-
-			ComposeDefaultOptions();
-
-			if (Has("help"))
-			{
-				PrintHelp();
-			}
-
-			if (Has("version"))
-			{
-				PrintVersion();
-			}
-		}
+		void Parse(int32_t argc, char const ** argv);
 
 		/**
 		 *
@@ -378,15 +229,7 @@ namespace tinyToolkit
 		 * @return 数值
 		 *
 		 */
-		const std::string & Get(const std::string & option)
-		{
-			if (!Has(option))
-			{
-				throw std::invalid_argument("Option invalid : " + option);
-			}
-
-			return _parse[option]->Value();
-		};
+		const std::string & Get(const std::string & option);
 
 	protected:
 		/**
@@ -397,107 +240,28 @@ namespace tinyToolkit
 		 * @param value 对齐的数值
 		 *
 		 */
-		void UpdateAlignment(const char * option, const char * value)
-		{
-			if (value)
-			{
-				std::size_t size = strlen(value);
-
-				if (_valSize < size)
-				{
-					_valSize = size;
-				}
-			}
-
-			if (option)
-			{
-				std::size_t size = strlen(option);
-
-				if (_optSize < size)
-				{
-					_optSize = size;
-				}
-			}
-		}
+		void UpdateAlignment(const char * option, const char * value);
 
 		/**
 		 *
 		 * 整合默认值选项
 		 *
 		 */
-		void ComposeDefaultOptions()
-		{
-			for (auto &iter : _options)
-			{
-				if (!iter.second->IsArg() || !iter.second->HasValue() || Has(iter.first))
-				{
-					continue;
-				}
-
-				_parse.insert(iter);
-			}
-		}
+		void ComposeDefaultOptions();
 
 		/**
 		 *
 		 * 输出帮助信息
 		 *
 		 */
-		void PrintHelp()
-		{
-			for (auto &group : _groups)
-			{
-				std::cout << std::endl << group.first << ":" << std::endl;
-
-				for (auto &iter : group.second->Options())
-				{
-					std::cout << std::setw(static_cast<int32_t>(_optSize)) << std::right << iter.first << "    ";
-
-					if (iter.second->IsArg())
-					{
-						std::cout << "arg";
-
-						if (iter.second->Value().empty())
-						{
-							std::cout << "  ";
-						}
-						else
-						{
-							std::cout << "(" << iter.second->Value() << ")";
-						}
-
-						auto size = static_cast<int32_t>(_valSize - iter.second->Value().size());
-
-						if (size > 0)
-						{
-							std::cout << std::setw(size) << std::right << " ";
-						}
-					}
-					else
-					{
-						std::cout << std::setw(static_cast<int32_t>(_valSize + 5)) << std::right << " ";
-					}
-
-					std::cout << "    " << iter.second->Description() << std::endl;
-				}
-			}
-
-			std::cout << std::endl;
-
-			exit(0);
-		}
+		void PrintHelp();
 
 		/**
 		 *
 		 * 输出版本信息
 		 *
 		 */
-		void PrintVersion()
-		{
-			std::cout << _version << std::endl;
-
-			exit(0);
-		}
+		void PrintVersion();
 
 		/**
 		 *
@@ -508,23 +272,7 @@ namespace tinyToolkit
 		 * @return 选项组
 		 *
 		 */
-		std::shared_ptr<OptionGroup> GetGroup(const char * groupName)
-		{
-			auto iter = _groups.find(groupName);
-
-			if (iter == _groups.end())
-			{
-				auto group = std::make_shared<OptionGroup>();
-
-				_groups.insert(std::make_pair(groupName, group));
-
-				return group;
-			}
-			else
-			{
-				return iter->second;
-			}
-		}
+		std::shared_ptr<OptionGroup> GetGroup(const char * groupName);
 
 	protected:
 		std::string _version{ TINY_TOOLKIT_VERSION_STRING };

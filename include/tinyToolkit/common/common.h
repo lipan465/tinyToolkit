@@ -117,6 +117,7 @@
 #
 #else
 #
+#  include <netdb.h>
 #  include <cxxabi.h>
 #  include <unistd.h>
 #  include <syslog.h>
@@ -124,6 +125,11 @@
 #  include <sys/stat.h>
 #  include <arpa/inet.h>
 #  include <sys/ioctl.h>
+#  include <sys/epoll.h>
+#  include <sys/socket.h>
+#  include <netinet/ip.h>
+#  include <netinet/tcp.h>
+#  include <netinet/udp.h>
 #  include <sys/syscall.h>
 #  include <net/ethernet.h>
 #  include <netinet/if_ether.h>

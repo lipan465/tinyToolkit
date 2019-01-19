@@ -56,6 +56,16 @@
 #include "log/rotatingFileSink.h"
 #include "log/priorityRangeFilter.h"
 
+/// net
+#include "net/tcp.h"
+#include "net/udp.h"
+#include "net/pipe.h"
+#include "net/epoll.h"
+#include "net/event.h"
+#include "net/server.h"
+#include "net/socket.h"
+#include "net/session.h"
+
 /// test
 #include "test/case.h"
 #include "test/info.h"
@@ -100,7 +110,6 @@
 
 /// utilities
 #include "utilities/file.h"
-#include "utilities/lock.h"
 #include "utilities/math.h"
 #include "utilities/time.h"
 #include "utilities/option.h"

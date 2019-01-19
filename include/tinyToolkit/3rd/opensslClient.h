@@ -30,7 +30,7 @@ namespace tinyToolkit
 	#
 	#endif
 
-	class EVPObject
+	class TINY_TOOLKIT_API EVPObject
 	{
 	public:
 		/**

@@ -33,15 +33,7 @@ namespace tinyToolkit
 		 * @param rhs 实例化对象
 		 *
 		 */
-		Message(Message && rhs) noexcept
-		{
-			auto pos = rhs.String().size();
-
-			_stream = std::move(rhs._stream);
-
-			_stream.seekg(pos);
-			_stream.seekp(pos);
-		}
+		Message(Message && rhs) noexcept;
 
 		/**
 		 *
@@ -50,20 +42,14 @@ namespace tinyToolkit
 		 * @param lhs 实例化对象
 		 *
 		 */
-		Message(const Message & lhs)
-		{
-			_stream << lhs.String();
-		}
+		Message(const Message & lhs);
 
 		/**
 		 *
 		 * 清理
 		 *
 		 */
-		void Clear()
-		{
-			ContainerOperator::Clear(_stream);
-		}
+		void Clear();
 
 		/**
 		 *
@@ -72,17 +58,7 @@ namespace tinyToolkit
 		 * @param rhs 实例化对象
 		 *
 		 */
-		Message & operator=(Message && rhs) noexcept
-		{
-			auto pos = rhs.String().size();
-
-			_stream = std::move(rhs._stream);
-
-			_stream.seekg(pos);
-			_stream.seekp(pos);
-
-			return *this;
-		}
+		Message & operator=(Message && rhs) noexcept;
 
 		/**
 		 *
@@ -91,17 +67,7 @@ namespace tinyToolkit
 		 * @param lhs 实例化对象
 		 *
 		 */
-		Message & operator=(const Message & lhs)
-		{
-			if (this != &lhs)
-			{
-				Clear();
-
-				_stream << lhs.String();
-			}
-
-			return *this;
-		}
+		Message & operator=(const Message & lhs);
 
 		/**
 		 *
@@ -112,10 +78,7 @@ namespace tinyToolkit
 		 * @return 实例化对象
 		 *
 		 */
-		Message & operator <<(bool value)
-		{
-			return *this << (value ? "true" : "false");
-		}
+		Message & operator <<(bool value);
 
 		/**
 		 *
@@ -126,10 +89,7 @@ namespace tinyToolkit
 		 * @return 实例化对象
 		 *
 		 */
-		Message & operator <<(const Message & value)
-		{
-			return *this << value.String();
-		}
+		Message & operator <<(const Message & value);
 
 		/**
 		 *
@@ -140,10 +100,7 @@ namespace tinyToolkit
 		 * @return 实例化对象
 		 *
 		 */
-		Message & operator <<(const std::nullptr_t & value)
-		{
-			return *this << "(null)";
-		}
+		Message & operator <<(const std::nullptr_t &);
 
 		/**
 		 *
@@ -197,10 +154,7 @@ namespace tinyToolkit
 		 * @return 字符串
 		 *
 		 */
-		std::string String() const
-		{
-			return _stream.str();
-		}
+		std::string String() const;
 
 		/**
 		 *
@@ -209,10 +163,7 @@ namespace tinyToolkit
 		 * @return 长度
 		 *
 		 */
-		std::size_t Length() const
-		{
-			return String().length();
-		}
+		std::size_t Length() const;
 
 	protected:
 		std::stringstream _stream{ };
@@ -228,10 +179,7 @@ namespace tinyToolkit
 	 * @return 输出流
 	 *
 	 */
-	std::ostream & operator<<(std::ostream & os, const Message & message)
-	{
-		return os << message.String();
-	}
+	std::ostream & operator<<(std::ostream & os, const Message & message);
 }
 
 

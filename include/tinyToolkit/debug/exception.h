@@ -11,9 +11,6 @@
  */
 
 
-#include "backtrace.h"
-
-#include "../utilities/string.h"
 #include "../utilities/fileLine.h"
 
 
@@ -31,27 +28,7 @@ namespace tinyToolkit
 		 * @param option 操作
 		 *
 		 */
-		explicit IException(const FileLine & fileLine, std::string message = "", std::string option = "") : _option(std::move(option)),
-																											_message(std::move(message))
-		{
-			if (_message.empty())
-			{
-				_what += fileLine.Message();
-				_what += TINY_TOOLKIT_EOL;
-			}
-			else
-			{
-				_what += String::Format("[{}] {}", fileLine.Message(), _message);
-				_what += TINY_TOOLKIT_EOL;
-			}
-
-			if (!_option.empty())
-			{
-				_what += TINY_TOOLKIT_EOL;
-				_what += _option;
-				_what += TINY_TOOLKIT_EOL;
-			}
-		}
+		explicit IException(const FileLine & fileLine, std::string message = "", std::string option = "");
 
 		/**
 		 *
@@ -60,10 +37,7 @@ namespace tinyToolkit
 		 * @return 异常信息
 		 *
 		 */
-		const char * what() const noexcept override
-		{
-			return _what.c_str();
-		}
+		const char * what() const noexcept override;
 
 		/**
 		 *
@@ -72,10 +46,7 @@ namespace tinyToolkit
 		 * @return 操作
 		 *
 		 */
-		const std::string & Option() const
-		{
-			return _option;
-		}
+		const std::string & Option() const;
 
 		/**
 		 *
@@ -84,24 +55,14 @@ namespace tinyToolkit
 		 * @return 信息
 		 *
 		 */
-		const std::string & Message() const
-		{
-			return _message;
-		}
-
-#if TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_WINDOWS
+		const std::string & Message() const;
 
 		/**
 		 *
 		 * 打印堆栈信息
 		 *
 		 */
-		void PrintStackTrace()
-		{
-			Backtrace::Print();
-		}
-
-#endif
+		void PrintStackTrace();
 
 	protected:
 		mutable std::string _what{ };

@@ -12,8 +12,6 @@
 
 namespace tinyToolkit
 {
-#if TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_WINDOWS
-
 	/**
 	 *
 	 * 构造函数
@@ -25,6 +23,16 @@ namespace tinyToolkit
 	LockFile::LockFile(std::string path, bool truncate)
 	{
 		Open(std::move(path), truncate);
+	}
+
+	/**
+	 *
+	 * 析构函数
+	 *
+	 */
+	LockFile::~LockFile()
+	{
+		Close();
 	}
 
 	/**
@@ -231,12 +239,21 @@ namespace tinyToolkit
 	 */
 	bool LockFile::Lock()
 	{
-		struct flock lock =
+	#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		/// todo
+
+		return false;
+
+	#else
+
+		struct flock lock
 		{
 			.l_type = F_WRLCK,  /// 加锁的类型: 只读锁(F_RDLCK), 读写锁(F_WRLCK), 或是解锁(F_UNLCK)
 			.l_whence = SEEK_SET,  /// 加锁部分的开始位置
 			.l_start = 0,  /// 加锁部分的开始位置
 			.l_len = 0,  /// 加锁的长度
+			.l_pid = 0,  /// pid
 		};
 
 		if (fcntl(_fd, F_SETLK, &lock) == -1)  /// 尝试在整个文件上设置锁定
@@ -252,6 +269,8 @@ namespace tinyToolkit
 		}
 
 		return true;
+
+	#endif
 	}
 
 	/**
@@ -279,6 +298,14 @@ namespace tinyToolkit
 	 */
 	bool LockFile::Execl(bool truncate)
 	{
+	#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		/// todo
+
+		return false;
+
+	#else
+
 		if (truncate)
 		{
 			if (ftruncate(_fd, 0) == -1)  /// 清空文件
@@ -316,7 +343,7 @@ namespace tinyToolkit
 		}
 
 		return true;
-	}
 
-#endif // TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_WINDOWS
+	#endif
+	}
 }

@@ -27,10 +27,7 @@ namespace tinyToolkit
 		 * @param name 节点名称
 		 *
 		 */
-		explicit ILogSink(std::string name) : _name(std::move(name))
-		{
-
-		}
+		explicit ILogSink(std::string name);
 
 		/**
 		 *
@@ -76,10 +73,7 @@ namespace tinyToolkit
 		 * @return 是否自动刷新
 		 *
 		 */
-		bool IsAutoFlush() const
-		{
-			return _autoFlush;
-		}
+		bool IsAutoFlush() const;
 
 		/**
 		 *
@@ -88,34 +82,21 @@ namespace tinyToolkit
 		 * @return 节点名称
 		 *
 		 */
-		const std::string & Name() const
-		{
-			return _name;
-		}
+		const std::string & Name() const;
 
 		/**
 		 *
 		 * 开启自动刷新
 		 *
 		 */
-		std::shared_ptr<ILogSink> EnableAutoFlush()
-		{
-			_autoFlush = true;
-
-			return shared_from_this();
-		}
+		std::shared_ptr<ILogSink> EnableAutoFlush();
 
 		/**
 		 *
 		 * 禁用自动刷新
 		 *
 		 */
-		std::shared_ptr<ILogSink> DisableAutoFlush()
-		{
-			_autoFlush = false;
-
-			return shared_from_this();
-		}
+		std::shared_ptr<ILogSink> DisableAutoFlush();
 
 		/**
 		 *
@@ -124,12 +105,7 @@ namespace tinyToolkit
 		 * @param layout 日志布局
 		 *
 		 */
-		std::shared_ptr<ILogSink> SetLayout(std::shared_ptr<ILogLayout> layout)
-		{
-			_layout = std::move(layout);
-
-			return shared_from_this();
-		}
+		std::shared_ptr<ILogSink> SetLayout(std::shared_ptr<ILogLayout> layout);
 
 		/**
 		 *
@@ -138,12 +114,7 @@ namespace tinyToolkit
 		 * @param filter 日志过滤器
 		 *
 		 */
-		std::shared_ptr<ILogSink> SetFilter(std::shared_ptr<ILogFilter> filter)
-		{
-			_filter = std::move(filter);
-
-			return shared_from_this();
-		}
+		std::shared_ptr<ILogSink> SetFilter(std::shared_ptr<ILogFilter> filter);
 
 		/**
 		 * 添加设置日志过滤器
@@ -151,12 +122,7 @@ namespace tinyToolkit
 		 * @param filter 日志过滤器
 		 *
 		 */
-		std::shared_ptr<ILogSink> AddFilter(std::shared_ptr<ILogFilter> filter)
-		{
-			_filter->AddFilter(std::move(filter));
-
-			return shared_from_this();
-		}
+		std::shared_ptr<ILogSink> AddFilter(std::shared_ptr<ILogFilter> filter);
 
 		/**
 		 *
@@ -165,10 +131,7 @@ namespace tinyToolkit
 		 * @return 日志布局
 		 *
 		 */
-		const std::shared_ptr<ILogLayout> & Layout() const
-		{
-			return _layout;
-		}
+		const std::shared_ptr<ILogLayout> & Layout() const;
 
 		/**
 		 *
@@ -177,18 +140,15 @@ namespace tinyToolkit
 		 * @return 日志过滤器
 		 *
 		 */
-		const std::shared_ptr<ILogFilter> & Filter() const
-		{
-			return _filter;
-		}
+		const std::shared_ptr<ILogFilter> & Filter() const;
 
 	protected:
 		bool _autoFlush{ false };
 
 		std::string _name{ };
 
-		std::shared_ptr<ILogLayout> _layout;
-		std::shared_ptr<ILogFilter> _filter;
+		std::shared_ptr<ILogLayout> _layout{ };
+		std::shared_ptr<ILogFilter> _filter{ };
 	};
 }
 

@@ -11,42 +11,22 @@
  */
 
 
-#include "../utilities/time.h"
-#include "../utilities/string.h"
 #include "../utilities/singleton.h"
 
 
 namespace tinyToolkit
 {
+	/**
+	 *
+	 * 无效位                        时间戳                            数据标识  机器ID      序列号
+	 * 0 - 0000000000 0000000000 0000000000 0000000000 0000000000 0 - 00000 - 00000 - 000000000000
+	 *
+	 */
 	class TINY_TOOLKIT_API Snowflake
 	{
-		/**
-		 *
-		 * 无效位                        时间戳                            数据标识  机器ID      序列号
-		 * 0 - 0000000000 0000000000 0000000000 0000000000 0000000000 0 - 00000 - 00000 - 000000000000
-		 *
-		 */
+		friend Singleton<Snowflake>;
+
 	public:
-		/**
-		 *
-		 * 构造函数
-		 *
-		 */
-		Snowflake()
-		{
-			_sequenceBits = 12;
-			_workerIDBits = 5;
-			_dataCenterIDBits = 5;
-
-			_workerIDMax = ~(-1 * (1 << _workerIDBits));
-			_sequenceMask = ~(-1 * (1 << _sequenceBits));
-			_dataCenterIDMax = ~(-1 * (1 << _dataCenterIDBits));
-
-			_workerIDShift = _sequenceBits;
-			_dataCenterIDShift = _sequenceBits + _workerIDBits;
-			_timeStampLeftShift = _sequenceBits + _workerIDBits + _dataCenterIDBits;
-		}
-
 		/**
 		 *
 		 * 获取全局唯一id
@@ -57,12 +37,16 @@ namespace tinyToolkit
 		 * @return 全局唯一id
 		 *
 		 */
-		static uint64_t Get(int32_t dataCenterID = 0, int32_t workerID = 0)
-		{
-			return Singleton<Snowflake>::Instance().Create(dataCenterID, workerID);
-		}
+		static uint64_t Get(int32_t dataCenterID = 0, int32_t workerID = 0);
 
 	protected:
+		/**
+		 *
+		 * 构造函数
+		 *
+		 */
+		Snowflake();
+
 		/**
 		 *
 		 * 创建全局唯一id
@@ -73,23 +57,7 @@ namespace tinyToolkit
 		 * @return 全局唯一id
 		 *
 		 */
-		uint64_t Create(int32_t dataCenterID, int32_t workerID)
-		{
-			if (workerID < 0 || workerID > _workerIDMax)
-			{
-				throw std::runtime_error(String::Format("workerID can't be greater than {} or less than 0", _workerIDMax));
-			}
-
-			if (dataCenterID < 0 || dataCenterID > _dataCenterIDMax)
-			{
-				throw std::runtime_error(String::Format("dataCenterID can't be greater than {} or less than 0", _dataCenterIDMax));
-			}
-
-			_workerID = workerID;
-			_dataCenterID = dataCenterID;
-
-			return NextID();
-		}
+		uint64_t Create(int32_t dataCenterID, int32_t workerID);
 
 		/**
 		 *
@@ -98,39 +66,7 @@ namespace tinyToolkit
 		 * @return id
 		 *
 		 */
-		uint64_t NextID()
-		{
-			auto timeStamp = Time::Milliseconds();
-
-			if (timeStamp < _lastTimeStamp)
-			{
-				throw std::runtime_error("Clock moved backwards, Refusing to generate id");
-			}
-
-			if (_lastTimeStamp == timeStamp)
-			{
-				_sequence = (_sequence + 1) & _sequenceMask;
-
-				if (_sequence == 0)  // 毫秒内序列溢出
-				{
-					timeStamp = TilNextMillis(_lastTimeStamp);
-				}
-			}
-			else
-			{
-				_sequence = 0;
-			}
-
-			_lastTimeStamp = timeStamp;
-
-			return static_cast<uint64_t >
-			(
-				((_lastTimeStamp - _baseTimeStamp) << _timeStampLeftShift) |
-				(_dataCenterID << _dataCenterIDShift) |
-				(_workerID << _workerIDShift) |
-				_sequence
-			);
-		}
+		uint64_t NextID();
 
 		/**
 		 *
@@ -141,17 +77,7 @@ namespace tinyToolkit
 		 * @return 当前时间戳
 		 *
 		 */
-		std::time_t TilNextMillis(std::time_t lastTimestamp)
-		{
-			auto timeStamp = Time::Milliseconds();
-
-			while (timeStamp <= lastTimestamp)
-			{
-				timeStamp = Time::Milliseconds();
-			}
-
-			return timeStamp;
-		}
+		std::time_t TilNextMillis(std::time_t lastTimestamp);
 
 	protected:
 		int32_t _sequence{ 0 };
@@ -171,8 +97,8 @@ namespace tinyToolkit
 
 		int32_t _sequenceMask{ 0 };
 
-		std::time_t _baseTimeStamp{ Time::Milliseconds() };
-		std::time_t _lastTimeStamp{ Time::Milliseconds() };
+		std::time_t _baseTimeStamp{ 0 };
+		std::time_t _lastTimeStamp{ 0 };
 	};
 }
 

@@ -13,6 +13,8 @@
 
 #include "exception.h"
 
+#include "../utilities/string.h"
+
 
 namespace tinyToolkit
 {

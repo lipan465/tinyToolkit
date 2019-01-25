@@ -76,17 +76,7 @@ namespace tinyToolkit
 		 * 关闭会话
 		 *
 		 */
-		void Close()
-		{
-			if (_pipe)
-			{
-				_pipe->Close();
-
-				delete _pipe;
-
-				_pipe = nullptr;
-			}
-		}
+		void Close();
 
 	public:
 		uint16_t _port{ 0 };

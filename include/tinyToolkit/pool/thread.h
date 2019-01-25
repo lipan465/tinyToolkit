@@ -11,7 +11,7 @@
  */
 
 
-#include "../container/operator.h"
+#include "../common/common.h"
 
 
 namespace tinyToolkit
@@ -26,24 +26,14 @@ namespace tinyToolkit
 		 * @param size 线程数
 		 *
 		 */
-		explicit ThreadPool(std::size_t size = std::thread::hardware_concurrency())
-		{
-			_isClose.store(false);
-
-			_freeSize.store(size);
-
-			Create(size);
-		}
+		explicit ThreadPool(std::size_t size = std::thread::hardware_concurrency());
 
 		/**
 		 *
 		 * 析构函数
 		 *
 		 */
-		~ThreadPool()
-		{
-			Release();
-		}
+		~ThreadPool();
 
 		/**
 		 *
@@ -81,40 +71,14 @@ namespace tinyToolkit
 		 * 释放
 		 *
 		 */
-		void Release()
-		{
-			if (_isClose.load())
-			{
-				return;
-			}
-
-			_isClose.store(true);
-
-			_condition.notify_all();
-
-			for (auto &thread : _pool)
-			{
-				if (thread.joinable())
-				{
-					thread.join();
-				}
-			}
-
-			ContainerOperator::Clear(_pool);
-		}
+		void Release();
 
 		/**
 		 *
 		 * 等待
 		 *
 		 */
-		void Wait()
-		{
-			while (!IsComplete())
-			{
-				TINY_TOOLKIT_SLEEP_MS(10)
-			}
-		}
+		void Wait();
 
 		/**
 		 *
@@ -123,10 +87,7 @@ namespace tinyToolkit
 		 * @return 状态
 		 *
 		 */
-		bool IsComplete()
-		{
-			return _tasks.empty() && _freeSize.load() == _pool.size();
-		}
+		bool IsComplete();
 
 		/**
 		 *
@@ -135,10 +96,7 @@ namespace tinyToolkit
 		 * @return 状态
 		 *
 		 */
-		bool IsClose() const
-		{
-			return _isClose.load();
-		}
+		bool IsClose() const;
 
 		/**
 		 *
@@ -147,10 +105,7 @@ namespace tinyToolkit
 		 * @return 任务个数
 		 *
 		 */
-		std::size_t TaskSize() const
-		{
-			return _tasks.size();
-		}
+		std::size_t TaskSize() const;
 
 		/**
 		 *
@@ -159,10 +114,7 @@ namespace tinyToolkit
 		 * @return 线程个数
 		 *
 		 */
-		std::size_t ThreadSize() const
-		{
-			return _pool.size();
-		}
+		std::size_t ThreadSize() const;
 
 	protected:
 		/**
@@ -172,51 +124,7 @@ namespace tinyToolkit
 		 * @param size 线程个数
 		 *
 		 */
-		void Create(std::size_t size)
-		{
-			for (std::size_t i = 0; i < size; ++i)
-			{
-				_pool.emplace_back
-				(
-					[this]
-					{
-						while (true)
-						{
-							std::function<void()> task;
-
-							{
-								std::unique_lock<std::mutex> lock(_mutex);
-
-								_condition.wait
-								(
-									lock,
-
-									[this]
-									{
-										return !_tasks.empty() || _isClose.load();
-									}
-								);
-
-								if (_isClose.load())
-								{
-									return false;
-								}
-
-								task = std::move(_tasks.front());
-
-								_tasks.pop();
-							}
-
-							--_freeSize;
-
-							task();
-
-							++_freeSize;
-						}
-					}
-				);
-			}
-		}
+		void Create(std::size_t size);
 
 	protected:
 		std::mutex _mutex{ };

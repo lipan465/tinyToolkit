@@ -26,10 +26,7 @@ namespace tinyToolkit
 		 * @param status 状态
 		 *
 		 */
-		explicit TestResult(bool status) : _status(status)
-		{
-
-		}
+		explicit TestResult(bool status);
 
 		/**
 		 *
@@ -38,11 +35,7 @@ namespace tinyToolkit
 		 * @param rhs 实例化对象
 		 *
 		 */
-		TestResult(TestResult && rhs) noexcept : _status(rhs._status),
-												 _message(std::move(rhs._message))
-		{
-
-		}
+		TestResult(TestResult && rhs) noexcept;
 
 		/**
 		 *
@@ -67,10 +60,7 @@ namespace tinyToolkit
 		 * @return 结果
 		 *
 		 */
-		explicit operator bool() const
-		{
-			return _status;
-		}
+		explicit operator bool() const;
 
 		/**
 		 *
@@ -79,10 +69,7 @@ namespace tinyToolkit
 		 * @return 状态
 		 *
 		 */
-		bool Status() const
-		{
-			return _status;
-		}
+		bool Status() const;
 
 		/**
 		 *
@@ -91,10 +78,7 @@ namespace tinyToolkit
 		 * @return 信息
 		 *
 		 */
-		std::string String() const
-		{
-			return _message.String();
-		}
+		std::string String() const;
 
 		/**
 		 *
@@ -122,13 +106,7 @@ namespace tinyToolkit
 		 * @param rhs 实例化对象
 		 *
 		 */
-		TestResult & operator=(TestResult && rhs) noexcept
-		{
-			_status = rhs._status;
-			_message = std::move(rhs._message);
-
-			return *this;
-		}
+		TestResult & operator=(TestResult && rhs) noexcept;
 
 		/**
 		 *
@@ -137,21 +115,7 @@ namespace tinyToolkit
 		 * @param lhs 实例化对象
 		 *
 		 */
-		TestResult & operator=(const TestResult & lhs)
-		{
-			if (this != &lhs)
-			{
-				_status = lhs._status;
-				_message = lhs._message;
-
-				if (!_status)
-				{
-					std::cout << _message << std::endl;
-				}
-			}
-
-			return *this;
-		}
+		TestResult & operator=(const TestResult & lhs);
 
 	protected:
 		bool _status{ true };
@@ -211,10 +175,7 @@ namespace tinyToolkit
 	 * @return 输出流
 	 *
 	 */
-	std::ostream & operator<<(std::ostream & os, const TestResult & result)
-	{
-		return os << result.String();
-	}
+	std::ostream & operator<<(std::ostream & os, const TestResult & result);
 }
 
 

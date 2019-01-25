@@ -74,13 +74,7 @@ namespace tinyToolkit
 		 * 关闭会话
 		 *
 		 */
-		void Close()
-		{
-			if (_pipe)
-			{
-				_pipe->Close();
-			}
-		}
+		void Close();
 
 		/**
 		 *
@@ -90,13 +84,7 @@ namespace tinyToolkit
 		 * @param size 待发送数据长度
 		 *
 		 */
-		void Send(const void * value, std::size_t size)
-		{
-			if (_pipe)
-			{
-				_pipe->Send(value, size);
-			}
-		}
+		void Send(const void * value, std::size_t size);
 
 	public:
 		uint16_t _port{ 0 };

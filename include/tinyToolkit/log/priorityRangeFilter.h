@@ -27,10 +27,7 @@ namespace tinyToolkit
 		 * @param tail 日志优先级
 		 *
 		 */
-		PriorityRangeLogFilter(LOG_PRIORITY_TYPE head, LOG_PRIORITY_TYPE tail)
-		{
-			SetPriority(head, tail);
-		}
+		PriorityRangeLogFilter(LOG_PRIORITY_TYPE head, LOG_PRIORITY_TYPE tail);
 
 		/**
 		 *
@@ -40,11 +37,7 @@ namespace tinyToolkit
 		 * @param tail 日志优先级
 		 *
 		 */
-		void SetPriority(const char * head, const char * tail)
-		{
-			_priority.first = LogPriority::Value(head);
-			_priority.second = LogPriority::Value(tail);
-		}
+		void SetPriority(const char * head, const char * tail);
 
 		/**
 		 *
@@ -54,11 +47,7 @@ namespace tinyToolkit
 		 * @param tail 日志优先级
 		 *
 		 */
-		void SetPriority(LOG_PRIORITY_TYPE head, LOG_PRIORITY_TYPE tail)
-		{
-			_priority.first = head;
-			_priority.second = tail;
-		}
+		void SetPriority(LOG_PRIORITY_TYPE head, LOG_PRIORITY_TYPE tail);
 
 		/**
 		 *
@@ -68,11 +57,7 @@ namespace tinyToolkit
 		 * @param tail 日志优先级
 		 *
 		 */
-		void SetPriority(const std::string & head, const std::string & tail)
-		{
-			_priority.first = LogPriority::Value(head);
-			_priority.second = LogPriority::Value(tail);
-		}
+		void SetPriority(const std::string & head, const std::string & tail);
 
 	protected:
 		/**
@@ -84,10 +69,7 @@ namespace tinyToolkit
 		 * @return 是否过滤
 		 *
 		 */
-		bool Filter(const LogEvent & event) override
-		{
-			return event.priority < _priority.first || _priority.second < event.priority;
-		}
+		bool Filter(const LogEvent & event) override;
 
 	protected:
 		std::pair<LOG_PRIORITY_TYPE, LOG_PRIORITY_TYPE> _priority{ LOG_PRIORITY_TYPE::INFO, LOG_PRIORITY_TYPE::FATAL };

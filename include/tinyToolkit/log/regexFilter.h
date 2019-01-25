@@ -26,10 +26,7 @@ namespace tinyToolkit
 		 * @param rule 过滤规则
 		 *
 		 */
-		explicit RegexLogFilter(const std::regex & rule)
-		{
-			SetPriority(rule);
-		}
+		explicit RegexLogFilter(const std::regex & rule);
 
 		/**
 		 *
@@ -38,10 +35,7 @@ namespace tinyToolkit
 		 * @param rule 过滤规则
 		 *
 		 */
-		explicit RegexLogFilter(const char * rule)
-		{
-			SetPriority(rule);
-		}
+		explicit RegexLogFilter(const char * rule);
 
 		/**
 		 *
@@ -50,10 +44,7 @@ namespace tinyToolkit
 		 * @param rule 过滤规则
 		 *
 		 */
-		explicit RegexLogFilter(const std::string & rule)
-		{
-			SetPriority(rule);
-		}
+		explicit RegexLogFilter(const std::string & rule);
 
 		/**
 		 *
@@ -62,10 +53,7 @@ namespace tinyToolkit
 		 * @param rule 过滤规则
 		 *
 		 */
-		void SetPriority(const std::regex & rule)
-		{
-			_rule = rule;
-		}
+		void SetPriority(const std::regex & rule);
 
 		/**
 		 *
@@ -74,12 +62,7 @@ namespace tinyToolkit
 		 * @param rule 过滤规则
 		 *
 		 */
-		void SetPriority(const char * rule)
-		{
-			assert(rule);
-
-			_rule = rule;
-		}
+		void SetPriority(const char * rule);
 
 		/**
 		 *
@@ -88,10 +71,7 @@ namespace tinyToolkit
 		 * @param rule 过滤规则
 		 *
 		 */
-		void SetPriority(const std::string & rule)
-		{
-			_rule = rule;
-		}
+		void SetPriority(const std::string & rule);
 
 	protected:
 		/**
@@ -103,10 +83,7 @@ namespace tinyToolkit
 		 * @return 是否过滤
 		 *
 		 */
-		bool Filter(const LogEvent & event) override
-		{
-			return std::regex_match(event.message, _rule);
-		}
+		bool Filter(const LogEvent & event) override;
 
 	protected:
 		std::regex _rule{ };

@@ -14,8 +14,6 @@
 #include "case.h"
 #include "environment.h"
 
-#include "../debug/timeWatcher.h"
-
 
 namespace tinyToolkit
 {
@@ -29,141 +27,14 @@ namespace tinyToolkit
 		 * @return 单例对象引用
 		 *
 		 */
-		static UnitTest & Instance()
-		{
-			return tinyToolkit::Singleton<UnitTest>::Instance();
-		}
+		static UnitTest & Instance();
 
 		/**
 		 *
 		 * 启动
 		 *
 		 */
-		int32_t Run()
-		{
-			String::Print
-			(
-				"[==========] Running {} test{} from {} test case{}.{}",
-				_count,
-				_count == 1 ? "" : "s",
-				_testCaseList.size(),
-				_testCaseList.size() == 1 ? "" : "s",
-				TINY_TOOLKIT_EOL
-			);
-
-			String::Print
-			(
-				"[----------] Global test environment set-up.{}",
-				TINY_TOOLKIT_EOL
-			);
-
-			for (auto &iter : _testEnvironmentList)
-			{
-				iter->SetUp();
-			}
-
-			_watcher.Start();
-
-			for (auto &iter : _testCaseList)
-			{
-				String::Print
-				(
-					"[----------] {} test{} from {}{}",
-					iter->Count(),
-					iter->Count() == 1 ? "" : "s",
-					iter->Name(),
-					TINY_TOOLKIT_EOL
-				);
-
-				iter->SetUp();
-				iter->Run();
-				iter->TearDown();
-
-				_passedCount += iter->PassedCount();
-				_failedCount += iter->FailedCount();
-
-				String::Print
-				(
-					"[----------] {} test{} from {} ({} total){}{}",
-					iter->Count(),
-					iter->Count() == 1 ? "" : "s",
-					iter->Name(),
-					Time::FormatMicrosecondElapsedString(static_cast<time_t>(iter->Watcher().All())),
-					TINY_TOOLKIT_EOL,
-					TINY_TOOLKIT_EOL
-				);
-			}
-
-			_watcher.Stop();
-
-			for (auto &iter : _testEnvironmentList)
-			{
-				iter->TearDown();
-			}
-
-			String::Print
-			(
-				"[----------] Global test environment tear-down{}",
-				TINY_TOOLKIT_EOL
-			);
-
-			String::Print
-			(
-				"[==========] {} test{} from {} test case{} ran. ({} total){}",
-				_count,
-				_count == 1 ? "" : "s",
-				_testCaseList.size(),
-				_testCaseList.size() == 1 ? "" : "s",
-				Time::FormatMicrosecondElapsedString(static_cast<time_t>(_watcher.All())),
-				TINY_TOOLKIT_EOL
-			);
-
-			if (_passedCount > 0)
-			{
-				String::Print
-				(
-					"[  PASSED  ] {} test{}.{}",
-					_passedCount,
-					_passedCount == 1 ? "" : "s",
-					TINY_TOOLKIT_EOL
-				);
-			}
-
-			if (_failedCount > 0)
-			{
-				String::Print
-				(
-					"[  FAILED  ] {} test{}, listed below:{}",
-					_failedCount,
-					_failedCount == 1 ? "" : "s",
-					TINY_TOOLKIT_EOL
-				);
-
-				for (auto &casePtr : _testCaseList)
-				{
-					for (auto &iter : casePtr->FailedList())
-					{
-						String::Print
-						(
-							"[  FAILED  ] {}{}",
-							iter,
-							TINY_TOOLKIT_EOL
-						);
-					}
-				}
-
-				String::Print
-				(
-					"{} {} FAILED TEST{}{}",
-					TINY_TOOLKIT_EOL,
-					_failedCount,
-					_failedCount == 1 ? "" : "S",
-					TINY_TOOLKIT_EOL
-				);
-			}
-
-			return _failedCount == 0 ? 0 : 1;
-		}
+		int32_t Run();
 
 		/**
 		 *
@@ -172,10 +43,7 @@ namespace tinyToolkit
 		 * @return 任务个数
 		 *
 		 */
-		std::size_t Count() const
-		{
-			return _count;
-		}
+		std::size_t Count() const;
 
 		/**
 		 *
@@ -184,10 +52,7 @@ namespace tinyToolkit
 		 * @return 通过个数
 		 *
 		 */
-		std::size_t PassedCount() const
-		{
-			return _passedCount;
-		}
+		std::size_t PassedCount() const;
 
 		/**
 		 *
@@ -196,10 +61,7 @@ namespace tinyToolkit
 		 * @return 失败个数
 		 *
 		 */
-		std::size_t FailedCount() const
-		{
-			return _failedCount;
-		}
+		std::size_t FailedCount() const;
 
 		/**
 		 *
@@ -210,25 +72,7 @@ namespace tinyToolkit
 		 * @return 测试信息
 		 *
 		 */
-		const std::shared_ptr<TestInfo> & AddTestInfo(const std::shared_ptr<TestInfo> & testInfo)
-		{
-			++_count;
-
-			auto find = _indexList.find(testInfo->Prefix());
-
-			if (find == _indexList.end())
-			{
-				_indexList.insert(std::make_pair(testInfo->Prefix(), _indexList.size()));
-
-				_testCaseList.push_back(std::make_shared<TestCase>(testInfo->Prefix()));
-
-				return _testCaseList.back()->AddTestInfo(testInfo);
-			}
-			else
-			{
-				return _testCaseList[find->second]->AddTestInfo(testInfo);
-			}
-		}
+		const std::shared_ptr<TestInfo> & AddTestInfo(const std::shared_ptr<TestInfo> & testInfo);
 
 		/**
 		 *
@@ -239,16 +83,9 @@ namespace tinyToolkit
 		 * @return 测试环境
 		 *
 		 */
-		const std::shared_ptr<TestEnvironment> & AddEnvironment(const std::shared_ptr<TestEnvironment> & environment)
-		{
-			_testEnvironmentList.push_back(environment);
-
-			return _testEnvironmentList.back();
-		}
+		const std::shared_ptr<TestEnvironment> & AddEnvironment(const std::shared_ptr<TestEnvironment> & environment);
 
 	protected:
-		TimeWatcher _watcher{ };
-
 		std::size_t _count{ 0 };
 		std::size_t _passedCount{ 0 };
 		std::size_t _failedCount{ 0 };
@@ -268,7 +105,7 @@ namespace tinyToolkit
  */
 #define TINY_TOOLKIT_TEST_REGISTER(prefix, suffix, parent)																						\
 																																				\
-class TINY_TOOLKIT_API TINY_TOOLKIT_TEST_CLASS_NAME(prefix, suffix) : public parent																				\
+class TINY_TOOLKIT_API TINY_TOOLKIT_TEST_CLASS_NAME(prefix, suffix) : public parent																\
 {																																				\
 public:																																			\
 	TINY_TOOLKIT_TEST_CLASS_NAME(prefix, suffix)() : parent(#prefix, #suffix)																	\

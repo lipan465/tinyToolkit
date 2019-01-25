@@ -2,7 +2,16 @@
 #define __EXAMPLE__MAIN__H__
 
 
-#include "tinyToolkit/tinyToolkit.h"
+/**
+ *
+ *  作者: hm
+ *
+ *  说明: 主函数
+ *
+ */
+
+
+#include "../include/tinyToolkit/tinyToolkit.h"
 
 
 #endif // __EXAMPLE__MAIN__H__

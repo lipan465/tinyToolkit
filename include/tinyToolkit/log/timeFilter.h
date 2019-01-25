@@ -26,10 +26,7 @@ namespace tinyToolkit
 		 * @param time 秒数时间戳
 		 *
 		 */
-		explicit TimeLogFilter(std::time_t time)
-		{
-			SetTime(time);
-		}
+		explicit TimeLogFilter(std::time_t time);
 
 		/**
 		 *
@@ -38,10 +35,7 @@ namespace tinyToolkit
 		 * @param time 时间点
 		 *
 		 */
-		explicit TimeLogFilter(const ClockTimePoint & time)
-		{
-			SetTime(time);
-		}
+		explicit TimeLogFilter(const ClockTimePoint & time);
 
 		/**
 		 *
@@ -50,10 +44,7 @@ namespace tinyToolkit
 		 * @param time 秒数时间戳
 		 *
 		 */
-		void SetTime(std::time_t time)
-		{
-			_time = Time::TimePoint(time);
-		}
+		void SetTime(std::time_t time);
 
 		/**
 		 *
@@ -62,10 +53,7 @@ namespace tinyToolkit
 		 * @param time 时间点
 		 *
 		 */
-		void SetTime(const ClockTimePoint & time)
-		{
-			_time = time;
-		}
+		void SetTime(const ClockTimePoint & time);
 
 	protected:
 		/**
@@ -77,13 +65,10 @@ namespace tinyToolkit
 		 * @return 是否过滤
 		 *
 		 */
-		bool Filter(const LogEvent & event) override
-		{
-			return _time > event.time;
-		}
+		bool Filter(const LogEvent & event) override;
 
 	protected:
-		ClockTimePoint _time;
+		ClockTimePoint _time{ };
 	};
 };
 

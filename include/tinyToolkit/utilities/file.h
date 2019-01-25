@@ -16,8 +16,6 @@
 
 namespace tinyToolkit
 {
-	#if TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_WINDOWS
-
 	class TINY_TOOLKIT_API LockFile
 	{
 	public:
@@ -43,10 +41,7 @@ namespace tinyToolkit
 		 * 析构函数
 		 *
 		 */
-		~LockFile()
-		{
-			Close();
-		}
+		~LockFile();
 
 		/**
 		 *
@@ -201,8 +196,6 @@ namespace tinyToolkit
 
 		std::string _path{ };
 	};
-
-	#endif // TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_WINDOWS
 }
 
 

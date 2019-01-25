@@ -13,8 +13,6 @@
 
 #include "info.h"
 
-#include "../debug/timeWatcher.h"
-
 
 namespace tinyToolkit
 {
@@ -28,10 +26,7 @@ namespace tinyToolkit
 		 * @param name 名称
 		 *
 		 */
-		explicit TestCase(const char * name) : _name(name)
-		{
-
-		}
+		explicit TestCase(const char * name);
 
 		/**
 		 *
@@ -45,71 +40,21 @@ namespace tinyToolkit
 		 * 启动
 		 *
 		 */
-		void Run()
-		{
-			_watcher.Start();
-
-			for (auto &iter : _testInfoList)
-			{
-				String::Print
-				(
-					"[ RUN      ] {}{}",
-					iter->Name(),
-					TINY_TOOLKIT_EOL
-				);
-
-				iter->SetUp();
-				iter->Run();
-				iter->TearDown();
-
-				if (iter->Result())
-				{
-					String::Print
-					(
-						"[       OK ] {} ({}){}",
-						iter->Name(),
-						Time::FormatMicrosecondElapsedString(static_cast<time_t>(iter->Watcher().All())),
-						TINY_TOOLKIT_EOL
-					);
-
-					_passedList.push_back(iter->Name());
-				}
-				else
-				{
-					String::Print
-					(
-						"[  FAILED  ] {} ({}){}",
-						iter->Name(),
-						Time::FormatMicrosecondElapsedString(static_cast<time_t>(iter->Watcher().All())),
-						TINY_TOOLKIT_EOL
-					);
-
-					_failedList.push_back(iter->Name());
-				}
-			}
-
-			_watcher.Stop();
-		}
+		void Run();
 
 		/**
 		 *
 		 * 设置环境
 		 *
 		 */
-		virtual void SetUp()
-		{
-
-		}
+		virtual void SetUp();
 
 		/**
 		 *
 		 * 销毁环境
 		 *
 		 */
-		virtual void TearDown()
-		{
-
-		}
+		virtual void TearDown();
 
 		/**
 		 *
@@ -118,10 +63,7 @@ namespace tinyToolkit
 		 * @return 名称
 		 *
 		 */
-		const char * Name() const
-		{
-			return _name;
-		}
+		const char * Name() const;
 
 		/**
 		 *
@@ -130,10 +72,7 @@ namespace tinyToolkit
 		 * @return 任务个数
 		 *
 		 */
-		std::size_t Count()
-		{
-			return _testInfoList.size();
-		}
+		std::size_t Count() const;
 
 		/**
 		 *
@@ -142,10 +81,7 @@ namespace tinyToolkit
 		 * @return 通过个数
 		 *
 		 */
-		std::size_t PassedCount() const
-		{
-			return _passedList.size();
-		}
+		std::size_t PassedCount() const;
 
 		/**
 		 *
@@ -154,22 +90,16 @@ namespace tinyToolkit
 		 * @return 失败个数
 		 *
 		 */
-		std::size_t FailedCount() const
-		{
-			return _failedList.size();
-		}
+		std::size_t FailedCount() const;
 
 		/**
 		 *
-		 * 观察用时
+		 * 观察间隔
 		 *
-		 * @return 观察用时
+		 * @return 观察间隔
 		 *
 		 */
-		const TimeWatcher & Watcher() const
-		{
-			return _watcher;
-		}
+		std::time_t Elapsed() const;
 
 		/**
 		 *
@@ -178,10 +108,7 @@ namespace tinyToolkit
 		 * @return 成功列表
 		 *
 		 */
-		const std::vector<std::string> & PassedList() const
-		{
-			return _passedList;
-		}
+		const std::vector<std::string> & PassedList() const;
 
 		/**
 		 *
@@ -190,10 +117,7 @@ namespace tinyToolkit
 		 * @return 失败列表
 		 *
 		 */
-		const std::vector<std::string> & FailedList() const
-		{
-			return _failedList;
-		}
+		const std::vector<std::string> & FailedList() const;
 
 		/**
 		 *
@@ -204,17 +128,12 @@ namespace tinyToolkit
 		 * @return 测试信息
 		 *
 		 */
-		const std::shared_ptr<TestInfo> & AddTestInfo(const std::shared_ptr<TestInfo> & testInfo)
-		{
-			_testInfoList.push_back(testInfo);
-
-			return _testInfoList.back();
-		}
+		const std::shared_ptr<TestInfo> & AddTestInfo(const std::shared_ptr<TestInfo> & testInfo);
 
 	protected:
 		const char * _name{ nullptr };
 
-		TimeWatcher _watcher{ };
+		std::time_t _elapsed{ 0 };
 
 		std::vector<std::string> _passedList{ };
 		std::vector<std::string> _failedList{ };

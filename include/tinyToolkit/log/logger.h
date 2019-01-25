@@ -13,6 +13,8 @@
 
 #include "sink.h"
 
+#include "../utilities/string.h"
+
 
 namespace tinyToolkit
 {
@@ -24,10 +26,7 @@ namespace tinyToolkit
 		 * 构造函数
 		 *
 		 */
-		ILogger() : _name(Application::Name())
-		{
-
-		}
+		ILogger();
 
 		/**
 		 *
@@ -36,10 +35,7 @@ namespace tinyToolkit
 		 * @param name 日志名称
 		 *
 		 */
-		explicit ILogger(std::string name) : _name(std::move(name))
-		{
-
-		}
+		explicit ILogger(std::string name);
 
 		/**
 		 *
@@ -278,6 +274,7 @@ namespace tinyToolkit
 		{
 			Write(LOG_PRIORITY_TYPE::FATAL, fmt, std::forward<Args>(args)...);
 		}
+
 		/**
 		 *
 		 * 写入节点
@@ -313,12 +310,7 @@ namespace tinyToolkit
 		 * @param name 节点名称
 		 *
 		 */
-		void DelSink(const std::string & name)
-		{
-			std::lock_guard<std::mutex> lock(_mutex);
-
-			_container.erase(name);
-		}
+		void DelSink(const std::string & name);
 
 		/**
 		 *
@@ -327,87 +319,42 @@ namespace tinyToolkit
 		 * @param sink 节点对象
 		 *
 		 */
-		void DelSink(const std::shared_ptr<ILogSink> & sink)
-		{
-			std::lock_guard<std::mutex> lock(_mutex);
-
-			_container.erase(sink->Name());
-		}
+		void DelSink(const std::shared_ptr<ILogSink> & sink);
 
 		/**
 		 *
 		 * 关闭节点
 		 *
 		 */
-		void CloseSink()
-		{
-			std::lock_guard<std::mutex> lock(_mutex);
-
-			for (auto &iter : _container)
-			{
-				iter.second->Close();
-			}
-		}
+		void CloseSink();
 
 		/**
 		 *
 		 * 刷新节点
 		 *
 		 */
-		void FlushSink()
-		{
-			std::lock_guard<std::mutex> lock(_mutex);
-
-			for (auto &iter : _container)
-			{
-				iter.second->Flush();
-			}
-		}
+		void FlushSink();
 
 		/**
 		 *
 		 * 重新打开节点
 		 *
 		 */
-		void ReopenSink()
-		{
-			std::lock_guard<std::mutex> lock(_mutex);
-
-			for (auto &iter : _container)
-			{
-				iter.second->Reopen();
-			}
-		}
+		void ReopenSink();
 
 		/**
 		 *
 		 * 设置日志节点自动刷新
 		 *
 		 */
-		void EnableSinkAutoFlush()
-		{
-			std::lock_guard<std::mutex> lock(_mutex);
-
-			for (auto &iter : _container)
-			{
-				iter.second->EnableAutoFlush();
-			}
-		}
+		void EnableSinkAutoFlush();
 
 		/**
 		 *
 		 * 禁止日志节点自动刷新
 		 *
 		 */
-		void DisableSinkAutoFlush()
-		{
-			std::lock_guard<std::mutex> lock(_mutex);
-
-			for (auto &iter : _container)
-			{
-				iter.second->DisableAutoFlush();
-			}
-		}
+		void DisableSinkAutoFlush();
 
 		/**
 		 *
@@ -496,10 +443,7 @@ namespace tinyToolkit
 		 * @return 消息名称
 		 *
 		 */
-		const std::string & Name()
-		{
-			return _name;
-		}
+		const std::string & Name();
 
 		/**
 		 *
@@ -588,16 +532,7 @@ namespace tinyToolkit
 		 * @return 日志节点
 		 *
 		 */
-		const std::shared_ptr<ILogSink> & FindSink(const std::string & name)
-		{
-			std::lock_guard<std::mutex> lock(_mutex);
-
-			static std::shared_ptr<ILogSink> nullSink = nullptr;
-
-			auto iter = _container.find(name);
-
-			return iter == _container.end() ? nullSink : _container[name];
-		}
+		const std::shared_ptr<ILogSink> & FindSink(const std::string & name);
 
 	protected:
 		/**

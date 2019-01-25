@@ -12,7 +12,6 @@
 
 
 #include "event.h"
-#include "transition.h"
 
 
 namespace tinyToolkit
@@ -43,20 +42,7 @@ namespace tinyToolkit
 		 * @return 是否过滤
 		 *
 		 */
-		bool Decide(const LogEvent & event)
-		{
-			if (Filter(event))
-			{
-				return true;
-			}
-
-			if (Next())
-			{
-				return Next()->Decide(event);
-			}
-
-			return false;
-		}
+		bool Decide(const LogEvent & event);
 
 		/**
 		 *
@@ -65,17 +51,7 @@ namespace tinyToolkit
 		 * @param filter 过滤器
 		 *
 		 */
-		std::shared_ptr<ILogFilter> AddFilter(std::shared_ptr<ILogFilter> filter)
-		{
-			ILogFilter * end = this;
-
-			while (end->Next())
-			{
-				end = end->Next().get();
-			}
-
-			return end->SetNextFilter(std::move(filter));
-		}
+		std::shared_ptr<ILogFilter> AddFilter(std::shared_ptr<ILogFilter> filter);
 
 		/**
 		 *
@@ -84,12 +60,7 @@ namespace tinyToolkit
 		 * @param filter 过滤器
 		 *
 		 */
-		std::shared_ptr<ILogFilter> SetNextFilter(std::shared_ptr<ILogFilter> filter)
-		{
-			_nextFilter = std::move(filter);
-
-			return shared_from_this();
-		}
+		std::shared_ptr<ILogFilter> SetNextFilter(std::shared_ptr<ILogFilter> filter);
 
 	protected:
 		/**
@@ -110,10 +81,7 @@ namespace tinyToolkit
 		 * @return 过滤器
 		 *
 		 */
-		const std::shared_ptr<ILogFilter> & Next() const
-		{
-			return _nextFilter;
-		}
+		const std::shared_ptr<ILogFilter> & Next() const;
 
 	protected:
 		std::shared_ptr<ILogFilter> _nextFilter;

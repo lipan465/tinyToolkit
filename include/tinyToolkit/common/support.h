@@ -128,7 +128,7 @@
 #
 #  else
 #
-#    error compiler not supported!
+#    error "compiler not supported!"
 #
 #  endif
 #

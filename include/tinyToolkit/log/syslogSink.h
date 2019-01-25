@@ -16,8 +16,6 @@
 
 namespace tinyToolkit
 {
-	#if TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_WINDOWS
-
 	class TINY_TOOLKIT_API SyslogLogSink : public ILogSink
 	{
 	public:
@@ -30,52 +28,35 @@ namespace tinyToolkit
 		 * @param facility 消息程序类型
 		 *
 		 */
-		explicit SyslogLogSink(std::string name, const char * idents = nullptr, int32_t facility = LOG_USER) : ILogSink(std::move(name))
-		{
-			::openlog(idents, LOG_CONS, facility);
-		}
+		explicit SyslogLogSink(std::string name, const char * idents = nullptr, int32_t facility = LOG_USER);
 
 		/**
 		 *
 		 * 析构函数
 		 *
 		 */
-		~SyslogLogSink() override
-		{
-			Close();
-		}
+		~SyslogLogSink() override;
 
 		/**
 		 *
 		 * 关闭日志
 		 *
 		 */
-		void Close() override
-		{
-			Flush();
-
-			::closelog();
-		}
+		void Close() override;
 
 		/**
 		 *
 		 * 刷新日志
 		 *
 		 */
-		void Flush() override
-		{
-
-		}
+		void Flush() override;
 
 		/**
 		 *
 		 * 重新打开日志
 		 *
 		 */
-		void Reopen() override
-		{
-
-		}
+		void Reopen() override;
 
 		/**
 		 *
@@ -84,36 +65,8 @@ namespace tinyToolkit
 		 * @param event 日志事件
 		 *
 		 */
-		void Write(const LogEvent & event) override
-		{
-			if (Filter() && Filter()->Decide(event))
-			{
-				return;
-			}
-
-			static std::unordered_map<LOG_PRIORITY_TYPE, int32_t> priorities
-			{
-				{ LOG_PRIORITY_TYPE::DEBUGS, LOG_DEBUG },
-				{ LOG_PRIORITY_TYPE::INFO, LOG_INFO },
-				{ LOG_PRIORITY_TYPE::NOTICE, LOG_NOTICE },
-				{ LOG_PRIORITY_TYPE::WARNING, LOG_WARNING },
-				{ LOG_PRIORITY_TYPE::ERRORS, LOG_ERR },
-				{ LOG_PRIORITY_TYPE::CRITICAL, LOG_CRIT },
-				{ LOG_PRIORITY_TYPE::ALERT, LOG_ALERT },
-				{ LOG_PRIORITY_TYPE::FATAL, LOG_ALERT },
-				{ LOG_PRIORITY_TYPE::EMERG, LOG_EMERG },
-			};
-
-			::syslog(priorities[event.priority], "%s", Layout() ? Layout()->Format(event).c_str() : event.message.c_str());
-
-			if (_autoFlush)
-			{
-				Flush();
-			}
-		}
+		void Write(const LogEvent & event) override;
 	};
-
-	#endif // TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_WINDOWS
 }
 
 

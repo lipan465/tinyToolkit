@@ -11,8 +11,8 @@
  */
 
 
-#include "sink.h"
 #include "file.h"
+#include "sink.h"
 
 
 namespace tinyToolkit
@@ -31,68 +31,35 @@ namespace tinyToolkit
 		 * @param seconds 秒
 		 *
 		 */
-		explicit DailyFileLogSink(std::string name, std::string path, int32_t hour = 0, int32_t minutes = 0, int32_t seconds = 0) : ILogSink(std::move(name)),
-																																	_hour(hour),
-																																	_minutes(minutes),
-																																	_seconds(seconds),
-																																	_path(std::move(path))
-
-		{
-			if (hour < 0 || hour > 23 || minutes < 0 || minutes > 59 || seconds < 0 || seconds > 59)
-			{
-				throw std::logic_error("Invalid Time");
-			}
-
-			if (!_file.Open(CalculatePath(_path)))
-			{
-				throw std::logic_error("Open daily log file failed : " + _file.Path());
-			}
-
-			RotatingTime();
-		}
+		explicit DailyFileLogSink(std::string name, std::string path, int32_t hour = 0, int32_t minutes = 0, int32_t seconds = 0);
 
 		/**
 		 *
 		 * 析构函数
 		 *
 		 */
-		~DailyFileLogSink() override
-		{
-			Close();
-		}
+		~DailyFileLogSink() override;
 
 		/**
 		 *
 		 * 关闭日志
 		 *
 		 */
-		void Close() override
-		{
-			_file.Close();
-		}
+		void Close() override;
 
 		/**
 		 *
 		 * 刷新日志
 		 *
 		 */
-		void Flush() override
-		{
-			_file.Flush();
-		}
+		void Flush() override;
 
 		/**
 		 *
 		 * 重新打开日志
 		 *
 		 */
-		void Reopen() override
-		{
-			if (!_file.Reopen())
-			{
-				throw std::logic_error("ReOpen daily log file failed : " + _file.Path());
-			}
-		}
+		void Reopen() override;
 
 		/**
 		 *
@@ -101,32 +68,7 @@ namespace tinyToolkit
 		 * @param event 日志事件
 		 *
 		 */
-		void Write(const LogEvent & event) override
-		{
-			if (Filter() && Filter()->Decide(event))
-			{
-				return;
-			}
-
-			if (Time::Seconds() >= _time)
-			{
-				_file.Close();
-
-				if (!_file.Open(CalculatePath(_path)))
-				{
-					throw std::logic_error("Open daily log file failed : " + _file.Path());
-				}
-
-				RotatingTime();
-			}
-
-			_file.Write(Layout() ? Layout()->Format(event) : event.message);
-
-			if (_autoFlush)
-			{
-				Flush();
-			}
-		}
+		void Write(const LogEvent & event) override;
 
 		/**
 		 *
@@ -135,10 +77,7 @@ namespace tinyToolkit
 		 * @return 是否已经打开
 		 *
 		 */
-		bool IsOpen()
-		{
-			return _file.IsOpen();
-		}
+		bool IsOpen();
 
 		/**
 		 *
@@ -147,10 +86,7 @@ namespace tinyToolkit
 		 * @return 日志大小
 		 *
 		 */
-		std::size_t Size() const
-		{
-			return _file.Size();
-		}
+		std::size_t Size() const;
 
 		/**
 		 *
@@ -159,10 +95,7 @@ namespace tinyToolkit
 		 * @return 下次生成日志时间
 		 *
 		 */
-		std::time_t NextTime() const
-		{
-			return _time;
-		}
+		std::time_t NextTime() const;
 
 		/**
 		 *
@@ -171,10 +104,7 @@ namespace tinyToolkit
 		 * @return 日志路径
 		 *
 		 */
-		const std::string & Path() const
-		{
-			return _file.Path();
-		}
+		const std::string & Path() const;
 
 	protected:
 		/**
@@ -182,15 +112,7 @@ namespace tinyToolkit
 		 * 计算下一次生成日志的时间
 		 *
 		 */
-		void RotatingTime()
-		{
-			_time = Time::CurrentDayTime(_hour, _minutes, _seconds);
-
-			if (_time < Time::Seconds())
-			{
-				_time += TINY_TOOLKIT_DAY;
-			}
-		}
+		void RotatingTime();
 
 		/**
 		 *
@@ -201,42 +123,10 @@ namespace tinyToolkit
 		 * @return 日志路径
 		 *
 		 */
-		std::string CalculatePath(const std::string & path)
-		{
-			std::size_t pos = path.rfind('.');
-
-			if (pos == std::string::npos)  /// name_2018_01_01_00_00_00
-			{
-				return String::Format
-				(
-					"{}_{}",
-					path,
-					Time::CurrentLocalTimeString("%4d_%02d_%02d_%02d_%02d_%02d")
-				);
-			}
-			else if (pos == 0)  /// 2018_01_01_00_00_00.log
-			{
-				return String::Format
-				(
-					"{}{}",
-					Time::CurrentLocalTimeString("%4d_%02d_%02d_%02d_%02d_%02d"),
-					path
-				);
-			}
-			else   /// name_2018_01_01_00_00_00.log
-			{
-				return String::Format
-				(
-					"{}_{}{}",
-					path.substr(0, pos),
-					Time::CurrentLocalTimeString("%4d_%02d_%02d_%02d_%02d_%02d"),
-					path.substr(pos)
-				);
-			}
-		}
+		std::string CalculatePath(const std::string & path);
 
 	protected:
-		LogFile _file;
+		LogFile _file{ };
 
 		int32_t _hour{ 0 };
 		int32_t _minutes{ 0 };

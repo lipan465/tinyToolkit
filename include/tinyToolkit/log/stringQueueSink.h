@@ -26,50 +26,35 @@ namespace tinyToolkit
 		 * @param name 节点名称
 		 *
 		 */
-		explicit StringQueueLogSink(std::string name) : ILogSink(std::move(name))
-		{
-
-		}
+		explicit StringQueueLogSink(std::string name);
 
 		/**
 		 *
 		 * 析构函数
 		 *
 		 */
-		~StringQueueLogSink() override
-		{
-			Close();
-		}
+		~StringQueueLogSink() override;
 
 		/**
 		 *
 		 * 关闭日志
 		 *
 		 */
-		void Close() override
-		{
-			Flush();
-		}
+		void Close() override;
 
 		/**
 		 *
 		 * 刷新日志
 		 *
 		 */
-		void Flush() override
-		{
-
-		}
+		void Flush() override;
 
 		/**
 		 *
 		 * 重新打开日志
 		 *
 		 */
-		void Reopen() override
-		{
-			ContainerOperator::Clear(_queue);
-		}
+		void Reopen() override;
 
 		/**
 		 *
@@ -78,20 +63,7 @@ namespace tinyToolkit
 		 * @param event 日志事件
 		 *
 		 */
-		void Write(const LogEvent & event) override
-		{
-			if (Filter() && Filter()->Decide(event))
-			{
-				return;
-			}
-
-			_queue.push(Layout() ? Layout()->Format(event) : event.message);
-
-			if (_autoFlush)
-			{
-				Flush();
-			}
-		}
+		void Write(const LogEvent & event) override;
 
 		/**
 		 *
@@ -100,10 +72,7 @@ namespace tinyToolkit
 		 * @return 队列是否为空
 		 *
 		 */
-		bool Empty()
-		{
-			return _queue.empty();
-		}
+		bool Empty();
 
 		/**
 		 *
@@ -112,10 +81,7 @@ namespace tinyToolkit
 		 * @return 队列大小
 		 *
 		 */
-		std::size_t Size() const
-		{
-			return _queue.size();
-		}
+		std::size_t Size() const;
 
 		/**
 		 *
@@ -124,10 +90,7 @@ namespace tinyToolkit
 		 * @return 队列
 		 *
 		 */
-		std::queue<std::string> & Queue()
-		{
-			return _queue;
-		}
+		std::queue<std::string> & Queue();
 
 		/**
 		 *
@@ -136,13 +99,10 @@ namespace tinyToolkit
 		 * @return 队列
 		 *
 		 */
-		const std::queue<std::string> & Queue() const
-		{
-			return _queue;
-		}
+		const std::queue<std::string> & Queue() const;
 
 	protected:
-		std::queue<std::string> _queue;
+		std::queue<std::string> _queue{ };
 	};
 }
 

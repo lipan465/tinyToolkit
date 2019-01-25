@@ -11,13 +11,7 @@
  */
 
 
-#include "../system/os.h"
-#include "../utilities/time.h"
-#include "../utilities/string.h"
-#include "../system/application.h"
-#include "../container/operator.h"
-#include "../utilities/singleton.h"
-#include "../utilities/filesystem.h"
+#include "../common/common.h"
 
 
 namespace tinyToolkit
@@ -52,10 +46,6 @@ namespace tinyToolkit
 		EMERG,
 	};
 }
-
-
-using LOG_OPTION_TYPE = tinyToolkit::LOG_OPTION_TYPE;
-using LOG_PRIORITY_TYPE = tinyToolkit::LOG_PRIORITY_TYPE;
 
 
 #endif // __TINY_TOOLKIT__LOG__DETAIL__H__

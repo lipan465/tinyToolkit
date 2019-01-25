@@ -13,6 +13,8 @@
 
 #include "result.h"
 
+#include "../utilities/fileLine.h"
+
 
 namespace tinyToolkit
 {

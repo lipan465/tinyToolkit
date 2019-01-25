@@ -273,7 +273,7 @@ namespace tinyToolkit
 		 */
 		static std::string ParentDirectory(const std::string & path);
 
-#if TINY_TOOLKIT_CXX_SUPPORT >= 17 && TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_APPLE
+	#if TINY_TOOLKIT_CXX_SUPPORT >= 17 && TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_APPLE
 
 		/**
 		 *
@@ -386,7 +386,7 @@ namespace tinyToolkit
 		 */
 		static std::vector<std::filesystem::path> TraverseDirectory(const std::string & path, const std::regex & rule);
 
-#endif // #if TINY_TOOLKIT_CXX_SUPPORT >= 17 && TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_APPLE
+	#endif // #if TINY_TOOLKIT_CXX_SUPPORT >= 17 && TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_APPLE
 	};
 }
 

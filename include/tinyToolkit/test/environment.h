@@ -30,20 +30,14 @@ namespace tinyToolkit
 		 * 设置环境
 		 *
 		 */
-		virtual void SetUp()
-		{
-
-		}
+		virtual void SetUp();
 
 		/**
 		 *
 		 * 销毁环境
 		 *
 		 */
-		virtual void TearDown()
-		{
-
-		}
+		virtual void TearDown();
 	};
 }
 

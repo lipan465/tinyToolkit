@@ -11,7 +11,6 @@
  */
 
 
-#include "../utilities/time.h"
 #include "../utilities/singleton.h"
 
 
@@ -23,25 +22,16 @@ namespace tinyToolkit
 		{
 			struct
 			{
-				uint32_t count;
-				uint32_t times;
+				uint32_t count{ 0 };
+				uint32_t times{ 0 };
 			}key;
 
-			uint64_t value;
+			uint64_t value{ 0 };
 		};
 
-	public:
-		/**
-		 *
-		 * 构造函数
-		 *
-		 */
-		UniqueID()
-		{
-			_id.key.count = 0;
-			_id.key.times = static_cast<uint32_t>(Time::Seconds());
-		}
+		friend Singleton<UniqueID>;
 
+	public:
 		/**
 		 *
 		 * 获取全局唯一id
@@ -49,12 +39,16 @@ namespace tinyToolkit
 		 * @return id
 		 *
 		 */
-		static uint64_t Get()
-		{
-			return Singleton<UniqueID>::Instance().Create();
-		}
+		static uint64_t Get();
 
 	protected:
+		/**
+		 *
+		 * 构造函数
+		 *
+		 */
+		UniqueID();
+
 		/**
 		 *
 		 * 创建全局唯一id
@@ -62,22 +56,7 @@ namespace tinyToolkit
 		 * @return id
 		 *
 		 */
-		uint64_t Create()
-		{
-			auto timeStamp = static_cast<uint32_t>(Time::Seconds());
-
-			if (timeStamp != _id.key.times)
-			{
-				_id.key.count = 0;
-				_id.key.times = timeStamp;
-			}
-			else
-			{
-				++_id.key.count;
-			}
-
-			return _id.value;
-		}
+		uint64_t Create();
 
 	protected:
 		ONLY_ID _id{ };

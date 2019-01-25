@@ -13,9 +13,6 @@
 
 #include "result.h"
 
-#include "../debug/timeWatcher.h"
-#include "../utilities/fileLine.h"
-
 
 namespace tinyToolkit
 {
@@ -30,12 +27,7 @@ namespace tinyToolkit
 		 * @param suffix 后缀
 		 *
 		 */
-		TestInfo(const char * prefix, const char * suffix) : _prefix(prefix), _suffix(suffix)
-		{
-			_name += prefix;
-			_name += ".";
-			_name += suffix;
-		}
+		TestInfo(const char * prefix, const char * suffix);
 
 		/**
 		 *
@@ -49,44 +41,28 @@ namespace tinyToolkit
 		 * 启动
 		 *
 		 */
-		void Run()
-		{
-			_watcher.Start();
-
-			TestLogic();
-
-			_watcher.Stop();
-		}
-
-		/**
-		 *
-		 * 测试逻辑
-		 *
-		 */
-		virtual void TestLogic()
-		{
-
-		}
+		void Run();
 
 		/**
 		 *
 		 * 设置环境
 		 *
 		 */
-		virtual void SetUp()
-		{
-
-		}
+		virtual void SetUp();
 
 		/**
 		 *
 		 * 销毁环境
 		 *
 		 */
-		virtual void TearDown()
-		{
+		virtual void TearDown();
 
-		}
+		/**
+		 *
+		 * 测试逻辑
+		 *
+		 */
+		virtual void TestLogic();
 
 		/**
 		 *
@@ -95,10 +71,7 @@ namespace tinyToolkit
 		 * @return 测试信息前缀
 		 *
 		 */
-		const char * Prefix() const
-		{
-			return _prefix;
-		}
+		const char * Prefix() const;
 
 		/**
 		 *
@@ -107,10 +80,7 @@ namespace tinyToolkit
 		 * @return 测试信息后缀
 		 *
 		 */
-		const char * Suffix() const
-		{
-			return _suffix;
-		}
+		const char * Suffix() const;
 
 		/**
 		 *
@@ -119,10 +89,7 @@ namespace tinyToolkit
 		 * @return 测试信息名称
 		 *
 		 */
-		const std::string & Name() const
-		{
-			return _name;
-		}
+		const std::string & Name() const;
 
 		/**
 		 *
@@ -131,29 +98,23 @@ namespace tinyToolkit
 		 * @return 测试结果
 		 *
 		 */
-		TestResult & Result()
-		{
-			return _result;
-		}
+		TestResult & Result();
 
 		/**
 		 *
-		 * 观察用时
+		 * 观察间隔
 		 *
-		 * @return 观察用时
+		 * @return 观察间隔
 		 *
 		 */
-		const TimeWatcher & Watcher() const
-		{
-			return _watcher;
-		}
+		std::time_t Elapsed() const;
 
 	private:
 		TestResult _result{ true };
 
-		TimeWatcher _watcher{ };
-
 		std::string _name{ };
+
+		std::time_t _elapsed{ 0 };
 
 		const char * _prefix{ nullptr };
 		const char * _suffix{ nullptr };

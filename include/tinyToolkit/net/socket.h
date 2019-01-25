@@ -6,12 +6,12 @@
  *
  *  作者: hm
  *
- *  说明: udp服务
+ *  说明: 通讯设置
  *
  */
 
 
-#include "../debug/trace.h"
+#include "../common/common.h"
 
 
 namespace tinyToolkit
@@ -28,27 +28,7 @@ namespace tinyToolkit
 		 * @return 是否设置成功
 		 *
 		 */
-		static bool SetNonBlocking(int32_t socket)
-		{
-			int32_t opt = fcntl(socket, F_GETFL, 0);
-
-			if (opt == -1)
-			{
-				TINY_TOOLKIT_DEBUG(strerror(errno))
-
-				return false;
-			}
-
-			if (fcntl(socket, F_SETFL, opt | O_NONBLOCK) == -1)
-			{
-				TINY_TOOLKIT_DEBUG(strerror(errno))
-
-				return false;
-			}
-
-			return true;
-
-		}
+		static bool SetNonBlocking(int32_t socket);
 
 		/**
 		 *
@@ -59,19 +39,7 @@ namespace tinyToolkit
 		 * @return 是否设置成功
 		 *
 		 */
-		static bool SetNodelay(int32_t socket)
-		{
-			int32_t val = 1l;
-
-			if (setsockopt(socket, IPPROTO_TCP, TCP_NODELAY, (const char *)&val, sizeof(val)) != 0)
-			{
-				TINY_TOOLKIT_DEBUG(strerror(errno))
-
-				return false;
-			}
-
-			return true;
-		}
+		static bool SetNodelay(int32_t socket);
 
 		/**
 		 *
@@ -82,19 +50,7 @@ namespace tinyToolkit
 		 * @return 是否设置成功
 		 *
 		 */
-		static bool SetQuickAck(int32_t socket)
-		{
-			int32_t val = 1l;
-
-			if (setsockopt(socket, IPPROTO_TCP, TCP_QUICKACK, (const char *)&val, sizeof(val)) != 0)
-			{
-				TINY_TOOLKIT_DEBUG(strerror(errno))
-
-				return false;
-			}
-
-			return true;
-		}
+		static bool SetQuickAck(int32_t socket);
 
 		/**
 		 *
@@ -105,19 +61,7 @@ namespace tinyToolkit
 		 * @return 是否设置成功
 		 *
 		 */
-		static bool SetReuseAddress(int32_t socket)
-		{
-			int32_t val = 1l;
-
-			if (setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, (const char *)&val, sizeof(val)) != 0)
-			{
-				TINY_TOOLKIT_DEBUG(strerror(errno))
-
-				return false;
-			}
-
-			return true;
-		}
+		static bool SetReuseAddress(int32_t socket);
 	};
 }
 

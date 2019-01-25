@@ -27,57 +27,35 @@ namespace tinyToolkit
 		 * @param stream 输出流
 		 *
 		 */
-		explicit OStreamLogSink(std::string name, std::shared_ptr<std::ostream> stream) : ILogSink(std::move(name)),
-																						  _stream(std::move(stream))
-		{
-
-		};
+		explicit OStreamLogSink(std::string name, std::shared_ptr<std::ostream> stream);
 
 		/**
 		 *
 		 * 析构函数
 		 *
 		 */
-		~OStreamLogSink() override
-		{
-			Close();
-		}
+		~OStreamLogSink() override;
 
 		/**
 		 *
 		 * 关闭日志
 		 *
 		 */
-		void Close() override
-		{
-			Flush();
-		}
+		void Close() override;
 
 		/**
 		 *
 		 * 刷新日志
 		 *
 		 */
-		void Flush() override
-		{
-			if (_stream)
-			{
-				_stream->flush();
-			}
-		}
+		void Flush() override;
 
 		/**
 		 *
 		 * 重新打开日志
 		 *
 		 */
-		void Reopen() override
-		{
-			if (_stream)
-			{
-				_stream->clear();  /// 清除错误标志
-			}
-		}
+		void Reopen() override;
 
 		/**
 		 *
@@ -86,23 +64,7 @@ namespace tinyToolkit
 		 * @param event 日志事件
 		 *
 		 */
-		void Write(const LogEvent & event) override
-		{
-			if (Filter() && Filter()->Decide(event))
-			{
-				return;
-			}
-
-			if (_stream)
-			{
-				*_stream << (Layout() ? Layout()->Format(event) : event.message);
-			}
-
-			if (_autoFlush)
-			{
-				Flush();
-			}
-		}
+		void Write(const LogEvent & event) override;
 
 		/**
 		 *
@@ -111,10 +73,7 @@ namespace tinyToolkit
 		 * @return 输出流
 		 *
 		 */
-		const std::shared_ptr<std::ostream> & Stream() const
-		{
-			return _stream;
-		}
+		const std::shared_ptr<std::ostream> & Stream() const;
 
 	protected:
 		std::shared_ptr<std::ostream> _stream{ };

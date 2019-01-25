@@ -30,59 +30,35 @@ namespace tinyToolkit
 		 * @param count 日志个数限制
 		 *
 		 */
-		explicit RotatingFileLogSink(std::string name, std::string path, std::size_t limit = TINY_TOOLKIT_GB, std::size_t count = 10) : ILogSink(std::move(name)),
-																																		_count(count),
-																																		_limit(limit),
-																																		_path(std::move(path))
-		{
-			if (!_file.Open(CalculatePath(_path)))
-			{
-				throw std::logic_error("Open rotating log file failed : " + _file.Path());
-			}
-		}
+		explicit RotatingFileLogSink(std::string name, std::string path, std::size_t limit = TINY_TOOLKIT_GB, std::size_t count = 10);
 
 		/**
 		 *
 		 * 析构函数
 		 *
 		 */
-		~RotatingFileLogSink() override
-		{
-			Close();
-		}
+		~RotatingFileLogSink() override;
 
 		/**
 		 *
 		 * 关闭日志
 		 *
 		 */
-		void Close() override
-		{
-			_file.Close();
-		}
+		void Close() override;
 
 		/**
 		 *
 		 * 刷新日志
 		 *
 		 */
-		void Flush() override
-		{
-			_file.Flush();
-		}
+		void Flush() override;
 
 		/**
 		 *
 		 * 重新打开日志
 		 *
 		 */
-		void Reopen() override
-		{
-			if (!_file.Reopen())
-			{
-				throw std::logic_error("ReOpen rotating log file failed : " + _file.Path());
-			}
-		}
+		void Reopen() override;
 
 		/**
 		 *
@@ -91,32 +67,7 @@ namespace tinyToolkit
 		 * @param event 日志事件
 		 *
 		 */
-		void Write(const LogEvent & event) override
-		{
-			if (Filter() && Filter()->Decide(event))
-			{
-				return;
-			}
-
-			if (_file.Size() > _limit)
-			{
-				_file.Close();
-
-				Rotating();
-
-				if (!_file.Open(CalculatePath(_path)))
-				{
-					throw std::logic_error("Open rotating log file failed : " + _file.Path());
-				}
-			}
-
-			_file.Write(Layout() ? Layout()->Format(event) : event.message);
-
-			if (_autoFlush)
-			{
-				Flush();
-			}
-		}
+		void Write(const LogEvent & event) override;
 
 		/**
 		 *
@@ -125,10 +76,7 @@ namespace tinyToolkit
 		 * @return 是否已经打开
 		 *
 		 */
-		bool IsOpen()
-		{
-			return _file.IsOpen();
-		}
+		bool IsOpen();
 
 		/**
 		 *
@@ -137,10 +85,7 @@ namespace tinyToolkit
 		 * @return 日志大小
 		 *
 		 */
-		std::size_t Size() const
-		{
-			return _file.Size();
-		}
+		std::size_t Size() const;
 
 		/**
 		 *
@@ -149,10 +94,7 @@ namespace tinyToolkit
 		 * @return 日志路径
 		 *
 		 */
-		const std::string & Path() const
-		{
-			return _file.Path();
-		}
+		const std::string & Path() const;
 
 	protected:
 		/**
@@ -160,24 +102,7 @@ namespace tinyToolkit
 		 * 轮转日志
 		 *
 		 */
-		void Rotating()
-		{
-			for (std::size_t i = _count; i > 0; --i)
-			{
-				std::string srcPath = CalculatePath(_path, i - 1);
-				std::string dstPath = CalculatePath(_path, i);
-
-				if (Filesystem::Exists(dstPath))
-				{
-					Filesystem::Remove(dstPath);
-				}
-
-				if (Filesystem::Exists(srcPath))
-				{
-					Filesystem::Rename(srcPath, dstPath);
-				}
-			}
-		}
+		void Rotating();
 
 		/**
 		 *
@@ -189,28 +114,7 @@ namespace tinyToolkit
 		 * @return 日志路径
 		 *
 		 */
-		std::string CalculatePath(const std::string & path, std::size_t index = 0)
-		{
-			if (index == 0)
-			{
-				return path;
-			}
-
-			std::size_t pos = path.rfind('.');
-
-			if (pos == std::string::npos)  /// name_1
-			{
-				return String::Format("{}_{}", path, index);
-			}
-			else if (pos == 0)  /// 1.log
-			{
-				return String::Format("{}{}", index, path);
-			}
-			else  /// name_1.log
-			{
-				return String::Format("{}_{}{}", path.substr(0, pos), index, path.substr(pos));
-			}
-		}
+		std::string CalculatePath(const std::string & path, std::size_t index = 0);
 
 	protected:
 		LogFile _file{ };

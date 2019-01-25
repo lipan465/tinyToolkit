@@ -29,57 +29,35 @@ namespace tinyToolkit
 		 * @param truncate 是否覆盖日志
 		 *
 		 */
-		explicit FileLogSink(std::string name, std::string path, bool truncate = false) : ILogSink(std::move(name)),
-																						  _path(std::move(path))
-		{
-			if (!_file.Open(_path, truncate))
-			{
-				throw std::logic_error("Open log file failed : " + _file.Path());
-			}
-		}
+		explicit FileLogSink(std::string name, std::string path, bool truncate = false);
 
 		/**
 		 *
 		 * 析构函数
 		 *
 		 */
-		~FileLogSink() override
-		{
-			Close();
-		}
+		~FileLogSink() override;
 
 		/**
 		 *
 		 * 关闭日志
 		 *
 		 */
-		void Close() override
-		{
-			_file.Close();
-		}
+		void Close() override;
 
 		/**
 		 *
 		 * 刷新日志
 		 *
 		 */
-		void Flush() override
-		{
-			_file.Flush();
-		}
+		void Flush() override;
 
 		/**
 		 *
 		 * 重新打开日志
 		 *
 		 */
-		void Reopen() override
-		{
-			if (!_file.Reopen())
-			{
-				throw std::logic_error("ReOpen log file failed : " + _file.Path());
-			}
-		}
+		void Reopen() override;
 
 		/**
 		 *
@@ -88,20 +66,7 @@ namespace tinyToolkit
 		 * @param event 日志事件
 		 *
 		 */
-		void Write(const LogEvent & event) override
-		{
-			if (Filter() && Filter()->Decide(event))
-			{
-				return;
-			}
-
-			_file.Write(Layout() ? Layout()->Format(event) : event.message);
-
-			if (_autoFlush)
-			{
-				Flush();
-			}
-		}
+		void Write(const LogEvent & event) override;
 
 		/**
 		 *
@@ -110,10 +75,7 @@ namespace tinyToolkit
 		 * @return 是否已经打开
 		 *
 		 */
-		bool IsOpen()
-		{
-			return _file.IsOpen();
-		}
+		bool IsOpen();
 
 		/**
 		 *
@@ -122,10 +84,7 @@ namespace tinyToolkit
 		 * @return 日志大小
 		 *
 		 */
-		std::size_t Size() const
-		{
-			return _file.Size();
-		}
+		std::size_t Size() const;
 
 		/**
 		 *
@@ -134,13 +93,10 @@ namespace tinyToolkit
 		 * @return 日志路径
 		 *
 		 */
-		const std::string & Path() const
-		{
-			return _file.Path();
-		}
+		const std::string & Path() const;
 
 	protected:
-		LogFile _file;
+		LogFile _file{ };
 
 		std::string _path{ };
 	};

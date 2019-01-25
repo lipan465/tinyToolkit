@@ -27,54 +27,35 @@ namespace tinyToolkit
 		 * @param file 控制台对象
 		 *
 		 */
-		explicit ConsoleLogSink(std::string name, FILE * console = stdout) : ILogSink(std::move(name)),
-																			 _console(console)
-		{
-
-		}
+		explicit ConsoleLogSink(std::string name, FILE * console = stdout);
 
 		/**
 		 *
 		 * 析构函数
 		 *
 		 */
-		~ConsoleLogSink() override
-		{
-			Close();
-		}
+		~ConsoleLogSink() override;
 
 		/**
 		 *
 		 * 关闭日志
 		 *
 		 */
-		void Close() override
-		{
-			Flush();
-		}
+		void Close() override;
 
 		/**
 		 *
 		 * 刷新日志
 		 *
 		 */
-		void Flush() override
-		{
-			if (_console)
-			{
-				fflush(_console);
-			}
-		}
+		void Flush() override;
 
 		/**
 		 *
 		 * 重新打开日志
 		 *
 		 */
-		void Reopen() override
-		{
-
-		}
+		void Reopen() override;
 
 		/**
 		 *
@@ -83,25 +64,7 @@ namespace tinyToolkit
 		 * @param event 日志事件
 		 *
 		 */
-		void Write(const LogEvent & event) override
-		{
-			if (Filter() && Filter()->Decide(event))
-			{
-				return;
-			}
-
-			if (_console)
-			{
-				std::string value(Layout() ? Layout()->Format(event) : event.message);
-
-				::fwrite(value.c_str(), sizeof(char), value.size(), _console);
-			}
-
-			if (_autoFlush)
-			{
-				Flush();
-			}
-		}
+		void Write(const LogEvent & event) override;
 
 	protected:
 		FILE * _console{ nullptr };

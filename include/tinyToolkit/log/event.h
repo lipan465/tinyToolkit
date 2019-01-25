@@ -13,6 +13,8 @@
 
 #include "detail.h"
 
+#include "../system/os.h"
+
 
 namespace tinyToolkit
 {
@@ -33,10 +35,7 @@ namespace tinyToolkit
 		 * @param logOption 日志操作
 		 *
 		 */
-		explicit LogEvent(LOG_OPTION_TYPE logOption) : option(logOption)
-		{
-
-		}
+		explicit LogEvent(LOG_OPTION_TYPE logOption);
 
 		/**
 		 *
@@ -46,11 +45,7 @@ namespace tinyToolkit
 		 * @param logOption 日志操作
 		 *
 		 */
-		explicit LogEvent(std::string logName, LOG_OPTION_TYPE logOption) : name(std::move(logName)),
-																			option(logOption)
-		{
-
-		}
+		explicit LogEvent(std::string logName, LOG_OPTION_TYPE logOption);
 
 		/**
 		 *
@@ -60,11 +55,7 @@ namespace tinyToolkit
 		 * @param logPriority 日志优先级
 		 *
 		 */
-		explicit LogEvent(std::string logName, LOG_PRIORITY_TYPE logPriority) : name(std::move(logName)),
-																				priority(logPriority)
-		{
-
-		}
+		explicit LogEvent(std::string logName, LOG_PRIORITY_TYPE logPriority);
 
 		/**
 		 *
@@ -75,12 +66,7 @@ namespace tinyToolkit
 		 * @param logOption 日志操作
 		 *
 		 */
-		explicit LogEvent(std::string logName, std::string logMessage, LOG_OPTION_TYPE logOption) : name(std::move(logName)),
-																									message(std::move(logMessage)),
-																									option(logOption)
-		{
-
-		}
+		explicit LogEvent(std::string logName, std::string logMessage, LOG_OPTION_TYPE logOption);
 
 		/**
 		 *
@@ -91,12 +77,7 @@ namespace tinyToolkit
 		 * @param logPriority 日志优先级
 		 *
 		 */
-		explicit LogEvent(std::string logName, std::string logMessage, LOG_PRIORITY_TYPE logPriority) : name(std::move(logName)),
-																										message(std::move(logMessage)),
-																										priority(logPriority)
-		{
-
-		}
+		explicit LogEvent(std::string logName, std::string logMessage, LOG_PRIORITY_TYPE logPriority);
 
 		/**
 		 *
@@ -107,12 +88,7 @@ namespace tinyToolkit
 		 * @param logPriority 日志优先级
 		 *
 		 */
-		explicit LogEvent(std::string logName, LOG_OPTION_TYPE logOption, LOG_PRIORITY_TYPE logPriority) : name(std::move(logName)),
-																										   option(logOption),
-																										   priority(logPriority)
-		{
-
-		}
+		explicit LogEvent(std::string logName, LOG_OPTION_TYPE logOption, LOG_PRIORITY_TYPE logPriority);
 
 		/**
 		 *
@@ -121,17 +97,7 @@ namespace tinyToolkit
 		 * @param rhs 实例化对象
 		 *
 		 */
-		LogEvent(LogEvent && rhs) noexcept : tm(rhs.tm),
-											 threadID(rhs.threadID),
-											 processID(rhs.processID),
-											 name(std::move(rhs.name)),
-											 message(std::move(rhs.message)),
-											 time(rhs.time),
-											 option(rhs.option),
-											 priority(rhs.priority)
-		{
-
-		}
+		LogEvent(LogEvent && rhs) noexcept;
 
 		/**
 		 *
@@ -151,23 +117,7 @@ namespace tinyToolkit
 		 * @return 实例化对象
 		 *
 		 */
-		LogEvent & operator=(LogEvent && rhs) noexcept
-		{
-			tm = rhs.tm;
-
-			threadID = rhs.threadID;
-			processID = rhs.processID;
-
-			name = std::move(rhs.name);
-			message = std::move(rhs.message);
-
-			time = rhs.time;
-
-			option = rhs.option;
-			priority = rhs.priority;
-
-			return *this;
-		}
+		LogEvent & operator=(LogEvent && rhs) noexcept;
 
 		/**
 		 *

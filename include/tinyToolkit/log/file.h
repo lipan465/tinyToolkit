@@ -11,7 +11,7 @@
  */
 
 
-#include "detail.h"
+#include "../common/common.h"
 
 
 namespace tinyToolkit
@@ -24,10 +24,7 @@ namespace tinyToolkit
 		 * 析构函数
 		 *
 		 */
-		~LogFile()
-		{
-			Close();
-		}
+		~LogFile();
 
 		/**
 		 *
@@ -36,39 +33,21 @@ namespace tinyToolkit
 		 * @return 是否已经打开文件
 		 *
 		 */
-		bool IsOpen()
-		{
-			return _file.is_open();
-		}
+		bool IsOpen();
 
 		/**
 		 *
 		 * 关闭文件
 		 *
 		 */
-		void Close()
-		{
-			if (IsOpen())
-			{
-				_size = 0;
-
-				_file.flush();
-				_file.close();
-			}
-		}
+		void Close();
 
 		/**
 		 *
 		 * 刷新缓冲区
 		 *
 		 */
-		void Flush()
-		{
-			if (IsOpen())
-			{
-				_file.flush();
-			}
-		}
+		void Flush();
 
 		/**
 		 *
@@ -80,28 +59,7 @@ namespace tinyToolkit
 		 * @return 是否打开成功
 		 *
 		 */
-		bool Open(const std::string & path, bool truncate = false)
-		{
-			if (IsOpen())
-			{
-				return false;
-			}
-
-			_path = path;
-
-			_file.open(_path, truncate ? std::ios::binary : std::ios::binary | std::ios::app);
-
-			if (IsOpen())
-			{
-				_size += _file.tellp();
-
-				return true;
-			}
-			else
-			{
-				return false;
-			}
-		}
+		bool Open(const std::string & path, bool truncate = false);
 
 		/**
 		 *
@@ -110,12 +68,7 @@ namespace tinyToolkit
 		 * @return 是否打开成功
 		 *
 		 */
-		bool Reopen()
-		{
-			Close();
-
-			return Open(_path, true);
-		}
+		bool Reopen();
 
 		/**
 		 *
@@ -124,15 +77,7 @@ namespace tinyToolkit
 		 * @param value 待写入数据
 		 *
 		 */
-		void Write(const std::string & value)
-		{
-			if (IsOpen())
-			{
-				_file << value;
-
-				_size += value.size();
-			}
-		}
+		void Write(const std::string & value);
 
 		/**
 		 *
@@ -141,10 +86,7 @@ namespace tinyToolkit
 		 * @return 文件大小
 		 *
 		 */
-		std::size_t Size() const
-		{
-			return _size;
-		}
+		std::size_t Size() const;
 
 		/**
 		 *
@@ -153,10 +95,7 @@ namespace tinyToolkit
 		 * @return 文件路径
 		 *
 		 */
-		const std::string & Path() const
-		{
-			return _path;
-		}
+		const std::string & Path() const;
 
 	protected:
 		std::size_t _size{ 0 };

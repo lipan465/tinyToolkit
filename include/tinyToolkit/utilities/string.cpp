@@ -880,14 +880,14 @@ namespace tinyToolkit
 		int64_t init = reverse ? static_cast<int64_t>(size) - 1 : 0;
 		int64_t end  = reverse ? -1 : static_cast<int64_t>(size);
 
-		fmt::MemoryWriter w;
+		std::ostringstream stream{ };
 
 		for (int64_t i = init; i != end; i += op)
 		{
-			w << fmt::pad(fmt::hex(value[i]), 2, '0');
+			stream << fmt::format("{:02x}", value[i]);
 		}
 
-		return w.str();
+		return stream.str();
 	}
 
 	/**

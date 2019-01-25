@@ -16,27 +16,26 @@
 
 namespace tinyToolkit
 {
+	/**
+	 *
+	 * ntohl(uint32_t __netlong)	网络字节序 --> 主机字节序
+	 * htonl(uint32_t __hostlong)	主机字节序 --> 网络字节序
+	 *
+	 * ntohs(uint16_t __netshort)	网络字节序 --> 主机字节序
+	 * htons(uint16_t __hostshort)	主机字节序 --> 网络字节序
+	 *
+	 * in_addr_t inet_addr(const char * __cp)		字符串 --> 网络字节序
+	 * in_addr_t inet_network(const char * __cp)	字符串 --> 主机字节序
+	 *
+	 * char * inet_ntoa(struct in_addr __in)														网络字节序 --> 字符串
+	 * char * inet_ntop(int af, const void * __restrict cp, char * __restrict buf, socklen_t len)	网络字节序 --> 字符串
+	 *
+	 * int inet_aton(const char * __cp, struct in_addr * __inp)						字符串 --> 网络字节序
+	 * int inet_pton(int af, const char * __restrict cp, void * __restrict buf)		字符串 --> 网络字节序
+	 *
+	 */
 	class TINY_TOOLKIT_API Address
 	{
-		/**
-		 *
-		 * ntohl(uint32_t __netlong)	网络字节序 --> 主机字节序
-		 * htonl(uint32_t __hostlong)	主机字节序 --> 网络字节序
-		 *
-		 * ntohs(uint16_t __netshort)	网络字节序 --> 主机字节序
-		 * htons(uint16_t __hostshort)	主机字节序 --> 网络字节序
-		 *
-		 * in_addr_t inet_addr(const char * __cp)		字符串 --> 网络字节序
-		 * in_addr_t inet_network(const char * __cp)	字符串 --> 主机字节序
-		 *
-		 * char * inet_ntoa(struct in_addr __in)														网络字节序 --> 字符串
-		 * char * inet_ntop(int af, const void * __restrict cp, char * __restrict buf, socklen_t len)	网络字节序 --> 字符串
-		 *
-		 * int inet_aton(const char * __cp, struct in_addr * __inp)						字符串 --> 网络字节序
-		 * int inet_pton(int af, const char * __restrict cp, void * __restrict buf)		字符串 --> 网络字节序
-		 *
-		 */
-
 	public:
 		/**
 		 *

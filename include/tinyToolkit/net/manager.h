@@ -35,6 +35,32 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 启动udp客户端
+		 *
+		 * @param client 客户端
+		 * @param host 主机地址
+		 * @param port 主机端口
+		 *
+		 * @return 是否启动成功
+		 *
+		 */
+		bool LaunchUDPClient(IUDPSession * client, const std::string & host, uint16_t port);
+
+		/**
+		 *
+		 * 启动udp服务器
+		 *
+		 * @param server 服务器
+		 * @param host 主机地址
+		 * @param port 主机端口
+		 *
+		 * @return 是否启动成功
+		 *
+		 */
+		bool LaunchUDPServer(IUDPServer * server, const std::string & host, uint16_t port);
+
+		/**
+		 *
 		 * 启动tcp客户端
 		 *
 		 * @param client 客户端

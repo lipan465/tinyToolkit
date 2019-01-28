@@ -48,6 +48,170 @@ namespace tinyToolkit
 
 	/**
 	 *
+	 * 启动udp客户端
+	 *
+	 * @param client 客户端
+	 * @param host 主机地址
+	 * @param port 主机端口
+	 *
+	 * @return 是否启动成功
+	 *
+	 */
+	bool NetWorkManager::LaunchUDPClient(IUDPSession * client, const std::string & host, uint16_t port)
+	{
+		if (!Launch())
+		{
+			return false;
+		}
+
+		int32_t sock = ::socket(AF_INET, SOCK_DGRAM, 0);
+
+		if (sock == -1)
+		{
+			TINY_TOOLKIT_DEBUG("socket : {}", strerror(errno))
+
+			return false;
+		}
+
+		client->_host = Address::ParseHost(host);
+		client->_port = port;
+
+		if (!Socket::SetNonBlocking(sock) ||
+			!Socket::SetReuseAddress(sock))
+		{
+			::close(sock);
+
+			client->OnConnectFailed();
+
+			return false;
+		}
+
+		struct sockaddr_in address{ };
+
+		address.sin_port = htons(client->_port);
+		address.sin_family = AF_INET;
+		address.sin_addr.s_addr = Address::AsNetByte(client->_host);
+
+		if (::connect(sock, (struct sockaddr *)&address, sizeof(struct sockaddr_in)) == -1)
+		{
+			::close(sock);
+
+			client->OnConnectFailed();
+
+			return false;
+		}
+
+		auto pipe = std::make_shared<UDPClientPipe>(_socket, sock, client, EVENT_TYPE::TRANSMIT);
+
+		struct epoll_event event{ };
+
+		event.events = EPOLLIN;
+		event.data.ptr = (void *)&pipe->eventValue;
+
+		if (epoll_ctl(_socket, EPOLL_CTL_ADD, sock, &event) == -1)
+		{
+			::close(sock);
+
+			client->OnConnectFailed();
+
+			return false;
+		}
+		else
+		{
+			client->_pipe = pipe;
+
+			pipe->isConnect = true;
+
+			client->OnConnect();
+		}
+
+		return true;
+	}
+
+	/**
+	 *
+	 * 启动udp服务器
+	 *
+	 * @param server 服务器
+	 * @param host 主机地址
+	 * @param port 主机端口
+	 *
+	 * @return 是否启动成功
+	 *
+	 */
+	bool NetWorkManager::LaunchUDPServer(IUDPServer * server, const std::string & host, uint16_t port)
+	{
+		if (!Launch())
+		{
+			return false;
+		}
+
+		int32_t sock = ::socket(AF_INET, SOCK_DGRAM, 0);
+
+		if (sock == -1)
+		{
+			TINY_TOOLKIT_DEBUG("socket : {}", strerror(errno))
+
+			return false;
+		}
+
+		server->_host = Address::ParseHost(host);
+		server->_port = port;
+
+		if (!Socket::SetNonBlocking(sock) ||
+			!Socket::SetReuseAddress(sock))
+		{
+			::close(sock);
+
+			server->OnConnectFailed();
+
+			return false;
+		}
+
+		struct sockaddr_in address{ };
+
+		address.sin_port = htons(server->_port);
+		address.sin_family = AF_INET;
+		address.sin_addr.s_addr = Address::AsNetByte(server->_host);
+
+		if (::bind(sock, (struct sockaddr *)&address, sizeof(struct sockaddr_in)) == -1)
+		{
+			::close(sock);
+
+			server->OnConnectFailed();
+
+			return false;
+		}
+
+		auto pipe = std::make_shared<UDPServerPipe>(_socket, sock, server, EVENT_TYPE::TRANSMIT);
+
+		struct epoll_event event{ };
+
+		event.events = EPOLLIN;
+		event.data.ptr = (void *)&pipe->eventValue;
+
+		if (epoll_ctl(_socket, EPOLL_CTL_ADD, sock, &event) == -1)
+		{
+			::close(sock);
+
+			server->OnConnectFailed();
+
+			return false;
+		}
+		else
+		{
+			server->_pipe = pipe;
+
+			pipe->isConnect = true;
+
+			server->OnConnect();
+		}
+
+		return true;
+	}
+
+	/**
+	 *
 	 * 启动tcp客户端
 	 *
 	 * @param client 客户端
@@ -91,7 +255,7 @@ namespace tinyToolkit
 		address.sin_family = AF_INET;
 		address.sin_addr.s_addr = Address::AsNetByte(client->_host);
 
-		int32_t ret = ::connect(sock, (struct sockaddr *)&address, sizeof(address));
+		int32_t ret = ::connect(sock, (struct sockaddr *)&address, sizeof(struct sockaddr_in));
 
 		if (ret == 0)
 		{
@@ -198,7 +362,7 @@ namespace tinyToolkit
 		address.sin_family = AF_INET;
 		address.sin_addr.s_addr = Address::AsNetByte(server->_host);
 
-		if (::bind(sock, (sockaddr *)&address, sizeof(address)) == -1)
+		if (::bind(sock, (struct sockaddr *)&address, sizeof(struct sockaddr_in)) == -1)
 		{
 			::close(sock);
 
@@ -285,16 +449,19 @@ namespace tinyToolkit
 
 			if (count == -1)
 			{
-				TINY_TOOLKIT_DEBUG("epoll_wait error : {}", strerror(errno))
+				if (errno != EINTR)
+				{
+					TINY_TOOLKIT_DEBUG("epoll_wait error : {}", strerror(errno))
 
-				return;
+					return;
+				}
 			}
 
 			for (int32_t i = 0; i < count; ++i)
 			{
 				struct epoll_event & currentEvent = events[i];
 
-				auto * eventValue = (struct EventValue *)currentEvent.data.ptr;
+				auto * eventValue = (EventValue *)currentEvent.data.ptr;
 
 				if (eventValue && eventValue->callback)
 				{

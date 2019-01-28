@@ -15,8 +15,6 @@ TRAVERSE_SET(COMPILER_GNU_FLAGS
 		-Os
 		# gprof调试选项
 		-pg
-		# zlib
-		-lz
 		# 支持dlopen, dlsym, dlclose, dlerror显示加载动态库
 		-ldl
 		# 告诉编译器产生与位置无关代码, 则产生的代码中, 没有绝对地址, 全部使用相对地址. 故而代码可以被加载器加载到内存的任意位置, 都可以正确的执行
@@ -78,14 +76,8 @@ TRAVERSE_SET(COMPILER_CLANG_FLAGS
 		-Os
 		# gprof调试选项
 		-pg
-		# zlib
-		-lz
-		# 支持dlopen, dlsym, dlclose, dlerror显示加载动态库
-		-ldl
 		# 告诉编译器产生与位置无关代码, 则产生的代码中, 没有绝对地址, 全部使用相对地址. 故而代码可以被加载器加载到内存的任意位置, 都可以正确的执行
 		-fPIC
-		# 通知链接器将所有符号添加到动态符号表中
-		-rdynamic
 		# 链接线程库
 		-pthread
 		# 显示所有的静态内存分配
@@ -104,14 +96,28 @@ TRAVERSE_SET(COMPILER_CLANG_FLAGS
 		-Wundef
 		# 当一个局部变量遮盖住了另一个局部变量, 或者全局变量, 给出警告
 		-Wshadow
+		# 范围溢出, 给出警告
+		-Woverflow
 		# 无论是声明为inline或者是指定了-finline-functions选项, 如果某函数不能内联, 给出警告
 #		-Winline
+		# 当强制转化丢掉了类型修饰符, 给出警告
+		-Wcast-qual
+		# 某个指针类型强制转换导致目标所需的地址对齐增加, 给出警告
+		-Wcast-align
 		# 出现错误的时候停止编译
 		-Wfatal-errors
+		# 对函数指针或者void *类型的指针进行算术操作, 给出警告
+		-Wpointer-arith
+		# 如果在同一个可见域内某定义多次声明, 给出警告
+		-Wredundant-decls
 		# 如果编译器探测到永远不会执行到的代码, 给出警告
 		-Wunreachable-code
+		# 如果函数的声明隐藏住了基类的虚函数, 给出警告
+		-Woverloaded-virtual
 		# 如果返回临时引用, 给出警告
-		-Wreturn-stack-address)
+		-Wreturn-stack-address
+		# 无法保证完整初始化类, 给出警告
+		-Wsizeof-pointer-memaccess)
 
 
 #

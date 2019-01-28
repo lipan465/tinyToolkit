@@ -38,11 +38,9 @@ namespace tinyToolkit
 
 		for (auto &iter : _testInfoList)
 		{
-			fmt::print(fg(fmt::color::green), "[ RUN      ] ");
-
 			String::Print
 			(
-				"{}{}",
+				"[ RUN      ] {}{}",
 				iter->Name(),
 				TINY_TOOLKIT_EOL
 			);
@@ -53,11 +51,9 @@ namespace tinyToolkit
 
 			if (iter->Result())
 			{
-				fmt::print(fg(fmt::color::green), "[       OK ] ");
-
 				String::Print
 				(
-					"{} ({}){}",
+					"[       OK ] {} ({}){}",
 					iter->Name(),
 					String::Format("{:%H:%M:%S}", std::chrono::microseconds(iter->Elapsed())),
 					TINY_TOOLKIT_EOL
@@ -67,11 +63,9 @@ namespace tinyToolkit
 			}
 			else
 			{
-				fmt::print(fg(fmt::color::red), "[  FAILED  ] ");
-
 				String::Print
 				(
-					"{} ({}){}",
+					"[  FAILED  ] {} ({}){}",
 					iter->Name(),
 					String::Format("{:%H:%M:%S}", std::chrono::microseconds(iter->Elapsed())),
 					TINY_TOOLKIT_EOL

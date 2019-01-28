@@ -35,11 +35,9 @@ namespace tinyToolkit
 	 */
 	int32_t UnitTest::Run()
 	{
-		fmt::print(fg(fmt::color::green), "[==========] ");
-
 		String::Print
 		(
-			"Running {} test{} from {} test case{}.{}",
+			"[==========] Running {} test{} from {} test case{}.{}",
 			_count,
 			_count == 1 ? "" : "s",
 			_testCaseList.size(),
@@ -47,11 +45,9 @@ namespace tinyToolkit
 			TINY_TOOLKIT_EOL
 		);
 
-		fmt::print(fg(fmt::color::green), "[----------] ");
-
 		String::Print
 		(
-			"Global test environment set-up.{}",
+			"[----------] Global test environment set-up.{}",
 			TINY_TOOLKIT_EOL
 		);
 
@@ -64,11 +60,9 @@ namespace tinyToolkit
 
 		for (auto &iter : _testCaseList)
 		{
-			fmt::print(fg(fmt::color::green), "[----------] ");
-
 			String::Print
 			(
-				"{} test{} from {}{}",
+				"[----------] {} test{} from {}{}",
 				iter->Count(),
 				iter->Count() == 1 ? "" : "s",
 				iter->Name(),
@@ -82,11 +76,9 @@ namespace tinyToolkit
 			_passedCount += iter->PassedCount();
 			_failedCount += iter->FailedCount();
 
-			fmt::print(fg(fmt::color::green), "[----------] ");
-
 			String::Print
 			(
-				"{} test{} from {} ({} total){}{}",
+				"[----------] {} test{} from {} ({} total){}{}",
 				iter->Count(),
 				iter->Count() == 1 ? "" : "s",
 				iter->Name(),
@@ -103,19 +95,15 @@ namespace tinyToolkit
 			iter->TearDown();
 		}
 
-		fmt::print(fg(fmt::color::green), "[----------] ");
-
 		String::Print
 		(
-			"Global test environment tear-down{}",
+			"[----------] Global test environment tear-down{}",
 			TINY_TOOLKIT_EOL
 		);
 
-		fmt::print(fg(fmt::color::green), "[==========] ");
-
 		String::Print
 		(
-			"{} test{} from {} test case{} ran. ({} total){}",
+			"[==========] {} test{} from {} test case{} ran. ({} total){}",
 			_count,
 			_count == 1 ? "" : "s",
 			_testCaseList.size(),
@@ -126,11 +114,9 @@ namespace tinyToolkit
 
 		if (_passedCount > 0)
 		{
-			fmt::print(fg(fmt::color::green), "[  PASSED  ] ");
-
 			String::Print
 			(
-				"{} test{}.{}",
+				"[  PASSED  ] {} test{}.{}",
 				_passedCount,
 				_passedCount == 1 ? "" : "s",
 				TINY_TOOLKIT_EOL
@@ -139,11 +125,9 @@ namespace tinyToolkit
 
 		if (_failedCount > 0)
 		{
-			fmt::print(fg(fmt::color::red), "[  FAILED  ] ");
-
 			String::Print
 			(
-				"{} test{}, listed below:{}",
+				"[  FAILED  ] {} test{}, listed below:{}",
 				_failedCount,
 				_failedCount == 1 ? "" : "s",
 				TINY_TOOLKIT_EOL
@@ -153,11 +137,9 @@ namespace tinyToolkit
 			{
 				for (auto &iter : casePtr->FailedList())
 				{
-					fmt::print(fg(fmt::color::red), "[  FAILED  ] ");
-
 					String::Print
 					(
-						"{}{}",
+						"[  FAILED  ] {}{}",
 						iter,
 						TINY_TOOLKIT_EOL
 					);

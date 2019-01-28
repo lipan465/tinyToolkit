@@ -25,13 +25,13 @@ namespace tinyToolkit
 		 *
 		 * 构造函数
 		 *
-		 * @param epoll 句柄
-		 * @param socket 句柄
+		 * @param managerSocket 管理句柄
+		 * @param sessionSocket 会话句柄
 		 * @param session 会话
 		 * @param type 事件类型
 		 *
 		 */
-		TCPClientPipe(int32_t epoll, int32_t socket, ITCPSession * session, EVENT_TYPE type);
+		TCPClientPipe(int32_t managerSocket, int32_t sessionSocket, ITCPSession * session, EVENT_TYPE type);
 
 		/**
 		 *
@@ -71,15 +71,15 @@ namespace tinyToolkit
 	public:
 		bool isConnect{ false };
 
-		struct EventValue eventValue{ };
+		EventValue eventValue{ };
 
 	protected:
-		int32_t _epoll{ -1 };
-		int32_t _socket{ -1 };
+		int32_t _managerSocket{ -1 };
+		int32_t _sessionSocket{ -1 };
 
 		ITCPSession * _session{ nullptr };
 
-		std::queue<std::string> _sendQueue{ };
+		std::queue<EventPackage> _sendQueue{ };
 	};
 
 	class TINY_TOOLKIT_API TCPServerPipe : public ITCPPipe
@@ -89,13 +89,13 @@ namespace tinyToolkit
 		 *
 		 * 构造函数
 		 *
-		 * @param epoll 句柄
-		 * @param socket 句柄
+		 * @param managerSocket 管理句柄
+		 * @param sessionSocket 会话句柄
 		 * @param session 会话
 		 * @param type 事件类型
 		 *
 		 */
-		TCPServerPipe(int32_t epoll, int32_t socket, ITCPServer * server, EVENT_TYPE type);
+		TCPServerPipe(int32_t managerSocket, int32_t sessionSocket, ITCPServer * server, EVENT_TYPE type);
 
 		/**
 		 *
@@ -133,11 +133,11 @@ namespace tinyToolkit
 		void OnCallBack(const EventValue * currentEventValue, const struct epoll_event & currentEvent);
 
 	public:
-		struct EventValue eventValue{ };
+		EventValue eventValue{ };
 
 	protected:
-		int32_t _epoll{ -1 };
-		int32_t _socket{ -1 };
+		int32_t _managerSocket{ -1 };
+		int32_t _sessionSocket{ -1 };
 
 		ITCPServer * _server{ nullptr };
 	};

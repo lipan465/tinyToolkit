@@ -15,7 +15,6 @@
 
 #include "../3rd/fmt/core.h"
 #include "../3rd/fmt/time.h"
-#include "../3rd/fmt/color.h"
 #include "../3rd/fmt/posix.h"
 #include "../3rd/fmt/printf.h"
 #include "../3rd/fmt/chrono.h"

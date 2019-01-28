@@ -22,18 +22,18 @@ namespace tinyToolkit
 	 *
 	 * 构造函数
 	 *
-	 * @param epoll 句柄
-	 * @param socket 句柄
+	 * @param managerSocket 管理句柄
+	 * @param sessionSocket 会话句柄
 	 * @param session 会话
 	 * @param type 事件类型
 	 *
 	 */
-	TCPClientPipe::TCPClientPipe(int32_t epoll, int32_t socket, ITCPSession * session, EVENT_TYPE type) : _epoll(epoll),
-																										  _socket(socket),
-																										  _session(session)
+	TCPClientPipe::TCPClientPipe(int32_t managerSocket, int32_t sessionSocket, ITCPSession * session, EVENT_TYPE type) : _managerSocket(managerSocket),
+																														 _sessionSocket(sessionSocket),
+																														 _session(session)
 	{
 		eventValue.type = type;
-		eventValue.socket = socket;
+		eventValue.socket = sessionSocket;
 		eventValue.callback = std::bind(&TCPClientPipe::OnCallBack, this, std::placeholders::_1, std::placeholders::_2);
 	}
 
@@ -44,20 +44,22 @@ namespace tinyToolkit
 	 */
 	void TCPClientPipe::Close()
 	{
-		if (_socket != -1)
+		if (_sessionSocket != -1)
 		{
 			isConnect = false;
 
-			epoll_ctl(_epoll, EPOLL_CTL_DEL, _socket, nullptr);
+			epoll_ctl(_managerSocket, EPOLL_CTL_DEL, _sessionSocket, nullptr);
 
-			::close(_socket);
+			::close(_sessionSocket);
 
-			_socket = -1;
+			_sessionSocket = -1;
 
 			if (_session)
 			{
 				_session->OnDisconnect();
 			}
+
+			tinyToolkit::ContainerOperator::Clear(_sendQueue);
 		}
 	}
 
@@ -73,14 +75,14 @@ namespace tinyToolkit
 	{
 		if (isConnect)
 		{
-			_sendQueue.push(std::string(reinterpret_cast<const char *>(value), size));
+			_sendQueue.emplace(_session->_host.c_str(), _session->_port, value, size);
 
 			struct epoll_event event{ };
 
 			event.events = EPOLLIN | EPOLLOUT;
 			event.data.ptr = (void *)&eventValue;
 
-			if (epoll_ctl(_epoll, EPOLL_CTL_MOD, _socket, &event) == -1)
+			if (epoll_ctl(_managerSocket, EPOLL_CTL_MOD, _sessionSocket, &event) == -1)
 			{
 				Close();
 			}
@@ -101,7 +103,7 @@ namespace tinyToolkit
 		{
 			case EVENT_TYPE::CONNECT:
 			{
-				if (!Socket::SetNodelay(_socket))
+				if (!Socket::SetNodelay(_sessionSocket))
 				{
 					Close();
 
@@ -113,7 +115,7 @@ namespace tinyToolkit
 					return;
 				}
 
-				epoll_ctl(_epoll, EPOLL_CTL_DEL, _socket, nullptr);
+				epoll_ctl(_managerSocket, EPOLL_CTL_DEL, _sessionSocket, nullptr);
 
 				if (currentEvent.events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP))
 				{
@@ -134,7 +136,7 @@ namespace tinyToolkit
 					event.events = EPOLLIN;
 					event.data.ptr = (void *)&eventValue;
 
-					if (epoll_ctl(_epoll, EPOLL_CTL_ADD, _socket, &event) == -1)
+					if (epoll_ctl(_managerSocket, EPOLL_CTL_ADD, _sessionSocket, &event) == -1)
 					{
 						Close();
 
@@ -195,7 +197,7 @@ namespace tinyToolkit
 
 						while (isConnect && Time::Microseconds() - tick <= 1000)
 						{
-							auto len = ::recv(_socket, buffer, sizeof(buffer), 0);
+							auto len = ::recv(_sessionSocket, buffer, sizeof(buffer), 0);
 
 							if (len < 0 && errno == EAGAIN)
 							{
@@ -214,7 +216,6 @@ namespace tinyToolkit
 
 								return;
 							}
-
 						}
 					}
 
@@ -222,13 +223,13 @@ namespace tinyToolkit
 					{
 						std::size_t count = 0;
 
-						std::size_t length = _sendQueue.front().size();
+						std::size_t length = _sendQueue.front().value.size();
 
-						const char * value = _sendQueue.front().c_str();
+						const char * value = _sendQueue.front().value.c_str();
 
 						while (isConnect && count < length)
 						{
-							auto len = ::send(_socket, value + count, length - count, 0);
+							auto len = ::send(_sessionSocket, value + count, length - count, 0);
 
 							if (len > 0)
 							{
@@ -241,7 +242,7 @@ namespace tinyToolkit
 									event.events = EPOLLIN;
 									event.data.ptr = (void *)&eventValue;
 
-									if (epoll_ctl(_epoll, EPOLL_CTL_MOD, _socket, &event) == -1)
+									if (epoll_ctl(_managerSocket, EPOLL_CTL_MOD, _sessionSocket, &event) == -1)
 									{
 										Close();
 
@@ -250,7 +251,6 @@ namespace tinyToolkit
 
 									_sendQueue.pop();
 								}
-
 							}
 							else if (len <= 0 && errno != EAGAIN)
 							{
@@ -289,18 +289,18 @@ namespace tinyToolkit
 	 *
 	 * 构造函数
 	 *
-	 * @param epoll 句柄
-	 * @param socket 句柄
+	 * @param managerSocket 管理句柄
+	 * @param sessionSocket 会话句柄
 	 * @param session 会话
 	 * @param type 事件类型
 	 *
 	 */
-	TCPServerPipe::TCPServerPipe(int32_t epoll, int32_t socket, ITCPServer * server, EVENT_TYPE type) : _epoll(epoll),
-																										_socket(socket),
-																										_server(server)
+	TCPServerPipe::TCPServerPipe(int32_t managerSocket, int32_t sessionSocket, ITCPServer * server, EVENT_TYPE type) : _managerSocket(managerSocket),
+																													   _sessionSocket(sessionSocket),
+																													   _server(server)
 	{
 		eventValue.type = type;
-		eventValue.socket = socket;
+		eventValue.socket = sessionSocket;
 		eventValue.callback = std::bind(&TCPServerPipe::OnCallBack, this, std::placeholders::_1, std::placeholders::_2);
 	}
 
@@ -311,13 +311,13 @@ namespace tinyToolkit
 	 */
 	void TCPServerPipe::Close()
 	{
-		if (_socket != -1)
+		if (_sessionSocket != -1)
 		{
-			epoll_ctl(_epoll, EPOLL_CTL_DEL, _socket, nullptr);
+			epoll_ctl(_managerSocket, EPOLL_CTL_DEL, _sessionSocket, nullptr);
 
-			::close(_socket);
+			::close(_sessionSocket);
 
-			_socket = -1;
+			_sessionSocket = -1;
 
 			if (_server)
 			{
@@ -361,7 +361,7 @@ namespace tinyToolkit
 
 					std::size_t addressLen = sizeof(address);
 
-					int32_t sock = ::accept(_socket, (struct sockaddr *)&address, (socklen_t *)&addressLen);
+					int32_t sock = ::accept(_sessionSocket, (struct sockaddr *)&address, (socklen_t *)&addressLen);
 
 					if (sock >= 0)
 					{
@@ -383,14 +383,14 @@ namespace tinyToolkit
 							session->_host = host;
 							session->_port = port;
 
-							auto pipe = std::make_shared<TCPClientPipe>(_epoll, sock, session, EVENT_TYPE::TRANSMIT);
+							auto pipe = std::make_shared<TCPClientPipe>(_managerSocket, sock, session, EVENT_TYPE::TRANSMIT);
 
 							struct epoll_event event{ };
 
 							event.events = EPOLLIN;
 							event.data.ptr = (void *)&pipe->eventValue;
 
-							if (epoll_ctl(_epoll, EPOLL_CTL_ADD, sock, &event) == -1)
+							if (epoll_ctl(_managerSocket, EPOLL_CTL_ADD, sock, &event) == -1)
 							{
 								::close(sock);
 

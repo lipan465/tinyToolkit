@@ -23,14 +23,42 @@ namespace tinyToolkit
 		TRANSMIT,
 	};
 
-	typedef struct TINY_TOOLKIT_API EventValue
+	class TINY_TOOLKIT_API EventValue
 	{
+	public:
 		int32_t socket{ -1 };
 
 		EVENT_TYPE type{ EVENT_TYPE::TRANSMIT };
 
 		std::function<void(const EventValue *, const struct epoll_event &)> callback;
-	}EventValue;
+	};
+
+	class TINY_TOOLKIT_API EventPackage
+	{
+	public:
+		/**
+		 *
+		 * 构造函数
+		 *
+		 * @param host 主机地址
+		 * @param port 主机端口
+		 * @param value 待发送数据
+		 * @param size 待发送数据长度
+		 *
+		 */
+		EventPackage(const char * host_, uint16_t port_, const void * value_, std::size_t size_) : port(port_),
+																								   host(host_),
+																								   value(std::string(reinterpret_cast<const char *>(value_), size_))
+		{
+
+		}
+
+	public:
+		uint16_t port{ 0 };
+
+		std::string host{ };
+		std::string value{ };
+	};
 }
 
 

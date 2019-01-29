@@ -22,8 +22,6 @@
 #include <csignal>
 #include <cstdint>
 #include <cassert>
-#include <fcntl.h>
-#include <unistd.h>
 
 /// common
 #include "macro.h"
@@ -71,25 +69,6 @@
 #endif
 
 
-/// c++14
-#if TINY_TOOLKIT_CXX_SUPPORT >= 14
-
-
-#endif
-
-
-/// c++17
-#if TINY_TOOLKIT_CXX_SUPPORT >= 17 && TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_APPLE
-#
-#  include <any>
-#  include <variant>
-#  include <optional>
-#  include <filesystem>
-#  include <string_view>
-#
-#endif
-
-
 /// 各平台头文件
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 #
@@ -103,9 +82,12 @@
 #
 # elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 #
+#  include <fcntl.h>
+#  include <dirent.h>
 #  include <cxxabi.h>
 #  include <unistd.h>
 #  include <syslog.h>
+#  include <unistd.h>
 #  include <execinfo.h>
 #  include <sys/stat.h>
 #  include <arpa/inet.h>
@@ -118,9 +100,12 @@
 #else
 #
 #  include <netdb.h>
+#  include <fcntl.h>
+#  include <dirent.h>
 #  include <cxxabi.h>
 #  include <unistd.h>
 #  include <syslog.h>
+#  include <unistd.h>
 #  include <execinfo.h>
 #  include <sys/stat.h>
 #  include <arpa/inet.h>

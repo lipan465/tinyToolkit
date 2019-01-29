@@ -273,40 +273,16 @@ namespace tinyToolkit
 		 */
 		static std::string ParentDirectory(const std::string & path);
 
-	#if TINY_TOOLKIT_CXX_SUPPORT >= 17 && TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_APPLE
-
-		/**
-		 *
-		 * 遍历文件及目录
-		 *
-		 * @param path 待遍历根目录路径
-		 * @param file 文件结果容器
-		 * @param directory 目录结果容器
-		 *
-		 */
-		static void Traverse(const std::string & path, std::vector<std::filesystem::path> & file, std::vector<std::filesystem::path> & directory);
-
-		/**
-		 *
-		 * 遍历文件及目录
-		 *
-		 * @param path 待遍历根目录路径
-		 * @param file 文件结果容器
-		 * @param directory 目录结果容器
-		 * @param rule 遍历规则
-		 *
-		 */
-		static void Traverse(const std::string & path, std::vector<std::filesystem::path> & file, std::vector<std::filesystem::path> & directory, const std::regex & rule);
-
 		/**
 		 *
 		 * 遍历文件
 		 *
 		 * @param path 待遍历根目录路径
 		 * @param container 文件结果容器
+		 * @param subdirectory 是否遍历子目录
 		 *
 		 */
-		static void TraverseFile(const std::string & path, std::vector<std::filesystem::path> & container);
+		static void TraverseFile(const std::string & path, std::vector<std::string> & container, bool subdirectory = false);
 
 		/**
 		 *
@@ -315,20 +291,22 @@ namespace tinyToolkit
 		 * @param path 待遍历根目录路径
 		 * @param container 文件结果容器
 		 * @param rule 遍历规则
+		 * @param subdirectory 是否遍历子目录
 		 *
 		 */
-		static void TraverseFile(const std::string & path, std::vector<std::filesystem::path> & container, const std::regex & rule);
+		static void TraverseFile(const std::string & path, std::vector<std::string> & container, const std::regex & rule, bool subdirectory = false);
 
 		/**
 		 *
 		 * 遍历文件
 		 *
 		 * @param path 待遍历根目录路径
+		 * @param subdirectory 是否遍历子目录
 		 *
 		 * @return 文件结果容器
 		 *
 		 */
-		static std::vector<std::filesystem::path> TraverseFile(const std::string & path);
+		static std::vector<std::string> TraverseFile(const std::string & path, bool subdirectory = false);
 
 		/**
 		 *
@@ -336,11 +314,12 @@ namespace tinyToolkit
 		 *
 		 * @param path 待遍历根目录路径
 		 * @param rule 遍历规则
+		 * @param subdirectory 是否遍历子目录
 		 *
 		 * @return 文件结果容器
 		 *
 		 */
-		static std::vector<std::filesystem::path> TraverseFile(const std::string & path, const std::regex & rule);
+		static std::vector<std::string> TraverseFile(const std::string & path, const std::regex & rule, bool subdirectory = false);
 
 		/**
 		 *
@@ -348,9 +327,10 @@ namespace tinyToolkit
 		 *
 		 * @param path 待遍历根目录路径
 		 * @param container 目录结果容器
+		 * @param subdirectory 是否遍历子目录
 		 *
 		 */
-		static void TraverseDirectory(const std::string & path, std::vector<std::filesystem::path> & container);
+		static void TraverseDirectory(const std::string & path, std::vector<std::string> & container, bool subdirectory = false);
 
 		/**
 		 *
@@ -359,20 +339,22 @@ namespace tinyToolkit
 		 * @param path 待遍历根目录路径
 		 * @param container 目录结果容器
 		 * @param rule 遍历规则
+		 * @param subdirectory 是否遍历子目录
 		 *
 		 */
-		static void TraverseDirectory(const std::string & path, std::vector<std::filesystem::path> & container, const std::regex & rule);
+		static void TraverseDirectory(const std::string & path, std::vector<std::string> & container, const std::regex & rule, bool subdirectory = false);
 
 		/**
 		 *
 		 * 遍历目录
 		 *
 		 * @param path 待遍历根目录路径
+		 * @param subdirectory 是否遍历子目录
 		 *
 		 * @return 目录结果容器
 		 *
 		 */
-		static std::vector<std::filesystem::path> TraverseDirectory(const std::string & path);
+		static std::vector<std::string> TraverseDirectory(const std::string & path, bool subdirectory = false);
 
 		/**
 		 *
@@ -380,13 +362,12 @@ namespace tinyToolkit
 		 *
 		 * @param path 待遍历根目录路径
 		 * @param rule 遍历规则
+		 * @param subdirectory 是否遍历子目录
 		 *
 		 * @return 目录结果容器
 		 *
 		 */
-		static std::vector<std::filesystem::path> TraverseDirectory(const std::string & path, const std::regex & rule);
-
-	#endif // #if TINY_TOOLKIT_CXX_SUPPORT >= 17 && TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_APPLE
+		static std::vector<std::string> TraverseDirectory(const std::string & path, const std::regex & rule, bool subdirectory = false);
 	};
 }
 

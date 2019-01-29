@@ -5,7 +5,7 @@ MACRO(TRAVERSE_SET)
 
 	FOREACH(param ${ARGN})
 
-		IF (NOT (${param} STREQUAL ${ARGV0}))
+		IF (NOT ${param} STREQUAL ${ARGV0})
 
 			SET(${ARGV0} "${${ARGV0}} ${param}")
 

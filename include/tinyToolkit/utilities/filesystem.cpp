@@ -23,12 +23,6 @@ namespace tinyToolkit
 	 */
 	bool Filesystem::Exists(const std::string & path)
 	{
-#if  TINY_TOOLKIT_CXX_SUPPORT >= 17 && TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_APPLE
-
-		return std::filesystem::exists(path);
-
-#else
-
 	#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
 		return _access(path.c_str(), S_OK) == 0;
@@ -37,9 +31,7 @@ namespace tinyToolkit
 
 		return access(path.c_str(), F_OK) == 0;
 
-	#endif
-
-#endif //  TINY_TOOLKIT_CXX_SUPPORT >= 17 && TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_APPLE
+	#endif // TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 	}
 
 	/**
@@ -53,15 +45,7 @@ namespace tinyToolkit
 	 */
 	bool Filesystem::Remove(const std::string & path)
 	{
-#if  TINY_TOOLKIT_CXX_SUPPORT >= 17 && TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_APPLE
-
-		return std::filesystem::remove(path);
-
-#else
-
 		return std::remove(path.c_str()) == 0;
-
-#endif //  TINY_TOOLKIT_CXX_SUPPORT >= 17 && TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_APPLE
 	}
 
 	/**
@@ -76,24 +60,14 @@ namespace tinyToolkit
 	 */
 	bool Filesystem::Rename(const std::string & src, const std::string & dst)
 	{
-#if  TINY_TOOLKIT_CXX_SUPPORT >= 17 && TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_APPLE
-
-		std::filesystem::rename(src, dst);
-
-		return true;
-
-#else
-
 		if (std::rename(src.c_str(), dst.c_str()) == 0)
 		{
 			return true;
 		}
 		else
 		{
-			throw std::runtime_error("Failed Rename " + src + " to " + dst);
+			throw std::runtime_error("Failed Rename [" + src + "] to [" + dst + "]");
 		}
-
-#endif //  TINY_TOOLKIT_CXX_SUPPORT >= 17 && TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_APPLE
 	}
 
 	/**
@@ -107,27 +81,22 @@ namespace tinyToolkit
 	 */
 	bool Filesystem::IsDirectory(const std::string & path)
 	{
-#if  TINY_TOOLKIT_CXX_SUPPORT >= 17 && TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_APPLE
-
-		return std::filesystem::is_directory(path);
-
-#else
-
 	#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
 		return GetFileAttributesA(path.c_str()) & FILE_ATTRIBUTE_DIRECTORY;
 
 	#else
 
-		struct stat status;
+		struct stat status{ };
 
-		stat(path.c_str(), &status);
+		if (::stat(path.c_str(), &status) == -1)
+		{
+			throw std::runtime_error("Failed stat : [" + path + "]");
+		}
 
 		return S_ISDIR(status.st_mode);
 
-	#endif  // TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
-
-#endif //  TINY_TOOLKIT_CXX_SUPPORT >= 17 && TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_APPLE
+	#endif // TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 	}
 
 	/**
@@ -141,12 +110,6 @@ namespace tinyToolkit
 	 */
 	std::size_t Filesystem::Size(const std::string & path)
 	{
-#if  TINY_TOOLKIT_CXX_SUPPORT >= 17 && TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_APPLE
-
-		return std::filesystem::file_size(path);
-
-#else
-
 		std::ifstream ifs(path, std::ifstream::ate | std::ifstream::binary);
 
 		if (ifs.is_open())
@@ -159,10 +122,8 @@ namespace tinyToolkit
 		}
 		else
 		{
-			throw std::runtime_error("Failed open file : " + path);
+			throw std::runtime_error("Failed open file : [" + path + "]");
 		}
-
-#endif //  TINY_TOOLKIT_CXX_SUPPORT >= 17 && TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_APPLE
 	}
 
 	/**
@@ -188,7 +149,7 @@ namespace tinyToolkit
 		}
 		else
 		{
-			throw std::runtime_error("Failed open file : " + path);
+			throw std::runtime_error("Failed open file : [" + path + "]");
 		}
 	}
 
@@ -230,7 +191,7 @@ namespace tinyToolkit
 		}
 		else
 		{
-			throw std::runtime_error("Failed open file : " + path);
+			throw std::runtime_error("Failed open file : [" + path + "]");
 		}
 
 		return container.size();
@@ -288,29 +249,31 @@ namespace tinyToolkit
 	 */
 	bool Filesystem::CreateDirectory(const std::string & path)
 	{
-#if  TINY_TOOLKIT_CXX_SUPPORT >= 17 && TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_APPLE
-
-		return std::filesystem::create_directory(path);
-
-#else
-
 	#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
 		if (_mkdir(path.c_str()) == -1)
 		{
-			return Exists(path);
+			if (!Exists(path))
+			{
+				throw std::runtime_error("Failed create directory : [" + path + "]");
+			}
 		}
+
+		return true;
 
 	#else
 
 		if (mkdir(path.c_str(), 0777) == -1)
 		{
-			return Exists(path);
+			if (!Exists(path))
+			{
+				throw std::runtime_error("Failed create directory : [" + path + "]");
+			}
 		}
 
-	#endif
+		return true;
 
-#endif //  TINY_TOOLKIT_CXX_SUPPORT >= 17 && TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_APPLE
+	#endif // TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 	}
 
 	/**
@@ -324,15 +287,9 @@ namespace tinyToolkit
 	 */
 	bool Filesystem::CreateDirectories(const std::string & path)
 	{
-#if  TINY_TOOLKIT_CXX_SUPPORT >= 17 && TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_APPLE
-
-		return std::filesystem::create_directories(path);
-
-#else
-
 		std::size_t size = path.size();
 
-		for (int32_t i = 0; i < size; ++i)
+		for (std::size_t i = 0; i < size; ++i)
 		{
 			if (i == size - 1)
 			{
@@ -351,8 +308,6 @@ namespace tinyToolkit
 		}
 
 		return true;
-
-#endif //  TINY_TOOLKIT_CXX_SUPPORT >= 17 && TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_APPLE
 	}
 
 	/**
@@ -364,15 +319,17 @@ namespace tinyToolkit
 	 */
 	std::string Filesystem::CurrentDirectory()
 	{
-#if  TINY_TOOLKIT_CXX_SUPPORT >= 17 && TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_APPLE
+		char directory[TINY_TOOLKIT_PATH_MAX] = { 0 };
 
-		return std::filesystem::current_path();
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		return _getcwd(directory, TINY_TOOLKIT_PATH_MAX) ? directory : TINY_TOOLKIT_FOLDER_EOL;
 
 #else
 
-		return ParentDirectory("");
+		return getcwd(directory, TINY_TOOLKIT_PATH_MAX) ? directory : TINY_TOOLKIT_FOLDER_EOL;
 
-#endif //  TINY_TOOLKIT_CXX_SUPPORT >= 17 && TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_APPLE
+#endif // TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 	}
 
 	/**
@@ -426,12 +383,6 @@ namespace tinyToolkit
 	 */
 	std::string Filesystem::Canonical(const std::string & path)
 	{
-#if  TINY_TOOLKIT_CXX_SUPPORT >= 17 && TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_APPLE
-
-		return std::filesystem::canonical(path);
-
-#else
-
 		char directory[TINY_TOOLKIT_PATH_MAX] = { 0 };
 
 	#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
@@ -443,8 +394,6 @@ namespace tinyToolkit
 		return realpath(path.c_str(), directory) ? directory : TINY_TOOLKIT_FOLDER_EOL;
 
 	#endif // TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
-
-#endif //  TINY_TOOLKIT_CXX_SUPPORT >= 17 && TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_APPLE
 	}
 
 	/**
@@ -486,17 +435,7 @@ namespace tinyToolkit
 
 		if (pos == std::string::npos)
 		{
-			char directory[TINY_TOOLKIT_PATH_MAX] = { 0 };
-
-		#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
-
-			return _getcwd(directory, TINY_TOOLKIT_PATH_MAX) ? directory : TINY_TOOLKIT_FOLDER_EOL;
-
-		#else
-
-			return getcwd(directory, TINY_TOOLKIT_PATH_MAX) ? directory : TINY_TOOLKIT_FOLDER_EOL;
-
-		#endif // TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+			return CurrentDirectory();
 		}
 		else
 		{
@@ -504,65 +443,114 @@ namespace tinyToolkit
 		}
 	}
 
-#if  TINY_TOOLKIT_CXX_SUPPORT >= 17 && TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_APPLE
-
 	/**
 	 *
-	 * 遍历文件及目录
+	 * 遍历文件
 	 *
 	 * @param path 待遍历根目录路径
-	 * @param file 文件结果容器
-	 * @param directory 目录结果容器
+	 * @param container 文件结果容器
+	 * @param subdirectory 是否遍历子目录
 	 *
 	 */
-	void Filesystem::Traverse(const std::string & path, std::vector<std::filesystem::path> & file, std::vector<std::filesystem::path> & directory)
+	void Filesystem::TraverseFile(const std::string & path, std::vector<std::string> & container, bool subdirectory)
 	{
-		for (auto &iter : std::filesystem::directory_iterator(std::filesystem::path(path)))
-		{
-			if (iter.is_directory())
-			{
-				directory.push_back(iter.path());
+	#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-				Traverse(iter.path().string(), file, directory);
+		std::string dir{ };
+
+		if (path[path.size() - 1] == TINY_TOOLKIT_FOLDER_SEP[0])
+		{
+			dir = path + "*.*";
+		}
+		else
+		{
+			dir = path + TINY_TOOLKIT_FOLDER_SEP + "*.*";
+		}
+
+		WIN32_FIND_DATA finder{ };
+
+		HANDLE hFind = FindFirstFile(dir.c_str(), &finder);
+
+		if (hFind == INVALID_HANDLE_VALUE)
+		{
+			throw std::runtime_error("No such file or directory : [" + path + "]");
+		}
+
+		do
+		{
+			if (strcmp(finder.cFileName, ".") == 0 || strcmp(finder.cFileName, "..") == 0)
+			{
+				continue;
+			}
+
+			std::string value{ };
+
+			if (path[path.size() - 1] == TINY_TOOLKIT_FOLDER_SEP[0])
+			{
+				value = path + finder.cFileName;
 			}
 			else
 			{
-				file.push_back(iter.path());
+				value = path + TINY_TOOLKIT_FOLDER_SEP + finder.cFileName;
 			}
-		}
-	}
 
-	/**
-	 *
-	 * 遍历文件及目录
-	 *
-	 * @param path 待遍历根目录路径
-	 * @param file 文件结果容器
-	 * @param directory 目录结果容器
-	 * @param rule 遍历规则
-	 *
-	 */
-	void Filesystem::Traverse(const std::string & path, std::vector<std::filesystem::path> & file, std::vector<std::filesystem::path> & directory, const std::regex & rule)
-	{
-		for (auto &iter : std::filesystem::directory_iterator(std::filesystem::path(path)))
-		{
-			if (iter.is_directory())
+			if (finder.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 			{
-				if (std::regex_match(iter.path().string(), rule))
+				if (subdirectory)
 				{
-					directory.push_back(iter.path());
+					TraverseFile(value, container, subdirectory);
 				}
-
-				Traverse(iter.path().string(), file, directory);
 			}
 			else
 			{
-				if (std::regex_match(iter.path().filename().string(), rule))
-				{
-					file.push_back(iter.path());
-				}
+				container.push_back(value);
 			}
 		}
+		while (FindNextFile(hFind, &finder));
+
+	#else
+
+		DIR * dir = opendir(path.c_str());
+
+		if (dir == nullptr)
+		{
+			throw std::runtime_error("No such file or directory : [" + path + "]");
+		}
+
+		struct dirent * dirEvent = readdir(dir);
+
+		while (dirEvent)
+		{
+			if (dirEvent->d_name[0] != '.')
+			{
+				std::string value{ };
+
+				if (path[path.size() - 1] == TINY_TOOLKIT_FOLDER_SEP[0])
+				{
+					value = path + dirEvent->d_name;
+				}
+				else
+				{
+					value = path + TINY_TOOLKIT_FOLDER_SEP + dirEvent->d_name;
+				}
+
+				if (IsDirectory(value))
+				{
+					if (subdirectory)
+					{
+						TraverseFile(value, container, subdirectory);
+					}
+				}
+				else
+				{
+					container.push_back(value);
+				}
+			}
+
+			dirEvent = readdir(dir);
+		}
+
+	#endif // TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 	}
 
 	/**
@@ -571,48 +559,115 @@ namespace tinyToolkit
 	 *
 	 * @param path 待遍历根目录路径
 	 * @param container 文件结果容器
-	 *
-	 */
-	void Filesystem::TraverseFile(const std::string & path, std::vector<std::filesystem::path> & container)
-	{
-		for (auto &iter : std::filesystem::directory_iterator(std::filesystem::path(path)))
-		{
-			if (iter.is_directory())
-			{
-				TraverseFile(iter.path().string(), container);
-			}
-			else
-			{
-				container.push_back(iter.path());
-			}
-		}
-	}
-
-	/**
-	 *
-	 * 遍历文件
-	 *
-	 * @param path 待遍历根目录路径
-	 * @param container 文件结果容器
 	 * @param rule 遍历规则
+	 * @param subdirectory 是否遍历子目录
 	 *
 	 */
-	void Filesystem::TraverseFile(const std::string & path, std::vector<std::filesystem::path> & container, const std::regex & rule)
+	void Filesystem::TraverseFile(const std::string & path, std::vector<std::string> & container, const std::regex & rule, bool subdirectory)
 	{
-		for (auto &iter : std::filesystem::directory_iterator(std::filesystem::path(path)))
+	#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		std::string dir{ };
+
+		if (path[path.size() - 1] == TINY_TOOLKIT_FOLDER_SEP[0])
 		{
-			if (iter.is_directory())
+			dir = path + "*.*";
+		}
+		else
+		{
+			dir = path + TINY_TOOLKIT_FOLDER_SEP + "*.*";
+		}
+
+		WIN32_FIND_DATA finder{ };
+
+		HANDLE hFind = FindFirstFile(dir.c_str(), &finder);
+
+		if (hFind == INVALID_HANDLE_VALUE)
+		{
+			throw std::runtime_error("No such file or directory : [" + path + "]");
+		}
+
+		do
+		{
+			if (strcmp(finder.cFileName, ".") == 0 || strcmp(finder.cFileName, "..") == 0)
 			{
-				TraverseFile(iter.path().string(), container, rule);
+				continue;
+			}
+
+			std::string value{ };
+
+			if (path[path.size() - 1] == TINY_TOOLKIT_FOLDER_SEP[0])
+			{
+				value = path + finder.cFileName;
 			}
 			else
 			{
-				if (std::regex_match(iter.path().filename().string(), rule))
+				value = path + TINY_TOOLKIT_FOLDER_SEP + finder.cFileName;
+			}
+
+			if (finder.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+			{
+				if (subdirectory)
 				{
-					container.push_back(iter.path());
+					TraverseFile(value, container, rule, subdirectory);
+				}
+			}
+			else
+			{
+				if (std::regex_match(value, rule))
+				{
+					container.push_back(value);
 				}
 			}
 		}
+		while (FindNextFile(hFind, &finder));
+
+	#else
+
+		DIR * dir = opendir(path.c_str());
+
+		if (dir == nullptr)
+		{
+			throw std::runtime_error("No such file or directory : [" + path + "]");
+		}
+
+		struct dirent * dirEvent = readdir(dir);
+
+		while (dirEvent)
+		{
+			if (dirEvent->d_name[0] != '.')
+			{
+				std::string value{ };
+
+				if (path[path.size() - 1] == TINY_TOOLKIT_FOLDER_SEP[0])
+				{
+					value = path + dirEvent->d_name;
+				}
+				else
+				{
+					value = path + TINY_TOOLKIT_FOLDER_SEP + dirEvent->d_name;
+				}
+
+				if (IsDirectory(value))
+				{
+					if (subdirectory)
+					{
+						TraverseFile(value, container, rule, subdirectory);
+					}
+				}
+				else
+				{
+					if (std::regex_match(value, rule))
+					{
+						container.push_back(value);
+					}
+				}
+			}
+
+			dirEvent = readdir(dir);
+		}
+
+	#endif // TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 	}
 
 	/**
@@ -620,15 +675,16 @@ namespace tinyToolkit
 	 * 遍历文件
 	 *
 	 * @param path 待遍历根目录路径
+	 * @param subdirectory 是否遍历子目录
 	 *
 	 * @return 文件结果容器
 	 *
 	 */
-	std::vector<std::filesystem::path> Filesystem::TraverseFile(const std::string & path)
+	std::vector<std::string> Filesystem::TraverseFile(const std::string & path, bool subdirectory)
 	{
-		std::vector<std::filesystem::path> container;
+		std::vector<std::string> container;
 
-		TraverseFile(path, container);
+		TraverseFile(path, container, subdirectory);
 
 		return container;
 	}
@@ -638,16 +694,17 @@ namespace tinyToolkit
 	 * 遍历文件
 	 *
 	 * @param path 待遍历根目录路径
+	 * @param subdirectory 是否遍历子目录
 	 * @param rule 遍历规则
 	 *
 	 * @return 文件结果容器
 	 *
 	 */
-	std::vector<std::filesystem::path> Filesystem::TraverseFile(const std::string & path, const std::regex & rule)
+	std::vector<std::string> Filesystem::TraverseFile(const std::string & path, const std::regex & rule, bool subdirectory)
 	{
-		std::vector<std::filesystem::path> container;
+		std::vector<std::string> container;
 
-		TraverseFile(path, container, rule);
+		TraverseFile(path, container, rule, subdirectory);
 
 		return container;
 	}
@@ -658,19 +715,104 @@ namespace tinyToolkit
 	 *
 	 * @param path 待遍历根目录路径
 	 * @param container 目录结果容器
+	 * @param subdirectory 是否遍历子目录
 	 *
 	 */
-	void Filesystem::TraverseDirectory(const std::string & path, std::vector<std::filesystem::path> & container)
+	void Filesystem::TraverseDirectory(const std::string & path, std::vector<std::string> & container, bool subdirectory)
 	{
-		for (auto &iter : std::filesystem::directory_iterator(std::filesystem::path(path)))
-		{
-			if (iter.is_directory())
-			{
-				container.push_back(iter.path());
+	#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-				TraverseDirectory(iter.path().string(), container);
+		std::string dir{ };
+
+		if (path[path.size() - 1] == TINY_TOOLKIT_FOLDER_SEP[0])
+		{
+			dir = path + "*.*";
+		}
+		else
+		{
+			dir = path + TINY_TOOLKIT_FOLDER_SEP + "*.*";
+		}
+
+		WIN32_FIND_DATA finder{ };
+
+		HANDLE hFind = FindFirstFile(dir.c_str(), &finder);
+
+		if (hFind == INVALID_HANDLE_VALUE)
+		{
+			throw std::runtime_error("No such file or directory : [" + path + "]");
+		}
+
+		do
+		{
+			if (strcmp(finder.cFileName, ".") == 0 || strcmp(finder.cFileName, "..") == 0)
+			{
+				continue;
+			}
+
+			std::string value{ };
+
+			if (path[path.size() - 1] == TINY_TOOLKIT_FOLDER_SEP[0])
+			{
+				value = path + finder.cFileName;
+			}
+			else
+			{
+				value = path + TINY_TOOLKIT_FOLDER_SEP + finder.cFileName;
+			}
+
+			if (finder.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+			{
+				container.push_back(value);
+
+				if (subdirectory)
+				{
+					TraverseDirectory(value, container, subdirectory);
+				}
 			}
 		}
+		while (FindNextFile(hFind, &finder));
+
+	#else
+
+		DIR * dir = opendir(path.c_str());
+
+		if (dir == nullptr)
+		{
+			throw std::runtime_error("No such file or directory : [" + path + "]");
+		}
+
+		struct dirent * dirEvent = readdir(dir);
+
+		while (dirEvent)
+		{
+			if (dirEvent->d_name[0] != '.')
+			{
+				std::string value{ };
+
+				if (path[path.size() - 1] == TINY_TOOLKIT_FOLDER_SEP[0])
+				{
+					value = path + dirEvent->d_name;
+				}
+				else
+				{
+					value = path + TINY_TOOLKIT_FOLDER_SEP + dirEvent->d_name;
+				}
+
+				if (IsDirectory(value))
+				{
+					container.push_back(value);
+
+					if (subdirectory)
+					{
+						TraverseDirectory(value, container, subdirectory);
+					}
+				}
+			}
+
+			dirEvent = readdir(dir);
+		}
+
+	#endif // TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 	}
 
 	/**
@@ -680,22 +822,110 @@ namespace tinyToolkit
 	 * @param path 待遍历根目录路径
 	 * @param container 目录结果容器
 	 * @param rule 遍历规则
+	 * @param subdirectory 是否遍历子目录
 	 *
 	 */
-	void Filesystem::TraverseDirectory(const std::string & path, std::vector<std::filesystem::path> & container, const std::regex & rule)
+	void Filesystem::TraverseDirectory(const std::string & path, std::vector<std::string> & container, const std::regex & rule, bool subdirectory)
 	{
-		for (auto &iter : std::filesystem::directory_iterator(std::filesystem::path(path)))
+	#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		std::string dir{ };
+
+		if (path[path.size() - 1] == TINY_TOOLKIT_FOLDER_SEP[0])
 		{
-			if (iter.is_directory())
+			dir = path + "*.*";
+		}
+		else
+		{
+			dir = path + TINY_TOOLKIT_FOLDER_SEP + "*.*";
+		}
+
+		WIN32_FIND_DATA finder{ };
+
+		HANDLE hFind = FindFirstFile(dir.c_str(), &finder);
+
+		if (hFind == INVALID_HANDLE_VALUE)
+		{
+			throw std::runtime_error("No such file or directory : [" + path + "]");
+		}
+
+		do
+		{
+			if (strcmp(finder.cFileName, ".") == 0 || strcmp(finder.cFileName, "..") == 0)
 			{
-				if (std::regex_match(iter.path().string(), rule))
+				continue;
+			}
+
+			std::string value{ };
+
+			if (path[path.size() - 1] == TINY_TOOLKIT_FOLDER_SEP[0])
+			{
+				value = path + finder.cFileName;
+			}
+			else
+			{
+				value = path + TINY_TOOLKIT_FOLDER_SEP + finder.cFileName;
+			}
+
+			if (finder.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+			{
+				if (std::regex_match(value, rule))
 				{
-					container.push_back(iter.path());
+					container.push_back(value);
 				}
 
-				TraverseDirectory(iter.path().string(), container, rule);
+				if (subdirectory)
+				{
+					TraverseDirectory(value, container, rule, subdirectory);
+				}
 			}
 		}
+		while (FindNextFile(hFind, &finder));
+
+	#else
+
+		DIR * dir = opendir(path.c_str());
+
+		if (dir == nullptr)
+		{
+			throw std::runtime_error("No such file or directory : [" + path + "]");
+		}
+
+		struct dirent * dirEvent = readdir(dir);
+
+		while (dirEvent)
+		{
+			if (dirEvent->d_name[0] != '.')
+			{
+				std::string value{ };
+
+				if (path[path.size() - 1] == TINY_TOOLKIT_FOLDER_SEP[0])
+				{
+					value = path + dirEvent->d_name;
+				}
+				else
+				{
+					value = path + TINY_TOOLKIT_FOLDER_SEP + dirEvent->d_name;
+				}
+
+				if (IsDirectory(value))
+				{
+					if (std::regex_match(value, rule))
+					{
+						container.push_back(value);
+					}
+
+					if (subdirectory)
+					{
+						TraverseDirectory(value, container, rule, subdirectory);
+					}
+				}
+			}
+
+			dirEvent = readdir(dir);
+		}
+
+	#endif // TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 	}
 
 	/**
@@ -703,15 +933,16 @@ namespace tinyToolkit
 	 * 遍历目录
 	 *
 	 * @param path 待遍历根目录路径
+	 * @param subdirectory 是否遍历子目录
 	 *
 	 * @return 目录结果容器
 	 *
 	 */
-	std::vector<std::filesystem::path> Filesystem::TraverseDirectory(const std::string & path)
+	std::vector<std::string> Filesystem::TraverseDirectory(const std::string & path, bool subdirectory)
 	{
-		std::vector<std::filesystem::path> container;
+		std::vector<std::string> container;
 
-		TraverseDirectory(path, container);
+		TraverseDirectory(path, container, subdirectory);
 
 		return container;
 	}
@@ -722,18 +953,17 @@ namespace tinyToolkit
 	 *
 	 * @param path 待遍历根目录路径
 	 * @param rule 遍历规则
+	 * @param subdirectory 是否遍历子目录
 	 *
 	 * @return 目录结果容器
 	 *
 	 */
-	std::vector<std::filesystem::path> Filesystem::TraverseDirectory(const std::string & path, const std::regex & rule)
+	std::vector<std::string> Filesystem::TraverseDirectory(const std::string & path, const std::regex & rule, bool subdirectory)
 	{
-		std::vector<std::filesystem::path> container;
+		std::vector<std::string> container;
 
-		TraverseDirectory(path, container, rule);
+		TraverseDirectory(path, container, rule, subdirectory);
 
 		return container;
 	}
-
-#endif // #if  TINY_TOOLKIT_CXX_SUPPORT >= 17 && TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_APPLE
 }

@@ -1238,15 +1238,15 @@ TEST(Utilities, Filesystem)
 	EXPECT_FALSE(tinyToolkit::Filesystem::IsDirectory(sa));
 	EXPECT_FALSE(tinyToolkit::Filesystem::IsDirectory(sb));
 
-#if TINY_TOOLKIT_CXX_SUPPORT >= 17 && TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_APPLE
-
 	EXPECT_EQ(tinyToolkit::Filesystem::TraverseFile(sf).size(), static_cast<std::size_t>(2));
+	EXPECT_EQ(tinyToolkit::Filesystem::TraverseFile(sf, true).size(), static_cast<std::size_t>(2));
 	EXPECT_EQ(tinyToolkit::Filesystem::TraverseFile(sf, std::regex(".*.txt")).size(), static_cast<std::size_t>(2));
+	EXPECT_EQ(tinyToolkit::Filesystem::TraverseFile(sf, std::regex(".*.txt"), true).size(), static_cast<std::size_t>(2));
 
-	EXPECT_EQ(tinyToolkit::Filesystem::TraverseDirectory(".").size(), static_cast<std::size_t>(7));
+	EXPECT_EQ(tinyToolkit::Filesystem::TraverseDirectory(".").size(), static_cast<std::size_t>(4));
+	EXPECT_EQ(tinyToolkit::Filesystem::TraverseDirectory(".", true).size(), static_cast<std::size_t>(7));
 	EXPECT_EQ(tinyToolkit::Filesystem::TraverseDirectory(".", std::regex(".*log")).size(), static_cast<std::size_t>(1));
-
-#endif
+	EXPECT_EQ(tinyToolkit::Filesystem::TraverseDirectory(".", std::regex(".*log"), true).size(), static_cast<std::size_t>(1));
 }
 
 

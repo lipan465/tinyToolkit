@@ -21,23 +21,11 @@ ADD_LIBRARY(${PROGRAM_NAME}	SHARED	${SOURCE_FILES})
 #
 IF(WIN32)
 
-	TRAVERSE_LIBRARY_FOR_PROGRAM_NAME(
-			${PROJECT_SOURCE_DIR}/library/fmt/linux/libfmt.lib
-			${PROJECT_SOURCE_DIR}/library/curl/linux/libcurl.lib
-			${PROJECT_SOURCE_DIR}/library/openssl/linux/libssl.lib
-			${PROJECT_SOURCE_DIR}/library/openssl/linux/libcrypto.lib
-			${PROJECT_SOURCE_DIR}/library/memcached/linux/libmemcached.lib)
+	TRAVERSE_LIBRARY_FOR_PROGRAM_NAME(${PROJECT_SOURCE_DIR}/library/fmt/linux/libfmt.lib)
 
 ELSE()
 
-	TRAVERSE_LIBRARY_FOR_PROGRAM_NAME(
-			ssl
-			curl
-			crypto
-			sqlite3
-			stdc++fs
-			${PROJECT_SOURCE_DIR}/library/fmt/linux/libfmt.a
-			${PROJECT_SOURCE_DIR}/library/memcached/linux/libmemcached.a)
+	TRAVERSE_LIBRARY_FOR_PROGRAM_NAME(${PROJECT_SOURCE_DIR}/library/fmt/linux/libfmt.a)
 
 ENDIF()
 

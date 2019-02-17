@@ -48,7 +48,6 @@
 #include "net/pipe.h"
 #include "net/event.h"
 #include "net/server.h"
-#include "net/socket.h"
 #include "net/session.h"
 #include "net/manager.h"
 
@@ -109,6 +108,7 @@
 #include "container/operator.h"
 
 /// utilities
+#include "utilities/net.h"
 #include "utilities/file.h"
 #include "utilities/math.h"
 #include "utilities/time.h"
@@ -116,7 +116,6 @@
 #include "utilities/option.h"
 #include "utilities/thread.h"
 #include "utilities/string.h"
-#include "utilities/address.h"
 #include "utilities/copyable.h"
 #include "utilities/fileLine.h"
 #include "utilities/singleton.h"

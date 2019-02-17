@@ -11,6 +11,9 @@
  */
 
 
+#ifdef WITH_CURL
+
+
 #include <curl/curl.h>
 
 #include "../common/common.h"
@@ -497,6 +500,9 @@ namespace tinyToolkit
 		HTTPResponse _response{ };
 	};
 }
+
+
+#endif // WITH_CURL
 
 
 #endif // __TINY_TOOLKIT__TOOL__HTTP__H__

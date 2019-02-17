@@ -12,6 +12,12 @@
 
 namespace tinyToolkit
 {
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+	/// todo
+
+#else
+
 	/**
 	 *
 	 * 解析符号
@@ -126,6 +132,7 @@ namespace tinyToolkit
 		return frame;
 	}
 
+#endif
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -141,7 +148,7 @@ namespace tinyToolkit
 	{
 	#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-		(void)signalNo;
+		/// todo
 
 	#else
 

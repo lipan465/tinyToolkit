@@ -71,7 +71,6 @@ IF (CMAKE_CXX_COMPILER_ID MATCHES GNU)
 
 	TRAVERSE_SET(CMAKE_CXX_FLAGS	-g								# 将编译时的调试信息保存到本地文件中
 									-Os								# 优选代码空间
-									-pg								# gprof调试选项
 									-ldl							# 支持dlopen, dlsym, dlclose, dlerror显示加载动态库
 									-fPIC							# 告诉编译器产生与位置无关代码, 则产生的代码中, 没有绝对地址, 全部使用相对地址
 									-pthread						# 链接线程库
@@ -86,22 +85,49 @@ IF (CMAKE_CXX_COMPILER_ID MATCHES GNU)
 #									-Winline						# 无论是声明为inline或者是指定了-finline-functions选项, 如果某函数不能内联, 给出警告
 									-Wshadow						# 当一个局部变量遮盖住了另一个局部变量, 或者全局变量, 给出警告
 									-Woverflow						# 范围溢出, 给出警告
-									-Wcast-qual						# 当强制转化丢掉了类型修饰符, 给出警告
-									-Wcast-align					# 某个指针类型强制转换导致目标所需的地址对齐增加, 给出警告
+#									-Wcast-qual						# 当强制转化丢掉了类型修饰符, 给出警告
+#									-Wcast-align					# 某个指针类型强制转换导致目标所需的地址对齐增加, 给出警告
 									-Wfatal-errors					# 出现错误的时候停止编译
 									-Wpointer-arith					# 对函数指针或者void *类型的指针进行算术操作, 给出警告
 									-Wredundant-decls				# 如果在同一个可见域内某定义多次声明, 给出警告
-									-Wunreachable-code				# 如果编译器探测到永远不会执行到的代码, 给出警告
+#									-Wunreachable-code				# 如果编译器探测到永远不会执行到的代码, 给出警告
 									-Wreturn-local-addr				# 如果返回临时引用, 给出警告
 									-Woverloaded-virtual			# 如果函数的声明隐藏住了基类的虚函数, 给出警告
 									-Wunused-but-set-variable		# 设置了但未使用的变量, 给出警告
 									-Wsizeof-pointer-memaccess)		# 无法保证完整初始化类, 给出警告
 
+	IF(${CMAKE_BUILD_TYPE} MATCHES Debug)
+
+		TRAVERSE_SET(CMAKE_CXX_FLAGS	-static-libasan
+										-static-libubsan
+										-fsanitize=leak
+										-fsanitize=vptr
+										-fsanitize=null
+										-fsanitize=shift
+										-fsanitize=bounds
+										-fsanitize=return
+										-fsanitize=address
+										-fsanitize=alignment
+										-fsanitize=undefined
+										-fsanitize=vla-bound
+										-fsanitize=object-size
+										-fsanitize=unreachable
+										-fsanitize=bounds-strict
+										-fsanitize=float-cast-overflow
+										-fsanitize=float-divide-by-zero
+										-fsanitize=integer-divide-by-zero
+										-fsanitize=signed-integer-overflow
+										-fstack-protector
+										-fno-strict-aliasing
+										-fno-omit-frame-pointer
+										-fno-delete-null-pointer-checks)
+
+	ENDIF()
+
 ELSEIF (CMAKE_CXX_COMPILER_ID MATCHES Clang)
 
 	TRAVERSE_SET(CMAKE_CXX_FLAGS	-g								# 将编译时的调试信息保存到本地文件中
 									-Os								# 优选代码空间
-									-pg								# gprof调试选项
 									-fPIC							# 告诉编译器产生与位置无关代码, 则产生的代码中, 没有绝对地址, 全部使用相对地址
 									-pthread						# 链接线程库
 #									-fmem-report					# 显示所有的静态内存分配
@@ -114,14 +140,21 @@ ELSEIF (CMAKE_CXX_COMPILER_ID MATCHES Clang)
 #									-Winline						# 无论是声明为inline或者是指定了-finline-functions选项, 如果某函数不能内联, 给出警告
 									-Wshadow						# 当一个局部变量遮盖住了另一个局部变量, 或者全局变量, 给出警告
 									-Woverflow						# 范围溢出, 给出警告
-									-Wcast-qual						# 当强制转化丢掉了类型修饰符, 给出警告
-									-Wcast-align					# 某个指针类型强制转换导致目标所需的地址对齐增加, 给出警告
+#									-Wcast-qual						# 当强制转化丢掉了类型修饰符, 给出警告
+#									-Wcast-align					# 某个指针类型强制转换导致目标所需的地址对齐增加, 给出警告
 									-Wfatal-errors					# 出现错误的时候停止编译
 									-Wpointer-arith					# 对函数指针或者void *类型的指针进行算术操作, 给出警告
 									-Wredundant-decls				# 如果在同一个可见域内某定义多次声明, 给出警告
-									-Wunreachable-code				# 如果编译器探测到永远不会执行到的代码, 给出警告
+#									-Wunreachable-code				# 如果编译器探测到永远不会执行到的代码, 给出警告
 									-Woverloaded-virtual			# 如果函数的声明隐藏住了基类的虚函数, 给出警告
 									-Wreturn-stack-address			# 如果返回临时引用, 给出警告
 									-Wsizeof-pointer-memaccess)		# 无法保证完整初始化类, 给出警告
+
+	IF(${CMAKE_BUILD_TYPE} MATCHES Debug)
+
+		TRAVERSE_SET(CMAKE_CXX_FLAGS	-fsanitize=address
+										-fno-omit-frame-pointer)
+
+	ENDIF()
 
 ENDIF()

@@ -7,6 +7,9 @@
  */
 
 
+#ifdef WITH_MEMCACHED
+
+
 #include "memcached.h"
 
 
@@ -251,3 +254,6 @@ namespace tinyToolkit
 		return _errorMsg;
 	}
 }
+
+
+#endif // WITH_MEMCACHED

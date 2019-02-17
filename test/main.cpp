@@ -10,17 +10,17 @@
 #include "main.h"
 
 
-class TCPClient : public tinyToolkit::ITCPSession
+class TCPClientSession : public tinyToolkit::ITCPSession
 {
 public:
 	/**
 	 *
 	 * 构造函数
 	 *
-	 * @param id 序列号
+	 * @param id 序号
 	 *
 	 */
-	explicit TCPClient(int32_t id) : _id(id)
+	explicit TCPClientSession(int32_t id) : _id(id)
 	{
 
 	}
@@ -30,9 +30,9 @@ public:
 	 * 析构函数
 	 *
 	 */
-	~TCPClient() override
+	~TCPClientSession() override
 	{
-		tinyToolkit::String::Print("客户端析构\r\n");
+		tinyToolkit::String::Print("客户端会话析构\r\n");
 	}
 
 	/**
@@ -45,7 +45,7 @@ public:
 	 */
 	void OnReceive(const char * data, std::size_t size) override
 	{
-		tinyToolkit::String::Print("客户端[{}]接收到服务器[{}:{}]长度为[{}]的信息 : {}\r\n", _id, _host, _port, size, data);
+		tinyToolkit::String::Print("客户端会话[{}:{}]接收到服务器会话[{}:{}]长度为[{}]的信息 : {}\r\n", _localHost, _localPort, _remoteHost, _remotePort, size, data);
 	}
 
 	/**
@@ -55,9 +55,9 @@ public:
 	 */
 	void OnConnect() override
 	{
-		tinyToolkit::String::Print("客户端[{}]连接服务器[{}:{}]成功\r\n", _id, _host, _port);
+		tinyToolkit::String::Print("客户端会话[{}:{}]连接服务器会话[{}:{}]成功\r\n", _localHost, _localPort, _remoteHost, _remotePort);
 
-		std::string value = tinyToolkit::String::Format("你好, 我的tcp编号为{}", _id);
+		std::string value = tinyToolkit::String::Format("tcp服务器你好, 我的编号为{}", _id);
 
 		Send(value.c_str(), value.size());
 	}
@@ -69,7 +69,7 @@ public:
 	 */
 	void OnDisconnect() override
 	{
-		tinyToolkit::String::Print("客户端[{}]断开连接\r\n", _id);
+		tinyToolkit::String::Print("客户端会话[{}:{}]断开连接\r\n", _localHost, _localPort);
 	}
 
 	/**
@@ -79,7 +79,91 @@ public:
 	 */
 	void OnConnectFailed() override
 	{
-		tinyToolkit::String::Print("客户端[{}]连接服务器[{}:{}]失败\r\n", _id, _host, _port);
+		tinyToolkit::String::Print("客户端会话[{}:{}]连接服务器会话[{}:{}]失败\r\n", _localHost, _localPort, _remoteHost, _remotePort);
+	}
+
+private:
+	int32_t _id{ 0 };
+};
+
+
+class TCPServerSession : public tinyToolkit::ITCPSession
+{
+public:
+	/**
+	 *
+	 * 构造函数
+	 *
+	 * @param id 序号
+	 *
+	 */
+	explicit TCPServerSession(int32_t id) : _id(id)
+	{
+
+	}
+
+	/**
+	 *
+	 * 析构函数
+	 *
+	 */
+	~TCPServerSession() override
+	{
+		tinyToolkit::String::Print("服务器会话析构\r\n");
+	}
+
+	/**
+	 *
+	 * 接收数据触发回调函数
+	 *
+	 * @param data 接收的数据缓冲区
+	 * @param size 接收的数据缓冲区长度
+	 *
+	 */
+	void OnReceive(const char * data, std::size_t size) override
+	{
+		tinyToolkit::String::Print("服务器会话[{}:{}]接收到客户端会话[{}:{}]长度为[{}]的信息 : {}\r\n", _localHost, _localPort, _remoteHost, _remotePort, size, data);
+
+		if (strstr(data, "request"))
+		{
+			std::string value = tinyToolkit::String::Format("tcp客户端你好, 请求已收到");
+
+			Send(value.c_str(), value.size());
+		}
+	}
+
+	/**
+	 *
+	 * 连接成功触发回调函数
+	 *
+	 */
+	void OnConnect() override
+	{
+		tinyToolkit::String::Print("服务器会话[{}:{}]连接客户端会话[{}:{}]成功\r\n", _localHost, _localPort, _remoteHost, _remotePort);
+
+		std::string value = tinyToolkit::String::Format("tcp客户端你好, 我的编号为{}", _id);
+
+		Send(value.c_str(), value.size());
+	}
+
+	/**
+	 *
+	 * 断开连接触发回调函数
+	 *
+	 */
+	void OnDisconnect() override
+	{
+		tinyToolkit::String::Print("服务器会话[{}:{}]断开连接\r\n", _localHost, _localPort);
+	}
+
+	/**
+	 *
+	 * 连接失败触发回调函数
+	 *
+	 */
+	void OnConnectFailed() override
+	{
+		tinyToolkit::String::Print("服务器会话[{}:{}]连接客户端会话[{}:{}]失败\r\n", _localHost, _localPort, _remoteHost, _remotePort);
 	}
 
 private:
@@ -98,11 +182,6 @@ public:
 	~TCPServer() override
 	{
 		tinyToolkit::String::Print("服务器析构\r\n");
-
-		for (auto &iter : _pool)
-		{
-			delete iter.second;
-		}
 	}
 
 	/**
@@ -125,7 +204,7 @@ public:
 
 		if (find == _pool.end())
 		{
-			_pool.insert(std::make_pair(key, new TCPClient(port)));
+			_pool.insert(std::make_pair(key, new TCPServerSession(port)));
 
 			find = _pool.find(key);
 		}
@@ -140,7 +219,20 @@ public:
 	 */
 	void OnSessionError(tinyToolkit::ITCPSession * session) override
 	{
-		tinyToolkit::String::Print("服务器[{}:{}]与客户端[{}:{}]会话错误\r\n", _host, _port, session->_host, session->_port);
+		tinyToolkit::String::Print("服务器[{}:{}]与客户端[{}:{}]会话错误\r\n", _host, _port, session->_remoteHost, session->_remotePort);
+
+		auto key = tinyToolkit::String::Splice(session->_remoteHost, ":", session->_remotePort);
+
+		auto find = _pool.find(key);
+
+		if (find != _pool.end())
+		{
+			find->second->Close();
+
+			delete find->second;
+
+			_pool.erase(find);
+		}
 	}
 
 	/**
@@ -161,14 +253,21 @@ public:
 	void OnRelease() override
 	{
 		tinyToolkit::String::Print("服务器[{}:{}]断开连接\r\n", _host, _port);
+
+		for (auto &iter : _pool)
+		{
+			iter.second->Close();
+
+			delete iter.second;
+		}
 	}
 
 protected:
-	std::unordered_map<std::string, tinyToolkit::ITCPSession *> _pool;
+	std::unordered_map<std::string, tinyToolkit::ITCPSession *> _pool{ };
 };
 
 
-class UDPClient : public tinyToolkit::IUDPSession
+class UDPClientSession : public tinyToolkit::IUDPSession
 {
 public:
 	/**
@@ -178,7 +277,7 @@ public:
 	 * @param id 序列号
 	 *
 	 */
-	explicit UDPClient(int32_t id) : _id(id)
+	explicit UDPClientSession(int32_t id) : _id(id)
 	{
 
 	}
@@ -188,9 +287,9 @@ public:
 	 * 析构函数
 	 *
 	 */
-	~UDPClient() override
+	~UDPClientSession() override
 	{
-		tinyToolkit::String::Print("客户端析构\r\n");
+		tinyToolkit::String::Print("客户端会话析构\r\n");
 	}
 
 	/**
@@ -205,7 +304,7 @@ public:
 	 */
 	void OnReceive(const char * host, uint16_t port, const char * data, std::size_t size) override
 	{
-		tinyToolkit::String::Print("客户端[{}]接收到服务器[{}:{}]长度为[{}]的信息 : {}\r\n", _id, host, port, size, data);
+		tinyToolkit::String::Print("客户端会话[{}:{}]接收到服务器会话[{}:{}]长度为[{}]的信息 : {}\r\n", _localHost, _localPort, host, port, size, data);
 	}
 
 	/**
@@ -215,11 +314,11 @@ public:
 	 */
 	void OnConnect() override
 	{
-		tinyToolkit::String::Print("客户端[{}]连接服务器[{}:{}]成功\r\n", _id, _host, _port);
+		tinyToolkit::String::Print("客户端会话[{}:{}]连接服务器会话[{}:{}]成功\r\n", _localHost, _localPort, _remoteHost, _remotePort);
 
-		std::string value = tinyToolkit::String::Format("你好, 我的udp编号为{}", _id);
+		std::string value = tinyToolkit::String::Format("udp服务器你好, 我的编号为{}", _id);
 
-		Send(_host.c_str(), _port, value.c_str(), value.size());
+		Send(_remoteHost.c_str(), _remotePort, value.c_str(), value.size());
 	}
 
 	/**
@@ -229,7 +328,7 @@ public:
 	 */
 	void OnDisconnect() override
 	{
-		tinyToolkit::String::Print("客户端[{}]断开连接\r\n", _id);
+		tinyToolkit::String::Print("客户端会话[{}:{}]断开连接\r\n", _id);
 	}
 
 	/**
@@ -239,7 +338,7 @@ public:
 	 */
 	void OnConnectFailed() override
 	{
-		tinyToolkit::String::Print("客户端[{}]连接服务器[{}:{}]失败\r\n", _id, _host, _port);
+		tinyToolkit::String::Print("客户端会话[{}:{}]连接服务器会话[{}:{}]失败\r\n", _localHost, _localPort, _remoteHost, _remotePort);
 	}
 
 private:
@@ -247,17 +346,17 @@ private:
 };
 
 
-class UDPServer : public tinyToolkit::IUDPServer
+class UDPServerSession : public tinyToolkit::IUDPSession
 {
 public:
 	/**
 	 *
 	 * 构造函数
 	 *
-	 * @param id 序列号
+	 * @param id 序号
 	 *
 	 */
-	explicit UDPServer(int32_t id) : _id(id)
+	explicit UDPServerSession(int32_t id) : _id(id)
 	{
 
 	}
@@ -267,9 +366,9 @@ public:
 	 * 析构函数
 	 *
 	 */
-	~UDPServer() override
+	~UDPServerSession() override
 	{
-		tinyToolkit::String::Print("服务器析构\r\n");
+		tinyToolkit::String::Print("服务器会话析构\r\n");
 	}
 
 	/**
@@ -284,13 +383,11 @@ public:
 	 */
 	void OnReceive(const char * host, uint16_t port, const char * data, std::size_t size) override
 	{
-		tinyToolkit::String::Print("服务器[{}]接收到客户端[{}:{}]长度为[{}]的信息 : {}\r\n", _id, host, port, size, data);
+		tinyToolkit::String::Print("服务器会话[{}:{}]接收到客户端会话[{}:{}]长度为[{}]的信息 : {}\r\n", _localHost, _localPort, host, port, size, data);
 
-		static int32_t count = 0;
-
-		if (++count > 1)
+		if (strstr(data, "request"))
 		{
-			std::string value = tinyToolkit::String::Format("你好, 我的udp编号为{}", _id);
+			std::string value = tinyToolkit::String::Format("udp客户端你好, 请求已收到");
 
 			Send(host, port, value.c_str(), value.size());
 		}
@@ -303,7 +400,11 @@ public:
 	 */
 	void OnConnect() override
 	{
-		tinyToolkit::String::Print("服务器[{}]连接客户端[{}:{}]成功\r\n", _id, _host, _port);
+		tinyToolkit::String::Print("服务器会话[{}:{}]连接客户端会话[{}:{}]成功\r\n", _localHost, _localPort, _remoteHost, _remotePort);
+
+		std::string value = tinyToolkit::String::Format("udp客户端你好, 我的编号为{}", _id);
+
+		Send(_remoteHost.c_str(), _remotePort, value.c_str(), value.size());
 	}
 
 	/**
@@ -313,7 +414,7 @@ public:
 	 */
 	void OnDisconnect() override
 	{
-		tinyToolkit::String::Print("服务器[{}]断开连接\r\n", _id);
+		tinyToolkit::String::Print("服务器会话[{}:{}]断开连接\r\n", _localHost, _localPort);
 	}
 
 	/**
@@ -323,11 +424,114 @@ public:
 	 */
 	void OnConnectFailed() override
 	{
-		tinyToolkit::String::Print("服务器[{}]连接客户端[{}:{}]失败\r\n", _id, _host, _port);
+		tinyToolkit::String::Print("服务器会话[{}:{}]连接客户端会话[{}:{}]失败\r\n", _localHost, _localPort, _remoteHost, _remotePort);
 	}
 
 private:
 	int32_t _id{ 0 };
+};
+
+
+class UDPServer : public tinyToolkit::IUDPServer
+{
+public:
+	/**
+	 *
+	 * 析构函数
+	 *
+	 */
+	~UDPServer() override
+	{
+		tinyToolkit::String::Print("服务器析构\r\n");
+
+		for (auto &iter : _pool)
+		{
+			iter.second->Close();
+
+			delete iter.second;
+		}
+	}
+
+	/**
+	 *
+	 * 新连接触发回调函数
+	 *
+	 * @param host 主机地址
+	 * @param port 主机端口
+	 *
+	 * @return 会话
+	 *
+	 */
+	tinyToolkit::IUDPSession * OnNewConnect(const std::string & host, uint16_t port) override
+	{
+		tinyToolkit::String::Print("服务器[{}:{}]接收到客户端[{}:{}]会话请求\r\n", _host, _port, host, port);
+
+		auto key = tinyToolkit::String::Splice(host, ":", port);
+
+		auto find = _pool.find(key);
+
+		if (find == _pool.end())
+		{
+			_pool.insert(std::make_pair(key, new UDPServerSession(port)));
+
+			find = _pool.find(key);
+		}
+
+		return find->second;
+	}
+
+	/**
+	 *
+	 * 会话错误触发回调函数
+	 *
+	 */
+	void OnSessionError(tinyToolkit::IUDPSession * session) override
+	{
+		tinyToolkit::String::Print("服务器[{}:{}]与客户端[{}:{}]会话错误\r\n", _host, _port, session->_remoteHost, session->_remotePort);
+
+		auto key = tinyToolkit::String::Splice(session->_remoteHost, ":", session->_remotePort);
+
+		auto find = _pool.find(key);
+
+		if (find != _pool.end())
+		{
+			find->second->Close();
+
+			delete find->second;
+
+			_pool.erase(find);
+		}
+	}
+
+	/**
+	 *
+	 * 错误触发回调函数
+	 *
+	 */
+	void OnError() override
+	{
+		tinyToolkit::String::Print("服务器[{}:{}]异常\r\n", _host, _port);
+	}
+
+	/**
+	 *
+	 * 断开连接触发回调函数
+	 *
+	 */
+	void OnRelease() override
+	{
+		tinyToolkit::String::Print("服务器[{}:{}]断开连接\r\n", _host, _port);
+
+		for (auto &iter : _pool)
+		{
+			iter.second->Close();
+
+			delete iter.second;
+		}
+	}
+
+private:
+	std::unordered_map<std::string, tinyToolkit::IUDPSession *> _pool{ };
 };
 
 
@@ -347,6 +551,30 @@ void ParseOption(int argc, char const * argv[])
 
 void StartApp()
 {
+	if (tinyToolkit::OptionManager::Instance().Empty())
+	{
+		TCPServer server;
+
+		if (server.Launch("127.0.0.1", 1234))
+		{
+			tinyToolkit::String::Print("服务器[{}:{}]启动成功\r\n", "127.0.0.1", 1234);
+		}
+		else
+		{
+			tinyToolkit::String::Print("服务器[{}:{}]启动失败\r\n", "127.0.0.1", 1234);
+		}
+
+		while (true)
+		{
+			if (getchar() == 'q')
+			{
+				server.Close();
+
+				return;
+			}
+		}
+	}
+
 	auto mode = tinyToolkit::OptionManager::Instance().Get("mode");
 	auto type = tinyToolkit::OptionManager::Instance().Get("type");
 	auto host = tinyToolkit::OptionManager::Instance().Get("host");
@@ -357,11 +585,13 @@ void StartApp()
 	{
 		if (mode == "client")
 		{
-			tinyToolkit::ApplicationPool<TCPClient> pool;
+			std::vector<TCPClientSession *> pool;
 
 			for (uint32_t i = 0; i < size; ++i)
 			{
-				if (pool.Create(i)->Launch(host, port))
+				auto session = new TCPClientSession(i);
+
+				if (session->Launch(host, port))
 				{
 					tinyToolkit::String::Print("客户端[{}:{}]启动成功\r\n", host, port);
 				}
@@ -369,13 +599,33 @@ void StartApp()
 				{
 					tinyToolkit::String::Print("客户端[{}:{}]启动失败\r\n", host, port);
 				}
+
+				pool.push_back(session);
 			}
 
 			while (true)
 			{
-				if (getchar() == 'q')
+				std::string value{ };
+
+				std::getline(std::cin, value);
+
+				if (value[0] == 'q')
 				{
-					break;
+					for (auto &iter : pool)
+					{
+						iter->Close();
+
+						delete iter;
+					}
+
+					return;
+				}
+				else
+				{
+					for (auto &iter : pool)
+					{
+						iter->Send(value.c_str(), value.size());
+					}
 				}
 			}
 		}
@@ -396,7 +646,9 @@ void StartApp()
 			{
 				if (getchar() == 'q')
 				{
-					break;
+					server.Close();
+
+					return;
 				}
 			}
 		}
@@ -405,11 +657,13 @@ void StartApp()
 	{
 		if (mode == "client")
 		{
-			tinyToolkit::ApplicationPool<UDPClient> pool;
+			std::vector<UDPClientSession *> pool;
 
 			for (uint32_t i = 0; i < size; ++i)
 			{
-				if (pool.Create(i)->Launch(host, port))
+				auto session = new UDPClientSession(i);
+
+				if (session->Launch(host, port))
 				{
 					tinyToolkit::String::Print("客户端[{}:{}]启动成功\r\n", host, port);
 				}
@@ -417,19 +671,39 @@ void StartApp()
 				{
 					tinyToolkit::String::Print("客户端[{}:{}]启动失败\r\n", host, port);
 				}
+
+				pool.push_back(session);
 			}
 
 			while (true)
 			{
-				if (getchar() == 'q')
+				std::string value{ };
+
+				std::getline(std::cin, value);
+
+				if (value[0] == 'q')
 				{
-					break;
+					for (auto &iter : pool)
+					{
+						iter->Close();
+
+						delete iter;
+					}
+
+					return;
+				}
+				else
+				{
+					for (auto &iter : pool)
+					{
+						iter->Send(iter->_remoteHost.c_str(), iter->_remotePort, value.c_str(), value.size());
+					}
 				}
 			}
 		}
 		else if (mode == "server")
 		{
-			UDPServer server(10086);
+			UDPServer server;
 
 			if (server.Launch(host, port))
 			{
@@ -444,7 +718,9 @@ void StartApp()
 			{
 				if (getchar() == 'q')
 				{
-					break;
+					server.Close();
+
+					return;
 				}
 			}
 		}

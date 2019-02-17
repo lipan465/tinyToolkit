@@ -31,42 +31,37 @@
 #include "compiler.h"
 #include "function.h"
 
-
-/// c++11
-#if TINY_TOOLKIT_CXX_SUPPORT >= 11
-#
-#  include <set>
-#  include <map>
-#  include <list>
-#  include <array>
-#  include <queue>
-#  include <stack>
-#  include <mutex>
-#  include <regex>
-#  include <chrono>
-#  include <atomic>
-#  include <vector>
-#  include <string>
-#  include <memory>
-#  include <future>
-#  include <thread>
-#  include <random>
-#  include <iomanip>
-#  include <utility>
-#  include <numeric>
-#  include <sstream>
-#  include <fstream>
-#  include <iostream>
-#  include <algorithm>
-#  include <exception>
-#  include <stdexcept>
-#  include <functional>
-#  include <forward_list>
-#  include <unordered_set>
-#  include <unordered_map>
-#  include <condition_variable>
-#
-#endif
+/// c++
+#include <set>
+#include <map>
+#include <list>
+#include <array>
+#include <queue>
+#include <stack>
+#include <mutex>
+#include <regex>
+#include <chrono>
+#include <atomic>
+#include <vector>
+#include <string>
+#include <memory>
+#include <future>
+#include <thread>
+#include <random>
+#include <iomanip>
+#include <utility>
+#include <numeric>
+#include <sstream>
+#include <fstream>
+#include <iostream>
+#include <algorithm>
+#include <exception>
+#include <stdexcept>
+#include <functional>
+#include <forward_list>
+#include <unordered_set>
+#include <unordered_map>
+#include <condition_variable>
 
 
 /// 各平台头文件
@@ -82,41 +77,48 @@
 #
 # elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 #
-#  include <fcntl.h>
-#  include <dirent.h>
-#  include <cxxabi.h>
-#  include <unistd.h>
-#  include <syslog.h>
-#  include <unistd.h>
-#  include <execinfo.h>
-#  include <sys/stat.h>
-#  include <arpa/inet.h>
-#  include <sys/ioctl.h>
-#  include <mach-o/dyld.h>
-#  include <sys/syscall.h>
-#  include <net/ethernet.h>
-#  include <netinet/if_ether.h>
-#
-#else
-#
+#  include <dlfcn.h>
 #  include <netdb.h>
 #  include <fcntl.h>
 #  include <dirent.h>
 #  include <cxxabi.h>
 #  include <unistd.h>
 #  include <syslog.h>
-#  include <unistd.h>
 #  include <execinfo.h>
 #  include <sys/stat.h>
-#  include <arpa/inet.h>
 #  include <sys/ioctl.h>
+#  include <arpa/inet.h>
+#  include <sys/socket.h>
+#  include <netinet/ip.h>
+#  include <sys/syscall.h>
+#  include <netinet/tcp.h>
+#  include <netinet/udp.h>
+#  include <mach-o/dyld.h>
+#  include <net/ethernet.h>
+#  include <sys/resource.h>
+#  include <netinet/if_ether.h>
+#
+#else
+#
+#  include <dlfcn.h>
+#  include <netdb.h>
+#  include <fcntl.h>
+#  include <dirent.h>
+#  include <cxxabi.h>
+#  include <unistd.h>
+#  include <syslog.h>
+#  include <execinfo.h>
+#  include <sys/stat.h>
+#  include <sys/ioctl.h>
+#  include <arpa/inet.h>
 #  include <sys/epoll.h>
 #  include <sys/socket.h>
 #  include <netinet/ip.h>
+#  include <sys/syscall.h>
 #  include <netinet/tcp.h>
 #  include <netinet/udp.h>
-#  include <sys/syscall.h>
 #  include <net/ethernet.h>
+#  include <sys/resource.h>
 #  include <netinet/if_ether.h>
 #
 #endif

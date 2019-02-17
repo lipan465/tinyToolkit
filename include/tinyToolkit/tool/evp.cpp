@@ -7,6 +7,9 @@
  */
 
 
+#ifdef WITH_OPENSSL
+
+
 #include "evp.h"
 
 
@@ -270,3 +273,6 @@ namespace tinyToolkit
 		EVP_DigestInit(_context, EVP_get_digestbyname(_type.c_str()));
 	}
 }
+
+
+#endif // WITH_OPENSSL

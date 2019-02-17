@@ -223,6 +223,15 @@
 #
 #endif
 
+/**
+ *
+ * 网络句柄个数
+ *
+ */
+#ifndef TINY_TOOLKIT_NET_COUNT
+#define TINY_TOOLKIT_NET_COUNT							10240
+#endif
+
 
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 #
@@ -251,10 +260,6 @@
 #  endif
 #
 #else
-#
-#  ifndef TINY_TOOLKIT_EPOLL_COUNT
-#  define TINY_TOOLKIT_EPOLL_COUNT						10240
-#  endif
 #
 #  ifndef TINY_TOOLKIT_EOL
 #  define TINY_TOOLKIT_EOL								"\n"

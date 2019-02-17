@@ -319,7 +319,7 @@ namespace tinyToolkit
 	 */
 	std::string Filesystem::CurrentDirectory()
 	{
-		char directory[TINY_TOOLKIT_PATH_MAX] = { 0 };
+		char directory[TINY_TOOLKIT_PATH_MAX + 1] = { 0 };
 
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
@@ -383,7 +383,7 @@ namespace tinyToolkit
 	 */
 	std::string Filesystem::Canonical(const std::string & path)
 	{
-		char directory[TINY_TOOLKIT_PATH_MAX] = { 0 };
+		char directory[TINY_TOOLKIT_PATH_MAX + 1] = { 0 };
 
 	#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 

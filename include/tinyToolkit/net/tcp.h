@@ -18,7 +18,7 @@
 
 namespace tinyToolkit
 {
-	class TINY_TOOLKIT_API TCPClientPipe : public ITCPPipe
+	class TINY_TOOLKIT_API TCPSessionPipe : public ITCPPipe
 	{
 	public:
 		/**
@@ -28,17 +28,17 @@ namespace tinyToolkit
 		 * @param managerSocket 管理句柄
 		 * @param sessionSocket 会话句柄
 		 * @param session 会话
-		 * @param type 事件类型
+		 * @param netEventType 事件类型
 		 *
 		 */
-		TCPClientPipe(int32_t managerSocket, int32_t sessionSocket, ITCPSession * session, EVENT_TYPE type);
+		TCPSessionPipe(int32_t managerSocket, int32_t sessionSocket, ITCPSession * session, NET_EVENT_TYPE netEventType);
 
 		/**
 		 *
 		 * 析构函数
 		 *
 		 */
-		~TCPClientPipe() override = default;
+		~TCPSessionPipe() override = default;
 
 		/**
 		 *
@@ -60,26 +60,44 @@ namespace tinyToolkit
 	protected:
 		/**
 		 *
-		 * 回调函数
+		 * 连接处理
 		 *
-		 * @param currentEventValue 当前事件数据
-		 * @param currentEvent 当前事件
+		 * @param sysEvent 系统事件
 		 *
 		 */
-		void OnCallBack(const EventValue * currentEventValue, const struct epoll_event & currentEvent);
+		void DoConnect(const void * sysEvent);
+
+		/**
+		 *
+		 * 交互处理
+		 *
+		 * @param sysEvent 系统事件
+		 *
+		 */
+		void DoTransmit(const void * sysEvent);
+
+		/**
+		 *
+		 * 回调函数
+		 *
+		 * @param netEvent 网络事件
+		 * @param sysEvent 系统事件
+		 *
+		 */
+		void OnCallBack(const NetEvent * netEvent, const void * sysEvent);
 
 	public:
-		bool isConnect{ false };
+		bool _isConnect{ false };
 
-		EventValue eventValue{ };
+		NetEvent _netEvent{ };
 
-	protected:
+	private:
 		int32_t _managerSocket{ -1 };
 		int32_t _sessionSocket{ -1 };
 
 		ITCPSession * _session{ nullptr };
 
-		std::queue<EventPackage> _sendQueue{ };
+		std::queue<NetEventPackage> _sendQueue{ };
 	};
 
 	class TINY_TOOLKIT_API TCPServerPipe : public ITCPPipe
@@ -91,11 +109,11 @@ namespace tinyToolkit
 		 *
 		 * @param managerSocket 管理句柄
 		 * @param sessionSocket 会话句柄
-		 * @param session 会话
-		 * @param type 事件类型
+		 * @param server 服务器
+		 * @param netEventType 事件类型
 		 *
 		 */
-		TCPServerPipe(int32_t managerSocket, int32_t sessionSocket, ITCPServer * server, EVENT_TYPE type);
+		TCPServerPipe(int32_t managerSocket, int32_t sessionSocket, ITCPServer * server, NET_EVENT_TYPE netEventType);
 
 		/**
 		 *
@@ -124,18 +142,27 @@ namespace tinyToolkit
 	protected:
 		/**
 		 *
-		 * 回调函数
+		 * 连接处理
 		 *
-		 * @param currentEventValue 当前事件数据
-		 * @param currentEvent 当前事件
+		 * @param sysEvent 系统事件
 		 *
 		 */
-		void OnCallBack(const EventValue * currentEventValue, const struct epoll_event & currentEvent);
+		void DoAccept(const void * sysEvent);
+
+		/**
+		 *
+		 * 回调函数
+		 *
+		 * @param netEvent 网络事件
+		 * @param sysEvent 系统事件
+		 *
+		 */
+		void OnCallBack(const NetEvent * netEvent, const void * sysEvent);
 
 	public:
-		EventValue eventValue{ };
+		NetEvent _netEvent{ };
 
-	protected:
+	private:
 		int32_t _managerSocket{ -1 };
 		int32_t _sessionSocket{ -1 };
 

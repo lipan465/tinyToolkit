@@ -11,6 +11,9 @@
  */
 
 
+#ifdef WITH_SQLITE
+
+
 #include <sqlite3.h>
 
 #include "../debug/exception.h"
@@ -592,6 +595,9 @@ namespace tinyToolkit
 		std::unordered_map<std::string, std::size_t> _field{ };
 	};
 }
+
+
+#endif // WITH_SQLITE
 
 
 #endif // __TINY_TOOLKIT__TOOL__SQLITE__H__

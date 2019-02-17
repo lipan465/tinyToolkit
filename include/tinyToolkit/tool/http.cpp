@@ -7,6 +7,9 @@
  */
 
 
+#ifdef WITH_CURL
+
+
 #include "http.h"
 
 
@@ -878,3 +881,6 @@ namespace tinyToolkit
 		return count;
 	}
 }
+
+
+#endif // WITH_CURL

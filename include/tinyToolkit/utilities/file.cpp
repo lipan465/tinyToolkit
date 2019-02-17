@@ -243,6 +243,8 @@ namespace tinyToolkit
 
 		/// todo
 
+		Close();
+
 		return false;
 
 	#else
@@ -301,6 +303,8 @@ namespace tinyToolkit
 	#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
 		/// todo
+
+		Close();
 
 		return false;
 

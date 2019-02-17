@@ -16,24 +16,24 @@
 
 namespace tinyToolkit
 {
-	enum class EVENT_TYPE : uint8_t
+	enum class NET_EVENT_TYPE : uint8_t
 	{
 		ACCEPT,
 		CONNECT,
 		TRANSMIT,
 	};
 
-	class TINY_TOOLKIT_API EventValue
+	class TINY_TOOLKIT_API NetEvent
 	{
 	public:
-		int32_t socket{ -1 };
+		int32_t _socket{ -1 };
 
-		EVENT_TYPE type{ EVENT_TYPE::TRANSMIT };
+		NET_EVENT_TYPE _type{ NET_EVENT_TYPE::TRANSMIT };
 
-		std::function<void(const EventValue *, const struct epoll_event &)> callback;
+		std::function<void(const NetEvent *, const void *)> _callback;
 	};
 
-	class TINY_TOOLKIT_API EventPackage
+	class TINY_TOOLKIT_API NetEventPackage
 	{
 	public:
 		/**
@@ -46,18 +46,18 @@ namespace tinyToolkit
 		 * @param size 待发送数据长度
 		 *
 		 */
-		EventPackage(const char * host_, uint16_t port_, const void * value_, std::size_t size_) : port(port_),
-																								   host(host_),
-																								   value(std::string(reinterpret_cast<const char *>(value_), size_))
+		NetEventPackage(const char * host, uint16_t port, const void * value, std::size_t size) : _port(port),
+																								  _host(host),
+																								  _value(std::string(reinterpret_cast<const char *>(value), size))
 		{
 
 		}
 
 	public:
-		uint16_t port{ 0 };
+		uint16_t _port{ 0 };
 
-		std::string host{ };
-		std::string value{ };
+		std::string _host{ };
+		std::string _value{ };
 	};
 }
 

@@ -899,20 +899,20 @@ TEST(Container, Message)
 
 TEST(Utilities, Address)
 {
-	EXPECT_STR_EQ(tinyToolkit::Address::AsString(16951488).c_str(), "1.2.168.192");
-	EXPECT_STR_EQ(tinyToolkit::Address::AsString(3232236033).c_str(), "192.168.2.1");
+	EXPECT_STR_EQ(tinyToolkit::Net::AsString(16951488).c_str(), "1.2.168.192");
+	EXPECT_STR_EQ(tinyToolkit::Net::AsString(3232236033).c_str(), "192.168.2.1");
 
-	EXPECT_EQ(tinyToolkit::Address::AsNetByte("192.168.2.1"), static_cast<uint32_t>(16951488));
-	EXPECT_EQ(tinyToolkit::Address::AsNetByte("1.2.168.192"), static_cast<uint32_t>(3232236033));
+	EXPECT_EQ(tinyToolkit::Net::AsNetByte("192.168.2.1"), static_cast<uint32_t>(16951488));
+	EXPECT_EQ(tinyToolkit::Net::AsNetByte("1.2.168.192"), static_cast<uint32_t>(3232236033));
 
-	EXPECT_EQ(tinyToolkit::Address::AsNetByte(std::string("192.168.2.1")), static_cast<uint32_t>(16951488));
-	EXPECT_EQ(tinyToolkit::Address::AsNetByte(std::string("1.2.168.192")), static_cast<uint32_t>(3232236033));
+	EXPECT_EQ(tinyToolkit::Net::AsNetByte(std::string("192.168.2.1")), static_cast<uint32_t>(16951488));
+	EXPECT_EQ(tinyToolkit::Net::AsNetByte(std::string("1.2.168.192")), static_cast<uint32_t>(3232236033));
 
-	EXPECT_EQ(tinyToolkit::Address::AsHostByte("192.168.2.1"), static_cast<uint32_t>(3232236033));
-	EXPECT_EQ(tinyToolkit::Address::AsHostByte("1.2.168.192"), static_cast<uint32_t>(16951488));
+	EXPECT_EQ(tinyToolkit::Net::AsHostByte("192.168.2.1"), static_cast<uint32_t>(3232236033));
+	EXPECT_EQ(tinyToolkit::Net::AsHostByte("1.2.168.192"), static_cast<uint32_t>(16951488));
 
-	EXPECT_EQ(tinyToolkit::Address::AsHostByte(std::string("192.168.2.1")), static_cast<uint32_t>(3232236033));
-	EXPECT_EQ(tinyToolkit::Address::AsHostByte(std::string("1.2.168.192")), static_cast<uint32_t>(16951488));
+	EXPECT_EQ(tinyToolkit::Net::AsHostByte(std::string("192.168.2.1")), static_cast<uint32_t>(3232236033));
+	EXPECT_EQ(tinyToolkit::Net::AsHostByte(std::string("1.2.168.192")), static_cast<uint32_t>(16951488));
 }
 
 
@@ -982,7 +982,10 @@ TEST(Utilities, Time)
 	EXPECT_TRUE(tinyToolkit::Time::IsSameMinute(tinyToolkit::Time::FromTimeString("2018-01-02 03:04:05"),
 			tinyToolkit::Time::FromTimeString("2018-01-02 03:04:15")));
 
-	EXPECT_EQ(tinyToolkit::Time::LocalTm().tm_hour - tinyToolkit::Time::UTCTm().tm_hour, 8);
+	auto utcTm = tinyToolkit::Time::UTCTm();
+	auto localTm = tinyToolkit::Time::LocalTm();
+
+	EXPECT_EQ((localTm.tm_mday - utcTm.tm_mday) * 24 + localTm.tm_hour - utcTm.tm_hour, 8);
 	EXPECT_EQ(tinyToolkit::Time::Cast<int32_t>(), tinyToolkit::Time::Seconds());
 	EXPECT_EQ(tinyToolkit::Time::TimeZone(), 8);
 	EXPECT_EQ(tinyToolkit::Time::Seconds(tinyToolkit::Time::TimeDuration()), tinyToolkit::Time::Seconds(tinyToolkit::Time::TimePoint()));

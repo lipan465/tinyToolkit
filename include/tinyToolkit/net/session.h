@@ -87,9 +87,11 @@ namespace tinyToolkit
 		void Send(const void * value, std::size_t size);
 
 	public:
-		uint16_t _port{ 0 };
+		uint16_t _localPort{ 0 };
+		uint16_t _remotePort{ 0 };
 
-		std::string _host{ 0 };
+		std::string _localHost{ };
+		std::string _remoteHost{ };
 
 		std::shared_ptr<ITCPPipe> _pipe{ };
 	};
@@ -169,9 +171,11 @@ namespace tinyToolkit
 		void Send(const char * host, uint16_t port, const void * value, std::size_t size);
 
 	public:
-		uint16_t _port{ 0 };
+		uint16_t _localPort{ 0 };
+		uint16_t _remotePort{ 0 };
 
-		std::string _host{ 0 };
+		std::string _localHost{ };
+		std::string _remoteHost{ };
 
 		std::shared_ptr<IUDPPipe> _pipe{ };
 	};

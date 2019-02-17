@@ -184,7 +184,7 @@ namespace tinyToolkit
 	protected:
 		std::atomic<std::size_t> _id{ 0 };
 
-		std::unordered_map<std::size_t, Callback> _pool;
+		std::unordered_map<std::size_t, Callback> _pool{ };
 	};
 }
 

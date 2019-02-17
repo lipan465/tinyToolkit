@@ -11,9 +11,12 @@
  */
 
 
-#include "../common/common.h"
+#ifdef WITH_MEMCACHED
 
-#include "../3rd/memcached/libmemcached/memcached.h"
+
+#include <libmemcached/memcached.h>
+
+#include "../common/common.h"
 
 
 namespace tinyToolkit
@@ -108,6 +111,9 @@ namespace tinyToolkit
 		memcached_st * _memcached{ nullptr };
 	};
 }
+
+
+#endif // WITH_MEMCACHED
 
 
 #endif // __TINY_TOOLKIT__TOOL__MEMCACHED__H__

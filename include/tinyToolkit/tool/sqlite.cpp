@@ -7,6 +7,9 @@
  */
 
 
+#ifdef WITH_SQLITE
+
+
 #include "sqlite.h"
 
 
@@ -700,3 +703,6 @@ namespace tinyToolkit
 		return false;
 	}
 }
+
+
+#endif // WITH_SQLITE

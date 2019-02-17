@@ -18,7 +18,7 @@
 
 namespace tinyToolkit
 {
-	class TINY_TOOLKIT_API UDPClientPipe : public IUDPPipe
+	class TINY_TOOLKIT_API UDPSessionPipe : public IUDPPipe
 	{
 	public:
 		/**
@@ -28,17 +28,17 @@ namespace tinyToolkit
 		 * @param managerSocket 管理句柄
 		 * @param sessionSocket 会话句柄
 		 * @param session 会话
-		 * @param type 事件类型
+		 * @param netEventType 事件类型
 		 *
 		 */
-		UDPClientPipe(int32_t managerSocket, int32_t sessionSocket, IUDPSession * session, EVENT_TYPE type);
+		UDPSessionPipe(int32_t managerSocket, int32_t sessionSocket, IUDPSession * session, NET_EVENT_TYPE netEventType);
 
 		/**
 		 *
 		 * 析构函数
 		 *
 		 */
-		~UDPClientPipe() override = default;
+		~UDPSessionPipe() override = default;
 
 		/**
 		 *
@@ -62,26 +62,44 @@ namespace tinyToolkit
 	protected:
 		/**
 		 *
-		 * 回调函数
+		 * 连接处理
 		 *
-		 * @param currentEventValue 当前事件数据
-		 * @param currentEvent 当前事件
+		 * @param sysEvent 系统事件
 		 *
 		 */
-		void OnCallBack(const EventValue * currentEventValue, const struct epoll_event & currentEvent);
+		void DoConnect(const void * sysEvent);
+
+		/**
+		 *
+		 * 交互处理
+		 *
+		 * @param sysEvent 系统事件
+		 *
+		 */
+		void DoTransmit(const void * sysEvent);
+
+		/**
+		 *
+		 * 回调函数
+		 *
+		 * @param netEvent 网络事件
+		 * @param sysEvent 系统事件
+		 *
+		 */
+		void OnCallBack(const NetEvent * netEvent, const void * sysEvent);
 
 	public:
-		bool isConnect{ false };
+		bool _isConnect{ false };
 
-		EventValue eventValue{ };
+		NetEvent _netEvent{ };
 
-	protected:
+	private:
 		int32_t _managerSocket{ -1 };
 		int32_t _sessionSocket{ -1 };
 
 		IUDPSession * _session{ nullptr };
 
-		std::queue<EventPackage> _sendQueue{ };
+		std::queue<NetEventPackage> _sendQueue{ };
 	};
 
 	class TINY_TOOLKIT_API UDPServerPipe : public IUDPPipe
@@ -93,11 +111,11 @@ namespace tinyToolkit
 		 *
 		 * @param managerSocket 管理句柄
 		 * @param sessionSocket 会话句柄
-		 * @param session 会话
-		 * @param type 事件类型
+		 * @param server 服务器
+		 * @param netEventType 事件类型
 		 *
 		 */
-		UDPServerPipe(int32_t managerSocket, int32_t sessionSocket, IUDPServer * server, EVENT_TYPE type);
+		UDPServerPipe(int32_t managerSocket, int32_t sessionSocket, IUDPServer * server, NET_EVENT_TYPE netEventType);
 
 		/**
 		 *
@@ -128,26 +146,31 @@ namespace tinyToolkit
 	protected:
 		/**
 		 *
-		 * 回调函数
+		 * 连接处理
 		 *
-		 * @param currentEventValue 当前事件数据
-		 * @param currentEvent 当前事件
+		 * @param sysEvent 系统事件
 		 *
 		 */
-		void OnCallBack(const EventValue * currentEventValue, const struct epoll_event & currentEvent);
+		void DoAccept(const void * sysEvent);
+
+		/**
+		 *
+		 * 回调函数
+		 *
+		 * @param netEvent 网络事件
+		 * @param sysEvent 系统事件
+		 *
+		 */
+		void OnCallBack(const NetEvent * netEvent, const void * sysEvent);
 
 	public:
-		bool isConnect{ false };
+		NetEvent _netEvent{ };
 
-		EventValue eventValue{ };
-
-	protected:
+	private:
 		int32_t _managerSocket{ -1 };
 		int32_t _sessionSocket{ -1 };
 
 		IUDPServer * _server{ nullptr };
-
-		std::queue<EventPackage> _sendQueue{ };
 	};
 }
 

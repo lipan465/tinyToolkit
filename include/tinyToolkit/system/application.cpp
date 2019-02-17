@@ -117,8 +117,6 @@ namespace tinyToolkit
 		{
 		#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-			/// todo
-
 			if (value.first.Open(String::Format(R"(C:\Users\Public\Documents\{}.pid)", Name()), true))
 			{
 				value.first << std::to_string(OS::ProcessID());
@@ -173,11 +171,11 @@ namespace tinyToolkit
 
 		if (value.second)
 		{
-			char str[TINY_TOOLKIT_PATH_MAX] = { 0 };
+			char str[TINY_TOOLKIT_PATH_MAX + 1] = { 0 };
 
 		#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-			GetModuleFileName(nullptr, str, sizeof(str));
+			GetModuleFileName(nullptr, str, TINY_TOOLKIT_PATH_MAX);
 
 		#elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 

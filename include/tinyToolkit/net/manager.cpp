@@ -7,11 +7,10 @@
  */
 
 
-#include "socket.h"
 #include "manager.h"
 
 #include "../debug/trace.h"
-#include "../utilities/address.h"
+#include "../utilities/net.h"
 
 
 namespace tinyToolkit
@@ -37,11 +36,18 @@ namespace tinyToolkit
 	{
 		if (_status)
 		{
+			_status = false;
+
 			if (_thread.joinable())
 			{
-				_status = false;
-
 				_thread.join();
+			}
+
+			if (_socket != -1)
+			{
+				::close(_socket);
+
+				_socket = -1;
 			}
 		}
 	}
@@ -73,11 +79,12 @@ namespace tinyToolkit
 			return false;
 		}
 
-		client->_host = Address::ParseHost(host);
-		client->_port = port;
+		client->_remotePort = port;
+		client->_remoteHost = Net::ParseHost(host);
 
-		if (!Socket::SetNonBlocking(sock) ||
-			!Socket::SetReuseAddress(sock))
+		if (!Net::EnableReusePort(sock) ||
+			!Net::EnableNonBlocking(sock) ||
+			!Net::EnableReuseAddress(sock))
 		{
 			::close(sock);
 
@@ -88,9 +95,9 @@ namespace tinyToolkit
 
 		struct sockaddr_in address{ };
 
-		address.sin_port = htons(client->_port);
+		address.sin_port = htons(client->_remotePort);
 		address.sin_family = AF_INET;
-		address.sin_addr.s_addr = Address::AsNetByte(client->_host);
+		address.sin_addr.s_addr = Net::AsNetByte(client->_remoteHost);
 
 		if (::connect(sock, (struct sockaddr *)&address, sizeof(struct sockaddr_in)) == -1)
 		{
@@ -101,12 +108,22 @@ namespace tinyToolkit
 			return false;
 		}
 
-		auto pipe = std::make_shared<UDPClientPipe>(_socket, sock, client, EVENT_TYPE::TRANSMIT);
+		auto pipe = std::make_shared<UDPSessionPipe>(_socket, sock, client, NET_EVENT_TYPE::TRANSMIT);
+
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		/// todo
+
+#elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
+
+		/// todo
+
+#else
 
 		struct epoll_event event{ };
 
 		event.events = EPOLLIN;
-		event.data.ptr = (void *)&pipe->eventValue;
+		event.data.ptr = &pipe->_netEvent;
 
 		if (epoll_ctl(_socket, EPOLL_CTL_ADD, sock, &event) == -1)
 		{
@@ -118,12 +135,14 @@ namespace tinyToolkit
 		}
 		else
 		{
-			client->_pipe = pipe;
+			pipe->_isConnect = true;
 
-			pipe->isConnect = true;
+			client->_pipe = pipe;
 
 			client->OnConnect();
 		}
+
+#endif
 
 		return true;
 	}
@@ -155,15 +174,16 @@ namespace tinyToolkit
 			return false;
 		}
 
-		server->_host = Address::ParseHost(host);
 		server->_port = port;
+		server->_host = Net::ParseHost(host);
 
-		if (!Socket::SetNonBlocking(sock) ||
-			!Socket::SetReuseAddress(sock))
+		if (!Net::EnableReusePort(sock) ||
+			!Net::EnableNonBlocking(sock) ||
+			!Net::EnableReuseAddress(sock))
 		{
 			::close(sock);
 
-			server->OnConnectFailed();
+			server->OnError();
 
 			return false;
 		}
@@ -172,40 +192,48 @@ namespace tinyToolkit
 
 		address.sin_port = htons(server->_port);
 		address.sin_family = AF_INET;
-		address.sin_addr.s_addr = Address::AsNetByte(server->_host);
+		address.sin_addr.s_addr = Net::AsNetByte(server->_host);
 
 		if (::bind(sock, (struct sockaddr *)&address, sizeof(struct sockaddr_in)) == -1)
 		{
 			::close(sock);
 
-			server->OnConnectFailed();
+			server->OnError();
 
 			return false;
 		}
 
-		auto pipe = std::make_shared<UDPServerPipe>(_socket, sock, server, EVENT_TYPE::TRANSMIT);
+		auto pipe = std::make_shared<UDPServerPipe>(_socket, sock, server, NET_EVENT_TYPE::TRANSMIT);
+
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		/// todo
+
+#elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
+
+		/// todo
+
+#else
 
 		struct epoll_event event{ };
 
 		event.events = EPOLLIN;
-		event.data.ptr = (void *)&pipe->eventValue;
+		event.data.ptr = &pipe->_netEvent;
 
 		if (epoll_ctl(_socket, EPOLL_CTL_ADD, sock, &event) == -1)
 		{
 			::close(sock);
 
-			server->OnConnectFailed();
+			server->OnError();
 
 			return false;
 		}
 		else
 		{
 			server->_pipe = pipe;
-
-			pipe->isConnect = true;
-
-			server->OnConnect();
 		}
+
+#endif
 
 		return true;
 	}
@@ -237,10 +265,13 @@ namespace tinyToolkit
 			return false;
 		}
 
-		client->_host = Address::ParseHost(host);
-		client->_port = port;
+		client->_remotePort = port;
+		client->_remoteHost = Net::ParseHost(host);
 
-		if (!Socket::SetNonBlocking(sock))
+		if (!Net::EnableNoDelay(sock) ||
+			!Net::EnableReusePort(sock) ||
+			!Net::EnableNonBlocking(sock) ||
+			!Net::EnableReuseAddress(sock))
 		{
 			::close(sock);
 
@@ -251,20 +282,32 @@ namespace tinyToolkit
 
 		struct sockaddr_in address{ };
 
-		address.sin_port = htons(client->_port);
+		address.sin_port = htons(client->_remotePort);
 		address.sin_family = AF_INET;
-		address.sin_addr.s_addr = Address::AsNetByte(client->_host);
+		address.sin_addr.s_addr = Net::AsNetByte(client->_remoteHost);
 
 		int32_t ret = ::connect(sock, (struct sockaddr *)&address, sizeof(struct sockaddr_in));
 
 		if (ret == 0)
 		{
-			auto pipe = std::make_shared<TCPClientPipe>(_socket, sock, client, EVENT_TYPE::TRANSMIT);
+			Net::GetLocalName(sock, client->_localHost, client->_localPort);
+
+			auto pipe = std::make_shared<TCPSessionPipe>(_socket, sock, client, NET_EVENT_TYPE::TRANSMIT);
+
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+			/// todo
+
+#elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
+
+			/// todo
+
+#else
 
 			struct epoll_event event{ };
 
 			event.events = EPOLLIN;
-			event.data.ptr = (void *)&pipe->eventValue;
+			event.data.ptr = &pipe->_netEvent;
 
 			if (epoll_ctl(_socket, EPOLL_CTL_ADD, sock, &event) == -1)
 			{
@@ -276,12 +319,14 @@ namespace tinyToolkit
 			}
 			else
 			{
-				client->_pipe = pipe;
+				pipe->_isConnect = true;
 
-				pipe->isConnect = true;
+				client->_pipe = pipe;
 
 				client->OnConnect();
 			}
+
+#endif
 		}
 		else if (ret < 0 && errno != EINPROGRESS)
 		{
@@ -293,12 +338,24 @@ namespace tinyToolkit
 		}
 		else
 		{
-			auto pipe = std::make_shared<TCPClientPipe>(_socket, sock, client, EVENT_TYPE::CONNECT);
+			Net::GetLocalName(sock, client->_localHost, client->_localPort);
+
+			auto pipe = std::make_shared<TCPSessionPipe>(_socket, sock, client, NET_EVENT_TYPE::CONNECT);
+
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+			/// todo
+
+#elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
+
+			/// todo
+
+#else
 
 			struct epoll_event event{ };
 
 			event.events = EPOLLOUT;
-			event.data.ptr = (void *)&pipe->eventValue;
+			event.data.ptr = &pipe->_netEvent;
 
 			if (epoll_ctl(_socket, EPOLL_CTL_ADD, sock, &event) == -1)
 			{
@@ -312,6 +369,8 @@ namespace tinyToolkit
 			{
 				client->_pipe = pipe;
 			}
+
+#endif
 		}
 
 		return true;
@@ -344,10 +403,13 @@ namespace tinyToolkit
 			return false;
 		}
 
-		server->_host = Address::ParseHost(host);
 		server->_port = port;
+		server->_host = Net::ParseHost(host);
 
-		if (!Socket::SetNonBlocking(sock) || !Socket::SetReuseAddress(sock))
+		if (!Net::EnableNoDelay(sock) ||
+			!Net::EnableReusePort(sock) ||
+			!Net::EnableNonBlocking(sock) ||
+			!Net::EnableReuseAddress(sock))
 		{
 			::close(sock);
 
@@ -360,7 +422,7 @@ namespace tinyToolkit
 
 		address.sin_port = htons(server->_port);
 		address.sin_family = AF_INET;
-		address.sin_addr.s_addr = Address::AsNetByte(server->_host);
+		address.sin_addr.s_addr = Net::AsNetByte(server->_host);
 
 		if (::bind(sock, (struct sockaddr *)&address, sizeof(struct sockaddr_in)) == -1)
 		{
@@ -380,17 +442,25 @@ namespace tinyToolkit
 			return false;
 		}
 
-		auto pipe = new TCPServerPipe(_socket, sock, server, EVENT_TYPE::ACCEPT);
+		auto pipe = std::make_shared<TCPServerPipe>(_socket, sock, server, NET_EVENT_TYPE::ACCEPT);
+
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		/// todo
+
+#elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
+
+		/// todo
+
+#else
 
 		struct epoll_event event{ };
 
 		event.events = EPOLLIN;
-		event.data.ptr = (void *)&pipe->eventValue;
+		event.data.ptr = &pipe->_netEvent;
 
 		if (epoll_ctl(_socket, EPOLL_CTL_ADD, sock, &event) == -1)
 		{
-			delete pipe;
-
 			::close(sock);
 
 			server->OnError();
@@ -401,6 +471,8 @@ namespace tinyToolkit
 		{
 			server->_pipe = pipe;
 		}
+
+#endif
 
 		return true;
 	}
@@ -416,7 +488,19 @@ namespace tinyToolkit
 	{
 		if (_socket == -1)
 		{
-			_socket = epoll_create(TINY_TOOLKIT_EPOLL_COUNT);
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+			/// todo
+
+#elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
+
+			/// todo
+
+#else
+
+			_socket = epoll_create(TINY_TOOLKIT_NET_COUNT);
+
+#endif
 
 			if (_socket == -1)
 			{
@@ -441,33 +525,45 @@ namespace tinyToolkit
 	 */
 	void NetWorkManager::ThreadProcess()
 	{
-		static struct epoll_event events[TINY_TOOLKIT_EPOLL_COUNT];
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		/// todo
+
+#elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
+
+		/// todo
+
+#else
+
+		static struct epoll_event events[TINY_TOOLKIT_NET_COUNT]{ };
 
 		while (_status)
 		{
-			int32_t count = epoll_wait(_socket, events, TINY_TOOLKIT_EPOLL_COUNT, 1);
+			int32_t count = epoll_wait(_socket, events, TINY_TOOLKIT_NET_COUNT, 10);
 
 			if (count == -1)
 			{
 				if (errno != EINTR)
 				{
-					TINY_TOOLKIT_DEBUG("epoll_wait error : {}", strerror(errno))
+					TINY_TOOLKIT_DEBUG(strerror(errno))
 
 					return;
 				}
+
+				continue;
 			}
 
 			for (int32_t i = 0; i < count; ++i)
 			{
-				struct epoll_event & currentEvent = events[i];
+				auto * eventValue = (NetEvent *)events[i].data.ptr;
 
-				auto * eventValue = (EventValue *)currentEvent.data.ptr;
-
-				if (eventValue && eventValue->callback)
+				if (eventValue && eventValue->_callback)
 				{
-					eventValue->callback(eventValue, currentEvent);
+					eventValue->_callback(eventValue, &events[i]);
 				}
 			}
 		}
+
+#endif
 	}
 }

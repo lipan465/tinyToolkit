@@ -81,9 +81,9 @@ namespace tinyToolkit
 	public:
 		uint16_t _port{ 0 };
 
-		std::string _host{ 0 };
+		std::string _host{ };
 
-		ITCPPipe * _pipe{ nullptr };
+		std::shared_ptr<ITCPPipe> _pipe{ };
 	};
 
 	class TINY_TOOLKIT_API IUDPServer
@@ -98,36 +98,36 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 接收数据触发回调函数
+		 * 新连接触发回调函数
 		 *
-		 * @param host 接收的主机地址
-		 * @param port 接收的主机端口
-		 * @param data 接收的数据缓冲区
-		 * @param size 接收的数据缓冲区长度
+		 * @param host 主机地址
+		 * @param port 主机端口
+		 *
+		 * @return 会话
 		 *
 		 */
-		virtual void OnReceive(const char * host, uint16_t port, const char * data, std::size_t size) = 0;
+		virtual tinyToolkit::IUDPSession * OnNewConnect(const std::string & host, uint16_t port) = 0;
 
 		/**
 		 *
-		 * 连接成功触发回调函数
+		 * 会话错误触发回调函数
 		 *
 		 */
-		virtual void OnConnect() = 0;
+		virtual void OnSessionError(tinyToolkit::IUDPSession * session) = 0;
+
+		/**
+		 *
+		 * 错误触发回调函数
+		 *
+		 */
+		virtual void OnError() = 0;
 
 		/**
 		 *
 		 * 断开连接触发回调函数
 		 *
 		 */
-		virtual void OnDisconnect() = 0;
-
-		/**
-		 *
-		 * 连接失败触发回调函数
-		 *
-		 */
-		virtual void OnConnectFailed() = 0;
+		virtual void OnRelease() = 0;
 
 		/**
 		 *
@@ -148,22 +148,10 @@ namespace tinyToolkit
 		 */
 		void Close();
 
-		/**
-		 *
-		 * 发送数据
-		 *
-		 * @param host 待发送主机地址
-		 * @param port 待发送主机端口
-		 * @param value 待发送数据
-		 * @param size 待发送数据长度
-		 *
-		 */
-		void Send(const char * host, uint16_t port, const void * value, std::size_t size);
-
 	public:
 		uint16_t _port{ 0 };
 
-		std::string _host{ 0 };
+		std::string _host{ };
 
 		std::shared_ptr<IUDPPipe> _pipe{ };
 	};

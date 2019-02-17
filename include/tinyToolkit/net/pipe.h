@@ -16,7 +16,7 @@
 
 namespace tinyToolkit
 {
-	class TINY_TOOLKIT_API IPipe
+	class TINY_TOOLKIT_API INetPipe
 	{
 	public:
 		/**
@@ -24,7 +24,7 @@ namespace tinyToolkit
 		 * 析构函数
 		 *
 		 */
-		virtual ~IPipe() = default;
+		virtual ~INetPipe() = default;
 
 		/**
 		 *
@@ -34,7 +34,7 @@ namespace tinyToolkit
 		virtual void Close() = 0;
 	};
 
-	class TINY_TOOLKIT_API ITCPPipe : public IPipe
+	class TINY_TOOLKIT_API ITCPPipe : public INetPipe
 	{
 	public:
 		/**
@@ -48,7 +48,7 @@ namespace tinyToolkit
 		virtual void Send(const void * value, std::size_t size) = 0;
 	};
 
-	class TINY_TOOLKIT_API IUDPPipe : public IPipe
+	class TINY_TOOLKIT_API IUDPPipe : public INetPipe
 	{
 	public:
 		/**

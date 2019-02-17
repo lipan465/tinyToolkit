@@ -11,6 +11,9 @@
  */
 
 
+#ifdef WITH_OPENSSL
+
+
 #include <openssl/err.h>
 #include <openssl/evp.h>
 #include <openssl/pem.h>
@@ -178,6 +181,9 @@ namespace tinyToolkit
 		std::string _type{ };
 	};
 }
+
+
+#endif // WITH_OPENSSL
 
 
 #endif // __TINY_TOOLKIT__TOOL__EVP__H__

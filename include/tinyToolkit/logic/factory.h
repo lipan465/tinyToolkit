@@ -26,8 +26,35 @@ namespace tinyToolkit
 		 * @param path 模块路径
 		 * @param name 模块名称
 		 *
+		 * @return 是否创建成功
+		 *
 		 */
 		bool Create(const std::string & path, const std::string & name);
+
+	protected:
+		/**
+		 *
+		 * 创建主文件
+		 *
+		 * @param path 模块路径
+		 * @param name 模块名称
+		 *
+		 * @return 是否创建成功
+		 *
+		 */
+		bool CreateMain(const std::string & path, const std::string & name);
+
+		/**
+		 *
+		 * 创建模块文件
+		 *
+		 * @param path 模块路径
+		 * @param name 模块名称
+		 *
+		 * @return 是否创建成功
+		 *
+		 */
+		bool CreateModule(const std::string & path, const std::string & name);
 	};
 }
 

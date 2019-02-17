@@ -14,6 +14,30 @@ namespace tinyToolkit
 {
 	/**
 	 *
+	 * 设置名称
+	 *
+	 * @param name 名称
+	 *
+	 */
+	void ILogicModule::SetName(std::string name)
+	{
+		_name = std::move(name);
+	}
+
+	/**
+	 *
+	 * 设置下一个模块
+	 *
+	 * @param module 下一个模块
+	 *
+	 */
+	void ILogicModule::SetNext(ILogicModule * module)
+	{
+		_next = module;
+	}
+
+	/**
+	 *
 	 * 下一个模块
 	 *
 	 * @return 模块

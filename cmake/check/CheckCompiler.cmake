@@ -43,19 +43,13 @@ IF (CXX_COMPILER_SUPPORTS_CXX17)
 
 	SET(CMAKE_CXX_FLAGS "-std=c++17")
 
-	ADD_DEFINITIONS(-DTINY_TOOLKIT_CXX_SUPPORT=17)
-
 ELSEIF (CXX_COMPILER_SUPPORTS_CXX14)
 
 	SET(CMAKE_CXX_FLAGS "-std=c++14")
 
-	ADD_DEFINITIONS(-DTINY_TOOLKIT_CXX_SUPPORT=14)
-
 ELSEIF (CXX_COMPILER_SUPPORTS_CXX11)
 
 	SET(CMAKE_CXX_FLAGS "-std=c++11")
-
-	ADD_DEFINITIONS(-DTINY_TOOLKIT_CXX_SUPPORT=11)
 
 ELSE()
 
@@ -98,29 +92,34 @@ IF (CMAKE_CXX_COMPILER_ID MATCHES GNU)
 
 	IF(${CMAKE_BUILD_TYPE} MATCHES Debug)
 
-		TRAVERSE_SET(CMAKE_CXX_FLAGS	-static-libasan
-										-static-libubsan
-										-fsanitize=leak
-										-fsanitize=vptr
-										-fsanitize=null
-										-fsanitize=shift
-										-fsanitize=bounds
-										-fsanitize=return
-										-fsanitize=address
-										-fsanitize=alignment
-										-fsanitize=undefined
-										-fsanitize=vla-bound
-										-fsanitize=object-size
-										-fsanitize=unreachable
-										-fsanitize=bounds-strict
-										-fsanitize=float-cast-overflow
-										-fsanitize=float-divide-by-zero
-										-fsanitize=integer-divide-by-zero
-										-fsanitize=signed-integer-overflow
-										-fstack-protector
-										-fno-strict-aliasing
-										-fno-omit-frame-pointer
-										-fno-delete-null-pointer-checks)
+		IF(CXX_COMPILER_SUPPORTS_CXX11)
+
+			TRAVERSE_SET(CMAKE_CXX_FLAGS	-static-libasan
+											-fsanitize=address)
+
+		ENDIF()
+
+		IF(CXX_COMPILER_SUPPORTS_CXX17)
+
+			TRAVERSE_SET(CMAKE_CXX_FLAGS	-static-libubsan
+											-fsanitize=leak
+											-fsanitize=vptr
+											-fsanitize=null
+											-fsanitize=shift
+											-fsanitize=bounds
+											-fsanitize=return
+											-fsanitize=alignment
+											-fsanitize=undefined
+											-fsanitize=vla-bound
+											-fsanitize=object-size
+											-fsanitize=unreachable
+											-fsanitize=bounds-strict
+											-fsanitize=float-cast-overflow
+											-fsanitize=float-divide-by-zero
+											-fsanitize=integer-divide-by-zero
+											-fsanitize=signed-integer-overflow)
+
+		ENDIF()
 
 	ENDIF()
 
@@ -152,8 +151,9 @@ ELSEIF (CMAKE_CXX_COMPILER_ID MATCHES Clang)
 
 	IF(${CMAKE_BUILD_TYPE} MATCHES Debug)
 
-		TRAVERSE_SET(CMAKE_CXX_FLAGS	-fsanitize=address
-										-fno-omit-frame-pointer)
+		TRAVERSE_SET(CMAKE_CXX_FLAGS	-static-libasan
+										-static-libubsan
+										-fsanitize=address)
 
 	ENDIF()
 

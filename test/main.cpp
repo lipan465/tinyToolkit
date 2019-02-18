@@ -573,7 +573,7 @@ void StartApp()
 				}
 				else
 				{
-					tinyToolkit::String::Print("客户端[{}:{}]启动失败\r\n", host, port);
+					tinyToolkit::String::Print("客户端[{}:{}]启动失败 : {}\r\n", host, port, strerror(errno));
 				}
 
 				pool.push_back(session);
@@ -615,7 +615,7 @@ void StartApp()
 			}
 			else
 			{
-				tinyToolkit::String::Print("服务器[{}:{}]启动失败\r\n", host, port);
+				tinyToolkit::String::Print("服务器[{}:{}]启动失败 : {}\r\n", host, port, strerror(errno));
 			}
 
 			while (true)
@@ -645,7 +645,7 @@ void StartApp()
 				}
 				else
 				{
-					tinyToolkit::String::Print("客户端[{}:{}]启动失败\r\n", host, port);
+					tinyToolkit::String::Print("客户端[{}:{}]启动失败 : {}\r\n", host, port, strerror(errno));
 				}
 
 				pool.push_back(session);
@@ -687,7 +687,7 @@ void StartApp()
 			}
 			else
 			{
-				tinyToolkit::String::Print("服务器[{}:{}]启动失败\r\n", host, port);
+				tinyToolkit::String::Print("服务器[{}:{}]启动失败 : {}\r\n", host, port, strerror(errno));
 			}
 
 			while (true)

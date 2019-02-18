@@ -116,7 +116,27 @@ namespace tinyToolkit
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
-		/// todo
+		struct kevent event[2]{ };
+
+		EV_SET(&event[0], sock, EVFILT_READ,  EV_ADD | EV_ENABLE,  0, 0, (void *)&pipe->_netEvent);
+		EV_SET(&event[1], sock, EVFILT_WRITE, EV_ADD | EV_DISABLE, 0, 0, (void *)&pipe->_netEvent);
+
+		if (kevent(_socket, event, 2, nullptr, 0, nullptr) == -1)
+		{
+			::close(sock);
+
+			client->OnConnectFailed();
+
+			return false;
+		}
+		else
+		{
+			pipe->_isConnect = true;
+
+			client->_pipe = pipe;
+
+			client->OnConnect();
+		}
 
 #else
 
@@ -211,7 +231,23 @@ namespace tinyToolkit
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
-		/// todo
+		struct kevent event[2]{ };
+
+		EV_SET(&event[0], sock, EVFILT_READ,  EV_ADD | EV_ENABLE,  0, 0, (void *)&pipe->_netEvent);
+		EV_SET(&event[1], sock, EVFILT_WRITE, EV_ADD | EV_DISABLE, 0, 0, (void *)&pipe->_netEvent);
+
+		if (kevent(_socket, event, 2, nullptr, 0, nullptr) == -1)
+		{
+			::close(sock);
+
+			server->OnError();
+
+			return false;
+		}
+		else
+		{
+			server->_pipe = pipe;
+		}
 
 #else
 
@@ -300,7 +336,27 @@ namespace tinyToolkit
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
-			/// todo
+			struct kevent event[2]{ };
+
+			EV_SET(&event[0], sock, EVFILT_READ,  EV_ADD | EV_ENABLE,  0, 0, (void *)&pipe->_netEvent);
+			EV_SET(&event[1], sock, EVFILT_WRITE, EV_ADD | EV_DISABLE, 0, 0, (void *)&pipe->_netEvent);
+
+			if (kevent(_socket, event, 2, nullptr, 0, nullptr) == -1)
+			{
+				::close(sock);
+
+				client->OnConnectFailed();
+
+				return false;
+			}
+			else
+			{
+				pipe->_isConnect = true;
+
+				client->_pipe = pipe;
+
+				client->OnConnect();
+			}
 
 #else
 
@@ -348,7 +404,23 @@ namespace tinyToolkit
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
-			/// todo
+			struct kevent event[2]{ };
+
+			EV_SET(&event[0], sock, EVFILT_READ,  EV_ADD | EV_DISABLE, 0, 0, (void *)&pipe->_netEvent);
+			EV_SET(&event[1], sock, EVFILT_WRITE, EV_ADD | EV_ENABLE,  0, 0, (void *)&pipe->_netEvent);
+
+			if (kevent(_socket, event, 2, nullptr, 0, nullptr) == -1)
+			{
+				::close(sock);
+
+				client->OnConnectFailed();
+
+				return false;
+			}
+			else
+			{
+				client->_pipe = pipe;
+			}
 
 #else
 
@@ -450,7 +522,23 @@ namespace tinyToolkit
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
-		/// todo
+		struct kevent event[2]{ };
+
+		EV_SET(&event[0], sock, EVFILT_READ,  EV_ADD | EV_ENABLE,  0, 0, (void *)&pipe->_netEvent);
+		EV_SET(&event[1], sock, EVFILT_WRITE, EV_ADD | EV_DISABLE, 0, 0, (void *)&pipe->_netEvent);
+
+		if (kevent(_socket, event, 2, nullptr, 0, nullptr) == -1)
+		{
+			::close(sock);
+
+			server->OnError();
+
+			return false;
+		}
+		else
+		{
+			server->_pipe = pipe;
+		}
 
 #else
 
@@ -494,7 +582,7 @@ namespace tinyToolkit
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
-			/// todo
+			_socket = kqueue();
 
 #else
 
@@ -531,7 +619,39 @@ namespace tinyToolkit
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
-		/// todo
+		static struct kevent events[TINY_TOOLKIT_NET_COUNT]{ };
+
+		while (_status)
+		{
+			struct timespec timeout{ };
+
+			timeout.tv_sec = 1;
+			timeout.tv_nsec = 0;
+
+			int32_t count = kevent(_socket, nullptr, 0, events, TINY_TOOLKIT_NET_COUNT, &timeout);
+
+			if (count == -1)
+			{
+				if (errno != EINTR)
+				{
+					TINY_TOOLKIT_ASSERT(false, strerror(errno))
+
+					return;
+				}
+
+				continue;
+			}
+
+			for (int32_t i = 0; i < count; ++i)
+			{
+				auto * eventValue = (NetEvent *)events[i].udata;
+
+				if (eventValue && eventValue->_callback)
+				{
+					eventValue->_callback(eventValue, &events[i]);
+				}
+			}
+		}
 
 #else
 

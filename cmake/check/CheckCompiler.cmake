@@ -151,9 +151,7 @@ ELSEIF (CMAKE_CXX_COMPILER_ID MATCHES Clang)
 
 	IF(${CMAKE_BUILD_TYPE} MATCHES Debug)
 
-		TRAVERSE_SET(CMAKE_CXX_FLAGS	-static-libasan
-										-static-libubsan
-										-fsanitize=address)
+		TRAVERSE_SET(CMAKE_CXX_FLAGS	-fsanitize=address)
 
 	ENDIF()
 

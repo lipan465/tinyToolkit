@@ -999,31 +999,6 @@ TEST(Utilities, Time)
 }
 
 
-TEST(Utilities, Timer)
-{
-	int32_t val1 = 0;
-	std::double_t val2 = 0.0;
-
-	tinyToolkit::Timer timer;
-
-	timer.CommitOnce(1000, [&](std::size_t x){ val1 += x; }, 1);
-	timer.CommitOnce(1000, [&](std::double_t x){ val2 -= x; }, 0.03);
-
-	TINY_TOOLKIT_SLEEP_MS(2500)
-
-	EXPECT_EQ(val1, 1);
-	EXPECT_EQ(val2, -0.03);
-
-	timer.CommitCircle(1000, [&](std::size_t x){ val1 += x; }, 1);
-	timer.CommitCircle(2000, [&](std::double_t x){ val2 -= x; }, 0.03);
-
-	TINY_TOOLKIT_SLEEP_MS(2500)
-
-	EXPECT_EQ(val1, 3);
-	EXPECT_EQ(val2, -0.06);
-}
-
-
 TEST(Utilities, Option)
 {
 	tinyToolkit::OptionManager manager;

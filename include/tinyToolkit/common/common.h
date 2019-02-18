@@ -86,6 +86,7 @@
 #  include <syslog.h>
 #  include <execinfo.h>
 #  include <sys/stat.h>
+#  include <sys/event.h>
 #  include <sys/ioctl.h>
 #  include <arpa/inet.h>
 #  include <sys/socket.h>

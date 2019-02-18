@@ -21,11 +21,61 @@ ADD_LIBRARY(${PROGRAM_NAME} SHARED ${SOURCE_FILES})
 #
 IF(WIN32)
 
+	#
+	# fmt支持
+	#
 	TRAVERSE_LIBRARY_FOR_PROGRAM_NAME(${PROJECT_SOURCE_DIR}/library/fmt/linux/libfmt.lib)
 
 ELSE()
 
-	TRAVERSE_LIBRARY_FOR_PROGRAM_NAME(${PROJECT_SOURCE_DIR}/library/fmt/linux/libfmt.a)
+	#
+	# curl支持
+	#
+	IF(TINY_TOOLKIT_USE_CURL)
+
+		TRAVERSE_LIBRARY_FOR_PROGRAM_NAME(curl)
+
+	ENDIF()
+
+	#
+	# sqlit支持
+	#
+	IF(TINY_TOOLKIT_USE_SQLITE)
+
+		TRAVERSE_LIBRARY_FOR_PROGRAM_NAME(sqlite3)
+
+	ENDIF()
+
+	#
+	# openssl支持
+	#
+	IF(TINY_TOOLKIT_USE_OPENSSL)
+
+		TRAVERSE_LIBRARY_FOR_PROGRAM_NAME(ssl crypto)
+
+	ENDIF()
+
+	#
+	# memcached支持
+	#
+	IF(TINY_TOOLKIT_USE_MEMCACHED)
+
+		TRAVERSE_LIBRARY_FOR_PROGRAM_NAME(libmemcached)
+
+	ENDIF()
+
+	#
+	# fmt支持
+	#
+	IF(APPLE)
+
+		TRAVERSE_LIBRARY_FOR_PROGRAM_NAME(${PROJECT_SOURCE_DIR}/library/fmt/apple/libfmt.a)
+
+	ELSE()
+
+		TRAVERSE_LIBRARY_FOR_PROGRAM_NAME(${PROJECT_SOURCE_DIR}/library/fmt/linux/libfmt.a)
+
+	ENDIF()
 
 ENDIF()
 

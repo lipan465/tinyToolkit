@@ -53,7 +53,12 @@ namespace tinyToolkit
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
-			/// todo
+			struct kevent event[2]{ };
+
+			EV_SET(&event[0], _sessionSocket, EVFILT_READ,  EV_DELETE, 0, 0, nullptr);
+			EV_SET(&event[1], _sessionSocket, EVFILT_WRITE, EV_DELETE, 0, 0, nullptr);
+
+			kevent(_managerSocket, event, 2, nullptr, 0, nullptr);
 
 #else
 
@@ -94,7 +99,15 @@ namespace tinyToolkit
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
-			/// todo
+			struct kevent event[2]{ };
+
+			EV_SET(&event[0], _sessionSocket, EVFILT_READ,  EV_ENABLE, 0, 0, (void *)&_netEvent);
+			EV_SET(&event[1], _sessionSocket, EVFILT_WRITE, EV_ENABLE, 0, 0, (void *)&_netEvent);
+
+			if (kevent(_managerSocket, event, 2, nullptr, 0, nullptr) == -1)
+			{
+				Close();
+			}
 
 #else
 
@@ -127,7 +140,66 @@ namespace tinyToolkit
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
-		/// todo
+		auto * currentEventPtr = reinterpret_cast<const struct kevent *>(sysEvent);
+
+		{
+			struct kevent event[2]{ };
+
+			EV_SET(&event[0], _sessionSocket, EVFILT_READ,  EV_DELETE, 0, 0, nullptr);
+			EV_SET(&event[1], _sessionSocket, EVFILT_WRITE, EV_DELETE, 0, 0, nullptr);
+
+			kevent(_managerSocket, event, 2, nullptr, 0, nullptr);
+		}
+
+		if (currentEventPtr->flags & EV_ERROR)
+		{
+			Close();
+
+			if (_session)
+			{
+				_session->OnConnectFailed();
+			}
+
+			return;
+		}
+
+		if (currentEventPtr->filter == EVFILT_WRITE)
+		{
+			struct kevent event[2]{ };
+
+			EV_SET(&event[0], _sessionSocket, EVFILT_READ,  EV_ADD | EV_ENABLE,  0, 0, (void *)&_netEvent);
+			EV_SET(&event[1], _sessionSocket, EVFILT_WRITE, EV_ADD | EV_DISABLE, 0, 0, (void *)&_netEvent);
+
+			if (kevent(_managerSocket, event, 2, nullptr, 0, nullptr) == -1)
+			{
+				Close();
+
+				if (_session)
+				{
+					_session->OnConnectFailed();
+				}
+			}
+			else
+			{
+				_isConnect = true;
+
+				_netEvent._type = NET_EVENT_TYPE::TRANSMIT;
+
+				if (_session)
+				{
+					_session->OnConnect();
+				}
+			}
+		}
+		else
+		{
+			Close();
+
+			if (_session)
+			{
+				_session->OnConnectFailed();
+			}
+		}
 
 #else
 
@@ -203,7 +275,94 @@ namespace tinyToolkit
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
-		/// todo
+		auto * currentEventPtr = reinterpret_cast<const struct kevent *>(sysEvent);
+
+		if (currentEventPtr->flags & EV_ERROR)
+		{
+			Close();
+
+			return;
+		}
+
+		if (currentEventPtr->filter == EVFILT_READ)
+		{
+			auto tick = Time::Microseconds();
+
+			static char buffer[TINY_TOOLKIT_MB]{ 0 };
+
+			while (_isConnect && Time::Microseconds() - tick <= 1000)
+			{
+				auto len = ::recv(_sessionSocket, buffer, sizeof(buffer), 0);
+
+				if (len < 0 && errno == EAGAIN)
+				{
+					return;
+				}
+				else if (len > 0)
+				{
+					buffer[len] = '\0';
+
+					if (_session)
+					{
+						_session->OnReceive(buffer, static_cast<std::size_t>(len));
+					}
+				}
+				else
+				{
+					Close();
+
+					return;
+				}
+			}
+		}
+
+		if (currentEventPtr->filter == EVFILT_WRITE)
+		{
+			if (!_sendQueue.empty())
+			{
+				std::size_t count = 0;
+
+				std::size_t length = _sendQueue.front()._value.size();
+
+				const char * value = _sendQueue.front()._value.c_str();
+
+				while (_isConnect && count < length)
+				{
+					auto len = ::send(_sessionSocket, value + count, length - count, 0);
+
+					if (len > 0)
+					{
+						count += len;
+
+						if (count == length)
+						{
+							_sendQueue.pop();
+
+							if (_sendQueue.empty())
+							{
+								struct kevent event[2]{ };
+
+								EV_SET(&event[0], _sessionSocket, EVFILT_READ,  EV_ENABLE,  0, 0, (void *)&_netEvent);
+								EV_SET(&event[1], _sessionSocket, EVFILT_WRITE, EV_DISABLE, 0, 0, (void *)&_netEvent);
+
+								if (kevent(_managerSocket, event, 2, nullptr, 0, nullptr) == -1)
+								{
+									Close();
+
+									return;
+								}
+							}
+						}
+					}
+					else if (len <= 0 && errno != EAGAIN)
+					{
+						Close();
+
+						return;
+					}
+				}
+			}
+		}
 
 #else
 
@@ -228,8 +387,6 @@ namespace tinyToolkit
 
 				if (len < 0 && errno == EAGAIN)
 				{
-					TINY_TOOLKIT_SLEEP_MS(10)
-
 					return;
 				}
 				else if (len > 0)
@@ -374,7 +531,12 @@ namespace tinyToolkit
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
-			/// todo
+			struct kevent event[2]{ };
+
+			EV_SET(&event[0], _sessionSocket, EVFILT_READ,  EV_DELETE, 0, 0, nullptr);
+			EV_SET(&event[1], _sessionSocket, EVFILT_WRITE, EV_DELETE, 0, 0, nullptr);
+
+			kevent(_managerSocket, event, 2, nullptr, 0, nullptr);
 
 #else
 
@@ -422,7 +584,66 @@ namespace tinyToolkit
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
-		/// todo
+		auto currentEvent = reinterpret_cast<const struct kevent *>(sysEvent);
+
+		if (currentEvent->filter == EVFILT_READ)
+		{
+			struct sockaddr_in address{ };
+
+			std::size_t addressLen = sizeof(address);
+
+			int32_t sock = ::accept(_sessionSocket, (struct sockaddr *)&address, (socklen_t *)&addressLen);
+
+			if (sock >= 0)
+			{
+				if (!Net::EnableNoDelay(sock) ||
+					!Net::EnableReusePort(sock) ||
+					!Net::EnableNonBlocking(sock) ||
+					!Net::EnableReuseAddress(sock))
+				{
+					::close(sock);
+
+					return;
+				}
+
+				uint16_t port = ntohs(address.sin_port);
+
+				std::string host = inet_ntoa(address.sin_addr);
+
+				auto session = _server->OnNewConnect(host, port);
+
+				if (session)
+				{
+					session->_localPort = _server->_port;
+					session->_localHost = _server->_host;
+
+					session->_remotePort = port;
+					session->_remoteHost = host;
+
+					auto pipe = std::make_shared<TCPSessionPipe>(_managerSocket, sock, session, NET_EVENT_TYPE::TRANSMIT);
+
+					struct kevent event[2]{ };
+
+					EV_SET(&event[0], _sessionSocket, EVFILT_READ,  EV_ADD | EV_ENABLE,  0, 0, (void *)&_netEvent);
+					EV_SET(&event[1], _sessionSocket, EVFILT_WRITE, EV_ADD | EV_DISABLE, 0, 0, (void *)&_netEvent);
+
+					if (kevent(_managerSocket, event, 2, nullptr, 0, nullptr) == -1)
+					{
+						::close(sock);
+
+						_server->OnSessionError(session);
+					}
+					else
+					{
+						pipe->_isConnect = true;
+
+						session->_pipe = pipe;
+
+						session->OnConnect();
+					}
+				}
+			}
+		}
 
 #else
 
@@ -474,8 +695,6 @@ namespace tinyToolkit
 						::close(sock);
 
 						_server->OnSessionError(session);
-
-						return;
 					}
 					else
 					{

@@ -10,10 +10,21 @@
 #include "manager.h"
 
 #include "../debug/trace.h"
+#include "../container/operator.h"
 
 
 namespace tinyToolkit
 {
+	/**
+	 *
+	 * 析构函数
+	 *
+	 */
+	LogicModuleManager::~LogicModuleManager()
+	{
+		Release();
+	}
+
 	/**
 	 *
 	 * 启动
@@ -21,7 +32,7 @@ namespace tinyToolkit
 	 */
 	void LogicModuleManager::Launch()
 	{
-		for (auto &iter : _manager)
+		for (auto &iter : _moduleManager)
 		{
 			iter.second->Launch();
 		}
@@ -34,14 +45,25 @@ namespace tinyToolkit
 	 */
 	void LogicModuleManager::Release()
 	{
-		for (auto &iter : _manager)
+		if (_isLoad)
 		{
-			iter.second->Release();
+			_isLoad = false;
 
-			delete iter.second;
+			for (auto &iter : _moduleManager)
+			{
+				iter.second->Release();
+
+				delete iter.second;
+			}
+
+			for (auto &iter : _handleManager)
+			{
+				dlclose(iter.second);
+			}
+
+			tinyToolkit::ContainerOperator::Clear(_moduleManager);
+			tinyToolkit::ContainerOperator::Clear(_handleManager);
 		}
-
-		dlclose(_handle);
 	}
 
 	/**
@@ -57,11 +79,11 @@ namespace tinyToolkit
 	{
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-		_handle = ::LoadLibrary(path);
+		HINSTANCE handle = ::LoadLibrary(path);
 
 		if (!handle)
 		{
-			TINY_TOOLKIT_DEBUG("Load [{}] : {}", path, strerror(::GetLastError()))
+			TINY_TOOLKIT_ASSERT(false, "Load [{}] : {}", path, strerror(::GetLastError()))
 
 			return false;
 		}
@@ -70,16 +92,16 @@ namespace tinyToolkit
 
 #else
 
-		_handle = dlopen(path, RTLD_LAZY);
+		void * handle = dlopen(path, RTLD_LAZY);
 
-		if (_handle == nullptr)
+		if (handle == nullptr)
 		{
-			TINY_TOOLKIT_DEBUG("Load [{}] : {}", path, dlerror())
+			TINY_TOOLKIT_ASSERT(false, "Load [{}] : {}", path, dlerror())
 
 			return false;
 		}
 
-		auto function = reinterpret_cast<ILogicModule * (*)()>(dlsym(_handle, "GetModules"));
+		auto function = reinterpret_cast<ILogicModule * (*)()>(dlsym(handle, "GetModules"));
 
 #endif
 
@@ -87,17 +109,21 @@ namespace tinyToolkit
 
 		while (logic)
 		{
-			auto find = _manager.find(logic->Name());
+			auto find = _moduleManager.find(logic->Name());
 
-			if (find == _manager.end())
+			if (find == _moduleManager.end())
 			{
-				_manager.insert(std::make_pair(logic->Name(), logic));
+				_moduleManager.insert(std::make_pair(logic->Name(), logic));
 
 				logic->Initialize();
 
 				logic = logic->Next();
 			}
 		}
+
+		_isLoad = true;
+
+		_handleManager.insert(std::make_pair(path, handle));
 
 		return true;
 	}
@@ -113,9 +139,9 @@ namespace tinyToolkit
 	 */
 	ILogicModule * LogicModuleManager::Find(const std::string & name)
 	{
-		auto find = _manager.find(name);
+		auto find = _moduleManager.find(name);
 
-		if (find == _manager.end() || find->second == nullptr)
+		if (find == _moduleManager.end() || find->second == nullptr)
 		{
 			return nullptr;
 		}

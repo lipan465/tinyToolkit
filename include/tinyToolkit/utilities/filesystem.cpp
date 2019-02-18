@@ -291,7 +291,7 @@ namespace tinyToolkit
 
 		for (std::size_t i = 0; i < size; ++i)
 		{
-			if (i == size - 1)
+			if (i == (size - 1))
 			{
 				if (!CreateDirectory(path))
 				{
@@ -300,6 +300,11 @@ namespace tinyToolkit
 			}
 			else if (path[i] == TINY_TOOLKIT_FOLDER_SEP[0])
 			{
+				if (i == 0)
+				{
+					continue;
+				}
+
 				if (!CreateDirectory(path.substr(0, i)))
 				{
 					return false;

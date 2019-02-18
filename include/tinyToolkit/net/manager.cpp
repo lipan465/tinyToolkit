@@ -70,11 +70,11 @@ namespace tinyToolkit
 			return false;
 		}
 
-		int32_t sock = ::socket(AF_INET, SOCK_DGRAM, 0);
+		int32_t sock = ::socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
 		if (sock == -1)
 		{
-			TINY_TOOLKIT_DEBUG("socket : {}", strerror(errno))
+			TINY_TOOLKIT_ASSERT(false, "socket : {}", strerror(errno))
 
 			return false;
 		}
@@ -165,11 +165,11 @@ namespace tinyToolkit
 			return false;
 		}
 
-		int32_t sock = ::socket(AF_INET, SOCK_DGRAM, 0);
+		int32_t sock = ::socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
 		if (sock == -1)
 		{
-			TINY_TOOLKIT_DEBUG("socket : {}", strerror(errno))
+			TINY_TOOLKIT_ASSERT(false, "socket : {}", strerror(errno))
 
 			return false;
 		}
@@ -256,11 +256,11 @@ namespace tinyToolkit
 			return false;
 		}
 
-		int32_t sock = ::socket(AF_INET, SOCK_STREAM, 0);
+		int32_t sock = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
 		if (sock == -1)
 		{
-			TINY_TOOLKIT_DEBUG("socket : {}", strerror(errno))
+			TINY_TOOLKIT_ASSERT(false, "socket : {}", strerror(errno))
 
 			return false;
 		}
@@ -394,11 +394,11 @@ namespace tinyToolkit
 			return false;
 		}
 
-		int32_t sock = ::socket(AF_INET, SOCK_STREAM, 0);
+		int32_t sock = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
 		if (sock == -1)
 		{
-			TINY_TOOLKIT_DEBUG("socket : {}", strerror(errno))
+			TINY_TOOLKIT_ASSERT(false, "socket : {}", strerror(errno))
 
 			return false;
 		}
@@ -504,7 +504,7 @@ namespace tinyToolkit
 
 			if (_socket == -1)
 			{
-				TINY_TOOLKIT_DEBUG("create socket error : {}", strerror(errno))
+				TINY_TOOLKIT_ASSERT(false, "create socket error : {}", strerror(errno))
 
 				return false;
 			}
@@ -545,7 +545,7 @@ namespace tinyToolkit
 			{
 				if (errno != EINTR)
 				{
-					TINY_TOOLKIT_DEBUG(strerror(errno))
+					TINY_TOOLKIT_ASSERT(false, strerror(errno))
 
 					return;
 				}

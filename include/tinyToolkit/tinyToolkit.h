@@ -59,6 +59,11 @@
 #include "test/compare.h"
 #include "test/environment.h"
 
+/// timer
+#include "timer/node.h"
+#include "timer/event.h"
+#include "timer/manager.h"
+
 /// pool
 #include "pool/thread.h"
 #include "pool/callback.h"
@@ -75,6 +80,11 @@
 #include "tool/sqlite.h"
 #include "tool/memcached.h"
 
+/// logic
+#include "logic/module.h"
+#include "logic/factory.h"
+#include "logic/manager.h"
+
 /// common
 #include "common/macro.h"
 #include "common/common.h"
@@ -90,18 +100,9 @@
 #include "crypto/base64.h"
 
 /// system
-#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
-#
-#  include "system/os.h"
-#  include "system/application.h"
-#
-#else
-#
-#  include "system/os.h"
-#  include "system/signal.h"
-#  include "system/application.h"
-#
-#endif
+#include "system/os.h"
+#include "system/signal.h"
+#include "system/application.h"
 
 /// container
 #include "container/message.h"
@@ -112,7 +113,6 @@
 #include "utilities/file.h"
 #include "utilities/math.h"
 #include "utilities/time.h"
-#include "utilities/timer.h"
 #include "utilities/option.h"
 #include "utilities/thread.h"
 #include "utilities/string.h"

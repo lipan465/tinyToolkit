@@ -343,7 +343,7 @@ namespace tinyToolkit
 
 			default:
 			{
-				TINY_TOOLKIT_DEBUG("UDPSessionPipe type error : {}", netEvent->_socket)
+				TINY_TOOLKIT_ASSERT(false, "UDPSessionPipe type error : {}", netEvent->_socket)
 
 				break;
 			}
@@ -475,7 +475,7 @@ namespace tinyToolkit
 
 			default:
 			{
-				TINY_TOOLKIT_DEBUG("UDPServerPipe type error : {}", netEvent->_socket)
+				TINY_TOOLKIT_ASSERT(false, "UDPServerPipe type error : {}", netEvent->_socket)
 
 				break;
 			}

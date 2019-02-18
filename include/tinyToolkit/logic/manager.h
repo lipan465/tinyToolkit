@@ -21,6 +21,13 @@ namespace tinyToolkit
 	public:
 		/**
 		 *
+		 * 析构函数
+		 *
+		 */
+		~LogicModuleManager();
+
+		/**
+		 *
 		 * 启动
 		 *
 		 */
@@ -56,17 +63,19 @@ namespace tinyToolkit
 		ILogicModule * Find(const std::string & name);
 
 	private:
+		bool _isLoad{ false };
+
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-		HINSTANCE _handle{ };
+		std::unordered_map<std::string, HINSTANCE> _handleManager{ };
 
 #else
 
-		void * _handle{ nullptr };
+		std::unordered_map<std::string, void *> _handleManager{ };
 
 #endif
 
-		std::unordered_map<std::string, ILogicModule *> _manager;
+		std::unordered_map<std::string, ILogicModule *> _moduleManager{ };
 	};
 }
 

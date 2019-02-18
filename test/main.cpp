@@ -551,30 +551,6 @@ void ParseOption(int argc, char const * argv[])
 
 void StartApp()
 {
-	if (tinyToolkit::OptionManager::Instance().Empty())
-	{
-		TCPServer server;
-
-		if (server.Launch("127.0.0.1", 1234))
-		{
-			tinyToolkit::String::Print("服务器[{}:{}]启动成功\r\n", "127.0.0.1", 1234);
-		}
-		else
-		{
-			tinyToolkit::String::Print("服务器[{}:{}]启动失败\r\n", "127.0.0.1", 1234);
-		}
-
-		while (true)
-		{
-			if (getchar() == 'q')
-			{
-				server.Close();
-
-				return;
-			}
-		}
-	}
-
 	auto mode = tinyToolkit::OptionManager::Instance().Get("mode");
 	auto type = tinyToolkit::OptionManager::Instance().Get("type");
 	auto host = tinyToolkit::OptionManager::Instance().Get("host");

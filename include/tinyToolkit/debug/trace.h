@@ -163,7 +163,7 @@ namespace tinyToolkit
 
 #else
 
-#define TINY_TOOLKIT_ASSERT(cond, ...)
+#define TINY_TOOLKIT_ASSERT(cond, ...)	{ }
 
 #endif
 

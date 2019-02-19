@@ -77,10 +77,8 @@ namespace tinyToolkit
 	{
 		return _message;
 	}
-}
 
-
-/**
+	/**
  *
  * 重载<<操作
  *
@@ -90,9 +88,10 @@ namespace tinyToolkit
  * @return 输出流
  *
  */
-std::ostream & operator << (std::ostream & os, tinyToolkit::FileLine const & info)
-{
-	os << info.Message();
+	std::ostream & operator << (std::ostream & os, FileLine const & info)
+	{
+		os << info.Message();
 
-	return os;
+		return os;
+	}
 }

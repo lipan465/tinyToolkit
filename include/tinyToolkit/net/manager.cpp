@@ -9,6 +9,7 @@
 
 #include "manager.h"
 
+#include "../system/os.h"
 #include "../debug/trace.h"
 #include "../utilities/net.h"
 
@@ -74,7 +75,7 @@ namespace tinyToolkit
 
 		if (sock == -1)
 		{
-			TINY_TOOLKIT_ASSERT(false, "socket : {}", strerror(errno))
+			TINY_TOOLKIT_ASSERT(false, "socket : {}", OS::LastErrorMessage())
 
 			return false;
 		}
@@ -189,7 +190,7 @@ namespace tinyToolkit
 
 		if (sock == -1)
 		{
-			TINY_TOOLKIT_ASSERT(false, "socket : {}", strerror(errno))
+			TINY_TOOLKIT_ASSERT(false, "socket : {}", OS::LastErrorMessage())
 
 			return false;
 		}
@@ -296,7 +297,7 @@ namespace tinyToolkit
 
 		if (sock == -1)
 		{
-			TINY_TOOLKIT_ASSERT(false, "socket : {}", strerror(errno))
+			TINY_TOOLKIT_ASSERT(false, "socket : {}", OS::LastErrorMessage())
 
 			return false;
 		}
@@ -470,7 +471,7 @@ namespace tinyToolkit
 
 		if (sock == -1)
 		{
-			TINY_TOOLKIT_ASSERT(false, "socket : {}", strerror(errno))
+			TINY_TOOLKIT_ASSERT(false, "socket : {}", OS::LastErrorMessage())
 
 			return false;
 		}
@@ -592,7 +593,7 @@ namespace tinyToolkit
 
 			if (_socket == -1)
 			{
-				TINY_TOOLKIT_ASSERT(false, "create socket error : {}", strerror(errno))
+				TINY_TOOLKIT_ASSERT(false, "create socket error : {}", OS::LastErrorMessage())
 
 				return false;
 			}
@@ -634,7 +635,7 @@ namespace tinyToolkit
 			{
 				if (errno != EINTR)
 				{
-					TINY_TOOLKIT_ASSERT(false, strerror(errno))
+					TINY_TOOLKIT_ASSERT(false, OS::LastErrorMessage())
 
 					return;
 				}
@@ -665,7 +666,7 @@ namespace tinyToolkit
 			{
 				if (errno != EINTR)
 				{
-					TINY_TOOLKIT_ASSERT(false, strerror(errno))
+					TINY_TOOLKIT_ASSERT(false, OS::LastError())
 
 					return;
 				}

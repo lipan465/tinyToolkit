@@ -1049,10 +1049,6 @@ TEST(System, Signal)
 	tinyToolkit::Signal::RegisterFrame([](int signalNo){ signalStatus = signalNo * 1; });
 	tinyToolkit::Signal::RegisterTerminate([](int signalNo){ signalStatus = signalNo * 3; });
 
-	tinyToolkit::Signal::Kill(static_cast<int32_t>(tinyToolkit::OS::ProcessID()), SIGTERM);
-
-	EXPECT_EQ(signalStatus, SIGTERM * 3);
-
 	tinyToolkit::Signal::Raise(SIGTSTP);
 
 	EXPECT_EQ(signalStatus, SIGTSTP * 3);
@@ -1088,7 +1084,7 @@ TEST(System, Application)
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
-	EXPECT_TRUE(tinyToolkit::Application::Exist()) << strerror(errno);
+	EXPECT_TRUE(tinyToolkit::Application::Exist()) << tinyToolkit::OS::LastErrorMessage();
 
 	EXPECT_STR_EQ(tinyToolkit::Application::Name().c_str(), "example");
 	EXPECT_STR_EQ(tinyToolkit::Application::Extension().c_str(), "");
@@ -1282,7 +1278,7 @@ TEST(Utilities, Time)
 	EXPECT_EQ(tinyToolkit::Time::Minutes(), tinyToolkit::Time::Seconds() / 60);
 	EXPECT_EQ(tinyToolkit::Time::Seconds(), tinyToolkit::Time::Milliseconds() / 1000);
 	EXPECT_EQ(tinyToolkit::Time::Milliseconds(), tinyToolkit::Time::Microseconds() / 1000);
-	EXPECT_GE(tinyToolkit::Time::Microseconds(), tinyToolkit::Time::Nanoseconds() / 1000);
+	EXPECT_LE(tinyToolkit::Time::Microseconds(), tinyToolkit::Time::Nanoseconds() / 1000);
 	EXPECT_EQ(tinyToolkit::Time::NextDayTime(), tinyToolkit::Time::CurrentDayTime() + TINY_TOOLKIT_DAY);
 	EXPECT_EQ(tinyToolkit::Time::Seconds(tinyToolkit::Time::TimeDuration()), tinyToolkit::Time::Seconds(tinyToolkit::Time::TimePoint()));
 	EXPECT_EQ(tinyToolkit::Time::Seconds(tinyToolkit::Time::TimeDuration(123)), tinyToolkit::Time::Seconds(tinyToolkit::Time::TimePoint(123)));

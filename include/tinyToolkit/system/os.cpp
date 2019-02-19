@@ -63,4 +63,44 @@ namespace tinyToolkit
 
 	#endif
 	}
+
+	/**
+		 *
+		 * 最后一个错误代码
+		 *
+		 * @return 错误代码
+		 *
+		 */
+	int32_t OS::LastErrorCode()
+	{
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		return ::GetLastError();
+
+#else
+
+		return errno;
+
+#endif
+	}
+
+	/**
+	 *
+	 * 最后一个错误信息
+	 *
+	 * @return 错误信息
+	 *
+	 */
+	const char * OS::LastErrorMessage()
+	{
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		return strerror(LastErrorCode());
+
+#else
+
+		return strerror(LastErrorCode());
+
+#endif
+	}
 }

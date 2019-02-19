@@ -173,7 +173,7 @@ namespace tinyToolkit
 
 		std::size_t addressLen = sizeof(address);
 
-		if (::getsockname(socket, (struct sockaddr *)&address, (int32_t *)&addressLen) == 0)
+		if (::getsockname(socket, (struct sockaddr *)&address, (socklen_t *)&addressLen) == 0)
 		{
 			host = inet_ntoa(address.sin_addr);
 
@@ -204,7 +204,7 @@ namespace tinyToolkit
 
 		std::size_t addressLen = sizeof(address);
 
-		if (::getpeername(socket, (struct sockaddr *)&address, (int32_t *)&addressLen) == 0)
+		if (::getpeername(socket, (struct sockaddr *)&address, (socklen_t *)&addressLen) == 0)
 		{
 			host = inet_ntoa(address.sin_addr);
 
@@ -231,7 +231,7 @@ namespace tinyToolkit
 	{
 		int32_t val = 1l;
 
-		return setsockopt(socket, IPPROTO_TCP, TCP_NODELAY, &val, sizeof(val)) == 0;
+		return setsockopt(socket, IPPROTO_TCP, TCP_NODELAY, reinterpret_cast<const char *>(&val), sizeof(val)) == 0;
 	}
 
 	/**
@@ -247,7 +247,7 @@ namespace tinyToolkit
 	{
 		int32_t val = 1l;
 
-		return setsockopt(socket, SOL_SOCKET, SO_REUSEPORT, &val, sizeof(val)) == 0;
+		return setsockopt(socket, SOL_SOCKET, SO_REUSEPORT, reinterpret_cast<const char *>(&val), sizeof(val)) == 0;
 	}
 
 	/**
@@ -277,7 +277,7 @@ namespace tinyToolkit
 	{
 		int32_t val = 1l;
 
-		return setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val)) == 0;
+		return setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char *>(&val), sizeof(val)) == 0;
 	}
 
 	/**

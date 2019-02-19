@@ -25,7 +25,7 @@ namespace tinyToolkit
 	 */
 	UnitTest & UnitTest::Instance()
 	{
-		return tinyToolkit::Singleton<UnitTest>::Instance();
+		return Singleton<UnitTest>::Instance();
 	}
 
 	/**

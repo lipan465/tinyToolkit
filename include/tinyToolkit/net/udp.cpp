@@ -300,7 +300,7 @@ namespace tinyToolkit
 
 				address.sin_port = htons(_session->_localPort);
 				address.sin_family = AF_INET;
-				address.sin_addr.s_addr = tinyToolkit::Net::AsNetByte(_session->_localHost);
+				address.sin_addr.s_addr = Net::AsNetByte(_session->_localHost.c_str());
 
 				auto len = ::recvfrom(_sessionSocket, buffer, sizeof(buffer), 0, (struct sockaddr *)&address, (socklen_t *)&addressLen);
 
@@ -340,7 +340,7 @@ namespace tinyToolkit
 
 				address.sin_port = htons(_sendQueue.front()._port);
 				address.sin_family = AF_INET;
-				address.sin_addr.s_addr = tinyToolkit::Net::AsNetByte(_sendQueue.front()._host);
+				address.sin_addr.s_addr = Net::AsNetByte(_sendQueue.front()._host.c_str());
 
 				while (_isConnect && count < length)
 				{

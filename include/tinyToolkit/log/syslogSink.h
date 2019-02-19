@@ -11,10 +11,10 @@
  */
 
 
-#if TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_WINDOWS
-
-
 #include "sink.h"
+
+
+#if TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_WINDOWS
 
 
 namespace tinyToolkit

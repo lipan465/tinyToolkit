@@ -166,7 +166,7 @@ namespace tinyToolkit
 	 * @return 输出流
 	 *
 	 */
-	std::ostream & operator<<(std::ostream & os, const Message & message)
+	std::ostream & operator<<(std::ostream & os, Message const & message)
 	{
 		return os << message.String();
 	}

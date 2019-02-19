@@ -123,7 +123,7 @@ namespace tinyToolkit
 		Message _message{};
 	};
 
-	class TINY_TOOLKIT_API TestSuccessResult : public tinyToolkit::TestResult
+	class TINY_TOOLKIT_API TestSuccessResult : public TestResult
 	{
 	public:
 		/**
@@ -144,7 +144,7 @@ namespace tinyToolkit
 		~TestSuccessResult() override = default;
 	};
 
-	class TINY_TOOLKIT_API TestFailureResult : public tinyToolkit::TestResult
+	class TINY_TOOLKIT_API TestFailureResult : public TestResult
 	{
 	public:
 		/**

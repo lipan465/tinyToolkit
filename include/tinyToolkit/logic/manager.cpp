@@ -9,6 +9,7 @@
 
 #include "manager.h"
 
+#include "../system/os.h"
 #include "../debug/trace.h"
 #include "../utilities/operator.h"
 
@@ -58,7 +59,15 @@ namespace tinyToolkit
 
 			for (auto &iter : _handleManager)
 			{
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+				::FreeLibrary(iter.second);
+
+#else
+
 				dlclose(iter.second);
+
+#endif
 			}
 
 			Operator::Clear(_moduleManager);
@@ -83,7 +92,7 @@ namespace tinyToolkit
 
 		if (!handle)
 		{
-			TINY_TOOLKIT_ASSERT(false, "Load [{}] : {}", path, strerror(::GetLastError()))
+			TINY_TOOLKIT_ASSERT(false, "Load [{}] : {}", path, OS::LastErrorMessage())
 
 			return false;
 		}

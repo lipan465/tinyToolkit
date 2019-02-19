@@ -59,20 +59,10 @@
 #include "test/compare.h"
 #include "test/environment.h"
 
-/// timer
-#include "timer/node.h"
-#include "timer/event.h"
-#include "timer/manager.h"
-
 /// pool
 #include "pool/thread.h"
 #include "pool/callback.h"
 #include "pool/application.h"
-
-/// debug
-#include "debug/trace.h"
-#include "debug/exception.h"
-#include "debug/backtrace.h"
 
 /// tool
 #include "tool/evp.h"
@@ -80,9 +70,18 @@
 #include "tool/sqlite.h"
 #include "tool/memcached.h"
 
+/// timer
+#include "timer/node.h"
+#include "timer/event.h"
+#include "timer/manager.h"
+
+/// debug
+#include "debug/trace.h"
+#include "debug/exception.h"
+#include "debug/backtrace.h"
+
 /// logic
 #include "logic/module.h"
-#include "logic/factory.h"
 #include "logic/manager.h"
 
 /// common
@@ -104,10 +103,6 @@
 #include "system/signal.h"
 #include "system/application.h"
 
-/// container
-#include "container/message.h"
-#include "container/operator.h"
-
 /// utilities
 #include "utilities/net.h"
 #include "utilities/file.h"
@@ -116,6 +111,8 @@
 #include "utilities/option.h"
 #include "utilities/thread.h"
 #include "utilities/string.h"
+#include "utilities/message.h"
+#include "utilities/operator.h"
 #include "utilities/copyable.h"
 #include "utilities/fileLine.h"
 #include "utilities/singleton.h"

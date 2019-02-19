@@ -8,7 +8,6 @@
 
 
 #include "time.h"
-#include "string.h"
 
 
 namespace tinyToolkit

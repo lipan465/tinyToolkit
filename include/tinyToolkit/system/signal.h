@@ -21,18 +21,6 @@ namespace tinyToolkit
 	public:
 		/**
 		 *
-		 * 向对应进程发送信号
-		 *
-		 * @param pid 进程id
-		 * @param signalNo 待发送信号
-		 *
-		 * @return 发送结果
-		 *
-		 */
-		static int32_t Kill(int32_t pid, int32_t signalNo);
-
-		/**
-		 *
 		 * 向自身发送信号
 		 *
 		 * @param signalNo 待发送信号

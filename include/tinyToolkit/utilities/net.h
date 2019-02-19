@@ -6,7 +6,7 @@
  *
  *  作者: hm
  *
- *  说明: 地址处理
+ *  说明: 网络处理
  *
  */
 
@@ -30,7 +30,6 @@ namespace tinyToolkit
 		 */
 		static uint32_t AsNetByte(const char * value);
 
-
 		/**
 		 *
 		 * 转换主机字节序
@@ -41,28 +40,6 @@ namespace tinyToolkit
 		 *
 		 */
 		static uint32_t AsHostByte(const char * value);
-
-		/**
-		 *
-		 * 转换网络字节序
-		 *
-		 * @param value 待转换字符串
-		 *
-		 * @return 网络字节序
-		 *
-		 */
-		static uint32_t AsNetByte(const std::string & value);
-
-		/**
-		 *
-		 * 转换主机字节序
-		 *
-		 * @param value 待转换字符串
-		 *
-		 * @return 主机字节序
-		 *
-		 */
-		static uint32_t AsHostByte(const std::string & value);
 
 		/**
 		 *
@@ -89,28 +66,6 @@ namespace tinyToolkit
 		 *
 		 */
 		static bool AsHostByte(const std::string & value, uint32_t & head, uint32_t & tail);
-
-		/**
-		 *
-		 * 设置堆栈大小
-		 *
-		 * @param size 大小
-		 *
-		 * @return 是否设置成功
-		 *
-		 */
-		static bool SetStackSize(uint32_t size);
-
-		/**
-		 *
-		 * 设置最大打开描诉符限制
-		 *
-		 * @param size 个数
-		 *
-		 * @return 是否设置成功
-		 *
-		 */
-		static bool SetMaxOpenFile(uint32_t size);
 
 		/**
 		 *
@@ -203,17 +158,6 @@ namespace tinyToolkit
 		 *
 		 */
 		static std::string ParseHost(const char * host);
-
-		/**
-		 *
-		 * 解析域名
-		 *
-		 * @param host 待解析域名
-		 *
-		 * @return 解析后域名
-		 *
-		 */
-		static std::string ParseHost(const std::string & host);
 	};
 }
 

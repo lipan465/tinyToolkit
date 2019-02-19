@@ -11,7 +11,7 @@
  */
 
 
-#include "../container/message.h"
+#include "../utilities/message.h"
 
 
 namespace tinyToolkit

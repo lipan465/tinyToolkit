@@ -1,12 +1,12 @@
-#ifndef __TINY_TOOLKIT__CONTAINER__MESSAGE__H__
-#define __TINY_TOOLKIT__CONTAINER__MESSAGE__H__
+#ifndef __TINY_TOOLKIT__UTILITIES__MESSAGE__H__
+#define __TINY_TOOLKIT__UTILITIES__MESSAGE__H__
 
 
 /**
  *
  *  作者: hm
  *
- *  说明: 信息处理
+ *  说明: 信息
  *
  */
 
@@ -183,4 +183,4 @@ namespace tinyToolkit
 }
 
 
-#endif // __TINY_TOOLKIT__CONTAINER__MESSAGE__H__
+#endif // __TINY_TOOLKIT__UTILITIES__MESSAGE__H__

@@ -14,11 +14,12 @@
 #include "sink.h"
 
 #include "../utilities/string.h"
+#include "../utilities/copyable.h"
 
 
 namespace tinyToolkit
 {
-	class TINY_TOOLKIT_API ILogger
+	class TINY_TOOLKIT_API ILogger : public NonCopyable
 	{
 	public:
 		/**
@@ -42,7 +43,7 @@ namespace tinyToolkit
 		 * 析构函数
 		 *
 		 */
-		virtual ~ILogger() = default;
+		~ILogger() override = default;
 
 		/**
 		 *

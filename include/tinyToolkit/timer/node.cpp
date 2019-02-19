@@ -56,7 +56,10 @@ namespace tinyToolkit
 		{
 			_expire += _interval;
 
-			_event->OnTrigger();
+			if (_count != 0)
+			{
+				_event->OnTrigger();
+			}
 
 			if (_count > 0)
 			{

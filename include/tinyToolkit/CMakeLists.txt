@@ -5,6 +5,12 @@ SET(PROGRAM_NAME tinyToolkit)
 
 
 #
+# 库文件的生成目录
+#
+SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
+
+
+#
 # 获取当前目录下源文件
 #
 TRAVERSE_CURRENT_SOURCE_FILE(SOURCE_FILES)
@@ -78,12 +84,6 @@ ELSE()
 	ENDIF()
 
 ENDIF()
-
-
-#
-# 库文件的生成目录
-#
-SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 
 
 #

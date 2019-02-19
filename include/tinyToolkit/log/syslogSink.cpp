@@ -7,6 +7,9 @@
  */
 
 
+#if TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_WINDOWS
+
+
 #include "syslogSink.h"
 
 
@@ -103,3 +106,6 @@ namespace tinyToolkit
 		}
 	}
 }
+
+
+#endif // TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_WINDOWS

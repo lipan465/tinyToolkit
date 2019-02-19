@@ -20,7 +20,7 @@ namespace internal {
 // signed and unsigned integers.
 template <bool IsSigned> struct int_checker {
   template <typename T> static bool fits_in_int(T value) {
-    unsigned max = std::numeric_limits<int>::max();
+    unsigned max = (std::numeric_limits<int>::max)();
     return value <= max;
   }
   static bool fits_in_int(bool) { return true; }
@@ -28,8 +28,8 @@ template <bool IsSigned> struct int_checker {
 
 template <> struct int_checker<true> {
   template <typename T> static bool fits_in_int(T value) {
-    return value >= std::numeric_limits<int>::min() &&
-           value <= std::numeric_limits<int>::max();
+    return value >= (std::numeric_limits<int>::min)() &&
+           value <= (std::numeric_limits<int>::max)();
   }
   static bool fits_in_int(int) { return true; }
 };
@@ -174,7 +174,7 @@ class printf_width_handler : public function<unsigned> {
       spec_.align_ = ALIGN_LEFT;
       width = 0 - width;
     }
-    unsigned int_max = std::numeric_limits<int>::max();
+    unsigned int_max = (std::numeric_limits<int>::max)();
     if (width > int_max) FMT_THROW(format_error("number is too big"));
     return static_cast<unsigned>(width);
   }
@@ -361,7 +361,7 @@ class basic_printf_context :
 
   // Returns the argument with specified index or, if arg_index is equal
   // to the maximum unsigned value, the next argument.
-  format_arg get_arg(unsigned arg_index = std::numeric_limits<unsigned>::max());
+  format_arg get_arg(unsigned arg_index = (std::numeric_limits<unsigned>::max)());
 
   // Parses argument index, flags and width and returns the argument index.
   unsigned parse_header(const Char*& it, const Char* end, format_specs& spec);
@@ -416,7 +416,7 @@ void basic_printf_context<OutputIt, Char, AF>::parse_flags(format_specs& spec,
 template <typename OutputIt, typename Char, typename AF>
 typename basic_printf_context<OutputIt, Char, AF>::format_arg
 basic_printf_context<OutputIt, Char, AF>::get_arg(unsigned arg_index) {
-  if (arg_index == std::numeric_limits<unsigned>::max())
+  if (arg_index == (std::numeric_limits<unsigned>::max)())
     return this->do_get_arg(this->parse_context().next_arg_id());
   return base::arg(arg_index - 1);
 }
@@ -424,7 +424,7 @@ basic_printf_context<OutputIt, Char, AF>::get_arg(unsigned arg_index) {
 template <typename OutputIt, typename Char, typename AF>
 unsigned basic_printf_context<OutputIt, Char, AF>::parse_header(
     const Char*& it, const Char* end, format_specs& spec) {
-  unsigned arg_index = std::numeric_limits<unsigned>::max();
+  unsigned arg_index = (std::numeric_limits<unsigned>::max)();
   char_type c = *it;
   if (c >= '0' && c <= '9') {
     // Parse an argument index (if followed by '$') or a width possibly

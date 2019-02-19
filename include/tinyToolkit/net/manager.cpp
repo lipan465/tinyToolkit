@@ -2,7 +2,7 @@
  *
  *  作者: hm
  *
- *  说明: 管理器
+ *  说明: 通讯管理器
  *
  */
 
@@ -80,7 +80,7 @@ namespace tinyToolkit
 		}
 
 		client->_remotePort = port;
-		client->_remoteHost = Net::ParseHost(host);
+		client->_remoteHost = Net::ParseHost(host.c_str());
 
 		if (!Net::EnableReusePort(sock) ||
 			!Net::EnableNonBlocking(sock) ||
@@ -97,7 +97,7 @@ namespace tinyToolkit
 
 		address.sin_port = htons(client->_remotePort);
 		address.sin_family = AF_INET;
-		address.sin_addr.s_addr = Net::AsNetByte(client->_remoteHost);
+		address.sin_addr.s_addr = Net::AsNetByte(client->_remoteHost.c_str());
 
 		if (::connect(sock, (struct sockaddr *)&address, sizeof(struct sockaddr_in)) == -1)
 		{
@@ -195,7 +195,7 @@ namespace tinyToolkit
 		}
 
 		server->_port = port;
-		server->_host = Net::ParseHost(host);
+		server->_host = Net::ParseHost(host.c_str());
 
 		if (!Net::EnableReusePort(sock) ||
 			!Net::EnableNonBlocking(sock) ||
@@ -212,7 +212,7 @@ namespace tinyToolkit
 
 		address.sin_port = htons(server->_port);
 		address.sin_family = AF_INET;
-		address.sin_addr.s_addr = Net::AsNetByte(server->_host);
+		address.sin_addr.s_addr = Net::AsNetByte(server->_host.c_str());
 
 		if (::bind(sock, (struct sockaddr *)&address, sizeof(struct sockaddr_in)) == -1)
 		{
@@ -302,7 +302,7 @@ namespace tinyToolkit
 		}
 
 		client->_remotePort = port;
-		client->_remoteHost = Net::ParseHost(host);
+		client->_remoteHost = Net::ParseHost(host.c_str());
 
 		if (!Net::EnableNoDelay(sock) ||
 			!Net::EnableReusePort(sock) ||
@@ -320,7 +320,7 @@ namespace tinyToolkit
 
 		address.sin_port = htons(client->_remotePort);
 		address.sin_family = AF_INET;
-		address.sin_addr.s_addr = Net::AsNetByte(client->_remoteHost);
+		address.sin_addr.s_addr = Net::AsNetByte(client->_remoteHost.c_str());
 
 		int32_t ret = ::connect(sock, (struct sockaddr *)&address, sizeof(struct sockaddr_in));
 
@@ -476,7 +476,7 @@ namespace tinyToolkit
 		}
 
 		server->_port = port;
-		server->_host = Net::ParseHost(host);
+		server->_host = Net::ParseHost(host.c_str());
 
 		if (!Net::EnableNoDelay(sock) ||
 			!Net::EnableReusePort(sock) ||
@@ -494,7 +494,7 @@ namespace tinyToolkit
 
 		address.sin_port = htons(server->_port);
 		address.sin_family = AF_INET;
-		address.sin_addr.s_addr = Net::AsNetByte(server->_host);
+		address.sin_addr.s_addr = Net::AsNetByte(server->_host.c_str());
 
 		if (::bind(sock, (struct sockaddr *)&address, sizeof(struct sockaddr_in)) == -1)
 		{

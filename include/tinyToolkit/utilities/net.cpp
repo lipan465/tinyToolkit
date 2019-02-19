@@ -2,7 +2,7 @@
  *
  *  作者: hm
  *
- *  说明: 地址处理
+ *  说明: 网络处理
  *
  */
 
@@ -50,34 +50,6 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 转换网络字节序
-	 *
-	 * @param value 待转换字符串
-	 *
-	 * @return 网络字节序
-	 *
-	 */
-	uint32_t Net::AsNetByte(const std::string & value)
-	{
-		return AsNetByte(value.c_str());
-	}
-
-	/**
-	 *
-	 * 转换主机字节序
-	 *
-	 * @param value 待转换字符串
-	 *
-	 * @return 主机字节序
-	 *
-	 */
-	uint32_t Net::AsHostByte(const std::string & value)
-	{
-		return AsHostByte(value.c_str());
-	}
-
-	/**
-	 *
 	 * 转换网络字节序范围
 	 *
 	 * @param value 待转换字符串
@@ -97,7 +69,7 @@ namespace tinyToolkit
 
 			if (pos == std::string::npos)  /// a.b.c.d
 			{
-				head = AsNetByte(value);
+				head = AsNetByte(value.c_str());
 				tail = head;
 			}
 			else
@@ -111,20 +83,20 @@ namespace tinyToolkit
 						return false;
 					}
 
-					head = AsNetByte(value.substr(0, pos));
+					head = AsNetByte(value.substr(0, pos).c_str());
 					tail = head | ~(mask == 0 ? 0 : htonl(0xFFFFFFFF << (32 - mask)));
 				}
 				else  /// a.b.c.d/a.b.c.d
 				{
-					head = AsNetByte(value.substr(0, pos));
-					tail = AsNetByte(value.substr(pos + 1));
+					head = AsNetByte(value.substr(0, pos).c_str());
+					tail = AsNetByte(value.substr(pos + 1).c_str());
 				}
 			}
 		}
 		else  /// a.b.c.d-a.b.c.d
 		{
-			head = AsNetByte(value.substr(0, pos));
-			tail = AsNetByte(value.substr(pos + 1));
+			head = AsNetByte(value.substr(0, pos).c_str());
+			tail = AsNetByte(value.substr(pos + 1).c_str());
 		}
 
 		return head <= tail;
@@ -151,7 +123,7 @@ namespace tinyToolkit
 
 			if (pos == std::string::npos)  /// a.b.c.d
 			{
-				head = AsHostByte(value);
+				head = AsHostByte(value.c_str());
 				tail = head;
 			}
 			else
@@ -165,61 +137,23 @@ namespace tinyToolkit
 						return false;
 					}
 
-					head = AsHostByte(value.substr(0, pos));
+					head = AsHostByte(value.substr(0, pos).c_str());
 					tail = head | ~(mask == 0 ? 0 : 0xFFFFFFFF << (32 - mask));
 				}
 				else  /// a.b.c.d/a.b.c.d
 				{
-					head = AsHostByte(value.substr(0, pos));
-					tail = AsHostByte(value.substr(pos + 1));
+					head = AsHostByte(value.substr(0, pos).c_str());
+					tail = AsHostByte(value.substr(pos + 1).c_str());
 				}
 			}
 		}
 		else  /// a.b.c.d-a.b.c.d
 		{
-			head = AsHostByte(value.substr(0, pos));
-			tail = AsHostByte(value.substr(pos + 1));
+			head = AsHostByte(value.substr(0, pos).c_str());
+			tail = AsHostByte(value.substr(pos + 1).c_str());
 		}
 
 		return head <= tail;
-	}
-
-	/**
-	 *
-	 * 设置堆栈大小
-	 *
-	 * @param size 大小
-	 *
-	 * @return 是否设置成功
-	 *
-	 */
-	bool Net::SetStackSize(uint32_t size)
-	{
-		struct rlimit limit{ };
-
-		limit.rlim_max = size * 1024;
-		limit.rlim_cur = size * 1024;
-
-		return setrlimit(RLIMIT_STACK, &limit) == 0;
-	}
-
-	/**
-	 *
-	 * 设置最大打开描诉符限制
-	 *
-	 * @param size 个数
-	 *
-	 * @return 是否设置成功
-	 *
-	 */
-	bool Net::SetMaxOpenFile(uint32_t size)
-	{
-		struct rlimit limit{ };
-
-		limit.rlim_max = size;
-		limit.rlim_cur = size;
-
-		return setrlimit(RLIMIT_NOFILE, &limit) == 0;
 	}
 
 	/**
@@ -239,7 +173,7 @@ namespace tinyToolkit
 
 		std::size_t addressLen = sizeof(address);
 
-		if (::getsockname(socket, (struct sockaddr *)&address, (socklen_t *)&addressLen) == 0)
+		if (::getsockname(socket, (struct sockaddr *)&address, (int32_t *)&addressLen) == 0)
 		{
 			host = inet_ntoa(address.sin_addr);
 
@@ -270,7 +204,7 @@ namespace tinyToolkit
 
 		std::size_t addressLen = sizeof(address);
 
-		if (::getpeername(socket, (struct sockaddr *)&address, (socklen_t *)&addressLen) == 0)
+		if (::getpeername(socket, (struct sockaddr *)&address, (int32_t *)&addressLen) == 0)
 		{
 			host = inet_ntoa(address.sin_addr);
 
@@ -384,19 +318,5 @@ namespace tinyToolkit
 		{
 			return { };
 		}
-	}
-
-	/**
-	 *
-	 * 解析域名
-	 *
-	 * @param host 待解析域名
-	 *
-	 * @return 解析后域名
-	 *
-	 */
-	std::string Net::ParseHost(const std::string & host)
-	{
-		return ParseHost(host.c_str());
 	}
 }

@@ -11,6 +11,9 @@
  */
 
 
+#if TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_WINDOWS
+
+
 #include "sink.h"
 
 
@@ -68,6 +71,9 @@ namespace tinyToolkit
 		void Write(const LogEvent & event) override;
 	};
 }
+
+
+#endif // TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_WINDOWS
 
 
 #endif // __TINY_TOOLKIT__LOG__SYSLOG_SINK__H__

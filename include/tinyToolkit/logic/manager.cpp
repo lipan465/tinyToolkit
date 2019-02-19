@@ -2,7 +2,7 @@
  *
  *  作者: hm
  *
- *  说明: 模块管理器
+ *  说明: 逻辑模块管理器
  *
  */
 
@@ -10,7 +10,7 @@
 #include "manager.h"
 
 #include "../debug/trace.h"
-#include "../container/operator.h"
+#include "../utilities/operator.h"
 
 
 namespace tinyToolkit
@@ -61,8 +61,8 @@ namespace tinyToolkit
 				dlclose(iter.second);
 			}
 
-			tinyToolkit::ContainerOperator::Clear(_moduleManager);
-			tinyToolkit::ContainerOperator::Clear(_handleManager);
+			Operator::Clear(_moduleManager);
+			Operator::Clear(_handleManager);
 		}
 	}
 

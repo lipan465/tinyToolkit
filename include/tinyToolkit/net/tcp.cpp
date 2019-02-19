@@ -12,7 +12,7 @@
 #include "../debug/trace.h"
 #include "../utilities/net.h"
 #include "../utilities/time.h"
-#include "../container/operator.h"
+#include "../utilities/operator.h"
 
 
 namespace tinyToolkit
@@ -75,7 +75,7 @@ namespace tinyToolkit
 				_session->OnDisconnect();
 			}
 
-			tinyToolkit::ContainerOperator::Clear(_sendQueue);
+			Operator::Clear(_sendQueue);
 		}
 	}
 

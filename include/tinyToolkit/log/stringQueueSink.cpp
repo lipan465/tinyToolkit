@@ -9,7 +9,7 @@
 
 #include "stringQueueSink.h"
 
-#include "../container/operator.h"
+#include "../utilities/operator.h"
 
 
 namespace tinyToolkit
@@ -63,7 +63,7 @@ namespace tinyToolkit
 	 */
 	void StringQueueLogSink::Reopen()
 	{
-		ContainerOperator::Clear(_queue);
+		Operator::Clear(_queue);
 	}
 
 	/**

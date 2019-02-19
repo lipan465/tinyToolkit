@@ -10,7 +10,7 @@
 #include "md5.h"
 
 #include "../utilities/string.h"
-#include "../container/operator.h"
+#include "../utilities/operator.h"
 
 
 namespace tinyToolkit
@@ -123,9 +123,9 @@ namespace tinyToolkit
 
 		_isNew = false;
 
-		ContainerOperator::Clear(_hex16);
-		ContainerOperator::Clear(_hex32);
-		ContainerOperator::Clear(_value);
+		Operator::Clear(_hex16);
+		Operator::Clear(_hex32);
+		Operator::Clear(_value);
 
 		memset(reinterpret_cast<void *>(&_context), 0, sizeof(Context));
 

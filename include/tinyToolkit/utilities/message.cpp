@@ -2,7 +2,7 @@
  *
  *  作者: hm
  *
- *  说明: 信息处理
+ *  说明: 信息
  *
  */
 
@@ -49,7 +49,7 @@ namespace tinyToolkit
 	 */
 	void Message::Clear()
 	{
-		ContainerOperator::Clear(_stream);
+		Operator::Clear(_stream);
 	}
 
 	/**

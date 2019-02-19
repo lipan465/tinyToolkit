@@ -1,13 +1,7 @@
 #
 # 项目名
 #
-SET(PROGRAM_NAME test)
-
-
-#
-# 可执行文件的生成目录
-#
-SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
+SET(PROGRAM_NAME logicCreator)
 
 
 #
@@ -26,3 +20,9 @@ ADD_EXECUTABLE(${PROGRAM_NAME} ${SOURCE_FILES})
 # 链接库文件
 #
 TRAVERSE_LIBRARY_FOR_PROGRAM_NAME(tinyToolkit)
+
+
+#
+# 可执行文件的生成目录
+#
+SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)

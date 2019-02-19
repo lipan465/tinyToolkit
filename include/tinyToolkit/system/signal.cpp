@@ -16,21 +16,6 @@ namespace tinyToolkit
 {
 	/**
 	 *
-	 * 向对应进程发送信号
-	 *
-	 * @param pid 进程id
-	 * @param signalNo 待发送信号
-	 *
-	 * @return 发送结果
-	 *
-	 */
-	int32_t Signal::Kill(int32_t pid, int32_t signalNo)
-	{
-		return ::kill(pid, signalNo);
-	}
-
-	/**
-	 *
 	 * 向自身发送信号
 	 *
 	 * @param signalNo 待发送信号
@@ -61,9 +46,14 @@ namespace tinyToolkit
 		 * SIGCHLD 产生信号时就不会僵尸进程, 直接把这个信号忽略掉
 		 *
 		 */
+
+#if TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_WINDOWS
+
 		RegisterAction(SIGHUP, SIG_IGN);
 		RegisterAction(SIGPIPE, SIG_IGN);
 		RegisterAction(SIGCHLD, SIG_IGN);
+
+#endif
 	}
 
 	/**
@@ -134,7 +124,12 @@ namespace tinyToolkit
 //		RegisterAction(SIGKILL, handler);
 		RegisterAction(SIGTERM, handler);
 //		RegisterAction(SIGSTOP, handler);
+
+#if TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_WINDOWS
+
 		RegisterAction(SIGTSTP, handler);
+
+#endif // TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_WINDOWS
 	}
 
 	/**
@@ -147,7 +142,13 @@ namespace tinyToolkit
 	 */
 	void Signal::RegisterAction(int signalNo, void(* handler)(int))
 	{
-		struct sigaction action = { };
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		signal(signalNo, handler);
+
+#else
+
+		struct sigaction action{ };
 
 		action.sa_flags = SA_SIGINFO;
 		action.sa_handler = handler;
@@ -172,5 +173,7 @@ namespace tinyToolkit
 		 *
 		 */
 		sigaction(signalNo, &action, nullptr);
+
+#endif // TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_WINDOWS
 	}
 }

@@ -9,7 +9,7 @@
 
 #include "thread.h"
 
-#include "../container/operator.h"
+#include "../utilities/operator.h"
 
 
 namespace tinyToolkit
@@ -64,7 +64,7 @@ namespace tinyToolkit
 			}
 		}
 
-		ContainerOperator::Clear(_pool);
+		Operator::Clear(_pool);
 	}
 
 	/**

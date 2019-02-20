@@ -25,40 +25,6 @@ namespace tinyToolkit
 #else
 
 	/**
-	 *
-	 * 会话处理
-	 *
-	 * @param socket 句柄
-	 * @param address 地址
-	 * @param addressLen 地址长度
-	 *
-	 * @return 新生成的句柄
-	 *
-	 */
-	static int32_t Accept(int32_t socket, struct sockaddr * address, socklen_t * addressLen)
-	{
-		static char buffer[6]{ 0 };
-
-		while (true)
-		{
-			auto len = ::recvfrom(socket, buffer, sizeof(buffer), 0, address, addressLen);
-
-			if (len < 0 && errno == EAGAIN)
-			{
-				continue;
-			}
-			else if (len > 0)
-			{
-				return ::socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-			}
-			else
-			{
-				return -1;
-			}
-		}
-	}
-
-	/**
 	*
 	* 启用非堵塞
 	*
@@ -102,6 +68,40 @@ namespace tinyToolkit
 		int32_t val = 1l;
 
 		return setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char *>(&val), sizeof(val)) == 0;
+	}
+
+	/**
+	 *
+	 * 会话处理
+	 *
+	 * @param socket 句柄
+	 * @param address 地址
+	 * @param addressLen 地址长度
+	 *
+	 * @return 新生成的句柄
+	 *
+	 */
+	static int32_t Accept(int32_t socket, struct sockaddr * address, socklen_t * addressLen)
+	{
+		static char buffer[6]{ 0 };
+
+		while (true)
+		{
+			auto len = ::recvfrom(socket, buffer, sizeof(buffer), 0, address, addressLen);
+
+			if (len < 0 && errno == EAGAIN)
+			{
+				continue;
+			}
+			else if (len > 0)
+			{
+				return ::socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+			}
+			else
+			{
+				return -1;
+			}
+		}
 	}
 
 #endif
@@ -711,7 +711,96 @@ namespace tinyToolkit
 
 		if (currentEvent->filter == EVFILT_READ)
 		{
+			struct sockaddr_in clientAddress{ };
 
+			std::size_t addressLen = sizeof(struct sockaddr);
+
+			int32_t sock = Accept(_sessionSocket, (struct sockaddr *)&clientAddress, (socklen_t *)&addressLen);
+
+			if (sock >= 0)
+			{
+				if (!EnableNonBlock(sock) ||
+					!EnableReusePort(sock) ||
+					!EnableReuseAddress(sock))
+				{
+					::close(sock);
+
+					_server->OnError();
+
+					return;
+				}
+
+				struct sockaddr_in serverAddress{ };
+
+				serverAddress.sin_port = htons(_server->_port);
+				serverAddress.sin_family = AF_INET;
+				serverAddress.sin_addr.s_addr = Net::AsNetByte(_server->_host.c_str());
+
+				if (::bind(sock, (struct sockaddr *)&serverAddress, sizeof(struct sockaddr_in)) == -1)
+				{
+					::close(sock);
+
+					_server->OnError();
+
+					return;
+				}
+
+				if (::connect(sock, (struct sockaddr *)&clientAddress, sizeof(struct sockaddr)) == -1)
+				{
+					::close(sock);
+
+					_server->OnError();
+
+					return;
+				}
+
+				uint16_t localPort = _server->_port;
+				uint16_t remotePort = ntohs(clientAddress.sin_port);
+
+				std::string localHost = _server->_host;
+				std::string remoteHost = inet_ntoa(clientAddress.sin_addr);
+
+				auto session = _server->OnNewConnect(remoteHost, remotePort);
+
+				if (session)
+				{
+					session->_localPort = localPort;
+					session->_localHost = localHost;
+
+					session->_remotePort = remotePort;
+					session->_remoteHost = remoteHost;
+
+					auto pipe = std::make_shared<UDPSessionPipe>(_managerSocket, sock, session, NET_EVENT_TYPE::TRANSMIT);
+
+					struct kevent event[2]{ };
+
+					EV_SET(&event[0], _sessionSocket, EVFILT_READ,  EV_ADD | EV_ENABLE,  0, 0, (void *)&_netEvent);
+					EV_SET(&event[1], _sessionSocket, EVFILT_WRITE, EV_ADD | EV_DISABLE, 0, 0, (void *)&_netEvent);
+
+					if (kevent(_managerSocket, event, 2, nullptr, 0, nullptr) == -1)
+					{
+						::close(sock);
+
+						_server->OnSessionError(session);
+					}
+					else
+					{
+						pipe->_isConnect = true;
+
+						session->_pipe = pipe;
+
+						session->OnConnect();
+					}
+				}
+				else
+				{
+					_server->OnSessionError(session);
+				}
+			}
+			else
+			{
+				_server->OnError();
+			}
 		}
 
 #else
@@ -763,27 +852,28 @@ namespace tinyToolkit
 					return;
 				}
 
-				uint16_t port = ntohs(clientAddress.sin_port);
+				uint16_t localPort = _server->_port;
+				uint16_t remotePort = ntohs(clientAddress.sin_port);
 
-				std::string host = inet_ntoa(clientAddress.sin_addr);
+				std::string localHost = _server->_host;
+				std::string remoteHost = inet_ntoa(clientAddress.sin_addr);
 
-				auto session = _server->OnNewConnect(host, port);
+				auto session = _server->OnNewConnect(remoteHost, remotePort);
 
 				if (session)
 				{
-					GetLocalName(sock, session->_localHost, session->_localPort);
-					session->_localPort = _server->_port;
-					session->_localHost = _server->_host;
+					session->_localPort = localPort;
+					session->_localHost = localHost;
 
-					session->_remotePort = port;
-					session->_remoteHost = host;
+					session->_remotePort = remotePort;
+					session->_remoteHost = remoteHost;
 
 					auto pipe = std::make_shared<UDPSessionPipe>(_managerSocket, sock, session, NET_EVENT_TYPE::TRANSMIT);
 
 					struct epoll_event event{ };
 
 					event.events = EPOLLIN;
-					event.data.ptr = &_netEvent;
+					event.data.ptr = &pipe->_netEvent;
 
 					if (epoll_ctl(_managerSocket, EPOLL_CTL_ADD, sock, &event) == -1)
 					{

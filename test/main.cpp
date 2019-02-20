@@ -69,8 +69,7 @@ public:
 	 */
 	void OnDisconnect() override
 	{
-		tinyToolkit::String::Print("客户端会话[{}:{}]断开连接 : {}\r\n", _localHost, _localPort,
-								   tinyToolkit::OS::LastErrorMessage());
+		tinyToolkit::String::Print("客户端会话[{}:{}]断开连接 : {}\r\n", _localHost, _localPort, tinyToolkit::OS::LastErrorMessage());
 	}
 
 	/**
@@ -80,8 +79,7 @@ public:
 	 */
 	void OnConnectFailed() override
 	{
-		tinyToolkit::String::Print("客户端会话[{}:{}]连接服务器会话[{}:{}]失败 : {}\r\n", _localHost, _localPort, _remoteHost, _remotePort,
-								   tinyToolkit::OS::LastErrorMessage());
+		tinyToolkit::String::Print("客户端会话[{}:{}]连接服务器会话[{}:{}]失败 : {}\r\n", _localHost, _localPort, _remoteHost, _remotePort, tinyToolkit::OS::LastErrorMessage());
 	}
 
 private:
@@ -166,8 +164,7 @@ public:
 	 */
 	void OnConnectFailed() override
 	{
-		tinyToolkit::String::Print("服务器会话[{}:{}]连接客户端会话[{}:{}]失败 : {}\r\n", _localHost, _localPort, _remoteHost, _remotePort,
-								   tinyToolkit::OS::LastErrorMessage());
+		tinyToolkit::String::Print("服务器会话[{}:{}]连接客户端会话[{}:{}]失败 : {}\r\n", _localHost, _localPort, _remoteHost, _remotePort, tinyToolkit::OS::LastErrorMessage());
 	}
 
 private:
@@ -223,8 +220,7 @@ public:
 	 */
 	void OnSessionError(tinyToolkit::ITCPSession * session) override
 	{
-		tinyToolkit::String::Print("服务器[{}:{}]与客户端[{}:{}]会话错误 : {}\r\n", _host, _port, session->_remoteHost, session->_remotePort,
-								   tinyToolkit::OS::LastErrorMessage());
+		tinyToolkit::String::Print("服务器[{}:{}]与客户端[{}:{}]会话错误 : {}\r\n", _host, _port, session->_remoteHost, session->_remotePort, tinyToolkit::OS::LastErrorMessage());
 
 		auto key = tinyToolkit::String::Splice(session->_remoteHost, ":", session->_remotePort);
 
@@ -448,13 +444,6 @@ public:
 	~UDPServer() override
 	{
 		tinyToolkit::String::Print("服务器析构\r\n");
-
-		for (auto &iter : _pool)
-		{
-			iter.second->Close();
-
-			delete iter.second;
-		}
 	}
 
 	/**

@@ -201,21 +201,6 @@ namespace tinyToolkit
 			return false;
 		}
 
-		struct sockaddr_in address{ };
-
-		address.sin_port = htons(client->_remotePort);
-		address.sin_family = AF_INET;
-		address.sin_addr.s_addr = Net::AsNetByte(client->_remoteHost.c_str());
-
-		if (::connect(sock, (struct sockaddr *)&address, sizeof(struct sockaddr_in)) == -1)
-		{
-			::close(sock);
-
-			client->OnConnectFailed();
-
-			return false;
-		}
-
 		GetLocalName(sock, client->_localHost, client->_localPort);
 
 		auto pipe = std::make_shared<UDPSessionPipe>(_socket, sock, client, NET_EVENT_TYPE::TRANSMIT);
@@ -242,6 +227,8 @@ namespace tinyToolkit
 			client->_pipe = pipe;
 
 			client->OnConnect();
+
+			client->Send(host.c_str(), port, "connect test", 12);
 		}
 
 #  else
@@ -266,6 +253,8 @@ namespace tinyToolkit
 			client->_pipe = pipe;
 
 			client->OnConnect();
+
+			client->Send(host.c_str(), port, "connect test", 12);
 		}
 
 #  endif

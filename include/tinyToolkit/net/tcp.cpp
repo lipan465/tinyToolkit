@@ -658,11 +658,11 @@ namespace tinyToolkit
 
 		if (currentEvent->filter == EVFILT_READ)
 		{
-			struct sockaddr_in address{ };
+			struct sockaddr_in clientAddress{ };
 
-			std::size_t addressLen = sizeof(address);
+			std::size_t addressLen = sizeof(clientAddress);
 
-			int32_t sock = ::accept(_sessionSocket, (struct sockaddr *)&address, (socklen_t *)&addressLen);
+			int32_t sock = ::accept(_sessionSocket, (struct sockaddr *)&clientAddress, (socklen_t *)&addressLen);
 
 			if (sock >= 0)
 			{
@@ -673,22 +673,26 @@ namespace tinyToolkit
 				{
 					::close(sock);
 
+					_server->OnError();
+
 					return;
 				}
 
-				uint16_t port = ntohs(address.sin_port);
+				uint16_t localPort = _server->_port;
+				uint16_t remotePort = ntohs(clientAddress.sin_port);
 
-				std::string host = inet_ntoa(address.sin_addr);
+				std::string localHost = _server->_host;
+				std::string remoteHost = inet_ntoa(clientAddress.sin_addr);
 
-				auto session = _server->OnNewConnect(host, port);
+				auto session = _server->OnNewConnect(remoteHost, remotePort);
 
 				if (session)
 				{
-					session->_localPort = _server->_port;
-					session->_localHost = _server->_host;
+					session->_localPort = localPort;
+					session->_localHost = localHost;
 
-					session->_remotePort = port;
-					session->_remoteHost = host;
+					session->_remotePort = remotePort;
+					session->_remoteHost = remoteHost;
 
 					auto pipe = std::make_shared<TCPSessionPipe>(_managerSocket, sock, session, NET_EVENT_TYPE::TRANSMIT);
 
@@ -712,6 +716,14 @@ namespace tinyToolkit
 						session->OnConnect();
 					}
 				}
+				else
+				{
+					_server->OnSessionError(session);
+				}
+			}
+			else
+			{
+				_server->OnError();
 			}
 		}
 
@@ -721,11 +733,11 @@ namespace tinyToolkit
 
 		if (currentEvent->events & EPOLLIN)
 		{
-			struct sockaddr_in address{ };
+			struct sockaddr_in clientAddress{ };
 
-			std::size_t addressLen = sizeof(address);
+			std::size_t addressLen = sizeof(struct sockaddr_in);
 
-			int32_t sock = ::accept(_sessionSocket, (struct sockaddr *)&address, (socklen_t *)&addressLen);
+			int32_t sock = ::accept(_sessionSocket, (struct sockaddr *)&clientAddress, (socklen_t *)&addressLen);
 
 			if (sock >= 0)
 			{
@@ -734,33 +746,35 @@ namespace tinyToolkit
 					!EnableReusePort(sock) ||
 					!EnableReuseAddress(sock))
 				{
-					_server->OnError();
-
 					::close(sock);
+
+					_server->OnError();
 
 					return;
 				}
 
-				uint16_t port = ntohs(address.sin_port);
+				uint16_t localPort = _server->_port;
+				uint16_t remotePort = ntohs(clientAddress.sin_port);
 
-				std::string host = inet_ntoa(address.sin_addr);
+				std::string localHost = _server->_host;
+				std::string remoteHost = inet_ntoa(clientAddress.sin_addr);
 
-				auto session = _server->OnNewConnect(host, port);
+				auto session = _server->OnNewConnect(remoteHost, remotePort);
 
 				if (session)
 				{
-					session->_localPort = _server->_port;
-					session->_localHost = _server->_host;
+					session->_localPort = localPort;
+					session->_localHost = localHost;
 
-					session->_remotePort = port;
-					session->_remoteHost = host;
+					session->_remotePort = remotePort;
+					session->_remoteHost = remoteHost;
 
 					auto pipe = std::make_shared<TCPSessionPipe>(_managerSocket, sock, session, NET_EVENT_TYPE::TRANSMIT);
 
 					struct epoll_event event{ };
 
 					event.events = EPOLLIN;
-					event.data.ptr = &_netEvent;
+					event.data.ptr = &pipe->_netEvent;
 
 					if (epoll_ctl(_managerSocket, EPOLL_CTL_ADD, sock, &event) == -1)
 					{

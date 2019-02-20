@@ -42,7 +42,7 @@ int main(int argc, char const * argv[])
 	ParseOption(argc, argv);
 
 	tinyToolkit::Signal::RegisterIgnore();
-	tinyToolkit::Signal::RegisterStackTrace();
+	tinyToolkit::Signal::RegisterStackTrace(tinyToolkit::Backtrace::Print);
 
 	StartApp();
 

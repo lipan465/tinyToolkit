@@ -9,6 +9,7 @@
 
 #include "udp.h"
 
+#include "../system/os.h"
 #include "../debug/trace.h"
 #include "../utilities/net.h"
 #include "../utilities/time.h"
@@ -17,6 +18,94 @@
 
 namespace tinyToolkit
 {
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+	/// todo
+
+#else
+
+	/**
+	 *
+	 * 会话处理
+	 *
+	 * @param socket 句柄
+	 * @param address 地址
+	 * @param addressLen 地址长度
+	 *
+	 * @return 新生成的句柄
+	 *
+	 */
+	static int32_t Accept(int32_t socket, struct sockaddr * address, socklen_t * addressLen)
+	{
+		static char buffer[6]{ 0 };
+
+		while (true)
+		{
+			auto len = ::recvfrom(socket, buffer, sizeof(buffer), 0, address, addressLen);
+
+			if (len < 0 && errno == EAGAIN)
+			{
+				continue;
+			}
+			else if (len > 0)
+			{
+				return ::socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+			}
+			else
+			{
+				return -1;
+			}
+		}
+	}
+
+	/**
+	*
+	* 启用非堵塞
+	*
+	* @param socket 句柄
+	*
+	* @return 是否设置成功
+	*
+	*/
+	static bool EnableNonBlock(int32_t socket)
+	{
+		return fcntl(socket, F_SETFL, fcntl(socket, F_GETFL, 0) | O_NONBLOCK) == 0;
+	}
+
+	/**
+	*
+	* 启用端口复用
+	*
+	* @param socket 句柄
+	*
+	* @return 是否设置成功
+	*
+	*/
+	static bool EnableReusePort(int32_t socket)
+	{
+		int32_t val = 1l;
+
+		return setsockopt(socket, SOL_SOCKET, SO_REUSEPORT, reinterpret_cast<const char *>(&val), sizeof(val)) == 0;
+	}
+
+	/**
+	*
+	* 启用地址复用
+	*
+	* @param socket 句柄
+	*
+	* @return 是否设置成功
+	*
+	*/
+	static bool EnableReuseAddress(int32_t socket)
+	{
+		int32_t val = 1l;
+
+		return setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char *>(&val), sizeof(val)) == 0;
+	}
+
+#endif
+
 	/**
 	 *
 	 * 构造函数
@@ -405,7 +494,7 @@ namespace tinyToolkit
 
 				address.sin_port = htons(_session->_localPort);
 				address.sin_family = AF_INET;
-				address.sin_addr.s_addr = tinyToolkit::Net::AsNetByte(_session->_localHost.c_str());
+				address.sin_addr.s_addr = Net::AsNetByte(_session->_localHost.c_str());
 
 				auto len = ::recvfrom(_sessionSocket, buffer, sizeof(buffer), 0, (struct sockaddr *)&address, (socklen_t *)&addressLen);
 
@@ -445,7 +534,7 @@ namespace tinyToolkit
 
 				address.sin_port = htons(_sendQueue.front()._port);
 				address.sin_family = AF_INET;
-				address.sin_addr.s_addr = tinyToolkit::Net::AsNetByte(_sendQueue.front()._host.c_str());
+				address.sin_addr.s_addr = Net::AsNetByte(_sendQueue.front()._host.c_str());
 
 				while (_isConnect && count < length)
 				{
@@ -631,7 +720,95 @@ namespace tinyToolkit
 
 		if (currentEvent->events & EPOLLIN)
 		{
+			struct sockaddr_in clientAddress{ };
 
+			std::size_t addressLen = sizeof(struct sockaddr);
+
+			int32_t sock = Accept(_sessionSocket, (struct sockaddr *)&clientAddress, (socklen_t *)&addressLen);
+
+			if (sock >= 0)
+			{
+				if (!EnableNonBlock(sock) ||
+					!EnableReusePort(sock) ||
+					!EnableReuseAddress(sock))
+				{
+					::close(sock);
+
+					_server->OnError();
+
+					return;
+				}
+
+				struct sockaddr_in serverAddress{ };
+
+				serverAddress.sin_port = htons(_server->_port);
+				serverAddress.sin_family = AF_INET;
+				serverAddress.sin_addr.s_addr = Net::AsNetByte(_server->_host.c_str());
+
+				if (::bind(sock, (struct sockaddr *)&serverAddress, sizeof(struct sockaddr_in)) == -1)
+				{
+					::close(sock);
+
+					_server->OnError();
+
+					return;
+				}
+
+				if (::connect(sock, (struct sockaddr *)&clientAddress, sizeof(struct sockaddr)) == -1)
+				{
+					::close(sock);
+
+					_server->OnError();
+
+					return;
+				}
+
+				uint16_t port = ntohs(clientAddress.sin_port);
+
+				std::string host = inet_ntoa(clientAddress.sin_addr);
+
+				auto session = _server->OnNewConnect(host, port);
+
+				if (session)
+				{
+					GetLocalName(sock, session->_localHost, session->_localPort);
+					session->_localPort = _server->_port;
+					session->_localHost = _server->_host;
+
+					session->_remotePort = port;
+					session->_remoteHost = host;
+
+					auto pipe = std::make_shared<UDPSessionPipe>(_managerSocket, sock, session, NET_EVENT_TYPE::TRANSMIT);
+
+					struct epoll_event event{ };
+
+					event.events = EPOLLIN;
+					event.data.ptr = &_netEvent;
+
+					if (epoll_ctl(_managerSocket, EPOLL_CTL_ADD, sock, &event) == -1)
+					{
+						::close(sock);
+
+						_server->OnSessionError(session);
+					}
+					else
+					{
+						pipe->_isConnect = true;
+
+						session->_pipe = pipe;
+
+						session->OnConnect();
+					}
+				}
+				else
+				{
+					_server->OnSessionError(session);
+				}
+			}
+			else
+			{
+				_server->OnError();
+			}
 		}
 
 #endif

@@ -14,12 +14,13 @@
 #include "tcp.h"
 #include "udp.h"
 
+#include "../utilities/copyable.h"
 #include "../utilities/singleton.h"
 
 
 namespace tinyToolkit
 {
-	class TINY_TOOLKIT_API NetWorkManager
+	class TINY_TOOLKIT_API NetWorkManager : public NonCopyable
 	{
 		friend Singleton<NetWorkManager>;
 
@@ -85,7 +86,7 @@ namespace tinyToolkit
 		 */
 		bool LaunchTCPServer(ITCPServer * server, const std::string & host, uint16_t port);
 
-	protected:
+	private:
 		/**
 		 *
 		 * 构造函数

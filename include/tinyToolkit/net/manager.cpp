@@ -16,6 +16,107 @@
 
 namespace tinyToolkit
 {
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+	/// todo
+
+#else
+
+	/**
+	*
+	* 获取本地名称
+	*
+	* @param socket 句柄
+	* @param host 地址
+	* @param port 端口
+	*
+	* @return 是否获取成功
+	*
+	*/
+	static bool GetLocalName(int32_t socket, std::string & host, uint16_t & port)
+	{
+		struct sockaddr_in address { };
+
+		std::size_t addressLen = sizeof(address);
+
+		if (::getsockname(socket, (struct sockaddr *)&address, (socklen_t *)&addressLen) == 0)
+		{
+			host = inet_ntoa(address.sin_addr);
+
+			port = ntohs(address.sin_port);
+
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	/**
+	*
+	* 启用Nagle算法
+	*
+	* @param socket 句柄
+	*
+	* @return 是否设置成功
+	*
+	*/
+	static bool EnableNoDelay(int32_t socket)
+	{
+		int32_t val = 1l;
+
+		return setsockopt(socket, IPPROTO_TCP, TCP_NODELAY, reinterpret_cast<const char *>(&val), sizeof(val)) == 0;
+	}
+
+	/**
+	*
+	* 启用非堵塞
+	*
+	* @param socket 句柄
+	*
+	* @return 是否设置成功
+	*
+	*/
+	static bool EnableNonBlock(int32_t socket)
+	{
+		return fcntl(socket, F_SETFL, fcntl(socket, F_GETFL, 0) | O_NONBLOCK) == 0;
+	}
+
+	/**
+	*
+	* 启用端口复用
+	*
+	* @param socket 句柄
+	*
+	* @return 是否设置成功
+	*
+	*/
+	static bool EnableReusePort(int32_t socket)
+	{
+		int32_t val = 1l;
+
+		return setsockopt(socket, SOL_SOCKET, SO_REUSEPORT, reinterpret_cast<const char *>(&val), sizeof(val)) == 0;
+	}
+
+	/**
+	*
+	* 启用地址复用
+	*
+	* @param socket 句柄
+	*
+	* @return 是否设置成功
+	*
+	*/
+	static bool EnableReuseAddress(int32_t socket)
+	{
+		int32_t val = 1l;
+
+		return setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char *>(&val), sizeof(val)) == 0;
+	}
+
+#endif
+
 	/**
 	 *
 	 * 获取单例
@@ -71,6 +172,12 @@ namespace tinyToolkit
 			return false;
 		}
 
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		/// todo
+
+#else
+
 		int32_t sock = ::socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
 		if (sock == -1)
@@ -83,9 +190,9 @@ namespace tinyToolkit
 		client->_remotePort = port;
 		client->_remoteHost = Net::ParseHost(host.c_str());
 
-		if (!Net::EnableReusePort(sock) ||
-			!Net::EnableNonBlocking(sock) ||
-			!Net::EnableReuseAddress(sock))
+		if (!EnableNonBlock(sock) || 
+			!EnableReusePort(sock) ||
+			!EnableReuseAddress(sock))
 		{
 			::close(sock);
 
@@ -109,13 +216,11 @@ namespace tinyToolkit
 			return false;
 		}
 
+		GetLocalName(sock, client->_localHost, client->_localPort);
+
 		auto pipe = std::make_shared<UDPSessionPipe>(_socket, sock, client, NET_EVENT_TYPE::TRANSMIT);
 
-#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
-
-		/// todo
-
-#elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
+#  if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
 		struct kevent event[2]{ };
 
@@ -139,7 +244,7 @@ namespace tinyToolkit
 			client->OnConnect();
 		}
 
-#else
+#  else
 
 		struct epoll_event event{ };
 
@@ -163,6 +268,8 @@ namespace tinyToolkit
 			client->OnConnect();
 		}
 
+#  endif
+#
 #endif
 
 		return true;
@@ -186,6 +293,12 @@ namespace tinyToolkit
 			return false;
 		}
 
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		/// todo
+
+#else
+
 		int32_t sock = ::socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
 		if (sock == -1)
@@ -198,9 +311,9 @@ namespace tinyToolkit
 		server->_port = port;
 		server->_host = Net::ParseHost(host.c_str());
 
-		if (!Net::EnableReusePort(sock) ||
-			!Net::EnableNonBlocking(sock) ||
-			!Net::EnableReuseAddress(sock))
+		if (!EnableNonBlock(sock) || 
+			!EnableReusePort(sock) ||
+			!EnableReuseAddress(sock))
 		{
 			::close(sock);
 
@@ -215,7 +328,7 @@ namespace tinyToolkit
 		address.sin_family = AF_INET;
 		address.sin_addr.s_addr = Net::AsNetByte(server->_host.c_str());
 
-		if (::bind(sock, (struct sockaddr *)&address, sizeof(struct sockaddr_in)) == -1)
+		if (::bind(sock, (struct sockaddr *)&address, sizeof(struct sockaddr)) == -1)
 		{
 			::close(sock);
 
@@ -224,13 +337,9 @@ namespace tinyToolkit
 			return false;
 		}
 
-		auto pipe = std::make_shared<UDPServerPipe>(_socket, sock, server, NET_EVENT_TYPE::TRANSMIT);
+		auto pipe = std::make_shared<UDPServerPipe>(_socket, sock, server, NET_EVENT_TYPE::ACCEPT);
 
-#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
-
-		/// todo
-
-#elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
+#  if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
 		struct kevent event[2]{ };
 
@@ -250,7 +359,7 @@ namespace tinyToolkit
 			server->_pipe = pipe;
 		}
 
-#else
+#  else
 
 		struct epoll_event event{ };
 
@@ -270,6 +379,8 @@ namespace tinyToolkit
 			server->_pipe = pipe;
 		}
 
+#  endif
+#
 #endif
 
 		return true;
@@ -293,6 +404,12 @@ namespace tinyToolkit
 			return false;
 		}
 
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		/// todo
+
+#else
+
 		int32_t sock = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
 		if (sock == -1)
@@ -305,10 +422,10 @@ namespace tinyToolkit
 		client->_remotePort = port;
 		client->_remoteHost = Net::ParseHost(host.c_str());
 
-		if (!Net::EnableNoDelay(sock) ||
-			!Net::EnableReusePort(sock) ||
-			!Net::EnableNonBlocking(sock) ||
-			!Net::EnableReuseAddress(sock))
+		if (!EnableNoDelay(sock) || 
+			!EnableNonBlock(sock) ||
+			!EnableReusePort(sock) ||
+			!EnableReuseAddress(sock))
 		{
 			::close(sock);
 
@@ -327,15 +444,11 @@ namespace tinyToolkit
 
 		if (ret == 0)
 		{
-			Net::GetLocalName(sock, client->_localHost, client->_localPort);
+			GetLocalName(sock, client->_localHost, client->_localPort);
 
 			auto pipe = std::make_shared<TCPSessionPipe>(_socket, sock, client, NET_EVENT_TYPE::TRANSMIT);
 
-#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
-
-			/// todo
-
-#elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
+#  if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
 			struct kevent event[2]{ };
 
@@ -359,7 +472,7 @@ namespace tinyToolkit
 				client->OnConnect();
 			}
 
-#else
+#  else
 
 			struct epoll_event event{ };
 
@@ -383,7 +496,7 @@ namespace tinyToolkit
 				client->OnConnect();
 			}
 
-#endif
+#  endif
 		}
 		else if (ret < 0 && errno != EINPROGRESS)
 		{
@@ -395,15 +508,11 @@ namespace tinyToolkit
 		}
 		else
 		{
-			Net::GetLocalName(sock, client->_localHost, client->_localPort);
+			GetLocalName(sock, client->_localHost, client->_localPort);
 
 			auto pipe = std::make_shared<TCPSessionPipe>(_socket, sock, client, NET_EVENT_TYPE::CONNECT);
 
-#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
-
-			/// todo
-
-#elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
+#  if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
 			struct kevent event[2]{ };
 
@@ -423,7 +532,7 @@ namespace tinyToolkit
 				client->_pipe = pipe;
 			}
 
-#else
+#  else
 
 			struct epoll_event event{ };
 
@@ -443,8 +552,10 @@ namespace tinyToolkit
 				client->_pipe = pipe;
 			}
 
-#endif
+#  endif
 		}
+
+#endif
 
 		return true;
 	}
@@ -467,6 +578,12 @@ namespace tinyToolkit
 			return false;
 		}
 
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		/// todo
+
+#else
+
 		int32_t sock = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
 		if (sock == -1)
@@ -479,10 +596,10 @@ namespace tinyToolkit
 		server->_port = port;
 		server->_host = Net::ParseHost(host.c_str());
 
-		if (!Net::EnableNoDelay(sock) ||
-			!Net::EnableReusePort(sock) ||
-			!Net::EnableNonBlocking(sock) ||
-			!Net::EnableReuseAddress(sock))
+		if (!EnableNoDelay(sock) || 
+			!EnableNonBlock(sock) ||
+			!EnableReusePort(sock) ||
+			!EnableReuseAddress(sock))
 		{
 			::close(sock);
 
@@ -517,11 +634,7 @@ namespace tinyToolkit
 
 		auto pipe = std::make_shared<TCPServerPipe>(_socket, sock, server, NET_EVENT_TYPE::ACCEPT);
 
-#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
-
-		/// todo
-
-#elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
+#  if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
 		struct kevent event[2]{ };
 
@@ -541,7 +654,7 @@ namespace tinyToolkit
 			server->_pipe = pipe;
 		}
 
-#else
+#  else
 
 		struct epoll_event event{ };
 
@@ -561,6 +674,8 @@ namespace tinyToolkit
 			server->_pipe = pipe;
 		}
 
+#  endif
+#
 #endif
 
 		return true;
@@ -666,7 +781,7 @@ namespace tinyToolkit
 			{
 				if (errno != EINTR)
 				{
-					TINY_TOOLKIT_ASSERT(false, OS::LastError())
+					TINY_TOOLKIT_ASSERT(false, OS::LastErrorMessage())
 
 					return;
 				}

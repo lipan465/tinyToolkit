@@ -1044,10 +1044,9 @@ int32_t signalStatus = 0;
 TEST(System, Signal)
 {
 	tinyToolkit::Signal::RegisterIgnore();
-	tinyToolkit::Signal::RegisterStackTrace();
 
-	tinyToolkit::Signal::RegisterFrame([](int signalNo){ signalStatus = signalNo * 1; });
 	tinyToolkit::Signal::RegisterTerminate([](int signalNo){ signalStatus = signalNo * 3; });
+	tinyToolkit::Signal::RegisterStackTrace([](int signalNo){ signalStatus = signalNo * 1; });
 
 	tinyToolkit::Signal::Raise(SIGTSTP);
 
@@ -1278,7 +1277,17 @@ TEST(Utilities, Time)
 	EXPECT_EQ(tinyToolkit::Time::Minutes(), tinyToolkit::Time::Seconds() / 60);
 	EXPECT_EQ(tinyToolkit::Time::Seconds(), tinyToolkit::Time::Milliseconds() / 1000);
 	EXPECT_EQ(tinyToolkit::Time::Milliseconds(), tinyToolkit::Time::Microseconds() / 1000);
+
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
+
 	EXPECT_LE(tinyToolkit::Time::Microseconds(), tinyToolkit::Time::Nanoseconds() / 1000);
+
+#else
+
+	EXPECT_GE(tinyToolkit::Time::Microseconds(), tinyToolkit::Time::Nanoseconds() / 1000);
+
+#endif
+
 	EXPECT_EQ(tinyToolkit::Time::NextDayTime(), tinyToolkit::Time::CurrentDayTime() + TINY_TOOLKIT_DAY);
 	EXPECT_EQ(tinyToolkit::Time::Seconds(tinyToolkit::Time::TimeDuration()), tinyToolkit::Time::Seconds(tinyToolkit::Time::TimePoint()));
 	EXPECT_EQ(tinyToolkit::Time::Seconds(tinyToolkit::Time::TimeDuration(123)), tinyToolkit::Time::Seconds(tinyToolkit::Time::TimePoint(123)));

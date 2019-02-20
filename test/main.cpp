@@ -333,7 +333,7 @@ public:
 	 */
 	void OnDisconnect() override
 	{
-		tinyToolkit::String::Print("客户端会话[{}:{}]断开连接 : {}\r\n", _id, tinyToolkit::OS::LastErrorMessage());
+		tinyToolkit::String::Print("客户端会话[{}:{}]断开连接 : {}\r\n", _localHost, _localPort, tinyToolkit::OS::LastErrorMessage());
 	}
 
 	/**
@@ -343,8 +343,7 @@ public:
 	 */
 	void OnConnectFailed() override
 	{
-		tinyToolkit::String::Print("客户端会话[{}:{}]连接服务器会话[{}:{}]失败 : {}\r\n", _localHost, _localPort, _remoteHost, _remotePort,
-								   tinyToolkit::OS::LastErrorMessage());
+		tinyToolkit::String::Print("客户端会话[{}:{}]连接服务器会话[{}:{}]失败 : {}\r\n", _localHost, _localPort, _remoteHost, _remotePort, tinyToolkit::OS::LastErrorMessage());
 	}
 
 private:
@@ -420,8 +419,7 @@ public:
 	 */
 	void OnDisconnect() override
 	{
-		tinyToolkit::String::Print("服务器会话[{}:{}]断开连接 : {}\r\n", _localHost, _localPort,
-								   tinyToolkit::OS::LastErrorMessage());
+		tinyToolkit::String::Print("服务器会话[{}:{}]断开连接 : {}\r\n", _localHost, _localPort, tinyToolkit::OS::LastErrorMessage());
 	}
 
 	/**
@@ -431,8 +429,7 @@ public:
 	 */
 	void OnConnectFailed() override
 	{
-		tinyToolkit::String::Print("服务器会话[{}:{}]连接客户端会话[{}:{}]失败 : {}\r\n", _localHost, _localPort, _remoteHost, _remotePort,
-								   tinyToolkit::OS::LastErrorMessage());
+		tinyToolkit::String::Print("服务器会话[{}:{}]连接客户端会话[{}:{}]失败 : {}\r\n", _localHost, _localPort, _remoteHost, _remotePort, tinyToolkit::OS::LastErrorMessage());
 	}
 
 private:
@@ -495,20 +492,26 @@ public:
 	 */
 	void OnSessionError(tinyToolkit::IUDPSession * session) override
 	{
-		tinyToolkit::String::Print("服务器[{}:{}]与客户端[{}:{}]会话错误 : {}\r\n", _host, _port, session->_remoteHost, session->_remotePort,
-								   tinyToolkit::OS::LastErrorMessage());
-
-		auto key = tinyToolkit::String::Splice(session->_remoteHost, ":", session->_remotePort);
-
-		auto find = _pool.find(key);
-
-		if (find != _pool.end())
+		if (session)
 		{
-			find->second->Close();
+			tinyToolkit::String::Print("服务器[{}:{}]与客户端[{}:{}]会话错误 : {}\r\n", _host, _port, session->_remoteHost, session->_remotePort, tinyToolkit::OS::LastErrorMessage());
 
-			delete find->second;
+			auto key = tinyToolkit::String::Splice(session->_remoteHost, ":", session->_remotePort);
 
-			_pool.erase(find);
+			auto find = _pool.find(key);
+
+			if (find != _pool.end())
+			{
+				find->second->Close();
+
+				delete find->second;
+
+				_pool.erase(find);
+			}
+		}
+		else
+		{
+			std::cout << "session null" << std::endl;
 		}
 	}
 
@@ -655,8 +658,7 @@ void StartApp()
 				}
 				else
 				{
-					tinyToolkit::String::Print("客户端[{}:{}]启动失败 : {}\r\n", host, port,
-											   tinyToolkit::OS::LastErrorMessage());
+					tinyToolkit::String::Print("客户端[{}:{}]启动失败 : {}\r\n", host, port, tinyToolkit::OS::LastErrorMessage());
 				}
 
 				pool.push_back(session);
@@ -720,7 +722,7 @@ int main(int argc, char const * argv[])
 	ParseOption(argc, argv);
 
 	tinyToolkit::Signal::RegisterIgnore();
-	tinyToolkit::Signal::RegisterStackTrace();
+	tinyToolkit::Signal::RegisterStackTrace(tinyToolkit::Backtrace::Print);
 
 	StartApp();
 

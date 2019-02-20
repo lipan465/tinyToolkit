@@ -22,6 +22,7 @@
 #include <csignal>
 #include <cstdint>
 #include <cassert>
+#include <fcntl.h>
 
 /// common
 #include "macro.h"
@@ -79,7 +80,6 @@
 #
 #  include <dlfcn.h>
 #  include <netdb.h>
-#  include <fcntl.h>
 #  include <dirent.h>
 #  include <cxxabi.h>
 #  include <unistd.h>
@@ -103,7 +103,6 @@
 #
 #  include <dlfcn.h>
 #  include <netdb.h>
-#  include <fcntl.h>
 #  include <dirent.h>
 #  include <cxxabi.h>
 #  include <unistd.h>

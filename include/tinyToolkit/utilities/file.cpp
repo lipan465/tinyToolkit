@@ -142,7 +142,7 @@ namespace tinyToolkit
 
 		while (size > 0)
 		{
-			ssize_t len = ::write(_fd, value, size);
+			auto len = ::write(_fd, value, size);
 
 			if (len == -1)
 			{
@@ -284,7 +284,15 @@ namespace tinyToolkit
 	 */
 	bool LockFile::Create()
 	{
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		_fd = open(_path.c_str(), _O_RDWR | _O_CREAT, 0644);
+
+#else
+
 		_fd = open(_path.c_str(), O_WRONLY | O_CREAT, 0644);
+
+#endif
 
 		return IsOpen();
 	}

@@ -39,20 +39,12 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 注册堆栈调试
-		 *
-		 */
-		static void RegisterStackTrace();
-
-
-		/**
-		 *
-		 * 注册帧信号
+		 * 注册堆栈跟踪信号
 		 *
 		 * @param handler 信号触发时调用的函数
 		 *
 		 */
-		static void RegisterFrame(void(* handler)(int));
+		static void RegisterStackTrace(void(* handler)(int32_t));
 
 		/**
 		 *
@@ -61,7 +53,7 @@ namespace tinyToolkit
 		 * @param handler 信号触发时调用的函数
 		 *
 		 */
-		static void RegisterTerminate(void(* handler)(int));
+		static void RegisterTerminate(void(* handler)(int32_t));
 
 		/**
 		 *
@@ -71,7 +63,7 @@ namespace tinyToolkit
 		 * @param handler 信号触发时调用的函数
 		 *
 		 */
-		static void RegisterAction(int signalNo, void(* handler)(int));
+		static void RegisterAction(int32_t signalNo, void(* handler)(int32_t));
 	};
 }
 

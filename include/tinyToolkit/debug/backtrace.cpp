@@ -14,7 +14,7 @@ namespace tinyToolkit
 {
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-	/// todo
+
 
 #else
 

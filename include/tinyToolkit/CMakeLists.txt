@@ -30,7 +30,7 @@ IF(WIN32)
 	#
 	# fmt支持
 	#
-	TRAVERSE_LIBRARY_FOR_PROGRAM_NAME(${PROJECT_SOURCE_DIR}/library/fmt/linux/libfmt.lib)
+	TRAVERSE_LIBRARY_FOR_PROGRAM_NAME(${PROJECT_SOURCE_DIR}/library/fmt/windows/fmt.lib)
 
 ELSE()
 

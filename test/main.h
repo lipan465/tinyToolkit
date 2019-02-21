@@ -11,7 +11,8 @@
  */
 
 
-#include "../include/tinyToolkit/tinyToolkit.h"
+#include "tcp.h"
+#include "udp.h"
 
 
 #endif // __TEST__MAIN__H__

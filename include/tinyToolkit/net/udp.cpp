@@ -24,51 +24,7 @@ namespace tinyToolkit
 
 #else
 
-	/**
-	*
-	* 启用非堵塞
-	*
-	* @param socket 句柄
-	*
-	* @return 是否设置成功
-	*
-	*/
-	static bool EnableNonBlock(int32_t socket)
-	{
-		return fcntl(socket, F_SETFL, fcntl(socket, F_GETFL, 0) | O_NONBLOCK) == 0;
-	}
-
-	/**
-	*
-	* 启用端口复用
-	*
-	* @param socket 句柄
-	*
-	* @return 是否设置成功
-	*
-	*/
-	static bool EnableReusePort(int32_t socket)
-	{
-		int32_t val = 1l;
-
-		return setsockopt(socket, SOL_SOCKET, SO_REUSEPORT, reinterpret_cast<const char *>(&val), sizeof(val)) == 0;
-	}
-
-	/**
-	*
-	* 启用地址复用
-	*
-	* @param socket 句柄
-	*
-	* @return 是否设置成功
-	*
-	*/
-	static bool EnableReuseAddress(int32_t socket)
-	{
-		int32_t val = 1l;
-
-		return setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char *>(&val), sizeof(val)) == 0;
-	}
+	static std::unordered_map<std::string, tinyToolkit::IUDPSession *> sContainer{ };
 
 	/**
 	 *
@@ -83,11 +39,13 @@ namespace tinyToolkit
 	 */
 	static int32_t Accept(int32_t socket, struct sockaddr * address, socklen_t * addressLen)
 	{
-		static char buffer[6]{ 0 };
+		static char buffer[TINY_TOOLKIT_MB]{ 0 };
 
 		while (true)
 		{
-			auto len = ::recvfrom(socket, buffer, sizeof(buffer), 0, address, addressLen);
+			struct sockaddr_in clientAddress{ };
+
+			auto len = ::recvfrom(socket, buffer, sizeof(buffer), 0, (struct sockaddr *)&clientAddress, addressLen);
 
 			if (len < 0 && errno == EAGAIN)
 			{
@@ -95,7 +53,25 @@ namespace tinyToolkit
 			}
 			else if (len > 0)
 			{
-				return ::socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+				buffer[len] = '\0';
+
+				memcpy(address, (struct sockaddr *)&clientAddress, sizeof(struct sockaddr));
+
+				auto find = sContainer.find(String::Format("{}_{}", inet_ntoa(clientAddress.sin_addr), ntohs(clientAddress.sin_port)));
+
+				if (find == sContainer.end())
+				{
+					return ::socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+				}
+				else
+				{
+					if (find->second)
+					{
+						find->second->OnReceive(buffer, static_cast<std::size_t>(len));
+					}
+
+					return -2;
+				}
 			}
 			else
 			{
@@ -161,6 +137,13 @@ namespace tinyToolkit
 
 			if (_session)
 			{
+				auto find = sContainer.find(String::Format("{}_{}", _session->_remoteHost, _session->_remotePort));
+
+				if (find != sContainer.end())
+				{
+					sContainer.erase(find);
+				}
+
 				_session->OnDisconnect();
 			}
 
@@ -172,17 +155,15 @@ namespace tinyToolkit
 	 *
 	 * 发送数据
 	 *
-	 * @param host 待发送主机地址
-	 * @param port 待发送主机端口
 	 * @param value 待发送数据
 	 * @param size 待发送数据长度
 	 *
 	 */
-	void UDPSessionPipe::Send(const char * host, uint16_t port, const void * value, std::size_t size)
+	void UDPSessionPipe::Send(const void * value, std::size_t size)
 	{
 		if (_isConnect)
 		{
-			_sendQueue.emplace(host, port, value, size);
+			_sendQueue.emplace(_session->_remoteHost.c_str(), _session->_remotePort, value, size);
 
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
@@ -383,15 +364,7 @@ namespace tinyToolkit
 
 			while (_isConnect && Time::Microseconds() - tick <= 1000)
 			{
-				struct sockaddr_in address{ };
-
-				std::size_t addressLen = sizeof(struct sockaddr);
-
-				address.sin_port = htons(_session->_localPort);
-				address.sin_family = AF_INET;
-				address.sin_addr.s_addr = Net::AsNetByte(_session->_localHost.c_str());
-
-				auto len = ::recvfrom(_sessionSocket, buffer, sizeof(buffer), 0, (struct sockaddr *)&address, (socklen_t *)&addressLen);
+				auto len = ::read(_sessionSocket, buffer, sizeof(buffer));
 
 				if (len < 0 && errno == EAGAIN)
 				{
@@ -403,7 +376,7 @@ namespace tinyToolkit
 
 					if (_session)
 					{
-						_session->OnReceive(inet_ntoa(address.sin_addr), ntohs(address.sin_port), buffer, static_cast<std::size_t>(len));
+						_session->OnReceive(buffer, static_cast<std::size_t>(len));
 					}
 				}
 				else
@@ -425,15 +398,9 @@ namespace tinyToolkit
 
 				const char * value = _sendQueue.front()._value.c_str();
 
-				struct sockaddr_in address{ };
-
-				address.sin_port = htons(_sendQueue.front()._port);
-				address.sin_family = AF_INET;
-				address.sin_addr.s_addr = Net::AsNetByte(_sendQueue.front()._host.c_str());
-
 				while (_isConnect && count < length)
 				{
-					auto len = ::sendto(_sessionSocket, value + count, length - count, 0, (struct sockaddr *)&address, sizeof(struct sockaddr_in));
+					auto len = ::write(_sessionSocket, value + count, length - count);
 
 					if (len > 0)
 					{
@@ -488,15 +455,7 @@ namespace tinyToolkit
 
 			while (_isConnect && Time::Microseconds() - tick <= 1000)
 			{
-				struct sockaddr_in address{ };
-
-				std::size_t addressLen = sizeof(struct sockaddr);
-
-				address.sin_port = htons(_session->_localPort);
-				address.sin_family = AF_INET;
-				address.sin_addr.s_addr = Net::AsNetByte(_session->_localHost.c_str());
-
-				auto len = ::recvfrom(_sessionSocket, buffer, sizeof(buffer), 0, (struct sockaddr *)&address, (socklen_t *)&addressLen);
+				auto len = ::read(_sessionSocket, buffer, sizeof(buffer));
 
 				if (len < 0 && errno == EAGAIN)
 				{
@@ -508,7 +467,7 @@ namespace tinyToolkit
 
 					if (_session)
 					{
-						_session->OnReceive(inet_ntoa(address.sin_addr), ntohs(address.sin_port), buffer, static_cast<std::size_t>(len));
+						_session->OnReceive(buffer, static_cast<std::size_t>(len));
 					}
 				}
 				else
@@ -530,15 +489,9 @@ namespace tinyToolkit
 
 				const char * value = _sendQueue.front()._value.c_str();
 
-				struct sockaddr_in address{ };
-
-				address.sin_port = htons(_sendQueue.front()._port);
-				address.sin_family = AF_INET;
-				address.sin_addr.s_addr = Net::AsNetByte(_sendQueue.front()._host.c_str());
-
 				while (_isConnect && count < length)
 				{
-					auto len = ::sendto(_sessionSocket, value + count, length - count, 0, (struct sockaddr *)&address, sizeof(struct sockaddr_in));
+					auto len = ::write(_sessionSocket, value + count, length - count);
 
 					if (len > 0)
 					{
@@ -678,16 +631,12 @@ namespace tinyToolkit
 	 *
 	 * 发送数据
 	 *
-	 * @param host 待发送主机地址
-	 * @param port 待发送主机端口
 	 * @param value 待发送数据
 	 * @param size 待发送数据长度
 	 *
 	 */
-	void UDPServerPipe::Send(const char * host, uint16_t port, const void * value, std::size_t size)
+	void UDPServerPipe::Send(const void * value, std::size_t size)
 	{
-		(void)host;
-		(void)port;
 		(void)size;
 		(void)value;
 	}
@@ -719,9 +668,8 @@ namespace tinyToolkit
 
 			if (sock >= 0)
 			{
-				if (!EnableNonBlock(sock) ||
-					!EnableReusePort(sock) ||
-					!EnableReuseAddress(sock))
+				if (!Net::EnableNonBlock(sock) ||
+					!Net::EnableReuseAddress(sock))
 				{
 					::close(sock);
 
@@ -774,8 +722,8 @@ namespace tinyToolkit
 
 					struct kevent event[2]{ };
 
-					EV_SET(&event[0], _sessionSocket, EVFILT_READ,  EV_ADD | EV_ENABLE,  0, 0, (void *)&_netEvent);
-					EV_SET(&event[1], _sessionSocket, EVFILT_WRITE, EV_ADD | EV_DISABLE, 0, 0, (void *)&_netEvent);
+					EV_SET(&event[0], _sessionSocket, EVFILT_READ,  EV_ADD | EV_ENABLE,  0, 0, (void *)&pipe->_netEvent);
+					EV_SET(&event[1], _sessionSocket, EVFILT_WRITE, EV_ADD | EV_DISABLE, 0, 0, (void *)&pipe->_netEvent);
 
 					if (kevent(_managerSocket, event, 2, nullptr, 0, nullptr) == -1)
 					{
@@ -817,9 +765,8 @@ namespace tinyToolkit
 
 			if (sock >= 0)
 			{
-				if (!EnableNonBlock(sock) ||
-					!EnableReusePort(sock) ||
-					!EnableReuseAddress(sock))
+				if (!Net::EnableNonBlock(sock) ||
+					!Net::EnableReuseAddress(sock))
 				{
 					::close(sock);
 
@@ -883,6 +830,8 @@ namespace tinyToolkit
 					}
 					else
 					{
+						sContainer.insert(std::make_pair(String::Format("{}_{}", remoteHost, remotePort), session));
+
 						pipe->_isConnect = true;
 
 						session->_pipe = pipe;
@@ -894,6 +843,10 @@ namespace tinyToolkit
 				{
 					_server->OnSessionError(session);
 				}
+			}
+			else if (sock == -2)
+			{
+				/// do nothing
 			}
 			else
 			{

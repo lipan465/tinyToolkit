@@ -110,13 +110,11 @@ namespace tinyToolkit
 		 *
 		 * 接收数据触发回调函数
 		 *
-		 * @param host 接收的主机地址
-		 * @param port 接收的主机端口
 		 * @param data 接收的数据缓冲区
 		 * @param size 接收的数据缓冲区长度
 		 *
 		 */
-		virtual void OnReceive(const char * host, uint16_t port, const char * data, std::size_t size) = 0;
+		virtual void OnReceive(const char * data, std::size_t size) = 0;
 
 		/**
 		 *
@@ -162,13 +160,11 @@ namespace tinyToolkit
 		 *
 		 * 发送数据
 		 *
-		 * @param host 待发送主机地址
-		 * @param port 待发送主机端口
 		 * @param value 待发送数据
 		 * @param size 待发送数据长度
 		 *
 		 */
-		void Send(const char * host, uint16_t port, const void * value, std::size_t size);
+		void Send(const void * value, std::size_t size);
 
 	public:
 		uint16_t _localPort{ 0 };

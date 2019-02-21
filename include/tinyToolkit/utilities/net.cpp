@@ -9,45 +9,11 @@
 
 #include "net.h"
 
+#include "../debug/trace.h"
+
 
 namespace tinyToolkit
 {
-	/**
-	 *
-	 * 转换网络字节序
-	 *
-	 * @param value 待转换字符串
-	 *
-	 * @return 网络字节序
-	 *
-	 */
-	uint32_t Net::AsNetByte(const char * value)
-	{
-		return inet_addr(value);
-	}
-
-	/**
-	 *
-	 * 转换主机字节序
-	 *
-	 * @param value 待转换字符串
-	 *
-	 * @return 主机字节序
-	 *
-	 */
-	uint32_t Net::AsHostByte(const char * value)
-	{
-#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
-
-		return ntohl(AsNetByte(value));
-
-#else
-
-		return inet_network(value);
-
-#endif
-	}
-
 	/**
 	 *
 	 * 转换网络字节序范围
@@ -158,6 +124,184 @@ namespace tinyToolkit
 
 	/**
 	 *
+	 * 遍历域名对应的地址列表
+	 *
+	 * @param host 待解析域名
+	 * @param list 域名列表
+	 *
+	 * @return 是否解析成功
+	 *
+	 */
+	bool Net::TraverseAddressFromHost(const char * host, std::vector<std::string> & list)
+	{
+		bool status = true;
+
+		struct addrinfo   hints{ };
+		struct addrinfo * result{ nullptr };
+
+		hints.ai_flags = AI_CANONNAME;
+		hints.ai_family = AF_UNSPEC;  /// 意味着函数返回的是适用于指定主机名和服务名且适合任何协议族的地址
+		hints.ai_socktype = SOCK_STREAM;
+		hints.ai_protocol = 0;
+
+		auto res = getaddrinfo(host, nullptr, &hints, &result);
+
+		if (res == 0)
+		{
+			for (auto iter = result; iter != nullptr; iter = iter->ai_next)
+			{
+				char address[1024]{ 0 };
+
+				res = getnameinfo(iter->ai_addr, iter->ai_addrlen, address, sizeof(address), nullptr, 0, NI_NUMERICHOST | NI_NUMERICSERV);
+
+				if (res == 0)
+				{
+					list.emplace_back(address);
+				}
+				else
+				{
+					status = false;
+
+					TINY_TOOLKIT_ASSERT(false, gai_strerror(res))
+
+					break;
+				}
+			}
+
+			freeaddrinfo(result);
+		}
+		else
+		{
+			status = false;
+
+			TINY_TOOLKIT_ASSERT(false, gai_strerror(res))
+		}
+
+		return status;
+	}
+
+	/**
+	 *
+	 * 启用Nagle算法
+	 *
+	 * @param socket 句柄
+	 *
+	 * @return 是否设置成功
+	 *
+	 */
+	bool Net::EnableNoDelay(int32_t socket)
+	{
+		int32_t val = 1l;
+
+		return setsockopt(socket, IPPROTO_TCP, TCP_NODELAY, reinterpret_cast<const char *>(&val), sizeof(val)) == 0;
+	}
+
+	/**
+	 *
+	 * 启用非堵塞
+	 *
+	 * @param socket 句柄
+	 *
+	 * @return 是否设置成功
+	 *
+	 */
+	bool Net::EnableNonBlock(int32_t socket)
+	{
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		return true;
+
+#else
+
+		return fcntl(socket, F_SETFL, fcntl(socket, F_GETFL, 0) | O_NONBLOCK) == 0;
+
+#endif
+	}
+
+	/**
+	 *
+	 * 启用地址复用
+	 *
+	 * @param socket 句柄
+	 *
+	 * @return 是否设置成功
+	 *
+	 */
+	bool Net::EnableReuseAddress(int32_t socket)
+	{
+		int32_t val = 1l;
+
+		return setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char *>(&val), sizeof(val)) == 0;
+	}
+
+	/**
+	 *
+	 * 设置发送缓冲区大小
+	 *
+	 * @param sock 句柄
+	 * @param size 缓冲区大小
+	 *
+	 * @return 是否设置成功
+	 *
+	 */
+	bool Net::SetSendBufferSize(int32_t sock, int32_t size)
+	{
+		return setsockopt(sock, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<const char *>(&size), sizeof(size)) == 0;
+	}
+
+	/**
+	 *
+	 * 设置接收缓冲区大小
+	 *
+	 * @param sock 句柄
+	 * @param size 缓冲区大小
+	 *
+	 * @return 是否设置成功
+	 *
+	 */
+	bool Net::SetReceiveBufferSize(int32_t sock, int32_t size)
+	{
+		return setsockopt(sock, SOL_SOCKET, SO_RCVBUF, reinterpret_cast<const char *>(&size), sizeof(size)) == 0;
+	}
+
+	/**
+	 *
+	 * 转换网络字节序
+	 *
+	 * @param value 待转换字符串
+	 *
+	 * @return 网络字节序
+	 *
+	 */
+	uint32_t Net::AsNetByte(const char * value)
+	{
+		return inet_addr(value);
+	}
+
+	/**
+	 *
+	 * 转换主机字节序
+	 *
+	 * @param value 待转换字符串
+	 *
+	 * @return 主机字节序
+	 *
+	 */
+	uint32_t Net::AsHostByte(const char * value)
+	{
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		return ntohl(AsNetByte(value));
+
+#else
+
+		return inet_network(value);
+
+#endif
+	}
+
+	/**
+	 *
 	 * 转换为字符串
 	 *
 	 * @param value 待转换主机字节序
@@ -171,28 +315,5 @@ namespace tinyToolkit
 				std::to_string((value >> 16) & 0xFF) + "." +
 				std::to_string((value >>  8) & 0xFF) + "." +
 				std::to_string((value >>  0) & 0xFF);
-	}
-
-	/**
-	 *
-	 * 解析域名
-	 *
-	 * @param host 待解析域名
-	 *
-	 * @return 解析后域名
-	 *
-	 */
-	std::string Net::ParseHost(const char * host)
-	{
-		struct hostent * list = gethostbyname(host);
-
-		if (list)
-		{
-			return inet_ntoa(*(struct in_addr *)list->h_addr);
-		}
-		else
-		{
-			return { };
-		}
 	}
 }

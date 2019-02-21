@@ -17,76 +17,6 @@
 
 namespace tinyToolkit
 {
-#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
-
-	/// todo
-
-#else
-
-	/**
-	*
-	* 启用Nagle算法
-	*
-	* @param socket 句柄
-	*
-	* @return 是否设置成功
-	*
-	*/
-	static bool EnableNoDelay(int32_t socket)
-	{
-		int32_t val = 1l;
-
-		return setsockopt(socket, IPPROTO_TCP, TCP_NODELAY, reinterpret_cast<const char *>(&val), sizeof(val)) == 0;
-	}
-
-	/**
-	*
-	* 启用非堵塞
-	*
-	* @param socket 句柄
-	*
-	* @return 是否设置成功
-	*
-	*/
-	static bool EnableNonBlock(int32_t socket)
-	{
-		return fcntl(socket, F_SETFL, fcntl(socket, F_GETFL, 0) | O_NONBLOCK) == 0;
-	}
-
-	/**
-	*
-	* 启用端口复用
-	*
-	* @param socket 句柄
-	*
-	* @return 是否设置成功
-	*
-	*/
-	static bool EnableReusePort(int32_t socket)
-	{
-		int32_t val = 1l;
-
-		return setsockopt(socket, SOL_SOCKET, SO_REUSEPORT, reinterpret_cast<const char *>(&val), sizeof(val)) == 0;
-	}
-
-	/**
-	*
-	* 启用地址复用
-	*
-	* @param socket 句柄
-	*
-	* @return 是否设置成功
-	*
-	*/
-	static bool EnableReuseAddress(int32_t socket)
-	{
-		int32_t val = 1l;
-
-		return setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char *>(&val), sizeof(val)) == 0;
-	}
-
-#endif
-
 	/**
 	 *
 	 * 构造函数
@@ -161,7 +91,7 @@ namespace tinyToolkit
 	{
 		if (_isConnect)
 		{
-			_sendQueue.emplace(_session->_localHost.c_str(), _session->_localPort, value, size);
+			_sendQueue.emplace(_session->_remoteHost.c_str(), _session->_remotePort, value, size);
 
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
@@ -666,10 +596,9 @@ namespace tinyToolkit
 
 			if (sock >= 0)
 			{
-				if (!EnableNoDelay(sock) ||
-					!EnableNonBlock(sock) ||
-					!EnableReusePort(sock) ||
-					!EnableReuseAddress(sock))
+				if (!Net::EnableNoDelay(sock) ||
+					!Net::EnableNonBlock(sock) ||
+					!Net::EnableReuseAddress(sock))
 				{
 					::close(sock);
 
@@ -698,8 +627,8 @@ namespace tinyToolkit
 
 					struct kevent event[2]{ };
 
-					EV_SET(&event[0], _sessionSocket, EVFILT_READ,  EV_ADD | EV_ENABLE,  0, 0, (void *)&_netEvent);
-					EV_SET(&event[1], _sessionSocket, EVFILT_WRITE, EV_ADD | EV_DISABLE, 0, 0, (void *)&_netEvent);
+					EV_SET(&event[0], _sessionSocket, EVFILT_READ,  EV_ADD | EV_ENABLE,  0, 0, (void *)&pipe->_netEvent);
+					EV_SET(&event[1], _sessionSocket, EVFILT_WRITE, EV_ADD | EV_DISABLE, 0, 0, (void *)&pipe->_netEvent);
 
 					if (kevent(_managerSocket, event, 2, nullptr, 0, nullptr) == -1)
 					{
@@ -741,10 +670,9 @@ namespace tinyToolkit
 
 			if (sock >= 0)
 			{
-				if (!EnableNoDelay(sock) ||
-					!EnableNonBlock(sock) ||
-					!EnableReusePort(sock) ||
-					!EnableReuseAddress(sock))
+				if (!Net::EnableNoDelay(sock) ||
+					!Net::EnableNonBlock(sock) ||
+					!Net::EnableReuseAddress(sock))
 				{
 					::close(sock);
 

@@ -93,17 +93,15 @@ namespace tinyToolkit
 	 *
 	 * 发送数据
 	 *
-	 * @param host 待发送主机地址
-	 * @param port 待发送主机端口
 	 * @param value 待发送数据
 	 * @param size 待发送数据长度
 	 *
 	 */
-	void IUDPSession::Send(const char * host, uint16_t port, const void * value, std::size_t size)
+	void IUDPSession::Send(const void * value, std::size_t size)
 	{
 		if (_pipe)
 		{
-			_pipe->Send(host, port, value, size);
+			_pipe->Send(value, size);
 		}
 	}
 }

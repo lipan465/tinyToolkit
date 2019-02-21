@@ -55,13 +55,11 @@ namespace tinyToolkit
 		 *
 		 * 发送数据
 		 *
-		 * @param host 待发送主机地址
-		 * @param port 待发送主机端口
 		 * @param value 待发送数据
 		 * @param size 待发送数据长度
 		 *
 		 */
-		virtual void Send(const char * host, uint16_t port, const void * value, std::size_t size) = 0;
+		virtual void Send(const void * value, std::size_t size) = 0;
 	};
 }
 

@@ -7,10 +7,9 @@
  */
 
 
-#ifdef WITH_SQLITE
-
-
 #include "sqlite.h"
+
+#include <cstring>
 
 
 namespace tinyToolkit
@@ -467,7 +466,7 @@ namespace tinyToolkit
 
 		if (find == _field.end())
 		{
-			TINY_TOOLKIT_EXCEPTION_THROW(SqliteException, "Invalid field")
+			throw std::runtime_error("Invalid field");
 		}
 
 		return GetString(find->second);
@@ -703,6 +702,3 @@ namespace tinyToolkit
 		return false;
 	}
 }
-
-
-#endif // WITH_SQLITE

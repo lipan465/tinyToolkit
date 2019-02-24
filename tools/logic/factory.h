@@ -11,7 +11,7 @@
  */
 
 
-#include "../../include/tinyToolkit/tinyToolkit.h"
+#include "tinyToolkit/tinyToolkit.h"
 
 
 class TINY_TOOLKIT_API LogicFactory

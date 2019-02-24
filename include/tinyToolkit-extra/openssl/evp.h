@@ -1,5 +1,5 @@
-#ifndef __TINY_TOOLKIT__TOOL__EVP__H__
-#define __TINY_TOOLKIT__TOOL__EVP__H__
+#ifndef __TINY_TOOLKIT_EXTRA__TOOL__EVP__H__
+#define __TINY_TOOLKIT_EXTRA__TOOL__EVP__H__
 
 
 /**
@@ -11,14 +11,11 @@
  */
 
 
-#ifdef WITH_OPENSSL
-
+#include <string>
 
 #include <openssl/err.h>
 #include <openssl/evp.h>
 #include <openssl/pem.h>
-
-#include "../common/common.h"
 
 
 namespace tinyToolkit
@@ -30,7 +27,7 @@ namespace tinyToolkit
 	#
 	#endif
 
-	class TINY_TOOLKIT_API EVPClient
+	class EVPClient
 	{
 	public:
 		/**
@@ -183,7 +180,4 @@ namespace tinyToolkit
 }
 
 
-#endif // WITH_OPENSSL
-
-
-#endif // __TINY_TOOLKIT__TOOL__EVP__H__
+#endif // __TINY_TOOLKIT_EXTRA__TOOL__EVP__H__

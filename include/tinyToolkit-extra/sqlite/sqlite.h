@@ -1,5 +1,5 @@
-#ifndef __TINY_TOOLKIT__TOOL__SQLITE__H__
-#define __TINY_TOOLKIT__TOOL__SQLITE__H__
+#ifndef __TINY_TOOLKIT_EXTRA__TOOL__SQLITE__H__
+#define __TINY_TOOLKIT_EXTRA__TOOL__SQLITE__H__
 
 
 /**
@@ -11,18 +11,18 @@
  */
 
 
-#ifdef WITH_SQLITE
-
+#include <list>
+#include <cmath>
+#include <vector>
+#include <string>
+#include <sstream>
+#include <unordered_map>
 
 #include <sqlite3.h>
-
-#include "../debug/exception.h"
 
 
 namespace tinyToolkit
 {
-	INHERITANCE_DECLARE(SqliteException, IException)
-
 	struct SqliteBlobValue
 	{
 		char * data{ nullptr };
@@ -30,7 +30,7 @@ namespace tinyToolkit
 		std::size_t size{ 0 };
 	};
 
-	class TINY_TOOLKIT_API SqliteBind
+	class SqliteBind
 	{
 	public:
 		/**
@@ -203,7 +203,7 @@ namespace tinyToolkit
 		static int32_t BindValue(sqlite3_stmt * statement, int32_t index, const std::string & value);
 	};
 
-	class TINY_TOOLKIT_API SqliteQuery
+	class SqliteQuery
 	{
 	public:
 		/**
@@ -261,7 +261,7 @@ namespace tinyToolkit
 		std::unordered_map<std::string, std::size_t> & _field;
 	};
 
-	class TINY_TOOLKIT_API SqliteDataBase
+	class SqliteDataBase
 	{
 	public:
 		/**
@@ -360,7 +360,7 @@ namespace tinyToolkit
 
 			if (find == _field.end())
 			{
-				TINY_TOOLKIT_EXCEPTION_THROW(SqliteException, "Invalid field")
+				throw std::runtime_error("Invalid field");
 			}
 
 			return GetValue<ValueTypeT>(find->second);
@@ -597,7 +597,4 @@ namespace tinyToolkit
 }
 
 
-#endif // WITH_SQLITE
-
-
-#endif // __TINY_TOOLKIT__TOOL__SQLITE__H__
+#endif // __TINY_TOOLKIT_EXTRA__TOOL__SQLITE__H__

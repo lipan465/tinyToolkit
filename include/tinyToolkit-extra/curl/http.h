@@ -1,5 +1,5 @@
-#ifndef __TINY_TOOLKIT__TOOL__HTTP__H__
-#define __TINY_TOOLKIT__TOOL__HTTP__H__
+#ifndef __TINY_TOOLKIT_EXTRA__TOOL__HTTP__H__
+#define __TINY_TOOLKIT_EXTRA__TOOL__HTTP__H__
 
 
 /**
@@ -11,17 +11,16 @@
  */
 
 
-#ifdef WITH_CURL
-
+#include <ctime>
+#include <cmath>
+#include <string>
 
 #include <curl/curl.h>
-
-#include "../common/common.h"
 
 
 namespace tinyToolkit
 {
-	class TINY_TOOLKIT_API HTTPProxy
+	class HTTPProxy
 	{
 	public:
 		/**
@@ -49,7 +48,7 @@ namespace tinyToolkit
 		curl_proxytype type{ CURLPROXY_HTTP };
 	};
 
-	class TINY_TOOLKIT_API HTTPSession
+	class HTTPSession
 	{
 	public:
 		/**
@@ -89,7 +88,7 @@ namespace tinyToolkit
 		struct curl_slist * headers{ nullptr };
 	};
 
-	class TINY_TOOLKIT_API HTTPResponse
+	class HTTPResponse
 	{
 	public:
 		/**
@@ -116,7 +115,7 @@ namespace tinyToolkit
 		std::double_t contentLength{ 0.0 };
 	};
 
-	class TINY_TOOLKIT_API HTTPClient
+	class HTTPClient
 	{
 		enum class HTTP_OPTION_TYPE : uint8_t
 		{
@@ -502,7 +501,4 @@ namespace tinyToolkit
 }
 
 
-#endif // WITH_CURL
-
-
-#endif // __TINY_TOOLKIT__TOOL__HTTP__H__
+#endif // __TINY_TOOLKIT_EXTRA__TOOL__HTTP__H__

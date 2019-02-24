@@ -11,7 +11,7 @@
  */
 
 
-#include "../include/tinyToolkit/tinyToolkit.h"
+#include "tinyToolkit/tinyToolkit.h"
 
 
 #endif // __EXAMPLE__MAIN__H__

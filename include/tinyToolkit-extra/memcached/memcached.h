@@ -1,5 +1,5 @@
-#ifndef __TINY_TOOLKIT__TOOL__MEMCACHED__H__
-#define __TINY_TOOLKIT__TOOL__MEMCACHED__H__
+#ifndef __TINY_TOOLKIT_EXTRA__TOOL__MEMCACHED__H__
+#define __TINY_TOOLKIT_EXTRA__TOOL__MEMCACHED__H__
 
 
 /**
@@ -11,17 +11,15 @@
  */
 
 
-#ifdef WITH_MEMCACHED
-
+#include <ctime>
+#include <string>
 
 #include <libmemcached/memcached.h>
-
-#include "../common/common.h"
 
 
 namespace tinyToolkit
 {
-	class TINY_TOOLKIT_API MemcachedClient
+	class MemcachedClient
 	{
 	public:
 		/**
@@ -113,7 +111,4 @@ namespace tinyToolkit
 }
 
 
-#endif // WITH_MEMCACHED
-
-
-#endif // __TINY_TOOLKIT__TOOL__MEMCACHED__H__
+#endif // __TINY_TOOLKIT_EXTRA__TOOL__MEMCACHED__H__

@@ -1,0 +1,150 @@
+#
+# 项目名
+#
+SET(PROGRAM_NAME tinyToolkit-extra)
+
+
+#
+# 库文件的生成目录
+#
+SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
+
+
+#
+# curl支持
+#
+IF(WITH_CURL)
+
+	TRAVERSE_SOURCE_FILE(CURL_SOURCE_FILES		${CMAKE_CURRENT_SOURCE_DIR}/curl)
+
+ENDIF()
+
+#
+# sqlit支持
+#
+IF(WITH_SQLITE)
+
+	TRAVERSE_SOURCE_FILE(SQLITE_SOURCE_FILES	${CMAKE_CURRENT_SOURCE_DIR}/sqlite)
+
+ENDIF()
+
+#
+# openssl支持
+#
+IF(WITH_OPENSSL)
+
+	TRAVERSE_SOURCE_FILE(OPENSSL_SOURCE_FILES	${CMAKE_CURRENT_SOURCE_DIR}/openssl)
+
+ENDIF()
+
+#
+# memcached支持
+#
+IF(WITH_MEMCACHED)
+
+	TRAVERSE_SOURCE_FILE(MEMCACHED_SOURCE_FILES	${CMAKE_CURRENT_SOURCE_DIR}/memcached)
+
+ENDIF()
+
+
+#
+# 链接源文件, 生成库文件
+#
+ADD_LIBRARY(${PROGRAM_NAME} SHARED	${CURL_SOURCE_FILES}
+									${SQLITE_SOURCE_FILES}
+									${OPENSSL_SOURCE_FILES}
+									${MEMCACHED_SOURCE_FILES})
+
+
+#
+# curl支持
+#
+IF(WITH_CURL)
+
+	TRAVERSE_LIBRARY_FOR_PROGRAM_NAME(curl)
+
+ENDIF()
+
+#
+# sqlit支持
+#
+IF(WITH_SQLITE)
+
+	TRAVERSE_LIBRARY_FOR_PROGRAM_NAME(sqlite3)
+
+ENDIF()
+
+#
+# openssl支持
+#
+IF(WITH_OPENSSL)
+
+	TRAVERSE_LIBRARY_FOR_PROGRAM_NAME(ssl crypto)
+
+ENDIF()
+
+#
+# memcached支持
+#
+IF(WITH_MEMCACHED)
+
+	TRAVERSE_LIBRARY_FOR_PROGRAM_NAME(memcached)
+
+ENDIF()
+
+
+#
+# 安装库文件
+#
+INSTALL(TARGETS tinyToolkit-extra
+		LIBRARY DESTINATION ${EXTRA_LIBRARY_INSTALL_PREFIX}
+		ARCHIVE DESTINATION ${EXTRA_LIBRARY_INSTALL_PREFIX})
+
+
+#
+# curl支持
+#
+IF(WITH_CURL)
+
+	#
+	# 遍历安装头文件
+	#
+	TRAVERSE_INSTALL_INCLUDE(curl			${EXTRA_INCLUDE_INSTALL_PREFIX}/curl)
+
+ENDIF()
+
+#
+# sqlit支持
+#
+IF(WITH_SQLITE)
+
+	#
+	# 遍历安装头文件
+	#
+	TRAVERSE_INSTALL_INCLUDE(sqlite			${EXTRA_INCLUDE_INSTALL_PREFIX}/sqlite)
+
+ENDIF()
+
+#
+# openssl支持
+#
+IF(WITH_OPENSSL)
+
+	#
+	# 遍历安装头文件
+	#
+	TRAVERSE_INSTALL_INCLUDE(openssl		${EXTRA_INCLUDE_INSTALL_PREFIX}/openssl)
+
+ENDIF()
+
+#
+# memcached支持
+#
+IF(WITH_MEMCACHED)
+
+	#
+	# 遍历安装头文件
+	#
+	TRAVERSE_INSTALL_INCLUDE(memcached		${EXTRA_INCLUDE_INSTALL_PREFIX}/memcached)
+
+ENDIF()

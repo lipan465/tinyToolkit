@@ -24,6 +24,7 @@ INCLUDE(TraverseSet)
 INCLUDE(TraverseSource)
 INCLUDE(TraverseLibrary)
 INCLUDE(TraverseInstall)
+INCLUDE(TraverseInclude)
 INCLUDE(TraverseCMakeLists)
 
 
@@ -36,6 +37,14 @@ INCLUDE(CheckCompiler)
 INCLUDE(CheckBuildType)
 INCLUDE(CheckGlobalType)
 INCLUDE(CheckInstallPrefix)
+
+
+#
+# 添加头文件路径
+#
+TRAVERSE_INCLUDE(
+		${PROJECT_SOURCE_DIR}/
+		${PROJECT_SOURCE_DIR}/include)
 
 
 #

@@ -9,6 +9,8 @@
 
 #include "main.h"
 
+#include "gtest/gtest.h"
+
 
 TEST(ID, Random)
 {
@@ -37,8 +39,8 @@ static void SyncLogger(const std::shared_ptr<tinyToolkit::ILogSink> & sink, std:
 	std::shared_ptr<tinyToolkit::ILogger> logger = std::make_shared<tinyToolkit::AsyncLogger>();
 
 	logger->AddSink(sink)
-		  ->SetLayout(std::make_shared<tinyToolkit::SimpleLogLayout>())
-		  ->SetFilter(std::make_shared<tinyToolkit::PriorityRangeLogFilter>(tinyToolkit::LOG_PRIORITY_TYPE::INFO, tinyToolkit::LOG_PRIORITY_TYPE::FATAL));
+			->SetLayout(std::make_shared<tinyToolkit::SimpleLogLayout>())
+			->SetFilter(std::make_shared<tinyToolkit::PriorityRangeLogFilter>(tinyToolkit::LOG_PRIORITY_TYPE::INFO, tinyToolkit::LOG_PRIORITY_TYPE::FATAL));
 
 	for (std::size_t i = 0; i < count; ++i)
 	{
@@ -71,7 +73,7 @@ TEST(LogSync, FileSink)
 	SyncLogger(sink, count);
 
 	EXPECT_EQ(tinyToolkit::Filesystem::Size(realFileName),
-			((49 + tinyToolkit::Application::Name().size() + strlen(TINY_TOOLKIT_EOL)) * 4 + (4 + 5) * 2) * count);
+			  ((49 + tinyToolkit::Application::Name().size() + strlen(TINY_TOOLKIT_EOL)) * 4 + (4 + 5) * 2) * count);
 }
 
 
@@ -121,7 +123,7 @@ TEST(LogSync, DailyFileSink)
 	SyncLogger(sink, count);
 
 	EXPECT_EQ(tinyToolkit::Filesystem::Size(realFileName),
-			((49 + tinyToolkit::Application::Name().size() + strlen(TINY_TOOLKIT_EOL)) * 4 + (4 + 5) * 2) * count);
+			  ((49 + tinyToolkit::Application::Name().size() + strlen(TINY_TOOLKIT_EOL)) * 4 + (4 + 5) * 2) * count);
 }
 
 
@@ -148,7 +150,7 @@ TEST(LogSync, RotatingFileSink)
 
 	SyncLogger(sink, count);
 
-	EXPECT_LE(tinyToolkit::Filesystem::Size(realFileName), static_cast<std::size_t>(TINY_TOOLKIT_MB));
+	EXPECT_LE(tinyToolkit::Filesystem::Size(realFileName), TINY_TOOLKIT_MB);
 }
 
 
@@ -157,8 +159,8 @@ static void AsyncLogger(const std::shared_ptr<tinyToolkit::ILogSink> & sink, std
 	std::shared_ptr<tinyToolkit::ILogger> logger = std::make_shared<tinyToolkit::AsyncLogger>();
 
 	logger->AddSink(sink)
-		  ->SetLayout(std::make_shared<tinyToolkit::SimpleLogLayout>())
-		  ->SetFilter(std::make_shared<tinyToolkit::PriorityRangeLogFilter>(tinyToolkit::LOG_PRIORITY_TYPE::INFO, tinyToolkit::LOG_PRIORITY_TYPE::FATAL));
+			->SetLayout(std::make_shared<tinyToolkit::SimpleLogLayout>())
+			->SetFilter(std::make_shared<tinyToolkit::PriorityRangeLogFilter>(tinyToolkit::LOG_PRIORITY_TYPE::INFO, tinyToolkit::LOG_PRIORITY_TYPE::FATAL));
 
 	std::atomic<std::size_t> counter{ 0 };
 
@@ -203,7 +205,7 @@ TEST(LogAsync, FileSink)
 	AsyncLogger(sink, count, std::thread::hardware_concurrency());
 
 	EXPECT_EQ(tinyToolkit::Filesystem::Size(realFileName),
-			((49 + tinyToolkit::Application::Name().size() + strlen(TINY_TOOLKIT_EOL)) * 4 + (4 + 5) * 2) * count);
+			  ((49 + tinyToolkit::Application::Name().size() + strlen(TINY_TOOLKIT_EOL)) * 4 + (4 + 5) * 2) * count);
 }
 
 
@@ -241,19 +243,19 @@ TEST(LogAsync, DailyFileSink)
 
 	std::string fileName = tinyToolkit::String::Format("log{}asyncDailyFile.log", TINY_TOOLKIT_FOLDER_SEP);
 	std::string realFileName = tinyToolkit::String::Format
-	(
-		"{}_{}{}",
-		fileName.substr(0, fileName.rfind('.')),
-		tinyToolkit::Time::CurrentLocalTimeString("%04d_%02d_%02d_%02d_%02d_%02d"),
-		fileName.substr(fileName.rfind('.'))
-	);
+			(
+					"{}_{}{}",
+					fileName.substr(0, fileName.rfind('.')),
+					tinyToolkit::Time::CurrentLocalTimeString("%04d_%02d_%02d_%02d_%02d_%02d"),
+					fileName.substr(fileName.rfind('.'))
+			);
 
 	auto sink = std::make_shared<tinyToolkit::DailyFileLogSink>("asyncDailyFile", fileName);
 
 	AsyncLogger(sink, count, std::thread::hardware_concurrency());
 
 	EXPECT_EQ(tinyToolkit::Filesystem::Size(realFileName),
-			((49 + tinyToolkit::Application::Name().size() + strlen(TINY_TOOLKIT_EOL)) * 4 + (4 + 5) * 2) * count);
+			  ((49 + tinyToolkit::Application::Name().size() + strlen(TINY_TOOLKIT_EOL)) * 4 + (4 + 5) * 2) * count);
 }
 
 
@@ -280,7 +282,7 @@ TEST(LogAsync, RotatingFileSink)
 
 	AsyncLogger(sink, count, std::thread::hardware_concurrency());
 
-	EXPECT_LE(tinyToolkit::Filesystem::Size(realFileName), static_cast<std::size_t>(TINY_TOOLKIT_MB));
+	EXPECT_LE(tinyToolkit::Filesystem::Size(realFileName), TINY_TOOLKIT_MB);
 }
 
 
@@ -557,16 +559,16 @@ TEST(Pool, Thread)
 
 	pool.Wait();
 
-	EXPECT_EQ(pool.TaskSize(), static_cast<std::size_t>(0));
-	EXPECT_EQ(pool.ThreadSize(), static_cast<std::size_t>(8));
+	EXPECT_EQ(pool.TaskSize(), 0);
+	EXPECT_EQ(pool.ThreadSize(), 8);
 
 	EXPECT_FALSE(pool.IsClose());
 
 	pool.Release();
 
 	EXPECT_EQ(result.load(), 45);
-	EXPECT_EQ(pool.TaskSize(), static_cast<std::size_t>(0));
-	EXPECT_EQ(pool.ThreadSize(), static_cast<std::size_t>(0));
+	EXPECT_EQ(pool.TaskSize(), 0);
+	EXPECT_EQ(pool.ThreadSize(), 0);
 
 	EXPECT_TRUE(pool.IsClose());
 }
@@ -607,13 +609,13 @@ TEST(Pool, CallBack)
 	pool.Call(11, 22);
 
 	EXPECT_EQ(result, -11);
-	EXPECT_EQ(pool.Size(), static_cast<std::size_t>(2));
+	EXPECT_EQ(pool.Size(), 2);
 	EXPECT_EQ(testClass.Result(), 11);
 
 	pool.Call(22, 11);
 
 	EXPECT_EQ(result, 0);
-	EXPECT_EQ(pool.Size(), static_cast<std::size_t>(2));
+	EXPECT_EQ(pool.Size(), 2);
 	EXPECT_EQ(testClass.Result(), 0);
 
 	pool.UnRegister(container["test1"]);
@@ -621,13 +623,13 @@ TEST(Pool, CallBack)
 	pool(10, 50);
 
 	EXPECT_EQ(result, 0);
-	EXPECT_EQ(pool.Size(), static_cast<std::size_t>(1));
+	EXPECT_EQ(pool.Size(), 1);
 	EXPECT_EQ(testClass.Result(), 40);
 
 	pool.Call(20, 10);
 
 	EXPECT_EQ(result, 0);
-	EXPECT_EQ(pool.Size(), static_cast<std::size_t>(1));
+	EXPECT_EQ(pool.Size(), 1);
 	EXPECT_EQ(testClass.Result(), 30);
 
 	pool -= container["test2"];
@@ -635,13 +637,13 @@ TEST(Pool, CallBack)
 	pool(10, 50);
 
 	EXPECT_EQ(result, 0);
-	EXPECT_EQ(pool.Size(), static_cast<std::size_t>(0));
+	EXPECT_EQ(pool.Size(), 0);
 	EXPECT_EQ(testClass.Result(), 30);
 
 	pool.Call(20, 10);
 
 	EXPECT_EQ(result, 0);
-	EXPECT_EQ(pool.Size(), static_cast<std::size_t>(0));
+	EXPECT_EQ(pool.Size(), 0);
 	EXPECT_EQ(testClass.Result(), 30);
 
 	pool += [&](int x, int y){ result += x; result -= y; };
@@ -649,13 +651,13 @@ TEST(Pool, CallBack)
 	pool(80, 50);
 
 	EXPECT_EQ(result, 30);
-	EXPECT_EQ(pool.Size(), static_cast<std::size_t>(1));
+	EXPECT_EQ(pool.Size(), 1);
 	EXPECT_EQ(testClass.Result(), 30);
 
 	pool.Call(20, 40);
 
 	EXPECT_EQ(result, 10);
-	EXPECT_EQ(pool.Size(), static_cast<std::size_t>(1));
+	EXPECT_EQ(pool.Size(), 1);
 	EXPECT_EQ(testClass.Result(), 30);
 
 	pool.UnRegister();
@@ -663,13 +665,13 @@ TEST(Pool, CallBack)
 	pool(80, 50);
 
 	EXPECT_EQ(result, 10);
-	EXPECT_EQ(pool.Size(), static_cast<std::size_t>(0));
+	EXPECT_EQ(pool.Size(), 0);
 	EXPECT_EQ(testClass.Result(), 30);
 
 	pool.Call(20, 40);
 
 	EXPECT_EQ(result, 10);
-	EXPECT_EQ(pool.Size(), static_cast<std::size_t>(0));
+	EXPECT_EQ(pool.Size(), 0);
 	EXPECT_EQ(testClass.Result(), 30);
 }
 
@@ -712,26 +714,26 @@ TEST(Pool, Application)
 			container.push_back(pool.Create(i));
 		}
 
-		EXPECT_EQ(pool.UsedSize(), static_cast<std::size_t>(4 + 1));
-		EXPECT_EQ(pool.ChunkSize(), static_cast<std::size_t>(4 * 2));
-		EXPECT_EQ(pool.ChunkListSize(), static_cast<std::size_t>(2));
+		EXPECT_EQ(pool.UsedSize(), 4 + 1);
+		EXPECT_EQ(pool.ChunkSize(), 4 * 2);
+		EXPECT_EQ(pool.ChunkListSize(), 2);
 
 		pool.Recover(container.back());
 
 		container.pop_back();
 
-		EXPECT_EQ(pool.UsedSize(), static_cast<std::size_t>(4));
-		EXPECT_EQ(pool.ChunkSize(), static_cast<std::size_t>(4));
-		EXPECT_EQ(pool.ChunkListSize(), static_cast<std::size_t>(1));
+		EXPECT_EQ(pool.UsedSize(), 4);
+		EXPECT_EQ(pool.ChunkSize(), 4);
+		EXPECT_EQ(pool.ChunkListSize(), 1);
 
 		for (auto &iter : container)
 		{
 			pool.Recover(iter);
 		}
 
-		EXPECT_EQ(pool.UsedSize(), static_cast<std::size_t>(0));
-		EXPECT_EQ(pool.ChunkSize(), static_cast<std::size_t>(4));
-		EXPECT_EQ(pool.ChunkListSize(), static_cast<std::size_t>(1));
+		EXPECT_EQ(pool.UsedSize(), 0);
+		EXPECT_EQ(pool.ChunkSize(), 4);
+		EXPECT_EQ(pool.ChunkListSize(), 1);
 	}
 
 	{
@@ -744,26 +746,26 @@ TEST(Pool, Application)
 			container.push_back(pool.Create(i / 1.0));
 		}
 
-		EXPECT_EQ(pool.UsedSize(), static_cast<std::size_t>(4));
-		EXPECT_EQ(pool.ChunkSize(), static_cast<std::size_t>(4));
-		EXPECT_EQ(pool.ChunkListSize(), static_cast<std::size_t>(1));
+		EXPECT_EQ(pool.UsedSize(), 4);
+		EXPECT_EQ(pool.ChunkSize(), 4);
+		EXPECT_EQ(pool.ChunkListSize(), 1);
 
 		pool.Recover(container.back());
 
 		container.pop_back();
 
-		EXPECT_EQ(pool.UsedSize(), static_cast<std::size_t>(3));
-		EXPECT_EQ(pool.ChunkSize(), static_cast<std::size_t>(4));
-		EXPECT_EQ(pool.ChunkListSize(), static_cast<std::size_t>(1));
+		EXPECT_EQ(pool.UsedSize(), 3);
+		EXPECT_EQ(pool.ChunkSize(), 4);
+		EXPECT_EQ(pool.ChunkListSize(), 1);
 
 		for (auto &iter : container)
 		{
 			pool.Recover(iter);
 		}
 
-		EXPECT_EQ(pool.UsedSize(), static_cast<std::size_t>(0));
-		EXPECT_EQ(pool.ChunkSize(), static_cast<std::size_t>(4));
-		EXPECT_EQ(pool.ChunkListSize(), static_cast<std::size_t>(1));
+		EXPECT_EQ(pool.UsedSize(), 0);
+		EXPECT_EQ(pool.ChunkSize(), 4);
+		EXPECT_EQ(pool.ChunkListSize(), 1);
 	}
 }
 
@@ -775,57 +777,57 @@ TEST(Crypto, MD5)
 
 		md5.Update("123");
 
-		EXPECT_STR_EQ(md5.Value().c_str(), "123");
-		EXPECT_STR_EQ(md5.Hex16().c_str(), "ac59075b964b0715");
-		EXPECT_STR_EQ(md5.Hex32().c_str(), "202cb962ac59075b964b07152d234b70");
+		EXPECT_STREQ(md5.Value().c_str(), "123");
+		EXPECT_STREQ(md5.Hex16().c_str(), "ac59075b964b0715");
+		EXPECT_STREQ(md5.Hex32().c_str(), "202cb962ac59075b964b07152d234b70");
 
 		md5.Update("abc");
 
-		EXPECT_STR_EQ(md5.Value().c_str(), "123abc");
-		EXPECT_STR_EQ(md5.Hex16().c_str(), "5769fa7361d7ecc6");
-		EXPECT_STR_EQ(md5.Hex32().c_str(), "a906449d5769fa7361d7ecc6aa3f6d28");
+		EXPECT_STREQ(md5.Value().c_str(), "123abc");
+		EXPECT_STREQ(md5.Hex16().c_str(), "5769fa7361d7ecc6");
+		EXPECT_STREQ(md5.Hex32().c_str(), "a906449d5769fa7361d7ecc6aa3f6d28");
 
 		md5.Reset();
 		md5.Update("xyz");
 
-		EXPECT_STR_EQ(md5.Value().c_str(), "xyz");
-		EXPECT_STR_EQ(md5.Hex16().c_str(), "0911f878998c1361");
-		EXPECT_STR_EQ(md5.Hex32().c_str(), "d16fb36f0911f878998c136191af705e");
+		EXPECT_STREQ(md5.Value().c_str(), "xyz");
+		EXPECT_STREQ(md5.Hex16().c_str(), "0911f878998c1361");
+		EXPECT_STREQ(md5.Hex32().c_str(), "d16fb36f0911f878998c136191af705e");
 
 		md5.Reset();
 		md5.Update("4567890");
 
-		EXPECT_STR_EQ(md5.Value().c_str(), "4567890");
-		EXPECT_STR_EQ(md5.Hex16().c_str(), "ad4c127657d9c8d9");
-		EXPECT_STR_EQ(md5.Hex32().c_str(), "a14b1bbaad4c127657d9c8d907fc6a75");
+		EXPECT_STREQ(md5.Value().c_str(), "4567890");
+		EXPECT_STREQ(md5.Hex16().c_str(), "ad4c127657d9c8d9");
+		EXPECT_STREQ(md5.Hex32().c_str(), "a14b1bbaad4c127657d9c8d907fc6a75");
 	}
 
 	{
 		tinyToolkit::MD5 md5("123");
 
-		EXPECT_STR_EQ(md5.Value().c_str(), "123");
-		EXPECT_STR_EQ(md5.Hex16().c_str(), "ac59075b964b0715");
-		EXPECT_STR_EQ(md5.Hex32().c_str(), "202cb962ac59075b964b07152d234b70");
+		EXPECT_STREQ(md5.Value().c_str(), "123");
+		EXPECT_STREQ(md5.Hex16().c_str(), "ac59075b964b0715");
+		EXPECT_STREQ(md5.Hex32().c_str(), "202cb962ac59075b964b07152d234b70");
 
 		md5.Update("abc");
 
-		EXPECT_STR_EQ(md5.Value().c_str(), "123abc");
-		EXPECT_STR_EQ(md5.Hex16().c_str(), "5769fa7361d7ecc6");
-		EXPECT_STR_EQ(md5.Hex32().c_str(), "a906449d5769fa7361d7ecc6aa3f6d28");
+		EXPECT_STREQ(md5.Value().c_str(), "123abc");
+		EXPECT_STREQ(md5.Hex16().c_str(), "5769fa7361d7ecc6");
+		EXPECT_STREQ(md5.Hex32().c_str(), "a906449d5769fa7361d7ecc6aa3f6d28");
 
 		md5.Reset();
 		md5.Update("xyz");
 
-		EXPECT_STR_EQ(md5.Value().c_str(), "xyz");
-		EXPECT_STR_EQ(md5.Hex16().c_str(), "0911f878998c1361");
-		EXPECT_STR_EQ(md5.Hex32().c_str(), "d16fb36f0911f878998c136191af705e");
+		EXPECT_STREQ(md5.Value().c_str(), "xyz");
+		EXPECT_STREQ(md5.Hex16().c_str(), "0911f878998c1361");
+		EXPECT_STREQ(md5.Hex32().c_str(), "d16fb36f0911f878998c136191af705e");
 
 		md5.Reset();
 		md5.Update("4567890");
 
-		EXPECT_STR_EQ(md5.Value().c_str(), "4567890");
-		EXPECT_STR_EQ(md5.Hex16().c_str(), "ad4c127657d9c8d9");
-		EXPECT_STR_EQ(md5.Hex32().c_str(), "a14b1bbaad4c127657d9c8d907fc6a75");
+		EXPECT_STREQ(md5.Value().c_str(), "4567890");
+		EXPECT_STREQ(md5.Hex16().c_str(), "ad4c127657d9c8d9");
+		EXPECT_STREQ(md5.Hex32().c_str(), "a14b1bbaad4c127657d9c8d907fc6a75");
 	}
 
 	{
@@ -833,85 +835,85 @@ TEST(Crypto, MD5)
 
 		tinyToolkit::MD5 md5(str);
 
-		EXPECT_STR_EQ(md5.Value().c_str(), "123");
-		EXPECT_STR_EQ(md5.Hex16().c_str(), "ac59075b964b0715");
-		EXPECT_STR_EQ(md5.Hex32().c_str(), "202cb962ac59075b964b07152d234b70");
+		EXPECT_STREQ(md5.Value().c_str(), "123");
+		EXPECT_STREQ(md5.Hex16().c_str(), "ac59075b964b0715");
+		EXPECT_STREQ(md5.Hex32().c_str(), "202cb962ac59075b964b07152d234b70");
 
 		md5.Update("abc");
 
-		EXPECT_STR_EQ(md5.Value().c_str(), "123abc");
-		EXPECT_STR_EQ(md5.Hex16().c_str(), "5769fa7361d7ecc6");
-		EXPECT_STR_EQ(md5.Hex32().c_str(), "a906449d5769fa7361d7ecc6aa3f6d28");
+		EXPECT_STREQ(md5.Value().c_str(), "123abc");
+		EXPECT_STREQ(md5.Hex16().c_str(), "5769fa7361d7ecc6");
+		EXPECT_STREQ(md5.Hex32().c_str(), "a906449d5769fa7361d7ecc6aa3f6d28");
 
 		md5.Reset();
 		md5.Update("xyz");
 
-		EXPECT_STR_EQ(md5.Value().c_str(), "xyz");
-		EXPECT_STR_EQ(md5.Hex16().c_str(), "0911f878998c1361");
-		EXPECT_STR_EQ(md5.Hex32().c_str(), "d16fb36f0911f878998c136191af705e");
+		EXPECT_STREQ(md5.Value().c_str(), "xyz");
+		EXPECT_STREQ(md5.Hex16().c_str(), "0911f878998c1361");
+		EXPECT_STREQ(md5.Hex32().c_str(), "d16fb36f0911f878998c136191af705e");
 
 		md5.Reset();
 		md5.Update("4567890");
 
-		EXPECT_STR_EQ(md5.Value().c_str(), "4567890");
-		EXPECT_STR_EQ(md5.Hex16().c_str(), "ad4c127657d9c8d9");
-		EXPECT_STR_EQ(md5.Hex32().c_str(), "a14b1bbaad4c127657d9c8d907fc6a75");
+		EXPECT_STREQ(md5.Value().c_str(), "4567890");
+		EXPECT_STREQ(md5.Hex16().c_str(), "ad4c127657d9c8d9");
+		EXPECT_STREQ(md5.Hex32().c_str(), "a14b1bbaad4c127657d9c8d907fc6a75");
 	}
 
 	{
 		tinyToolkit::MD5 md5(std::string("123"));
 
-		EXPECT_STR_EQ(md5.Value().c_str(), "123");
-		EXPECT_STR_EQ(md5.Hex16().c_str(), "ac59075b964b0715");
-		EXPECT_STR_EQ(md5.Hex32().c_str(), "202cb962ac59075b964b07152d234b70");
+		EXPECT_STREQ(md5.Value().c_str(), "123");
+		EXPECT_STREQ(md5.Hex16().c_str(), "ac59075b964b0715");
+		EXPECT_STREQ(md5.Hex32().c_str(), "202cb962ac59075b964b07152d234b70");
 
 		md5.Update("abc");
 
-		EXPECT_STR_EQ(md5.Value().c_str(), "123abc");
-		EXPECT_STR_EQ(md5.Hex16().c_str(), "5769fa7361d7ecc6");
-		EXPECT_STR_EQ(md5.Hex32().c_str(), "a906449d5769fa7361d7ecc6aa3f6d28");
+		EXPECT_STREQ(md5.Value().c_str(), "123abc");
+		EXPECT_STREQ(md5.Hex16().c_str(), "5769fa7361d7ecc6");
+		EXPECT_STREQ(md5.Hex32().c_str(), "a906449d5769fa7361d7ecc6aa3f6d28");
 
 		md5.Reset();
 		md5.Update("xyz");
 
-		EXPECT_STR_EQ(md5.Value().c_str(), "xyz");
-		EXPECT_STR_EQ(md5.Hex16().c_str(), "0911f878998c1361");
-		EXPECT_STR_EQ(md5.Hex32().c_str(), "d16fb36f0911f878998c136191af705e");
+		EXPECT_STREQ(md5.Value().c_str(), "xyz");
+		EXPECT_STREQ(md5.Hex16().c_str(), "0911f878998c1361");
+		EXPECT_STREQ(md5.Hex32().c_str(), "d16fb36f0911f878998c136191af705e");
 
 		md5.Reset();
 		md5.Update("4567890");
 
-		EXPECT_STR_EQ(md5.Value().c_str(), "4567890");
-		EXPECT_STR_EQ(md5.Hex16().c_str(), "ad4c127657d9c8d9");
-		EXPECT_STR_EQ(md5.Hex32().c_str(), "a14b1bbaad4c127657d9c8d907fc6a75");
+		EXPECT_STREQ(md5.Value().c_str(), "4567890");
+		EXPECT_STREQ(md5.Hex16().c_str(), "ad4c127657d9c8d9");
+		EXPECT_STREQ(md5.Hex32().c_str(), "a14b1bbaad4c127657d9c8d907fc6a75");
 	}
 
 	{
 		tinyToolkit::MD5 md5("123456789", 3);
 
-		EXPECT_STR_EQ(md5.Value().c_str(), "123");
-		EXPECT_STR_EQ(md5.Hex16().c_str(), "ac59075b964b0715");
-		EXPECT_STR_EQ(md5.Hex32().c_str(), "202cb962ac59075b964b07152d234b70");
+		EXPECT_STREQ(md5.Value().c_str(), "123");
+		EXPECT_STREQ(md5.Hex16().c_str(), "ac59075b964b0715");
+		EXPECT_STREQ(md5.Hex32().c_str(), "202cb962ac59075b964b07152d234b70");
 
 		md5.Update("abc");
 
-		EXPECT_STR_EQ(md5.Value().c_str(), "123abc");
-		EXPECT_STR_EQ(md5.Hex16().c_str(), "5769fa7361d7ecc6");
-		EXPECT_STR_EQ(md5.Hex32().c_str(), "a906449d5769fa7361d7ecc6aa3f6d28");
+		EXPECT_STREQ(md5.Value().c_str(), "123abc");
+		EXPECT_STREQ(md5.Hex16().c_str(), "5769fa7361d7ecc6");
+		EXPECT_STREQ(md5.Hex32().c_str(), "a906449d5769fa7361d7ecc6aa3f6d28");
 
 		md5.Reset();
 		md5.Update("xyz");
 
-		EXPECT_STR_EQ(md5.Value().c_str(), "xyz");
-		EXPECT_STR_EQ(md5.Hex16().c_str(), "0911f878998c1361");
-		EXPECT_STR_EQ(md5.Hex32().c_str(), "d16fb36f0911f878998c136191af705e");
+		EXPECT_STREQ(md5.Value().c_str(), "xyz");
+		EXPECT_STREQ(md5.Hex16().c_str(), "0911f878998c1361");
+		EXPECT_STREQ(md5.Hex32().c_str(), "d16fb36f0911f878998c136191af705e");
 
 		md5.Reset();
 		md5.Update("4567890");
 
-		EXPECT_STR_EQ(md5.Value().c_str(), "4567890");
-		EXPECT_STR_EQ(md5.Hex16().c_str(), "ad4c127657d9c8d9");
-		EXPECT_STR_EQ(md5.Hex32().c_str(), "a14b1bbaad4c127657d9c8d907fc6a75");
+		EXPECT_STREQ(md5.Value().c_str(), "4567890");
+		EXPECT_STREQ(md5.Hex16().c_str(), "ad4c127657d9c8d9");
+		EXPECT_STREQ(md5.Hex32().c_str(), "a14b1bbaad4c127657d9c8d907fc6a75");
 	}
 
 	{
@@ -919,57 +921,57 @@ TEST(Crypto, MD5)
 
 		tinyToolkit::MD5 md5(str, 3);
 
-		EXPECT_STR_EQ(md5.Value().c_str(), "123");
-		EXPECT_STR_EQ(md5.Hex16().c_str(), "ac59075b964b0715");
-		EXPECT_STR_EQ(md5.Hex32().c_str(), "202cb962ac59075b964b07152d234b70");
+		EXPECT_STREQ(md5.Value().c_str(), "123");
+		EXPECT_STREQ(md5.Hex16().c_str(), "ac59075b964b0715");
+		EXPECT_STREQ(md5.Hex32().c_str(), "202cb962ac59075b964b07152d234b70");
 
 		md5.Update("abc");
 
-		EXPECT_STR_EQ(md5.Value().c_str(), "123abc");
-		EXPECT_STR_EQ(md5.Hex16().c_str(), "5769fa7361d7ecc6");
-		EXPECT_STR_EQ(md5.Hex32().c_str(), "a906449d5769fa7361d7ecc6aa3f6d28");
+		EXPECT_STREQ(md5.Value().c_str(), "123abc");
+		EXPECT_STREQ(md5.Hex16().c_str(), "5769fa7361d7ecc6");
+		EXPECT_STREQ(md5.Hex32().c_str(), "a906449d5769fa7361d7ecc6aa3f6d28");
 
 		md5.Reset();
 		md5.Update("xyz");
 
-		EXPECT_STR_EQ(md5.Value().c_str(), "xyz");
-		EXPECT_STR_EQ(md5.Hex16().c_str(), "0911f878998c1361");
-		EXPECT_STR_EQ(md5.Hex32().c_str(), "d16fb36f0911f878998c136191af705e");
+		EXPECT_STREQ(md5.Value().c_str(), "xyz");
+		EXPECT_STREQ(md5.Hex16().c_str(), "0911f878998c1361");
+		EXPECT_STREQ(md5.Hex32().c_str(), "d16fb36f0911f878998c136191af705e");
 
 		md5.Reset();
 		md5.Update("4567890");
 
-		EXPECT_STR_EQ(md5.Value().c_str(), "4567890");
-		EXPECT_STR_EQ(md5.Hex16().c_str(), "ad4c127657d9c8d9");
-		EXPECT_STR_EQ(md5.Hex32().c_str(), "a14b1bbaad4c127657d9c8d907fc6a75");
+		EXPECT_STREQ(md5.Value().c_str(), "4567890");
+		EXPECT_STREQ(md5.Hex16().c_str(), "ad4c127657d9c8d9");
+		EXPECT_STREQ(md5.Hex32().c_str(), "a14b1bbaad4c127657d9c8d907fc6a75");
 	}
 
 	{
 		tinyToolkit::MD5 md5(std::string("123456789"), 3);
 
-		EXPECT_STR_EQ(md5.Value().c_str(), "123");
-		EXPECT_STR_EQ(md5.Hex16().c_str(), "ac59075b964b0715");
-		EXPECT_STR_EQ(md5.Hex32().c_str(), "202cb962ac59075b964b07152d234b70");
+		EXPECT_STREQ(md5.Value().c_str(), "123");
+		EXPECT_STREQ(md5.Hex16().c_str(), "ac59075b964b0715");
+		EXPECT_STREQ(md5.Hex32().c_str(), "202cb962ac59075b964b07152d234b70");
 
 		md5.Update("abc");
 
-		EXPECT_STR_EQ(md5.Value().c_str(), "123abc");
-		EXPECT_STR_EQ(md5.Hex16().c_str(), "5769fa7361d7ecc6");
-		EXPECT_STR_EQ(md5.Hex32().c_str(), "a906449d5769fa7361d7ecc6aa3f6d28");
+		EXPECT_STREQ(md5.Value().c_str(), "123abc");
+		EXPECT_STREQ(md5.Hex16().c_str(), "5769fa7361d7ecc6");
+		EXPECT_STREQ(md5.Hex32().c_str(), "a906449d5769fa7361d7ecc6aa3f6d28");
 
 		md5.Reset();
 		md5.Update("xyz");
 
-		EXPECT_STR_EQ(md5.Value().c_str(), "xyz");
-		EXPECT_STR_EQ(md5.Hex16().c_str(), "0911f878998c1361");
-		EXPECT_STR_EQ(md5.Hex32().c_str(), "d16fb36f0911f878998c136191af705e");
+		EXPECT_STREQ(md5.Value().c_str(), "xyz");
+		EXPECT_STREQ(md5.Hex16().c_str(), "0911f878998c1361");
+		EXPECT_STREQ(md5.Hex32().c_str(), "d16fb36f0911f878998c136191af705e");
 
 		md5.Reset();
 		md5.Update("4567890");
 
-		EXPECT_STR_EQ(md5.Value().c_str(), "4567890");
-		EXPECT_STR_EQ(md5.Hex16().c_str(), "ad4c127657d9c8d9");
-		EXPECT_STR_EQ(md5.Hex32().c_str(), "a14b1bbaad4c127657d9c8d907fc6a75");
+		EXPECT_STREQ(md5.Value().c_str(), "4567890");
+		EXPECT_STREQ(md5.Hex16().c_str(), "ad4c127657d9c8d9");
+		EXPECT_STREQ(md5.Hex32().c_str(), "a14b1bbaad4c127657d9c8d907fc6a75");
 	}
 }
 
@@ -980,24 +982,24 @@ TEST(Crypto, Base64)
 		const char * src = "d16fb36f0911f878998c136191af705e";
 		const char * dst = "ZDE2ZmIzNmYwOTExZjg3ODk5OGMxMzYxOTFhZjcwNWU=";
 
-		EXPECT_STR_EQ(tinyToolkit::Base64::Encode(src).c_str(), dst);
-		EXPECT_STR_EQ(tinyToolkit::Base64::Decode(dst).c_str(), src);
+		EXPECT_STREQ(tinyToolkit::Base64::Encode(src).c_str(), dst);
+		EXPECT_STREQ(tinyToolkit::Base64::Decode(dst).c_str(), src);
 	}
 
 	{
 		const char * src = "d16fb36f0911f878998c136191af705e";
 		const char * dst = "ZDE2ZmIzNmYwOTExZjg3ODk5OGMxMzYxOTFhZjcwNWU=";
 
-		EXPECT_STR_EQ(tinyToolkit::Base64::Encode(reinterpret_cast<const uint8_t *>(src)).c_str(), dst);
-		EXPECT_STR_EQ(tinyToolkit::Base64::Decode(reinterpret_cast<const uint8_t *>(dst)).c_str(), src);
+		EXPECT_STREQ(tinyToolkit::Base64::Encode(reinterpret_cast<const uint8_t *>(src)).c_str(), dst);
+		EXPECT_STREQ(tinyToolkit::Base64::Decode(reinterpret_cast<const uint8_t *>(dst)).c_str(), src);
 	}
 
 	{
 		const char * src = "d16fb36f0911f878998c136191af705e";
 		const char * dst = "ZDE2ZmIzNmYwOTExZjg3ODk5OGMxMzYxOTFhZjcwNWU=";
 
-		EXPECT_STR_EQ(tinyToolkit::Base64::Encode(std::string(src)).c_str(), dst);
-		EXPECT_STR_EQ(tinyToolkit::Base64::Decode(std::string(dst)).c_str(), src);
+		EXPECT_STREQ(tinyToolkit::Base64::Encode(std::string(src)).c_str(), dst);
+		EXPECT_STREQ(tinyToolkit::Base64::Decode(std::string(dst)).c_str(), src);
 	}
 }
 
@@ -1008,24 +1010,24 @@ TEST(Crypto, UrlTransform)
 		const char * src = "b+-f*0^1$8%7';2^#$)(_c)&$#!!^9";
 		const char * dst = "b%2B-f*0%5E1%248%257%27%3B2%5E%23%24)(_c)%26%24%23!!%5E9";
 
-		EXPECT_STR_EQ(tinyToolkit::UrlTransform::Encode(src).c_str(), dst);
-		EXPECT_STR_EQ(tinyToolkit::UrlTransform::Decode(dst).c_str(), src);
+		EXPECT_STREQ(tinyToolkit::UrlTransform::Encode(src).c_str(), dst);
+		EXPECT_STREQ(tinyToolkit::UrlTransform::Decode(dst).c_str(), src);
 	}
 
 	{
 		const char * src = "b+-f*0^1$8%7';2^#$)(_c)&$#!!^9";
 		const char * dst = "b%2B-f*0%5E1%248%257%27%3B2%5E%23%24)(_c)%26%24%23!!%5E9";
 
-		EXPECT_STR_EQ(tinyToolkit::UrlTransform::Encode(reinterpret_cast<const uint8_t *>(src)).c_str(), dst);
-		EXPECT_STR_EQ(tinyToolkit::UrlTransform::Decode(reinterpret_cast<const uint8_t *>(dst)).c_str(), src);
+		EXPECT_STREQ(tinyToolkit::UrlTransform::Encode(reinterpret_cast<const uint8_t *>(src)).c_str(), dst);
+		EXPECT_STREQ(tinyToolkit::UrlTransform::Decode(reinterpret_cast<const uint8_t *>(dst)).c_str(), src);
 	}
 
 	{
 		const char * src = "b+-f*0^1$8%7';2^#$)(_c)&$#!!^9";
 		const char * dst = "b%2B-f*0%5E1%248%257%27%3B2%5E%23%24)(_c)%26%24%23!!%5E9";
 
-		EXPECT_STR_EQ(tinyToolkit::UrlTransform::Encode(std::string(src)).c_str(), dst);
-		EXPECT_STR_EQ(tinyToolkit::UrlTransform::Decode(std::string(dst)).c_str(), src);
+		EXPECT_STREQ(tinyToolkit::UrlTransform::Encode(std::string(src)).c_str(), dst);
+		EXPECT_STREQ(tinyToolkit::UrlTransform::Decode(std::string(dst)).c_str(), src);
 	}
 }
 
@@ -1078,46 +1080,62 @@ TEST(System, Application)
 
 	EXPECT_TRUE(tinyToolkit::Application::Exist()) << strerror(errno);
 
-	EXPECT_STR_EQ(tinyToolkit::Application::Name().c_str(), "example.exe");
-	EXPECT_STR_EQ(tinyToolkit::Application::Extension().c_str(), ".exe");
+	EXPECT_STREQ(tinyToolkit::Application::Name().c_str(), "example.exe");
+	EXPECT_STREQ(tinyToolkit::Application::Extension().c_str(), ".exe");
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
 	EXPECT_TRUE(tinyToolkit::Application::Exist()) << tinyToolkit::OS::LastErrorMessage();
 
-	EXPECT_STR_EQ(tinyToolkit::Application::Name().c_str(), "example");
-	EXPECT_STR_EQ(tinyToolkit::Application::Extension().c_str(), "");
+	EXPECT_STREQ(tinyToolkit::Application::Name().c_str(), "example");
+	EXPECT_STREQ(tinyToolkit::Application::Extension().c_str(), "");
 
 #else
 
 	EXPECT_FALSE(tinyToolkit::Application::Exist()) << strerror(errno);
 
-	EXPECT_STR_EQ(tinyToolkit::Application::Name().c_str(), "example");
-	EXPECT_STR_EQ(tinyToolkit::Application::Extension().c_str(), "");
+	EXPECT_STREQ(tinyToolkit::Application::Name().c_str(), "example");
+	EXPECT_STREQ(tinyToolkit::Application::Extension().c_str(), "");
 
 #endif
 
 	EXPECT_LE(tinyToolkit::Application::CompileTime(), tinyToolkit::Time::Seconds());
 	EXPECT_EQ(tinyToolkit::Application::CompileTime(), tinyToolkit::Time::FromTimeString(tinyToolkit::Application::CompileTimeString()));
 
-	EXPECT_STR_EQ(tinyToolkit::Application::Steam().c_str(), "example");
-	EXPECT_STR_EQ(tinyToolkit::Application::Path().c_str(),
-			(tinyToolkit::Application::Directory() + TINY_TOOLKIT_FOLDER_SEP + tinyToolkit::Application::Name()).c_str());
+	EXPECT_STREQ(tinyToolkit::Application::Steam().c_str(), "example");
+	EXPECT_STREQ(tinyToolkit::Application::Path().c_str(),
+				  (tinyToolkit::Application::Directory() + TINY_TOOLKIT_FOLDER_SEP + tinyToolkit::Application::Name()).c_str());
 }
 
 
 TEST(Utilities, Net)
 {
-	EXPECT_STR_EQ(tinyToolkit::Net::AsString(16951488).c_str(), "1.2.168.192");
-	EXPECT_STR_EQ(tinyToolkit::Net::AsString(3232236033).c_str(), "192.168.2.1");
-	EXPECT_STR_EQ(tinyToolkit::Net::ParseHost("127.0.0.1").c_str(), "127.0.0.1");
-	EXPECT_STR_EQ(tinyToolkit::Net::ParseHost("192.168.2.1").c_str(), "192.168.2.1");
+	{
+		std::vector<std::string> list;
 
-	EXPECT_EQ(tinyToolkit::Net::AsNetByte("192.168.2.1"), static_cast<uint32_t>(16951488));
-	EXPECT_EQ(tinyToolkit::Net::AsNetByte("1.2.168.192"), static_cast<uint32_t>(3232236033));
+		tinyToolkit::Net::TraverseAddressFromHost("127.0.0.1", list);
 
-	EXPECT_EQ(tinyToolkit::Net::AsHostByte("192.168.2.1"), static_cast<uint32_t>(3232236033));
-	EXPECT_EQ(tinyToolkit::Net::AsHostByte("1.2.168.192"), static_cast<uint32_t>(16951488));
+		EXPECT_EQ(list.size(), 1);
+		EXPECT_STREQ(list[list.size() - 1].c_str(), "127.0.0.1");
+	}
+
+	{
+		std::vector<std::string> list;
+
+		tinyToolkit::Net::TraverseAddressFromHost("192.168.2.1", list);
+
+		EXPECT_EQ(list.size(), 1);
+		EXPECT_STREQ(list[list.size() - 1].c_str(), "192.168.2.1");
+	}
+
+	EXPECT_STREQ(tinyToolkit::Net::AsString(16951488).c_str(), "1.2.168.192");
+	EXPECT_STREQ(tinyToolkit::Net::AsString(3232236033).c_str(), "192.168.2.1");
+
+	EXPECT_EQ(tinyToolkit::Net::AsNetByte("192.168.2.1"), 16951488);
+	EXPECT_EQ(tinyToolkit::Net::AsNetByte("1.2.168.192"), 3232236033);
+
+	EXPECT_EQ(tinyToolkit::Net::AsHostByte("192.168.2.1"), 3232236033);
+	EXPECT_EQ(tinyToolkit::Net::AsHostByte("1.2.168.192"), 16951488);
 
 	{
 		uint32_t head = 0;
@@ -1210,7 +1228,7 @@ TEST(Utilities, File)
 		file << "this is lock file";
 	}
 
-	EXPECT_EQ(file.Size(), static_cast<std::size_t>(17));
+	EXPECT_EQ(file.Size(), 17);
 	EXPECT_EQ(file.Size(), tinyToolkit::Filesystem::Size(file.Path()));
 
 	file.Close();
@@ -1257,15 +1275,15 @@ TEST(Utilities, Time)
 	v2.tv_nsec = 567;
 
 	EXPECT_TRUE(tinyToolkit::Time::IsSameYear(tinyToolkit::Time::FromTimeString("2018-01-02 03:04:05"),
-			tinyToolkit::Time::FromTimeString("2018-11-12 13:14:15")));
+											  tinyToolkit::Time::FromTimeString("2018-11-12 13:14:15")));
 	EXPECT_TRUE(tinyToolkit::Time::IsSameMonth(tinyToolkit::Time::FromTimeString("2018-01-02 03:04:05"),
-			tinyToolkit::Time::FromTimeString("2018-01-12 13:14:15")));
+											   tinyToolkit::Time::FromTimeString("2018-01-12 13:14:15")));
 	EXPECT_TRUE(tinyToolkit::Time::IsSameDay(tinyToolkit::Time::FromTimeString("2018-01-02 03:04:05"),
-			tinyToolkit::Time::FromTimeString("2018-01-02 13:14:15")));
+											 tinyToolkit::Time::FromTimeString("2018-01-02 13:14:15")));
 	EXPECT_TRUE(tinyToolkit::Time::IsSameHour(tinyToolkit::Time::FromTimeString("2018-01-02 03:04:05"),
-			tinyToolkit::Time::FromTimeString("2018-01-02 03:14:15")));
+											  tinyToolkit::Time::FromTimeString("2018-01-02 03:14:15")));
 	EXPECT_TRUE(tinyToolkit::Time::IsSameMinute(tinyToolkit::Time::FromTimeString("2018-01-02 03:04:05"),
-			tinyToolkit::Time::FromTimeString("2018-01-02 03:04:15")));
+												tinyToolkit::Time::FromTimeString("2018-01-02 03:04:15")));
 
 	auto utcTm = tinyToolkit::Time::UTCTm();
 	auto localTm = tinyToolkit::Time::LocalTm();
@@ -1295,10 +1313,9 @@ TEST(Utilities, Time)
 	EXPECT_EQ(tinyToolkit::Time::Seconds(tinyToolkit::Time::TimeDuration(v2)), tinyToolkit::Time::Seconds(tinyToolkit::Time::TimePoint(v2)));
 	EXPECT_EQ(tinyToolkit::Time::FromTimeString("2018-01-02 03:04:05"), 1514833445);
 
-	EXPECT_STR_EQ(tinyToolkit::Time::FormatTimeString(tinyToolkit::Time::Seconds(), static_cast<std::time_t>(0)).c_str(),
-			tinyToolkit::Time::CurrentUTCTimeString().c_str());
-	EXPECT_STR_EQ(tinyToolkit::Time::FormatTimeString(1514833445).c_str(), "2018-01-02 03:04:05");
-	EXPECT_STR_EQ(tinyToolkit::Time::FormatTimeString(1514833445, "%4d/%02d/%02d %02d:%02d:%02d").c_str(), "2018/01/02 03:04:05");
+	EXPECT_STREQ(tinyToolkit::Time::FormatTimeString(tinyToolkit::Time::Seconds(), static_cast<std::time_t>(0)).c_str(), tinyToolkit::Time::CurrentUTCTimeString().c_str());
+	EXPECT_STREQ(tinyToolkit::Time::FormatTimeString(1514833445).c_str(), "2018-01-02 03:04:05");
+	EXPECT_STREQ(tinyToolkit::Time::FormatTimeString(1514833445, "%4d/%02d/%02d %02d:%02d:%02d").c_str(), "2018/01/02 03:04:05");
 }
 
 
@@ -1341,8 +1358,8 @@ TEST(Utilities, Option)
 	EXPECT_TRUE(manager.Has(std::string("next")));
 	EXPECT_TRUE(manager.Has(std::string("need")));
 
-	EXPECT_STR_EQ(manager.Get("next").c_str(), "456");
-	EXPECT_STR_EQ(manager.Get("need").c_str(), "abc");
+	EXPECT_STREQ(manager.Get("next").c_str(), "456");
+	EXPECT_STREQ(manager.Get("need").c_str(), "abc");
 }
 
 
@@ -1369,50 +1386,50 @@ TEST(Utilities, String)
 	EXPECT_FALSE(tinyToolkit::String::EndWith("123456", "55"));
 	EXPECT_FALSE(tinyToolkit::String::StartWith("123456", "13"));
 
-	EXPECT_EQ(tinyToolkit::String::Split("121545-fdsa-23242-sdf8967sdf-es5dsfsd", "-").size(), static_cast<std::size_t>(5));
-	EXPECT_EQ(tinyToolkit::String::SplitLines("121545\nfdsa\r\n23242\rsdf8967sdf\nes5dsfsd").size(), static_cast<std::size_t>(5));
+	EXPECT_EQ(tinyToolkit::String::Split("121545-fdsa-23242-sdf8967sdf-es5dsfsd", "-").size(), 5);
+	EXPECT_EQ(tinyToolkit::String::SplitLines("121545\nfdsa\r\n23242\rsdf8967sdf\nes5dsfsd").size(), 5);
 	EXPECT_EQ(tinyToolkit::String::Transform<int32_t>("123456789.123456789"), 123456789);
 	EXPECT_EQ(tinyToolkit::String::Transform<int32_t>(std::string("123456789.123456789")), 123456789);
 	EXPECT_EQ(tinyToolkit::String::Transform<double>("123456789"), 123456789.0);
 	EXPECT_EQ(tinyToolkit::String::Transform<double>(std::string("123456789")), 123456789.0);
 
-	EXPECT_STR_EQ(tinyToolkit::String::Trim(" 123 456 789 ").c_str(), "123 456 789");
-	EXPECT_STR_EQ(tinyToolkit::String::Lower("ABCDEfgHIjklm").c_str(), "abcdefghijklm");
-	EXPECT_STR_EQ(tinyToolkit::String::Upper("ABCDEfgHIjklm").c_str(), "ABCDEFGHIJKLM");
-	EXPECT_STR_EQ(tinyToolkit::String::Erase("ABCDEfgHIjklm", 'j').c_str(), "ABCDEfgHIklm");
-	EXPECT_STR_EQ(tinyToolkit::String::Erase("ABCDEfgHIjklm", 'j', 9).c_str(), "ABCDEfgHIklm");
-	EXPECT_STR_EQ(tinyToolkit::String::Erase("ABCDEfgHIjklm", 'j', 10).c_str(), "ABCDEfgHIjklm");
-	EXPECT_STR_EQ(tinyToolkit::String::Erase("ABCDEfgHIjklm", "CD").c_str(), "ABEfgHIjklm");
-	EXPECT_STR_EQ(tinyToolkit::String::Erase("ABCDEfgHIjklm", "CD", 2).c_str(), "ABEfgHIjklm");
-	EXPECT_STR_EQ(tinyToolkit::String::Erase("ABCDEfgHIjklm", "CD", 3).c_str(), "ABCDEfgHIjklm");
-	EXPECT_STR_EQ(tinyToolkit::String::Erase("ABCDEfgHIjklm", [](char value) -> bool { return value == 'f'; }).c_str(), "ABCDEgHIjklm");
-	EXPECT_STR_EQ(tinyToolkit::String::Erase("ABCDEfgHIjklm", [](char value) -> bool { return value == 'f'; }, 5).c_str(), "ABCDEgHIjklm");
-	EXPECT_STR_EQ(tinyToolkit::String::Erase("ABCDEfgHIjklm", [](char value) -> bool { return value == 'f'; }, 6).c_str(), "ABCDEfgHIjklm");
-	EXPECT_STR_EQ(tinyToolkit::String::Replace("1221212212", "12", "21").c_str(), "2122121221");
-	EXPECT_STR_EQ(tinyToolkit::String::Replace("1221212212", "12", "21", 3).c_str(), "1222121221");
-	EXPECT_STR_EQ(tinyToolkit::String::Replace("1221212212", "12", "21", 4).c_str(), "1221221221");
-	EXPECT_STR_EQ(tinyToolkit::String::ReplaceAll("1221212212", "12", "21").c_str(), "2222221111");
-	EXPECT_STR_EQ(tinyToolkit::String::ReplaceAll("1221212212", "12", "21", 3).c_str(), "1222222111");
-	EXPECT_STR_EQ(tinyToolkit::String::ReplaceAll("1221212212", "12", "21", 4).c_str(), "1221222211");
-	EXPECT_STR_EQ(tinyToolkit::String::FilterNote("123456//1234565abcd").c_str(), "123456");
-	EXPECT_STR_EQ(tinyToolkit::String::Format("{} is {}", 1, true).c_str(), "1 is true");
-	EXPECT_STR_EQ(tinyToolkit::String::Format("{0} is {0}, {1} is {1}, {2} is {2}", 1, 0.01, true).c_str(), "1 is 1, 0.01 is 0.01, true is true");
-	EXPECT_STR_EQ(tinyToolkit::String::Splice("this is ", "new string, value=", 0).c_str(), "this is new string, value=0");
-	EXPECT_STR_EQ(tinyToolkit::String::AsHexString("123456789").c_str(), "313233343536373839");
-	EXPECT_STR_EQ(tinyToolkit::String::AsHexString("123456789", true).c_str(), "393837363534333231");
-	EXPECT_STR_EQ(tinyToolkit::String::AsHexString("123456789", 5, true).c_str(), "3534333231");
-	EXPECT_STR_EQ(tinyToolkit::String::AsHexString("123456789", 5, false).c_str(), "3132333435");
-	EXPECT_STR_EQ(tinyToolkit::String::AsHexString(std::string("123456789")).c_str(), "313233343536373839");
-	EXPECT_STR_EQ(tinyToolkit::String::AsHexString(std::string("123456789"), true).c_str(), "393837363534333231");
-	EXPECT_STR_EQ(tinyToolkit::String::AsHexString(std::string("123456789"), 5, true).c_str(), "3534333231");
-	EXPECT_STR_EQ(tinyToolkit::String::AsHexString(std::string("123456789"), 5, false).c_str(), "3132333435");
+	EXPECT_STREQ(tinyToolkit::String::Trim(" 123 456 789 ").c_str(), "123 456 789");
+	EXPECT_STREQ(tinyToolkit::String::Lower("ABCDEfgHIjklm").c_str(), "abcdefghijklm");
+	EXPECT_STREQ(tinyToolkit::String::Upper("ABCDEfgHIjklm").c_str(), "ABCDEFGHIJKLM");
+	EXPECT_STREQ(tinyToolkit::String::Erase("ABCDEfgHIjklm", 'j').c_str(), "ABCDEfgHIklm");
+	EXPECT_STREQ(tinyToolkit::String::Erase("ABCDEfgHIjklm", 'j', 9).c_str(), "ABCDEfgHIklm");
+	EXPECT_STREQ(tinyToolkit::String::Erase("ABCDEfgHIjklm", 'j', 10).c_str(), "ABCDEfgHIjklm");
+	EXPECT_STREQ(tinyToolkit::String::Erase("ABCDEfgHIjklm", "CD").c_str(), "ABEfgHIjklm");
+	EXPECT_STREQ(tinyToolkit::String::Erase("ABCDEfgHIjklm", "CD", 2).c_str(), "ABEfgHIjklm");
+	EXPECT_STREQ(tinyToolkit::String::Erase("ABCDEfgHIjklm", "CD", 3).c_str(), "ABCDEfgHIjklm");
+	EXPECT_STREQ(tinyToolkit::String::Erase("ABCDEfgHIjklm", [](char value) -> bool { return value == 'f'; }).c_str(), "ABCDEgHIjklm");
+	EXPECT_STREQ(tinyToolkit::String::Erase("ABCDEfgHIjklm", [](char value) -> bool { return value == 'f'; }, 5).c_str(), "ABCDEgHIjklm");
+	EXPECT_STREQ(tinyToolkit::String::Erase("ABCDEfgHIjklm", [](char value) -> bool { return value == 'f'; }, 6).c_str(), "ABCDEfgHIjklm");
+	EXPECT_STREQ(tinyToolkit::String::Replace("1221212212", "12", "21").c_str(), "2122121221");
+	EXPECT_STREQ(tinyToolkit::String::Replace("1221212212", "12", "21", 3).c_str(), "1222121221");
+	EXPECT_STREQ(tinyToolkit::String::Replace("1221212212", "12", "21", 4).c_str(), "1221221221");
+	EXPECT_STREQ(tinyToolkit::String::ReplaceAll("1221212212", "12", "21").c_str(), "2222221111");
+	EXPECT_STREQ(tinyToolkit::String::ReplaceAll("1221212212", "12", "21", 3).c_str(), "1222222111");
+	EXPECT_STREQ(tinyToolkit::String::ReplaceAll("1221212212", "12", "21", 4).c_str(), "1221222211");
+	EXPECT_STREQ(tinyToolkit::String::FilterNote("123456//1234565abcd").c_str(), "123456");
+	EXPECT_STREQ(tinyToolkit::String::Format("{} is {}", 1, true).c_str(), "1 is true");
+	EXPECT_STREQ(tinyToolkit::String::Format("{0} is {0}, {1} is {1}, {2} is {2}", 1, 0.01, true).c_str(), "1 is 1, 0.01 is 0.01, true is true");
+	EXPECT_STREQ(tinyToolkit::String::Splice("this is ", "new string, value=", 0).c_str(), "this is new string, value=0");
+	EXPECT_STREQ(tinyToolkit::String::AsHexString("123456789").c_str(), "313233343536373839");
+	EXPECT_STREQ(tinyToolkit::String::AsHexString("123456789", true).c_str(), "393837363534333231");
+	EXPECT_STREQ(tinyToolkit::String::AsHexString("123456789", 5, true).c_str(), "3534333231");
+	EXPECT_STREQ(tinyToolkit::String::AsHexString("123456789", 5, false).c_str(), "3132333435");
+	EXPECT_STREQ(tinyToolkit::String::AsHexString(std::string("123456789")).c_str(), "313233343536373839");
+	EXPECT_STREQ(tinyToolkit::String::AsHexString(std::string("123456789"), true).c_str(), "393837363534333231");
+	EXPECT_STREQ(tinyToolkit::String::AsHexString(std::string("123456789"), 5, true).c_str(), "3534333231");
+	EXPECT_STREQ(tinyToolkit::String::AsHexString(std::string("123456789"), 5, false).c_str(), "3132333435");
 
 	{
 		std::stringstream stream;
 
 		tinyToolkit::String::Print(stream, "{} is {}", 1, true);
 
-		EXPECT_STR_EQ(stream.str().c_str(), "1 is true");
+		EXPECT_STREQ(stream.str().c_str(), "1 is true");
 	}
 
 	{
@@ -1420,77 +1437,29 @@ TEST(Utilities, String)
 
 		tinyToolkit::String::Print(stream, "{0} is {0}, {1} is {1}, {2} is {2}", 1, 0.01, true);
 
-		EXPECT_STR_EQ(stream.str().c_str(), "1 is 1, 0.01 is 0.01, true is true");
+		EXPECT_STREQ(stream.str().c_str(), "1 is 1, 0.01 is 0.01, true is true");
 	}
 
 	{
 		uint8_t val[10] = { '1', '2', '3', '4', '5', '6', '7', '8', '9', '\0' };
 
-		EXPECT_STR_EQ(tinyToolkit::String::AsHexString(val).c_str(), "313233343536373839");
-		EXPECT_STR_EQ(tinyToolkit::String::AsHexString(val, true).c_str(), "393837363534333231");
-		EXPECT_STR_EQ(tinyToolkit::String::AsHexString(val, 5, true).c_str(), "3534333231");
-		EXPECT_STR_EQ(tinyToolkit::String::AsHexString(val, 5, false).c_str(), "3132333435");
+		EXPECT_STREQ(tinyToolkit::String::AsHexString(val).c_str(), "313233343536373839");
+		EXPECT_STREQ(tinyToolkit::String::AsHexString(val, true).c_str(), "393837363534333231");
+		EXPECT_STREQ(tinyToolkit::String::AsHexString(val, 5, true).c_str(), "3534333231");
+		EXPECT_STREQ(tinyToolkit::String::AsHexString(val, 5, false).c_str(), "3132333435");
 	}
 
 	EXPECT_EQ(tinyToolkit::HexString::AsByte("0x0A"), 10);
 	EXPECT_EQ(tinyToolkit::HexString::AsByte(std::string("0x0F")), 15);
 
-	EXPECT_STR_EQ(tinyToolkit::HexString::AsString("313233343536373839").c_str(), "123456789");
-	EXPECT_STR_EQ(tinyToolkit::HexString::AsString("313233343536373839", true).c_str(), "987654321");
-	EXPECT_STR_EQ(tinyToolkit::HexString::AsString(std::string("313233343536373839")).c_str(), "123456789");
-	EXPECT_STR_EQ(tinyToolkit::HexString::AsString(std::string("313233343536373839"), true).c_str(), "987654321");
-	EXPECT_STR_EQ(tinyToolkit::HexString::AsString("313233343536373839", 10, true).c_str(), "54321");
-	EXPECT_STR_EQ(tinyToolkit::HexString::AsString("313233343536373839", 10, false).c_str(), "12345");
-	EXPECT_STR_EQ(tinyToolkit::HexString::AsString(std::string("313233343536373839"), 10, true).c_str(), "54321");
-	EXPECT_STR_EQ(tinyToolkit::HexString::AsString(std::string("313233343536373839"), 10, false).c_str(), "12345");
-}
-
-
-TEST(Utilities, Message)
-{
-	tinyToolkit::Message message;
-
-	message << "123";
-
-	EXPECT_EQ(message.Length(), static_cast<std::size_t>(3));
-	EXPECT_STR_EQ(message.String().c_str(), "123");
-
-	message << 456;
-
-	EXPECT_EQ(message.Length(), static_cast<std::size_t>(6));
-	EXPECT_STR_EQ(message.String().c_str(), "123456");
-
-	message << 789.10;
-
-	EXPECT_EQ(message.Length(), static_cast<std::size_t>(11));
-	EXPECT_STR_EQ(message.String().c_str(), "123456789.1");
-
-	message << nullptr;
-
-	EXPECT_EQ(message.Length(), static_cast<std::size_t>(17));
-	EXPECT_STR_EQ(message.String().c_str(), "123456789.1(null)");
-
-	message.Clear();
-
-	message << "123";
-
-	EXPECT_EQ(message.Length(), static_cast<std::size_t>(3));
-	EXPECT_STR_EQ(message.String().c_str(), "123");
-
-	message << 456;
-
-	EXPECT_EQ(message.Length(), static_cast<std::size_t>(6));
-	EXPECT_STR_EQ(message.String().c_str(), "123456");
-
-	message << 789.10;
-
-	EXPECT_EQ(message.Length(), static_cast<std::size_t>(11));
-	EXPECT_STR_EQ(message.String().c_str(), "123456789.1");
-
-	message << nullptr;
-
-	EXPECT_EQ(message.Length(), static_cast<std::size_t>(17));
-	EXPECT_STR_EQ(message.String().c_str(), "123456789.1(null)");
+	EXPECT_STREQ(tinyToolkit::HexString::AsString("313233343536373839").c_str(), "123456789");
+	EXPECT_STREQ(tinyToolkit::HexString::AsString("313233343536373839", true).c_str(), "987654321");
+	EXPECT_STREQ(tinyToolkit::HexString::AsString(std::string("313233343536373839")).c_str(), "123456789");
+	EXPECT_STREQ(tinyToolkit::HexString::AsString(std::string("313233343536373839"), true).c_str(), "987654321");
+	EXPECT_STREQ(tinyToolkit::HexString::AsString("313233343536373839", 10, true).c_str(), "54321");
+	EXPECT_STREQ(tinyToolkit::HexString::AsString("313233343536373839", 10, false).c_str(), "12345");
+	EXPECT_STREQ(tinyToolkit::HexString::AsString(std::string("313233343536373839"), 10, true).c_str(), "54321");
+	EXPECT_STREQ(tinyToolkit::HexString::AsString(std::string("313233343536373839"), 10, false).c_str(), "12345");
 }
 
 
@@ -1498,23 +1467,23 @@ TEST(Utilities, Operator)
 {
 	std::vector<int32_t> vec;
 
-	EXPECT_EQ(vec.size(), static_cast<std::size_t>(0));
+	EXPECT_EQ(vec.size(), 0);
 
 	vec.push_back(1);
 	vec.push_back(2);
 
-	EXPECT_EQ(vec.size(), static_cast<std::size_t>(2));
+	EXPECT_EQ(vec.size(), 2);
 
 	tinyToolkit::Operator::Clear(vec);
 
-	EXPECT_EQ(vec.size(), static_cast<std::size_t>(0));
+	EXPECT_EQ(vec.size(), 0);
 
 	vec.push_back(3);
 	vec.push_back(4);
 	vec.push_back(5);
 	vec.push_back(6);
 
-	EXPECT_EQ(vec.size(), static_cast<std::size_t>(4));
+	EXPECT_EQ(vec.size(), 4);
 }
 
 
@@ -1564,42 +1533,42 @@ TEST(Utilities, Filesystem)
 	EXPECT_TRUE(tinyToolkit::Filesystem::Rename(s1, sa));
 	EXPECT_TRUE(tinyToolkit::Filesystem::Rename(s2, sb));
 
-	EXPECT_EQ(tinyToolkit::Filesystem::Size(sa), static_cast<std::size_t>(0));
+	EXPECT_EQ(tinyToolkit::Filesystem::Size(sa), 0);
 	EXPECT_EQ(tinyToolkit::Filesystem::Size(sb), 5 + strlen(TINY_TOOLKIT_EOL) * strVector.size());
 
-	EXPECT_EQ(tinyToolkit::Filesystem::ReadFile(sa).size(), static_cast<std::size_t>(0));
+	EXPECT_EQ(tinyToolkit::Filesystem::ReadFile(sa).size(), 0);
 	EXPECT_EQ(tinyToolkit::Filesystem::ReadFile(sb, true).size(), strVector.size());
 
 	EXPECT_TRUE(tinyToolkit::Filesystem::WriteFile(sa, "this is a.txt"));
 	EXPECT_TRUE(tinyToolkit::Filesystem::WriteFile(sb, "this is b.txt"));
 
-	EXPECT_STR_EQ(tinyToolkit::Filesystem::Content(sa).c_str(), "this is a.txt");
-	EXPECT_STR_EQ(tinyToolkit::Filesystem::Content(sb).c_str(), "this is b.txt");
+	EXPECT_STREQ(tinyToolkit::Filesystem::Content(sa).c_str(), "this is a.txt");
+	EXPECT_STREQ(tinyToolkit::Filesystem::Content(sb).c_str(), "this is b.txt");
 
-	EXPECT_STR_EQ(tinyToolkit::Filesystem::Name(sa).c_str(), "a.txt");
-	EXPECT_STR_EQ(tinyToolkit::Filesystem::Steam(sa).c_str(), "a");
-	EXPECT_STR_EQ(tinyToolkit::Filesystem::Extension(sb).c_str(), ".txt");
-	EXPECT_STR_EQ(tinyToolkit::Filesystem::ParentDirectory(sb).c_str(), sf.c_str());
-	EXPECT_STR_EQ(tinyToolkit::Filesystem::Canonical(".").c_str(), tinyToolkit::Filesystem::CurrentDirectory().c_str());
+	EXPECT_STREQ(tinyToolkit::Filesystem::Name(sa).c_str(), "a.txt");
+	EXPECT_STREQ(tinyToolkit::Filesystem::Steam(sa).c_str(), "a");
+	EXPECT_STREQ(tinyToolkit::Filesystem::Extension(sb).c_str(), ".txt");
+	EXPECT_STREQ(tinyToolkit::Filesystem::ParentDirectory(sb).c_str(), sf.c_str());
+	EXPECT_STREQ(tinyToolkit::Filesystem::Canonical(".").c_str(), tinyToolkit::Filesystem::CurrentDirectory().c_str());
 
 	EXPECT_TRUE(tinyToolkit::Filesystem::IsDirectory(sf));
 
 	EXPECT_FALSE(tinyToolkit::Filesystem::IsDirectory(sa));
 	EXPECT_FALSE(tinyToolkit::Filesystem::IsDirectory(sb));
 
-	EXPECT_EQ(tinyToolkit::Filesystem::TraverseFile(sf).size(), static_cast<std::size_t>(2));
-	EXPECT_EQ(tinyToolkit::Filesystem::TraverseFile(sf, true).size(), static_cast<std::size_t>(2));
-	EXPECT_EQ(tinyToolkit::Filesystem::TraverseFile(sf, std::regex(".*.txt")).size(), static_cast<std::size_t>(2));
-	EXPECT_EQ(tinyToolkit::Filesystem::TraverseFile(sf, std::regex(".*.txt"), true).size(), static_cast<std::size_t>(2));
+	EXPECT_EQ(tinyToolkit::Filesystem::TraverseFile(sf).size(), 2);
+	EXPECT_EQ(tinyToolkit::Filesystem::TraverseFile(sf, true).size(), 2);
+	EXPECT_EQ(tinyToolkit::Filesystem::TraverseFile(sf, std::regex(".*.txt")).size(), 2);
+	EXPECT_EQ(tinyToolkit::Filesystem::TraverseFile(sf, std::regex(".*.txt"), true).size(), 2);
 
-	EXPECT_EQ(tinyToolkit::Filesystem::TraverseDirectory(".").size(), static_cast<std::size_t>(4));
-	EXPECT_EQ(tinyToolkit::Filesystem::TraverseDirectory(".", true).size(), static_cast<std::size_t>(7));
-	EXPECT_EQ(tinyToolkit::Filesystem::TraverseDirectory(".", std::regex(".*log")).size(), static_cast<std::size_t>(1));
-	EXPECT_EQ(tinyToolkit::Filesystem::TraverseDirectory(".", std::regex(".*log"), true).size(), static_cast<std::size_t>(1));
+	EXPECT_EQ(tinyToolkit::Filesystem::TraverseDirectory(".").size(), 4);
+	EXPECT_EQ(tinyToolkit::Filesystem::TraverseDirectory(".", true).size(), 7);
+	EXPECT_EQ(tinyToolkit::Filesystem::TraverseDirectory(".", std::regex(".*log")).size(), 1);
+	EXPECT_EQ(tinyToolkit::Filesystem::TraverseDirectory(".", std::regex(".*log"), true).size(), 1);
 }
 
 
-class Environment : public tinyToolkit::TestEnvironment
+class TestEnvironment : public testing::Environment
 {
 public:
 	void SetUp() override
@@ -1627,20 +1596,19 @@ public:
 		std::system("rm -rf fileSystem");
 
 #endif
-
 	}
 };
 
 
-int main(int argc, char const * argv[])
+int main(int argc, char * argv[])
 {
-	tinyToolkit::OptionManager::Instance().Parse(argc, argv);
+	TestEnvironment environment;
 
-	int32_t res = 0;
+	testing::InitGoogleTest(&argc, argv);
 
-	TINY_TOOLKIT_ADD_TEST_ENVIRONMENT(Environment);
+	testing::AddGlobalTestEnvironment(&environment);
 
-	res = RUN_ALL_TEST();
+	int32_t res = RUN_ALL_TESTS();
 
 	while (true)
 	{

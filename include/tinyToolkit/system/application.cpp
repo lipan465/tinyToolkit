@@ -10,8 +10,8 @@
 #include "os.h"
 #include "application.h"
 
+#include "../debug/trace.h"
 #include "../utilities/time.h"
-#include "../utilities/file.h"
 #include "../utilities/string.h"
 #include "../utilities/filesystem.h"
 
@@ -83,6 +83,10 @@ namespace tinyToolkit
 			return false;
 		}
 
+		umask(0);  /// 修改掩码
+
+		chdir("/");  /// 修改工作目录
+
 		if (isCloseIO)
 		{
 			int32_t fd = ::open("/dev/null", O_RDWR, 0);
@@ -111,30 +115,138 @@ namespace tinyToolkit
 	 */
 	bool Application::Exist()
 	{
-		static std::pair<LockFile, bool> value({ }, true);
+		static std::pair<bool, bool> value(true, true);
 
 		if (value.second)
 		{
-		#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
-
-			if (value.first.Open(String::Format(R"(C:\Users\Public\Documents\{}.pid)", Name()), true))
+			value.first = []() -> bool
 			{
-				value.first << std::to_string(OS::ProcessID());
-			}
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-		#else
+				HANDLE hProcessSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
 
-			if (value.first.Open(String::Format("/var/run/{}.pid", Name()), true))
-			{
-				value.first << std::to_string(OS::ProcessID());
-			}
+				if (hProcessSnap == INVALID_HANDLE_VALUE)
+				{
+					return false;
+				}
 
-		#endif
+				bool find = false;
+
+				PROCESSENTRY32 process;
+
+				process.dwSize = sizeof(PROCESSENTRY32);
+
+				if (Process32First(hProcessSnap, &process))
+				{
+					do
+					{
+						if (strcmp(pe32.szExeFile, pName) == 0)
+						{
+							find = true;
+
+							break;
+						}
+					}
+					while (Process32Next(hProcessSnap, &process));
+				}
+
+				CloseHandle(hProcessSnap);
+
+				return find;
+
+#else
+
+				int32_t fd = ::open(String::Format("/var/run/{}.pid", Name()).data(), O_WRONLY | O_CREAT, 0644);
+
+				if (fd < 0)
+				{
+					TINY_TOOLKIT_ASSERT(false, strerror(errno));
+
+					return true;
+				}
+
+				struct flock lock
+				{
+					.l_type = F_WRLCK,  /// 加锁的类型: 只读锁(F_RDLCK), 读写锁(F_WRLCK), 或是解锁(F_UNLCK)
+					.l_whence = SEEK_SET,  /// 加锁部分的开始位置
+					.l_start = 0,  /// 加锁部分的开始位置
+					.l_len = 0,  /// 加锁的长度
+					.l_pid = 0,  /// pid
+				};
+
+				if (fcntl(fd, F_SETLK, &lock) == -1)  /// 尝试在整个文件上设置锁定
+				{
+					close(fd);
+
+					if (errno == EACCES || errno == EAGAIN)
+					{
+						return true;
+					}
+
+					TINY_TOOLKIT_ASSERT(false, strerror(errno));
+
+					return true;
+				}
+
+				if (ftruncate(fd, 0) == -1)  /// 清空文件
+				{
+					close(fd);
+
+					TINY_TOOLKIT_ASSERT(false, strerror(errno));
+
+					return false;
+				}
+
+				auto pidStr = std::to_string(OS::ProcessID());
+
+				if (::write(fd, pidStr.data(), pidStr.size()) != static_cast<ssize_t>(pidStr.size()))  /// 写入pid
+				{
+					close(fd);
+
+					TINY_TOOLKIT_ASSERT(false, strerror(errno));
+
+					return false;
+				}
+
+				int32_t val = fcntl(fd, F_GETFD, 0);  /// 获得文件描述符标记
+
+				if (val == -1)
+				{
+					close(fd);
+
+					TINY_TOOLKIT_ASSERT(false, strerror(errno));
+
+					return false;
+				}
+
+				/**
+				 *
+				 * 对描述符设置了FD_CLOEXEC
+				 *
+				 * 使用execl执行的程序里, 此描述符被关闭, 不能再使用它
+				 * 使用fork调用的子进程中, 此描述符并不关闭, 仍可使用
+				 *
+				 */
+				val |= FD_CLOEXEC;
+
+				if (fcntl(fd, F_SETFD, val) == -1)  /// 设置文件描述符标记
+				{
+					close(fd);
+
+					TINY_TOOLKIT_ASSERT(false, strerror(errno));
+
+					return false;
+				}
+
+				return false;
+
+#endif
+			}();
 
 			value.second = false;
 		}
 
-		return !value.first.IsOpen();
+		return value.first;
 	}
 
 	/**

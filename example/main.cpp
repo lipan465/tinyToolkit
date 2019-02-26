@@ -1219,22 +1219,6 @@ TEST(Utilities, Net)
 }
 
 
-TEST(Utilities, File)
-{
-	tinyToolkit::LockFile file(tinyToolkit::String::Format("file{}lock.file", TINY_TOOLKIT_FOLDER_SEP));
-
-	if (file.IsOpen())
-	{
-		file << "this is lock file";
-	}
-
-	EXPECT_EQ(file.Size(), 17);
-	EXPECT_EQ(file.Size(), tinyToolkit::Filesystem::Size(file.Path()));
-
-	file.Close();
-}
-
-
 TEST(Utilities, Math)
 {
 	EXPECT_TRUE(tinyToolkit::Math::IsIP("0.0.0.0"));

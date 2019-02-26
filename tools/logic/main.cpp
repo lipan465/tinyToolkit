@@ -20,48 +20,9 @@ void ParseOption(int argc, char const * argv[])
 	tinyToolkit::OptionManager::Instance().Parse(argc, argv);
 }
 
-void test1()
-{
-	std::cout << TINY_TOOLKIT_FUNC << std::endl;
-}
-
-void test2(int a)
-{
-	std::cout << TINY_TOOLKIT_FUNC << ", a : " << a << std::endl;
-}
-
-int32_t test3()
-{
-	std::cout << TINY_TOOLKIT_FUNC << std::endl;
-
-	return 0;
-}
-
-int32_t test4(int a)
-{
-	std::cout << TINY_TOOLKIT_FUNC << ", a : " << a << std::endl;
-
-	return 0;
-}
-
-#define TINY_TOOLKIT_ANONYMOUS(type)				type TINY_TOOLKIT_JOIN_VALUE(_anonymous, __LINE__)
-
-
-void __deferCleanUp(std::function<void()> * func)
-{
-	(*func)();
-}
-
-#define defer TINY_TOOLKIT_ANONYMOUS(std::function<void()>) __attribute__((cleanup(__deferCleanUp), unused)) =
 
 void StartApp()
 {
-	int i = 0;
-
-	defer test1;
-	defer [i](){ test2(i); };
-
-	return;
 	auto modulePath = tinyToolkit::OptionManager::Instance().Get("path");
 	auto moduleName = tinyToolkit::OptionManager::Instance().Get("name");
 

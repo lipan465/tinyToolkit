@@ -93,6 +93,7 @@
 #include "utilities/net.h"
 #include "utilities/math.h"
 #include "utilities/time.h"
+#include "utilities/defer.h"
 #include "utilities/option.h"
 #include "utilities/thread.h"
 #include "utilities/string.h"

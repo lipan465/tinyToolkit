@@ -75,7 +75,7 @@ IF (CMAKE_CXX_COMPILER_ID MATCHES GNU)
 									-Wall							# 会打开一些很有用的警告选项
 									-Werror							# 把警告当作错误
 									-Wextra							# 打印一些额外的警告信息
-									-Wundef							# 当一个没有定义的符号出现在#if中时, 给出警告
+#									-Wundef							# 当一个没有定义的符号出现在#if中时, 给出警告
 #									-Winline						# 无论是声明为inline或者是指定了-finline-functions选项, 如果某函数不能内联, 给出警告
 									-Wshadow						# 当一个局部变量遮盖住了另一个局部变量, 或者全局变量, 给出警告
 									-Woverflow						# 范围溢出, 给出警告
@@ -135,7 +135,7 @@ ELSEIF (CMAKE_CXX_COMPILER_ID MATCHES Clang)
 									-Wall							# 会打开一些很有用的警告选项
 									-Werror							# 把警告当作错误
 									-Wextra							# 打印一些额外的警告信息
-									-Wundef							# 当一个没有定义的符号出现在#if中时, 给出警告
+#									-Wundef							# 当一个没有定义的符号出现在#if中时, 给出警告
 #									-Winline						# 无论是声明为inline或者是指定了-finline-functions选项, 如果某函数不能内联, 给出警告
 									-Wshadow						# 当一个局部变量遮盖住了另一个局部变量, 或者全局变量, 给出警告
 									-Woverflow						# 范围溢出, 给出警告

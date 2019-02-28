@@ -9,7 +9,7 @@
 
 #include "main.h"
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 
 TEST(ID, Random)
@@ -150,7 +150,7 @@ TEST(LogSync, RotatingFileSink)
 
 	SyncLogger(sink, count);
 
-	EXPECT_LE(tinyToolkit::Filesystem::Size(realFileName), TINY_TOOLKIT_MB);
+	EXPECT_LE(tinyToolkit::Filesystem::Size(realFileName), static_cast<std::size_t>(TINY_TOOLKIT_MB));
 }
 
 
@@ -282,7 +282,7 @@ TEST(LogAsync, RotatingFileSink)
 
 	AsyncLogger(sink, count, std::thread::hardware_concurrency());
 
-	EXPECT_LE(tinyToolkit::Filesystem::Size(realFileName), TINY_TOOLKIT_MB);
+	EXPECT_LE(tinyToolkit::Filesystem::Size(realFileName), static_cast<std::size_t>(TINY_TOOLKIT_MB));
 }
 
 
@@ -559,16 +559,16 @@ TEST(Pool, Thread)
 
 	pool.Wait();
 
-	EXPECT_EQ(pool.TaskSize(), 0);
-	EXPECT_EQ(pool.ThreadSize(), 8);
+	EXPECT_EQ(pool.TaskSize(), static_cast<std::size_t>(0));
+	EXPECT_EQ(pool.ThreadSize(), static_cast<std::size_t>(8));
 
 	EXPECT_FALSE(pool.IsClose());
 
 	pool.Release();
 
 	EXPECT_EQ(result.load(), 45);
-	EXPECT_EQ(pool.TaskSize(), 0);
-	EXPECT_EQ(pool.ThreadSize(), 0);
+	EXPECT_EQ(pool.TaskSize(), static_cast<std::size_t>(0));
+	EXPECT_EQ(pool.ThreadSize(), static_cast<std::size_t>(0));
 
 	EXPECT_TRUE(pool.IsClose());
 }
@@ -609,13 +609,13 @@ TEST(Pool, CallBack)
 	pool.Call(11, 22);
 
 	EXPECT_EQ(result, -11);
-	EXPECT_EQ(pool.Size(), 2);
-	EXPECT_EQ(testClass.Result(), 11);
+	EXPECT_EQ(pool.Size(), static_cast<std::size_t>(2));
+	EXPECT_EQ(testClass.Result(), static_cast<int64_t>(11));
 
 	pool.Call(22, 11);
 
 	EXPECT_EQ(result, 0);
-	EXPECT_EQ(pool.Size(), 2);
+	EXPECT_EQ(pool.Size(), static_cast<std::size_t>(2));
 	EXPECT_EQ(testClass.Result(), 0);
 
 	pool.UnRegister(container["test1"]);
@@ -623,13 +623,13 @@ TEST(Pool, CallBack)
 	pool(10, 50);
 
 	EXPECT_EQ(result, 0);
-	EXPECT_EQ(pool.Size(), 1);
+	EXPECT_EQ(pool.Size(), static_cast<std::size_t>(1));
 	EXPECT_EQ(testClass.Result(), 40);
 
 	pool.Call(20, 10);
 
 	EXPECT_EQ(result, 0);
-	EXPECT_EQ(pool.Size(), 1);
+	EXPECT_EQ(pool.Size(), static_cast<std::size_t>(1));
 	EXPECT_EQ(testClass.Result(), 30);
 
 	pool -= container["test2"];
@@ -637,13 +637,13 @@ TEST(Pool, CallBack)
 	pool(10, 50);
 
 	EXPECT_EQ(result, 0);
-	EXPECT_EQ(pool.Size(), 0);
+	EXPECT_EQ(pool.Size(), static_cast<std::size_t>(0));
 	EXPECT_EQ(testClass.Result(), 30);
 
 	pool.Call(20, 10);
 
 	EXPECT_EQ(result, 0);
-	EXPECT_EQ(pool.Size(), 0);
+	EXPECT_EQ(pool.Size(), static_cast<std::size_t>(0));
 	EXPECT_EQ(testClass.Result(), 30);
 
 	pool += [&](int x, int y){ result += x; result -= y; };
@@ -651,13 +651,13 @@ TEST(Pool, CallBack)
 	pool(80, 50);
 
 	EXPECT_EQ(result, 30);
-	EXPECT_EQ(pool.Size(), 1);
+	EXPECT_EQ(pool.Size(), static_cast<std::size_t>(1));
 	EXPECT_EQ(testClass.Result(), 30);
 
 	pool.Call(20, 40);
 
 	EXPECT_EQ(result, 10);
-	EXPECT_EQ(pool.Size(), 1);
+	EXPECT_EQ(pool.Size(), static_cast<std::size_t>(1));
 	EXPECT_EQ(testClass.Result(), 30);
 
 	pool.UnRegister();
@@ -665,13 +665,13 @@ TEST(Pool, CallBack)
 	pool(80, 50);
 
 	EXPECT_EQ(result, 10);
-	EXPECT_EQ(pool.Size(), 0);
+	EXPECT_EQ(pool.Size(), static_cast<std::size_t>(0));
 	EXPECT_EQ(testClass.Result(), 30);
 
 	pool.Call(20, 40);
 
 	EXPECT_EQ(result, 10);
-	EXPECT_EQ(pool.Size(), 0);
+	EXPECT_EQ(pool.Size(), static_cast<std::size_t>(0));
 	EXPECT_EQ(testClass.Result(), 30);
 }
 
@@ -714,26 +714,26 @@ TEST(Pool, Application)
 			container.push_back(pool.Create(i));
 		}
 
-		EXPECT_EQ(pool.UsedSize(), 4 + 1);
-		EXPECT_EQ(pool.ChunkSize(), 4 * 2);
-		EXPECT_EQ(pool.ChunkListSize(), 2);
+		EXPECT_EQ(pool.UsedSize(), static_cast<std::size_t>(4 + 1));
+		EXPECT_EQ(pool.ChunkSize(), static_cast<std::size_t>(4 * 2));
+		EXPECT_EQ(pool.ChunkListSize(), static_cast<std::size_t>(2));
 
 		pool.Recover(container.back());
 
 		container.pop_back();
 
-		EXPECT_EQ(pool.UsedSize(), 4);
-		EXPECT_EQ(pool.ChunkSize(), 4);
-		EXPECT_EQ(pool.ChunkListSize(), 1);
+		EXPECT_EQ(pool.UsedSize(), static_cast<std::size_t>(4));
+		EXPECT_EQ(pool.ChunkSize(), static_cast<std::size_t>(4));
+		EXPECT_EQ(pool.ChunkListSize(), static_cast<std::size_t>(1));
 
 		for (auto &iter : container)
 		{
 			pool.Recover(iter);
 		}
 
-		EXPECT_EQ(pool.UsedSize(), 0);
-		EXPECT_EQ(pool.ChunkSize(), 4);
-		EXPECT_EQ(pool.ChunkListSize(), 1);
+		EXPECT_EQ(pool.UsedSize(), static_cast<std::size_t>(0));
+		EXPECT_EQ(pool.ChunkSize(), static_cast<std::size_t>(4));
+		EXPECT_EQ(pool.ChunkListSize(), static_cast<std::size_t>(1));
 	}
 
 	{
@@ -746,26 +746,26 @@ TEST(Pool, Application)
 			container.push_back(pool.Create(i / 1.0));
 		}
 
-		EXPECT_EQ(pool.UsedSize(), 4);
-		EXPECT_EQ(pool.ChunkSize(), 4);
-		EXPECT_EQ(pool.ChunkListSize(), 1);
+		EXPECT_EQ(pool.UsedSize(), static_cast<std::size_t>(4));
+		EXPECT_EQ(pool.ChunkSize(), static_cast<std::size_t>(4));
+		EXPECT_EQ(pool.ChunkListSize(), static_cast<std::size_t>(1));
 
 		pool.Recover(container.back());
 
 		container.pop_back();
 
-		EXPECT_EQ(pool.UsedSize(), 3);
-		EXPECT_EQ(pool.ChunkSize(), 4);
-		EXPECT_EQ(pool.ChunkListSize(), 1);
+		EXPECT_EQ(pool.UsedSize(), static_cast<std::size_t>(3));
+		EXPECT_EQ(pool.ChunkSize(), static_cast<std::size_t>(4));
+		EXPECT_EQ(pool.ChunkListSize(), static_cast<std::size_t>(1));
 
 		for (auto &iter : container)
 		{
 			pool.Recover(iter);
 		}
 
-		EXPECT_EQ(pool.UsedSize(), 0);
-		EXPECT_EQ(pool.ChunkSize(), 4);
-		EXPECT_EQ(pool.ChunkListSize(), 1);
+		EXPECT_EQ(pool.UsedSize(), static_cast<std::size_t>(0));
+		EXPECT_EQ(pool.ChunkSize(), static_cast<std::size_t>(4));
+		EXPECT_EQ(pool.ChunkListSize(), static_cast<std::size_t>(1));
 	}
 }
 
@@ -1115,7 +1115,7 @@ TEST(Utilities, Net)
 
 		tinyToolkit::Net::TraverseAddressFromHost("127.0.0.1", list);
 
-		EXPECT_EQ(list.size(), 1);
+		EXPECT_EQ(list.size(), static_cast<std::size_t>(1));
 		EXPECT_STREQ(list[list.size() - 1].c_str(), "127.0.0.1");
 	}
 
@@ -1124,18 +1124,18 @@ TEST(Utilities, Net)
 
 		tinyToolkit::Net::TraverseAddressFromHost("192.168.2.1", list);
 
-		EXPECT_EQ(list.size(), 1);
+		EXPECT_EQ(list.size(), static_cast<std::size_t>(1));
 		EXPECT_STREQ(list[list.size() - 1].c_str(), "192.168.2.1");
 	}
 
 	EXPECT_STREQ(tinyToolkit::Net::AsString(16951488).c_str(), "1.2.168.192");
 	EXPECT_STREQ(tinyToolkit::Net::AsString(3232236033).c_str(), "192.168.2.1");
 
-	EXPECT_EQ(tinyToolkit::Net::AsNetByte("192.168.2.1"), 16951488);
-	EXPECT_EQ(tinyToolkit::Net::AsNetByte("1.2.168.192"), 3232236033);
+	EXPECT_EQ(tinyToolkit::Net::AsNetByte("192.168.2.1"), static_cast<uint32_t>(16951488));
+	EXPECT_EQ(tinyToolkit::Net::AsNetByte("1.2.168.192"), static_cast<uint32_t>(3232236033));
 
-	EXPECT_EQ(tinyToolkit::Net::AsHostByte("192.168.2.1"), 3232236033);
-	EXPECT_EQ(tinyToolkit::Net::AsHostByte("1.2.168.192"), 16951488);
+	EXPECT_EQ(tinyToolkit::Net::AsHostByte("192.168.2.1"), static_cast<uint32_t>(3232236033));
+	EXPECT_EQ(tinyToolkit::Net::AsHostByte("1.2.168.192"), static_cast<uint32_t>(16951488));
 
 	{
 		uint32_t head = 0;
@@ -1303,6 +1303,36 @@ TEST(Utilities, Time)
 }
 
 
+TEST(Utilities, Defer)
+{
+	int i = 0;
+
+	{
+		TINY_TOOLKIT_DEFER [&]()
+		{
+			EXPECT_EQ(i, 200);
+
+			i += 100;
+
+			EXPECT_EQ(i, 300);
+		};
+
+		TINY_TOOLKIT_DEFER [&]()
+		{
+			EXPECT_EQ(i, 0);
+
+			i += 200;
+
+			EXPECT_EQ(i, 200);
+		};
+
+		EXPECT_EQ(i, 0);
+	}
+
+	EXPECT_EQ(i, 300);
+}
+
+
 TEST(Utilities, Option)
 {
 	tinyToolkit::OptionManager manager;
@@ -1370,8 +1400,8 @@ TEST(Utilities, String)
 	EXPECT_FALSE(tinyToolkit::String::EndWith("123456", "55"));
 	EXPECT_FALSE(tinyToolkit::String::StartWith("123456", "13"));
 
-	EXPECT_EQ(tinyToolkit::String::Split("121545-fdsa-23242-sdf8967sdf-es5dsfsd", "-").size(), 5);
-	EXPECT_EQ(tinyToolkit::String::SplitLines("121545\nfdsa\r\n23242\rsdf8967sdf\nes5dsfsd").size(), 5);
+	EXPECT_EQ(tinyToolkit::String::Split("121545-fdsa-23242-sdf8967sdf-es5dsfsd", "-").size(), static_cast<uint32_t>(5));
+	EXPECT_EQ(tinyToolkit::String::SplitLines("121545\nfdsa\r\n23242\rsdf8967sdf\nes5dsfsd").size(), static_cast<uint32_t>(5));
 	EXPECT_EQ(tinyToolkit::String::Transform<int32_t>("123456789.123456789"), 123456789);
 	EXPECT_EQ(tinyToolkit::String::Transform<int32_t>(std::string("123456789.123456789")), 123456789);
 	EXPECT_EQ(tinyToolkit::String::Transform<double>("123456789"), 123456789.0);
@@ -1451,23 +1481,23 @@ TEST(Utilities, Operator)
 {
 	std::vector<int32_t> vec;
 
-	EXPECT_EQ(vec.size(), 0);
+	EXPECT_EQ(vec.size(), static_cast<std::size_t>(0));
 
 	vec.push_back(1);
 	vec.push_back(2);
 
-	EXPECT_EQ(vec.size(), 2);
+	EXPECT_EQ(vec.size(), static_cast<std::size_t>(2));
 
 	tinyToolkit::Operator::Clear(vec);
 
-	EXPECT_EQ(vec.size(), 0);
+	EXPECT_EQ(vec.size(), static_cast<std::size_t>(0));
 
 	vec.push_back(3);
 	vec.push_back(4);
 	vec.push_back(5);
 	vec.push_back(6);
 
-	EXPECT_EQ(vec.size(), 4);
+	EXPECT_EQ(vec.size(), static_cast<std::size_t>(4));
 }
 
 
@@ -1517,10 +1547,10 @@ TEST(Utilities, Filesystem)
 	EXPECT_TRUE(tinyToolkit::Filesystem::Rename(s1, sa));
 	EXPECT_TRUE(tinyToolkit::Filesystem::Rename(s2, sb));
 
-	EXPECT_EQ(tinyToolkit::Filesystem::Size(sa), 0);
+	EXPECT_EQ(tinyToolkit::Filesystem::Size(sa), static_cast<std::size_t>(0));
 	EXPECT_EQ(tinyToolkit::Filesystem::Size(sb), 5 + strlen(TINY_TOOLKIT_EOL) * strVector.size());
 
-	EXPECT_EQ(tinyToolkit::Filesystem::ReadFile(sa).size(), 0);
+	EXPECT_EQ(tinyToolkit::Filesystem::ReadFile(sa).size(), static_cast<std::size_t>(0));
 	EXPECT_EQ(tinyToolkit::Filesystem::ReadFile(sb, true).size(), strVector.size());
 
 	EXPECT_TRUE(tinyToolkit::Filesystem::WriteFile(sa, "this is a.txt"));
@@ -1540,15 +1570,15 @@ TEST(Utilities, Filesystem)
 	EXPECT_FALSE(tinyToolkit::Filesystem::IsDirectory(sa));
 	EXPECT_FALSE(tinyToolkit::Filesystem::IsDirectory(sb));
 
-	EXPECT_EQ(tinyToolkit::Filesystem::TraverseFile(sf).size(), 2);
-	EXPECT_EQ(tinyToolkit::Filesystem::TraverseFile(sf, true).size(), 2);
-	EXPECT_EQ(tinyToolkit::Filesystem::TraverseFile(sf, std::regex(".*.txt")).size(), 2);
-	EXPECT_EQ(tinyToolkit::Filesystem::TraverseFile(sf, std::regex(".*.txt"), true).size(), 2);
+	EXPECT_EQ(tinyToolkit::Filesystem::TraverseFile(sf).size(), static_cast<std::size_t>(2));
+	EXPECT_EQ(tinyToolkit::Filesystem::TraverseFile(sf, true).size(), static_cast<std::size_t>(2));
+	EXPECT_EQ(tinyToolkit::Filesystem::TraverseFile(sf, std::regex(".*.txt")).size(), static_cast<std::size_t>(2));
+	EXPECT_EQ(tinyToolkit::Filesystem::TraverseFile(sf, std::regex(".*.txt"), true).size(), static_cast<std::size_t>(2));
 
-	EXPECT_EQ(tinyToolkit::Filesystem::TraverseDirectory(".").size(), 4);
-	EXPECT_EQ(tinyToolkit::Filesystem::TraverseDirectory(".", true).size(), 7);
-	EXPECT_EQ(tinyToolkit::Filesystem::TraverseDirectory(".", std::regex(".*log")).size(), 1);
-	EXPECT_EQ(tinyToolkit::Filesystem::TraverseDirectory(".", std::regex(".*log"), true).size(), 1);
+	EXPECT_EQ(tinyToolkit::Filesystem::TraverseDirectory(".").size(), static_cast<std::size_t>(4));
+	EXPECT_EQ(tinyToolkit::Filesystem::TraverseDirectory(".", true).size(), static_cast<std::size_t>(7));
+	EXPECT_EQ(tinyToolkit::Filesystem::TraverseDirectory(".", std::regex(".*log")).size(), static_cast<std::size_t>(1));
+	EXPECT_EQ(tinyToolkit::Filesystem::TraverseDirectory(".", std::regex(".*log"), true).size(), static_cast<std::size_t>(1));
 }
 
 

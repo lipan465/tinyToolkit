@@ -33,6 +33,13 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 析构函数
+		 *
+		 */
+		~TimerNode();
+
+		/**
+		 *
 		 * 杀死
 		 *
 		 */

@@ -22,6 +22,8 @@ namespace tinyToolkit
 
 	/// todo
 
+	static std::unordered_map<std::string, tinyToolkit::IUDPSession *> sContainer{};
+
 #else
 
 	static std::unordered_map<std::string, tinyToolkit::IUDPSession *> sContainer{ };

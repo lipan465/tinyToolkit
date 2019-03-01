@@ -140,7 +140,7 @@ namespace tinyToolkit
 				{
 					do
 					{
-						if (strcmp(pe32.szExeFile, pName) == 0)
+						if (strcmp(process.szExeFile, Name().c_str()) == 0)
 						{
 							find = true;
 

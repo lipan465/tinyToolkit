@@ -9,11 +9,95 @@
 
 #include "manager.h"
 
+#include "../debug/trace.h"
 #include "../utilities/time.h"
+#include "../pool/application.h"
+#include "../utilities/operator.h"
 
 
 namespace tinyToolkit
 {
+	class TINY_TOOLKIT_API InstanceTimerEvent;
+
+	ApplicationPool<InstanceTimerEvent> sApplicationPool;
+
+	class TINY_TOOLKIT_API InstanceTimerEvent : public ITimerEvent
+	{
+	public:
+		/**
+		 *
+		 * 构造函数
+		 *
+		 * @param function 函数
+		 *
+		 */
+		explicit InstanceTimerEvent(std::function<void()> function) : _function(std::move(function))
+		{
+
+		}
+
+		/**
+		 *
+		 * 析构函数
+		 *
+		 */
+		~InstanceTimerEvent() override = default;
+
+		/**
+		 *
+		 * 暂停事件调用回调函数
+		 *
+		 */
+		void OnPause() override
+		{
+
+		}
+
+		/**
+		 *
+		 * 恢复事件调用回调函数
+		 *
+		 */
+		void OnResume() override
+		{
+
+		}
+
+		/**
+		 *
+		 * 触发事件调用回调函数
+		 *
+		 */
+		void OnTrigger() override
+		{
+			if (_function)
+			{
+				_function();
+			}
+		}
+
+		/**
+		 *
+		 * 结束事件调用回调函数
+		 *
+		 * @param forced 强制性
+		 *
+		 */
+		void OnFinish(bool forced) override
+		{
+			(void)forced;
+
+			sApplicationPool.Recover(this);
+		}
+
+	private:
+		std::function<void()> _function{ };
+	};
+
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 	/**
 	 *
 	 * 构造函数
@@ -71,19 +155,25 @@ namespace tinyToolkit
 	 *
 	 * @param event 事件
 	 *
+	 * @return 是否关闭成功
+	 *
 	 */
-	void TimerManager::Kill(ITimerEvent * event)
+	bool TimerManager::Kill(ITimerEvent * event)
 	{
+		TINY_TOOLKIT_ASSERT(event, "Timer event null");
+
 		auto find = _manager.find(event);
 
 		if (find == _manager.end())
 		{
-			return;
+			return false;
 		}
 
 		auto node = find->second;
 
 		node->Kill();
+
+		return true;
 	}
 
 	/**
@@ -92,14 +182,18 @@ namespace tinyToolkit
 	 *
 	 * @param event 事件
 	 *
+	 * @return 是否暂停成功
+	 *
 	 */
-	void TimerManager::Pause(ITimerEvent * event)
+	bool TimerManager::Pause(ITimerEvent * event)
 	{
+		TINY_TOOLKIT_ASSERT(event, "Timer event null");
+
 		auto find = _normalList.find(event);
 
 		if (find == _normalList.end())
 		{
-			return;
+			return false;
 		}
 
 		auto node = find->second;
@@ -109,6 +203,8 @@ namespace tinyToolkit
 		_normalList.erase(find);
 
 		_pauseList.insert(std::make_pair(event, node));
+
+		return true;
 	}
 
 	/**
@@ -117,14 +213,18 @@ namespace tinyToolkit
 	 *
 	 * @param event 事件
 	 *
+	 * @return 是否恢复成功
+	 *
 	 */
-	void TimerManager::Resume(ITimerEvent * event)
+	bool TimerManager::Resume(ITimerEvent * event)
 	{
+		TINY_TOOLKIT_ASSERT(event, "Timer event null");
+
 		auto find = _pauseList.find(event);
 
 		if (find == _pauseList.end())
 		{
-			return;
+			return false;
 		}
 
 		auto node = find->second;
@@ -136,6 +236,8 @@ namespace tinyToolkit
 		_pauseList.erase(find);
 
 		_normalList.insert(std::make_pair(event, node));
+
+		return true;
 	}
 
 	/**
@@ -146,9 +248,13 @@ namespace tinyToolkit
 	 * @param count 次数
 	 * @param interval 间隔(毫秒)
 	 *
+	 * @return 是否启动成功
+	 *
 	 */
-	void TimerManager::Start(ITimerEvent * event, int64_t count, std::time_t interval)
+	bool TimerManager::Start(ITimerEvent * event, int64_t count, std::time_t interval)
 	{
+		TINY_TOOLKIT_ASSERT(event, "Timer event null");
+
 		if (_manager.find(event) == _manager.end())
 		{
 			auto node = new TimerNode(event, count, interval + _tickTime, interval);
@@ -158,6 +264,45 @@ namespace tinyToolkit
 			_manager.insert(std::make_pair(event, node));
 
 			_normalList.insert(std::make_pair(event, node));
+
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	/**
+	 *
+	 * 启动事件
+	 *
+	 * @param function 函数
+	 * @param count 次数
+	 * @param interval 间隔(毫秒)
+	 *
+	 * @return 是否启动成功
+	 *
+	 */
+	bool TimerManager::Start(std::function<void()> function, int64_t count, std::time_t interval)
+	{
+		auto event = sApplicationPool.Create(std::move(function));
+
+		if (_manager.find(event) == _manager.end())
+		{
+			auto node = new TimerNode(event, count, interval + _tickTime, interval);
+
+			AddNode(node);
+
+			_manager.insert(std::make_pair(event, node));
+
+			_normalList.insert(std::make_pair(event, node));
+
+			return true;
+		}
+		else
+		{
+			return false;
 		}
 	}
 
@@ -362,7 +507,7 @@ namespace tinyToolkit
 			}
 		}
 
-		spokesList.clear();
+		Operator::Clear(spokesList);
 	}
 
 	/**

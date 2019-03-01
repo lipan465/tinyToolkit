@@ -472,11 +472,11 @@ namespace tinyToolkit
 		 *
 		 */
 		template <typename TypeT, typename... Args>
-		static std::string Splice(TypeT && value, Args &&... args)
+		static std::string Join(TypeT && value, Args && ... args)
 		{
 			std::stringstream stream;
 
-			SpliceStream(stream, std::forward<TypeT>(value), std::forward<Args>(args)...);
+			JoinStream(stream, std::forward<TypeT>(value), std::forward<Args>(args)...);
 
 			return stream.str();
 		}
@@ -492,7 +492,7 @@ namespace tinyToolkit
 		*
 		*/
 		template <typename TypeT>
-		static void SpliceStream(std::stringstream & stream, TypeT && value)
+		static void JoinStream(std::stringstream & stream, TypeT && value)
 		{
 			stream << std::forward<TypeT>(value);
 		}
@@ -510,10 +510,10 @@ namespace tinyToolkit
 		*
 		*/
 		template <typename TypeT, typename... Args>
-		static void SpliceStream(std::stringstream & stream, TypeT && value, Args &&... args)
+		static void JoinStream(std::stringstream & stream, TypeT && value, Args && ... args)
 		{
-			SpliceStream(stream, std::forward<TypeT>(value));
-			SpliceStream(stream, Splice(std::forward<Args>(args)...));
+			JoinStream(stream, std::forward<TypeT>(value));
+			JoinStream(stream, Join(std::forward<Args>(args)...));
 		}
 
 		/**

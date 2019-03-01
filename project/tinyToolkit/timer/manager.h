@@ -56,8 +56,10 @@ namespace tinyToolkit
 		 *
 		 * @param event 事件
 		 *
+		 * @return 是否关闭成功
+		 *
 		 */
-		void Kill(ITimerEvent * event);
+		bool Kill(ITimerEvent * event);
 
 		/**
 		 *
@@ -65,8 +67,10 @@ namespace tinyToolkit
 		 *
 		 * @param event 事件
 		 *
+		 * @return 是否暂停成功
+		 *
 		 */
-		void Pause(ITimerEvent * event);
+		bool Pause(ITimerEvent * event);
 
 		/**
 		 *
@@ -74,8 +78,10 @@ namespace tinyToolkit
 		 *
 		 * @param event 事件
 		 *
+		 * @return 是否恢复成功
+		 *
 		 */
-		void Resume(ITimerEvent * event);
+		bool Resume(ITimerEvent * event);
 
 		/**
 		 *
@@ -85,8 +91,23 @@ namespace tinyToolkit
 		 * @param count 次数
 		 * @param interval 间隔(毫秒)
 		 *
+		 * @return 是否启动成功
+		 *
 		 */
-		void Start(ITimerEvent * event, int64_t count, std::time_t interval);
+		bool Start(ITimerEvent * event, int64_t count, std::time_t interval);
+
+		/**
+		 *
+		 * 启动事件
+		 *
+		 * @param function 函数
+		 * @param count 次数
+		 * @param interval 间隔(毫秒)
+		 *
+		 * @return 是否启动成功
+		 *
+		 */
+		bool Start(std::function<void()> function, int64_t count, std::time_t interval);
 
 	protected:
 		/**

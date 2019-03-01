@@ -44,7 +44,7 @@ INCLUDE(CheckInstallPrefix)
 #
 TRAVERSE_INCLUDE(
 		${PROJECT_SOURCE_DIR}/
-		${PROJECT_SOURCE_DIR}/include)
+		${PROJECT_SOURCE_DIR}/project)
 
 
 #

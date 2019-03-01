@@ -32,6 +32,16 @@ namespace tinyToolkit
 
 	/**
 	 *
+	 * 析构函数
+	 *
+	 */
+	TimerNode::~TimerNode()
+	{
+		Kill();
+	}
+
+	/**
+	 *
 	 * 杀死
 	 *
 	 */
@@ -41,7 +51,10 @@ namespace tinyToolkit
 		{
 			_isValid = false;
 
-			_event->OnFinish(true);
+			if (_event)
+			{
+				_event->OnFinish(true);
+			}
 		}
 	}
 
@@ -58,7 +71,10 @@ namespace tinyToolkit
 
 			if (_count != 0)
 			{
-				_event->OnTrigger();
+				if (_event)
+				{
+					_event->OnTrigger();
+				}
 			}
 
 			if (_count > 0)
@@ -71,7 +87,10 @@ namespace tinyToolkit
 		{
 			_isValid = false;
 
-			_event->OnFinish(false);
+			if (_event)
+			{
+				_event->OnFinish(false);
+			}
 		}
 	}
 
@@ -90,7 +109,10 @@ namespace tinyToolkit
 
 			_pauseTick = tick;
 
-			_event->OnPause();
+			if (_event)
+			{
+				_event->OnPause();
+			}
 		}
 	}
 
@@ -109,7 +131,10 @@ namespace tinyToolkit
 
 			_isPause = false;
 
-			_event->OnResume();
+			if (_event)
+			{
+				_event->OnResume();
+			}
 		}
 	}
 

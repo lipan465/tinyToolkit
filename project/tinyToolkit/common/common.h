@@ -70,7 +70,9 @@
 #
 #  include <io.h>
 #  include <direct.h>
+#  include <Ws2tcpip.h>
 #  include <windows.h>
+#  include <tlhelp32.h>
 #
 #  define strcasecmp _stricmp
 #

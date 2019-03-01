@@ -51,6 +51,14 @@
 #include "net/session.h"
 #include "net/manager.h"
 
+/// test
+#include "test/case.h"
+#include "test/info.h"
+#include "test/unit.h"
+#include "test/result.h"
+#include "test/compare.h"
+#include "test/environment.h"
+
 /// pool
 #include "pool/thread.h"
 #include "pool/callback.h"
@@ -69,6 +77,7 @@
 /// logic
 #include "logic/module.h"
 #include "logic/manager.h"
+#include "logic/template.h"
 
 /// common
 #include "common/macro.h"

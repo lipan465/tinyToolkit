@@ -638,7 +638,7 @@ namespace tinyToolkit
 
 			if (_socket == -1)
 			{
-				TINY_TOOLKIT_ASSERT(false, "create net manager socket error : {}", OS::LastErrorMessage())
+				TINY_TOOLKIT_ASSERT(false, "create net manager socket error : {}", OS::LastErrorMessage());
 
 				return false;
 			}
@@ -680,7 +680,7 @@ namespace tinyToolkit
 			{
 				if (errno != EINTR)
 				{
-					TINY_TOOLKIT_ASSERT(false, OS::LastErrorMessage())
+					TINY_TOOLKIT_ASSERT(false, OS::LastErrorMessage());
 
 					return;
 				}

@@ -486,7 +486,7 @@ namespace tinyToolkit
 
 			default:
 			{
-				TINY_TOOLKIT_ASSERT(false, "TCPSessionPipe type error : {}", netEvent->_socket)
+				TINY_TOOLKIT_ASSERT(false, "TCPSessionPipe type error : {}", netEvent->_socket);
 
 				break;
 			}
@@ -754,7 +754,7 @@ namespace tinyToolkit
 
 			default:
 			{
-				TINY_TOOLKIT_ASSERT(false, "TCPServerPipe type error : {}", netEvent->_socket)
+				TINY_TOOLKIT_ASSERT(false, "TCPServerPipe type error : {}", netEvent->_socket);
 
 				break;
 			}

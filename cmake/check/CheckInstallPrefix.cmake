@@ -1,9 +1,9 @@
 #
 # 检测安装路径
 #
-IF (NOT CMAKE_INSTALL_PREFIX)
+IF(NOT CMAKE_INSTALL_PREFIX)
 
-	IF (WIN32)
+	IF(WIN32)
 
 		SET(CMAKE_INSTALL_PREFIX "/usr")
 
@@ -48,10 +48,10 @@ ENDIF()
 #
 # 打印安装路径
 #
-MESSAGE(STATUS "Install binary  prefix : " ${BINARY_INSTALL_PREFIX})
-MESSAGE(STATUS "Install library prefix : " ${LIBRARY_INSTALL_PREFIX})
-MESSAGE(STATUS "Install include prefix : " ${INCLUDE_INSTALL_PREFIX})
+MESSAGE(STATUS "Install tinyToolkit       binary  prefix : " ${BINARY_INSTALL_PREFIX})
+MESSAGE(STATUS "Install tinyToolkit       library prefix : " ${LIBRARY_INSTALL_PREFIX})
+MESSAGE(STATUS "Install tinyToolkit       include prefix : " ${INCLUDE_INSTALL_PREFIX})
 
-MESSAGE(STATUS "Install extra binary  prefix : " ${EXTRA_BINARY_INSTALL_PREFIX})
-MESSAGE(STATUS "Install extra library prefix : " ${EXTRA_LIBRARY_INSTALL_PREFIX})
-MESSAGE(STATUS "Install extra include prefix : " ${EXTRA_INCLUDE_INSTALL_PREFIX})
+MESSAGE(STATUS "Install tinyToolkit-extra binary  prefix : " ${EXTRA_BINARY_INSTALL_PREFIX})
+MESSAGE(STATUS "Install tinyToolkit-extra library prefix : " ${EXTRA_LIBRARY_INSTALL_PREFIX})
+MESSAGE(STATUS "Install tinyToolkit-extra include prefix : " ${EXTRA_INCLUDE_INSTALL_PREFIX})

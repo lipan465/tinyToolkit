@@ -317,7 +317,7 @@ namespace tinyToolkit
 		{
 			Update();
 
-			TINY_TOOLKIT_SLEEP_MS(5)
+			TINY_TOOLKIT_SLEEP_MS(2);
 		}
 	}
 

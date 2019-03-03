@@ -70,25 +70,25 @@ namespace tinyToolkit
 		mutable std::string _message{ };
 	};
 
-	INHERITANCE_DECLARE(Exception, IException)
-	INHERITANCE_DECLARE(IOException, IException)
-	INHERITANCE_DECLARE(KeyException, IException)
-	INHERITANCE_DECLARE(SizeException, IException)
-	INHERITANCE_DECLARE(FileException, IException)
-	INHERITANCE_DECLARE(TypeException, IException)
-	INHERITANCE_DECLARE(ValueException, IException)
-	INHERITANCE_DECLARE(IndexException, IException)
-	INHERITANCE_DECLARE(AssertException, IException)
-	INHERITANCE_DECLARE(MemoryException, IException)
-	INHERITANCE_DECLARE(ThreadException, IException)
-	INHERITANCE_DECLARE(ProcessException, IException)
-	INHERITANCE_DECLARE(ParsingException, IException)
-	INHERITANCE_DECLARE(NotFoundException, IException)
-	INHERITANCE_DECLARE(NullPointException, IException)
-	INHERITANCE_DECLARE(DirectoryException, IException)
-	INHERITANCE_DECLARE(ArgumentsException, IException)
-	INHERITANCE_DECLARE(SystemExitException, IException)
-	INHERITANCE_DECLARE(PermissionException, IException)
+	INHERITANCE_DECLARE(Exception, IException);
+	INHERITANCE_DECLARE(IOException, IException);
+	INHERITANCE_DECLARE(KeyException, IException);
+	INHERITANCE_DECLARE(SizeException, IException);
+	INHERITANCE_DECLARE(FileException, IException);
+	INHERITANCE_DECLARE(TypeException, IException);
+	INHERITANCE_DECLARE(ValueException, IException);
+	INHERITANCE_DECLARE(IndexException, IException);
+	INHERITANCE_DECLARE(AssertException, IException);
+	INHERITANCE_DECLARE(MemoryException, IException);
+	INHERITANCE_DECLARE(ThreadException, IException);
+	INHERITANCE_DECLARE(ProcessException, IException);
+	INHERITANCE_DECLARE(ParsingException, IException);
+	INHERITANCE_DECLARE(NotFoundException, IException);
+	INHERITANCE_DECLARE(NullPointException, IException);
+	INHERITANCE_DECLARE(DirectoryException, IException);
+	INHERITANCE_DECLARE(ArgumentsException, IException);
+	INHERITANCE_DECLARE(SystemExitException, IException);
+	INHERITANCE_DECLARE(PermissionException, IException);
 
 	class TINY_TOOLKIT_API ExceptionHelper
 	{
@@ -151,9 +151,9 @@ namespace tinyToolkit
 }
 
 
-#define TINY_TOOLKIT_EXCEPTION_THROW(type, ...)			tinyToolkit::ExceptionHelper::Throw<type>(TINY_TOOLKIT_FILE_LINE, ##__VA_ARGS__);
-#define TINY_TOOLKIT_EXCEPTION_CREATE(type, ...)		tinyToolkit::ExceptionHelper::Create<type>(TINY_TOOLKIT_FILE_LINE, ##__VA_ARGS__);
-#define TINY_TOOLKIT_EXCEPTION_CREATE_POINT(type, ...)	tinyToolkit::ExceptionHelper::CreatePoint<type>(TINY_TOOLKIT_FILE_LINE, ##__VA_ARGS__);
+#define TINY_TOOLKIT_EXCEPTION_THROW(type, ...)			tinyToolkit::ExceptionHelper::Throw<type>(TINY_TOOLKIT_FILE_LINE, ##__VA_ARGS__)
+#define TINY_TOOLKIT_EXCEPTION_CREATE(type, ...)		tinyToolkit::ExceptionHelper::Create<type>(TINY_TOOLKIT_FILE_LINE, ##__VA_ARGS__)
+#define TINY_TOOLKIT_EXCEPTION_CREATE_POINT(type, ...)	tinyToolkit::ExceptionHelper::CreatePoint<type>(TINY_TOOLKIT_FILE_LINE, ##__VA_ARGS__)
 
 
 #endif // __TINY_TOOLKIT__DEBUG__EXCEPTION__H__

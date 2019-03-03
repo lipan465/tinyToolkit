@@ -10,14 +10,28 @@
 #include "defer.h"
 
 
-/**
- *
- * 延时回调函数
- *
- * @param func 函数
- *
- */
-void DeferCallback(std::function<void()> * func)
+namespace tinyToolkit
 {
-	(*func)();
+	/**
+	 *
+	 * 构造函数
+	 *
+	 */
+	DeferHelper::DeferHelper(std::function<void ()> && func) : _func(std::move(func))
+	{
+
+	}
+
+	/**
+	 *
+	 * 析构函数
+	 *
+	 */
+	DeferHelper::~DeferHelper()
+	{
+		if (_func)
+		{
+			_func();
+		}
+	}
 }

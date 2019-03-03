@@ -162,7 +162,7 @@ namespace tinyToolkit
 				{
 					status = false;
 
-					TINY_TOOLKIT_ASSERT(false, gai_strerror(res))
+					TINY_TOOLKIT_ASSERT(false, gai_strerror(res));
 
 					break;
 				}
@@ -174,7 +174,7 @@ namespace tinyToolkit
 		{
 			status = false;
 
-			TINY_TOOLKIT_ASSERT(false, gai_strerror(res))
+			TINY_TOOLKIT_ASSERT(false, gai_strerror(res));
 		}
 
 		return status;

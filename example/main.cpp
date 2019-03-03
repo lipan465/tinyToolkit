@@ -47,7 +47,7 @@ static void SyncLogger(const std::shared_ptr<tinyToolkit::ILogSink> & sink, std:
 		logger->Fatal("this is {}", "Fatal");
 		logger->Emerg("this is {}", "Emerg");
 
-		TINY_TOOLKIT_LOG_INFO(logger, "this is {}", "Info")
+		TINY_TOOLKIT_LOG_INFO(logger, "this is {}", "Info");
 		TINY_TOOLKIT_LOG_DEBUG(logger, "this is {}", "Debug");
 		TINY_TOOLKIT_LOG_FATAL(logger, "this is {}", "Fatal");
 		TINY_TOOLKIT_LOG_EMERG(logger, "this is {}", "Emerg");
@@ -175,7 +175,7 @@ static void AsyncLogger(const std::shared_ptr<tinyToolkit::ILogSink> & sink, std
 				logger->Fatal("this is {}", "Fatal");
 				logger->Emerg("this is {}", "Emerg");
 
-				TINY_TOOLKIT_LOG_INFO(logger, "this is {}", "Info")
+				TINY_TOOLKIT_LOG_INFO(logger, "this is {}", "Info");
 				TINY_TOOLKIT_LOG_DEBUG(logger, "this is {}", "Debug");
 				TINY_TOOLKIT_LOG_FATAL(logger, "this is {}", "Fatal");
 				TINY_TOOLKIT_LOG_EMERG(logger, "this is {}", "Emerg");
@@ -329,7 +329,7 @@ TEST(Timer, EventNone)
 
 	EXPECT_FALSE(event->_forced);
 
-	TINY_TOOLKIT_SLEEP_MS(30)
+	TINY_TOOLKIT_SLEEP_MS(30);
 
 	EXPECT_EQ(event->_status, -1);
 
@@ -341,7 +341,7 @@ TEST(Timer, EventNone)
 
 	EXPECT_FALSE(event->_forced);
 
-	TINY_TOOLKIT_SLEEP_MS(30)
+	TINY_TOOLKIT_SLEEP_MS(30);
 
 	EXPECT_EQ(event->_status, -1);
 
@@ -353,7 +353,7 @@ TEST(Timer, EventNone)
 
 	EXPECT_FALSE(event->_forced);
 
-	TINY_TOOLKIT_SLEEP_MS(30)
+	TINY_TOOLKIT_SLEEP_MS(30);
 
 	EXPECT_EQ(event->_status, -1);
 
@@ -365,7 +365,7 @@ TEST(Timer, EventNone)
 
 	EXPECT_FALSE(event->_forced);
 
-	TINY_TOOLKIT_SLEEP_MS(30)
+	TINY_TOOLKIT_SLEEP_MS(30);
 
 	EXPECT_EQ(event->_status, -1);
 
@@ -385,7 +385,7 @@ TEST(Timer, EventCricle)
 
 	EXPECT_FALSE(event->_forced);
 
-	TINY_TOOLKIT_SLEEP_MS(30)
+	TINY_TOOLKIT_SLEEP_MS(30);
 
 	EXPECT_EQ(event->_status, 0);
 
@@ -397,7 +397,7 @@ TEST(Timer, EventCricle)
 
 	EXPECT_FALSE(event->_forced);
 
-	TINY_TOOLKIT_SLEEP_MS(30)
+	TINY_TOOLKIT_SLEEP_MS(30);
 
 	EXPECT_EQ(event->_status, 1);
 
@@ -409,7 +409,7 @@ TEST(Timer, EventCricle)
 
 	EXPECT_FALSE(event->_forced);
 
-	TINY_TOOLKIT_SLEEP_MS(30)
+	TINY_TOOLKIT_SLEEP_MS(30);
 
 	EXPECT_EQ(event->_status, 0);
 
@@ -421,7 +421,7 @@ TEST(Timer, EventCricle)
 
 	EXPECT_TRUE(event->_forced);
 
-	TINY_TOOLKIT_SLEEP_MS(30)
+	TINY_TOOLKIT_SLEEP_MS(30);
 
 	EXPECT_EQ(event->_status, -1);
 
@@ -441,7 +441,7 @@ TEST(Timer, EventLessCount)
 
 	EXPECT_FALSE(event->_forced);
 
-	TINY_TOOLKIT_SLEEP_MS(30)
+	TINY_TOOLKIT_SLEEP_MS(30);
 
 	EXPECT_EQ(event->_status, -1);
 
@@ -453,7 +453,7 @@ TEST(Timer, EventLessCount)
 
 	EXPECT_FALSE(event->_forced);
 
-	TINY_TOOLKIT_SLEEP_MS(30)
+	TINY_TOOLKIT_SLEEP_MS(30);
 
 	EXPECT_EQ(event->_status, -1);
 
@@ -465,7 +465,7 @@ TEST(Timer, EventLessCount)
 
 	EXPECT_FALSE(event->_forced);
 
-	TINY_TOOLKIT_SLEEP_MS(30)
+	TINY_TOOLKIT_SLEEP_MS(30);
 
 	EXPECT_EQ(event->_status, -1);
 
@@ -473,7 +473,7 @@ TEST(Timer, EventLessCount)
 
 	manager.Kill(event);
 
-	TINY_TOOLKIT_SLEEP_MS(30)
+	TINY_TOOLKIT_SLEEP_MS(30);
 
 	EXPECT_EQ(event->_status, -1);
 
@@ -493,7 +493,7 @@ TEST(Timer, EventGreaterCount)
 
 	EXPECT_FALSE(event->_forced);
 
-	TINY_TOOLKIT_SLEEP_MS(30)
+	TINY_TOOLKIT_SLEEP_MS(30);
 
 	EXPECT_EQ(event->_status, 0);
 
@@ -505,7 +505,7 @@ TEST(Timer, EventGreaterCount)
 
 	EXPECT_FALSE(event->_forced);
 
-	TINY_TOOLKIT_SLEEP_MS(30)
+	TINY_TOOLKIT_SLEEP_MS(30);
 
 	EXPECT_EQ(event->_status, 1);
 
@@ -517,7 +517,7 @@ TEST(Timer, EventGreaterCount)
 
 	EXPECT_FALSE(event->_forced);
 
-	TINY_TOOLKIT_SLEEP_MS(30)
+	TINY_TOOLKIT_SLEEP_MS(30);
 
 	EXPECT_EQ(event->_status, 0);
 
@@ -525,7 +525,7 @@ TEST(Timer, EventGreaterCount)
 
 	manager.Kill(event);
 
-	TINY_TOOLKIT_SLEEP_MS(30)
+	TINY_TOOLKIT_SLEEP_MS(30);
 
 	EXPECT_EQ(event->_status, -1);
 
@@ -543,7 +543,7 @@ TEST(Timer, FunctionNone)
 
 	EXPECT_EQ(count, 0);
 
-	TINY_TOOLKIT_SLEEP_MS(30)
+	TINY_TOOLKIT_SLEEP_MS(30);
 
 	EXPECT_EQ(count, 0);
 }
@@ -559,7 +559,7 @@ TEST(Timer, FunctionCricle)
 
 	EXPECT_EQ(count, 0);
 
-	TINY_TOOLKIT_SLEEP_MS(30)
+	TINY_TOOLKIT_SLEEP_MS(30);
 
 	EXPECT_GE(count, 2);
 }
@@ -575,7 +575,7 @@ TEST(Timer, FunctionLessCount)
 
 	EXPECT_EQ(count, 0);
 
-	TINY_TOOLKIT_SLEEP_MS(30)
+	TINY_TOOLKIT_SLEEP_MS(30);
 
 	EXPECT_EQ(count, 2);
 }
@@ -590,7 +590,7 @@ TEST(Timer, FunctionGreaterCount)
 
 	EXPECT_EQ(count, 0);
 
-	TINY_TOOLKIT_SLEEP_MS(30)
+	TINY_TOOLKIT_SLEEP_MS(30);
 
 	EXPECT_GE(count, 2);
 }
@@ -1369,23 +1369,23 @@ TEST(Utilities, Defer)
 	int i = 0;
 
 	{
-		TINY_TOOLKIT_DEFER [&]()
-		{
+		TINY_TOOLKIT_DEFER
+		(
 			EXPECT_EQ(i, 200);
 
 			i += 100;
 
 			EXPECT_EQ(i, 300);
-		};
+		);
 
-		TINY_TOOLKIT_DEFER [&]()
-		{
+		TINY_TOOLKIT_DEFER
+		(
 			EXPECT_EQ(i, 0);
 
 			i += 200;
 
 			EXPECT_EQ(i, 200);
-		};
+		);
 
 		EXPECT_EQ(i, 0);
 	}

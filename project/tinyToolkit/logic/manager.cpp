@@ -105,7 +105,7 @@ namespace tinyToolkit
 
 		if (handle == nullptr)
 		{
-			TINY_TOOLKIT_ASSERT(false, "Load [{}] : {}", path, dlerror())
+			TINY_TOOLKIT_ASSERT(false, "Load [{}] : {}", path, dlerror());
 
 			return false;
 		}

@@ -1403,37 +1403,37 @@ namespace tinyToolkit
 };
 
 
-#define TINY_TOOLKIT_LOG_DEBUG(logger, fmt, ...)		tinyToolkit::LoggerHelper::Debug(logger, fmt, ##__VA_ARGS__);
-#define TINY_TOOLKIT_LOG_INFO(logger, fmt, ...)			tinyToolkit::LoggerHelper::Info(logger, fmt, ##__VA_ARGS__);
-#define TINY_TOOLKIT_LOG_NOTICE(logger, fmt, ...)		tinyToolkit::LoggerHelper::Notice(logger, fmt, ##__VA_ARGS__);
-#define TINY_TOOLKIT_LOG_WARNING(logger, fmt, ...)		tinyToolkit::LoggerHelper::Warning(logger, fmt, ##__VA_ARGS__);
-#define TINY_TOOLKIT_LOG_ERROR(logger, fmt, ...)		tinyToolkit::LoggerHelper::Error(logger, fmt, ##__VA_ARGS__);
-#define TINY_TOOLKIT_LOG_CRITICAL(logger, fmt, ...)		tinyToolkit::LoggerHelper::Critical(logger, fmt, ##__VA_ARGS__);
-#define TINY_TOOLKIT_LOG_ALERT(logger, fmt, ...)		tinyToolkit::LoggerHelper::Alert(logger, fmt, ##__VA_ARGS__);
-#define TINY_TOOLKIT_LOG_FATAL(logger, fmt, ...)		tinyToolkit::LoggerHelper::Fatal(logger, fmt, ##__VA_ARGS__);
-#define TINY_TOOLKIT_LOG_EMERG(logger, fmt, ...)		tinyToolkit::LoggerHelper::Emerg(logger, fmt, ##__VA_ARGS__);
+#define TINY_TOOLKIT_LOG_DEBUG(logger, fmt, ...)		tinyToolkit::LoggerHelper::Debug(logger, fmt, ##__VA_ARGS__)
+#define TINY_TOOLKIT_LOG_INFO(logger, fmt, ...)			tinyToolkit::LoggerHelper::Info(logger, fmt, ##__VA_ARGS__)
+#define TINY_TOOLKIT_LOG_NOTICE(logger, fmt, ...)		tinyToolkit::LoggerHelper::Notice(logger, fmt, ##__VA_ARGS__)
+#define TINY_TOOLKIT_LOG_WARNING(logger, fmt, ...)		tinyToolkit::LoggerHelper::Warning(logger, fmt, ##__VA_ARGS__)
+#define TINY_TOOLKIT_LOG_ERROR(logger, fmt, ...)		tinyToolkit::LoggerHelper::Error(logger, fmt, ##__VA_ARGS__)
+#define TINY_TOOLKIT_LOG_CRITICAL(logger, fmt, ...)		tinyToolkit::LoggerHelper::Critical(logger, fmt, ##__VA_ARGS__)
+#define TINY_TOOLKIT_LOG_ALERT(logger, fmt, ...)		tinyToolkit::LoggerHelper::Alert(logger, fmt, ##__VA_ARGS__)
+#define TINY_TOOLKIT_LOG_FATAL(logger, fmt, ...)		tinyToolkit::LoggerHelper::Fatal(logger, fmt, ##__VA_ARGS__)
+#define TINY_TOOLKIT_LOG_EMERG(logger, fmt, ...)		tinyToolkit::LoggerHelper::Emerg(logger, fmt, ##__VA_ARGS__)
 
 
-#define TINY_TOOLKIT_SYNC_LOG_DEBUG(fmt, ...)			tinyToolkit::LoggerHelper::Debug(tinyToolkit::SyncLogger::Instance(), fmt, ##__VA_ARGS__);
-#define TINY_TOOLKIT_SYNC_LOG_INFO(fmt, ...)			tinyToolkit::LoggerHelper::Info(tinyToolkit::SyncLogger::Instance(), fmt, ##__VA_ARGS__);
-#define TINY_TOOLKIT_SYNC_LOG_NOTICE(fmt, ...)			tinyToolkit::LoggerHelper::Notice(tinyToolkit::SyncLogger::Instance(), fmt, ##__VA_ARGS__);
-#define TINY_TOOLKIT_SYNC_LOG_WARNING(fmt, ...)			tinyToolkit::LoggerHelper::Warning(tinyToolkit::SyncLogger::Instance(), fmt, ##__VA_ARGS__);
-#define TINY_TOOLKIT_SYNC_LOG_ERROR(fmt, ...)			tinyToolkit::LoggerHelper::Error(tinyToolkit::SyncLogger::Instance(), fmt, ##__VA_ARGS__);
-#define TINY_TOOLKIT_SYNC_LOG_CRITICAL(fmt, ...)		tinyToolkit::LoggerHelper::Critical(tinyToolkit::SyncLogger::Instance(), fmt, ##__VA_ARGS__);
-#define TINY_TOOLKIT_SYNC_LOG_ALERT(fmt, ...)			tinyToolkit::LoggerHelper::Alert(tinyToolkit::SyncLogger::Instance(), fmt, ##__VA_ARGS__);
-#define TINY_TOOLKIT_SYNC_LOG_FATAL(fmt, ...)			tinyToolkit::LoggerHelper::Fatal(tinyToolkit::SyncLogger::Instance(), fmt, ##__VA_ARGS__);
-#define TINY_TOOLKIT_SYNC_LOG_EMERG(fmt, ...)			tinyToolkit::LoggerHelper::Emerg(tinyToolkit::SyncLogger::Instance(), fmt, ##__VA_ARGS__);
+#define TINY_TOOLKIT_SYNC_LOG_DEBUG(fmt, ...)			tinyToolkit::LoggerHelper::Debug(tinyToolkit::SyncLogger::Instance(), fmt, ##__VA_ARGS__)
+#define TINY_TOOLKIT_SYNC_LOG_INFO(fmt, ...)			tinyToolkit::LoggerHelper::Info(tinyToolkit::SyncLogger::Instance(), fmt, ##__VA_ARGS__)
+#define TINY_TOOLKIT_SYNC_LOG_NOTICE(fmt, ...)			tinyToolkit::LoggerHelper::Notice(tinyToolkit::SyncLogger::Instance(), fmt, ##__VA_ARGS__)
+#define TINY_TOOLKIT_SYNC_LOG_WARNING(fmt, ...)			tinyToolkit::LoggerHelper::Warning(tinyToolkit::SyncLogger::Instance(), fmt, ##__VA_ARGS__)
+#define TINY_TOOLKIT_SYNC_LOG_ERROR(fmt, ...)			tinyToolkit::LoggerHelper::Error(tinyToolkit::SyncLogger::Instance(), fmt, ##__VA_ARGS__)
+#define TINY_TOOLKIT_SYNC_LOG_CRITICAL(fmt, ...)		tinyToolkit::LoggerHelper::Critical(tinyToolkit::SyncLogger::Instance(), fmt, ##__VA_ARGS__)
+#define TINY_TOOLKIT_SYNC_LOG_ALERT(fmt, ...)			tinyToolkit::LoggerHelper::Alert(tinyToolkit::SyncLogger::Instance(), fmt, ##__VA_ARGS__)
+#define TINY_TOOLKIT_SYNC_LOG_FATAL(fmt, ...)			tinyToolkit::LoggerHelper::Fatal(tinyToolkit::SyncLogger::Instance(), fmt, ##__VA_ARGS__)
+#define TINY_TOOLKIT_SYNC_LOG_EMERG(fmt, ...)			tinyToolkit::LoggerHelper::Emerg(tinyToolkit::SyncLogger::Instance(), fmt, ##__VA_ARGS__)
 
 
-#define TINY_TOOLKIT_ASYNC_LOG_DEBUG(fmt, ...)			tinyToolkit::LoggerHelper::Debug(tinyToolkit::AsyncLogger::Instance(), fmt, ##__VA_ARGS__);
-#define TINY_TOOLKIT_ASYNC_LOG_INFO(fmt, ...)			tinyToolkit::LoggerHelper::Info(tinyToolkit::AsyncLogger::Instance(), fmt, ##__VA_ARGS__);
-#define TINY_TOOLKIT_ASYNC_LOG_NOTICE(fmt, ...)			tinyToolkit::LoggerHelper::Notice(tinyToolkit::AsyncLogger::Instance(), fmt, ##__VA_ARGS__);
-#define TINY_TOOLKIT_ASYNC_LOG_WARNING(fmt, ...)		tinyToolkit::LoggerHelper::Warning(tinyToolkit::AsyncLogger::Instance(), fmt, ##__VA_ARGS__);
-#define TINY_TOOLKIT_ASYNC_LOG_ERROR(fmt, ...)			tinyToolkit::LoggerHelper::Error(tinyToolkit::AsyncLogger::Instance(), fmt, ##__VA_ARGS__);
-#define TINY_TOOLKIT_ASYNC_LOG_CRITICAL(fmt, ...)		tinyToolkit::LoggerHelper::Critical(tinyToolkit::AsyncLogger::Instance(), fmt, ##__VA_ARGS__);
-#define TINY_TOOLKIT_ASYNC_LOG_ALERT(fmt, ...)			tinyToolkit::LoggerHelper::Alert(tinyToolkit::AsyncLogger::Instance(), fmt, ##__VA_ARGS__);
-#define TINY_TOOLKIT_ASYNC_LOG_FATAL(fmt, ...)			tinyToolkit::LoggerHelper::Fatal(tinyToolkit::AsyncLogger::Instance(), fmt, ##__VA_ARGS__);
-#define TINY_TOOLKIT_ASYNC_LOG_EMERG(fmt, ...)			tinyToolkit::LoggerHelper::Emerg(tinyToolkit::AsyncLogger::Instance(), fmt, ##__VA_ARGS__);
+#define TINY_TOOLKIT_ASYNC_LOG_DEBUG(fmt, ...)			tinyToolkit::LoggerHelper::Debug(tinyToolkit::AsyncLogger::Instance(), fmt, ##__VA_ARGS__)
+#define TINY_TOOLKIT_ASYNC_LOG_INFO(fmt, ...)			tinyToolkit::LoggerHelper::Info(tinyToolkit::AsyncLogger::Instance(), fmt, ##__VA_ARGS__)
+#define TINY_TOOLKIT_ASYNC_LOG_NOTICE(fmt, ...)			tinyToolkit::LoggerHelper::Notice(tinyToolkit::AsyncLogger::Instance(), fmt, ##__VA_ARGS__)
+#define TINY_TOOLKIT_ASYNC_LOG_WARNING(fmt, ...)		tinyToolkit::LoggerHelper::Warning(tinyToolkit::AsyncLogger::Instance(), fmt, ##__VA_ARGS__)
+#define TINY_TOOLKIT_ASYNC_LOG_ERROR(fmt, ...)			tinyToolkit::LoggerHelper::Error(tinyToolkit::AsyncLogger::Instance(), fmt, ##__VA_ARGS__)
+#define TINY_TOOLKIT_ASYNC_LOG_CRITICAL(fmt, ...)		tinyToolkit::LoggerHelper::Critical(tinyToolkit::AsyncLogger::Instance(), fmt, ##__VA_ARGS__)
+#define TINY_TOOLKIT_ASYNC_LOG_ALERT(fmt, ...)			tinyToolkit::LoggerHelper::Alert(tinyToolkit::AsyncLogger::Instance(), fmt, ##__VA_ARGS__)
+#define TINY_TOOLKIT_ASYNC_LOG_FATAL(fmt, ...)			tinyToolkit::LoggerHelper::Fatal(tinyToolkit::AsyncLogger::Instance(), fmt, ##__VA_ARGS__)
+#define TINY_TOOLKIT_ASYNC_LOG_EMERG(fmt, ...)			tinyToolkit::LoggerHelper::Emerg(tinyToolkit::AsyncLogger::Instance(), fmt, ##__VA_ARGS__)
 
 
 #endif // __TINY_TOOLKIT__LOG__LOGGER__H__

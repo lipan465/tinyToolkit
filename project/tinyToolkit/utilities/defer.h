@@ -14,23 +14,68 @@
 #include "../common/common.h"
 
 
-/**
- *
- * 延时回调函数
- *
- * @param func 函数
- *
- */
-void DeferCallback(std::function<void()> * func);
+namespace tinyToolkit
+{
+	class DeferHelper
+	{
+	public:
+		/**
+		 *
+		 * 构造函数
+		 *
+		 */
+		explicit DeferHelper(std::function<void ()> && func);
+
+		/**
+		 *
+		 * 移动构造函数
+		 *
+		 * @param rhs 右值对象
+		 *
+		 */
+		DeferHelper(DeferHelper && rhs) = delete;
+
+		/**
+		 *
+		 * 拷贝构造函数
+		 *
+		 * @param lhs 左值对象
+		 *
+		 */
+		DeferHelper(const DeferHelper & lhs) = delete;
+
+		/**
+		 *
+		 * 析构函数
+		 *
+		 */
+		~DeferHelper();
+
+		/**
+		 *
+		 * =操作符重载
+		 *
+		 * @param rhs 右值对象
+		 *
+		 */
+		void operator=(DeferHelper && rhs) = delete;
+
+		/**
+		 *
+		 * =操作符重载
+		 *
+		 * @param lhs 左值对象
+		 *
+		 */
+		void operator=(const DeferHelper & lhs) = delete;
+
+	private:
+		std::function<void ()> _func;
+	};
+}
 
 
-#define TINY_TOOLKIT_DEFER \
-	\
-	std::function<void()> \
-	\
-	TINY_TOOLKIT_JOIN_VALUE(_anonymous, __LINE__) \
-	\
-	__attribute__((cleanup(DeferCallback), unused)) =
+#define TINY_TOOLKIT_DEFER(event) tinyToolkit::DeferHelper TINY_TOOLKIT_JOIN_VALUE(_anonymous, __LINE__)([&](){ event; })
 
 
 #endif // __TINY_TOOLKIT__UTILITIES__DEFER__H__

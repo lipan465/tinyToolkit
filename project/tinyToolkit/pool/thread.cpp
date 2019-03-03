@@ -76,7 +76,7 @@ namespace tinyToolkit
 	{
 		while (!IsComplete())
 		{
-			TINY_TOOLKIT_SLEEP_MS(10)
+			TINY_TOOLKIT_SLEEP_MS(10);
 		}
 	}
 

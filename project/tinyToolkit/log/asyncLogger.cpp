@@ -72,7 +72,7 @@ namespace tinyToolkit
 	{
 		while (!_queue.empty())
 		{
-			TINY_TOOLKIT_YIELD()
+			TINY_TOOLKIT_YIELD();
 		}
 	}
 

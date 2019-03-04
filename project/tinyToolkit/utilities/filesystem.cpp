@@ -555,6 +555,8 @@ namespace tinyToolkit
 			dirEvent = readdir(dir);
 		}
 
+		closedir(dir);
+
 	#endif // TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 	}
 
@@ -671,6 +673,8 @@ namespace tinyToolkit
 
 			dirEvent = readdir(dir);
 		}
+
+		closedir(dir);
 
 	#endif // TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 	}
@@ -817,6 +821,8 @@ namespace tinyToolkit
 			dirEvent = readdir(dir);
 		}
 
+		closedir(dir);
+
 	#endif // TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 	}
 
@@ -929,6 +935,8 @@ namespace tinyToolkit
 
 			dirEvent = readdir(dir);
 		}
+
+		closedir(dir);
 
 	#endif // TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 	}

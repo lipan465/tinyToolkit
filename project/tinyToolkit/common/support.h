@@ -114,39 +114,34 @@
 #endif
 
 
-#ifdef TINY_TOOLKIT_API_USE_DYNAMIC_LINKING
+#if TINY_TOOLKIT_COMPILER == TINY_TOOLKIT_COMPILER_VC
 #
-#  if TINY_TOOLKIT_COMPILER == TINY_TOOLKIT_COMPILER_MICROSOFT
+#  define TINY_TOOLKIT_API_EXPORT __declspec(dllexport)
+#  define TINY_TOOLKIT_API_IMPORT __declspec(dllimport)
 #
-#    define TINY_TOOLKIT_API_EXPORT __declspec(dllexport)
-#    define TINY_TOOLKIT_API_IMPORT __declspec(dllimport)
+#elif TINY_TOOLKIT_COMPILER == TINY_TOOLKIT_COMPILER_GNU
 #
-#  elif TINY_TOOLKIT_COMPILER == TINY_TOOLKIT_COMPILER_GNU
-#
-#    define TINY_TOOLKIT_API_EXPORT __attribute__((visibility("default")))
-#    define TINY_TOOLKIT_API_IMPORT
-#
-#  else
-#
-#    error "compiler not supported!"
-#
-#  endif
+#  define TINY_TOOLKIT_API_EXPORT __attribute__((visibility("default")))
+#  define TINY_TOOLKIT_API_IMPORT
 #
 #else
 #
-#  define TINY_TOOLKIT_API_EXPORT
-#  define TINY_TOOLKIT_API_IMPORT
+#  error "compiler not supported!"
 #
 #endif
 
 
-#ifdef TINY_TOOLKIT_API_EXPORT_COMMON
+#ifdef TINY_TOOLKIT_API_NOT_COMMON
 #
-#  define TINY_TOOLKIT_API TINY_TOOLKIT_API_EXPORT
+#  define TINY_TOOLKIT_API
+#
+#elif defined(TINY_TOOLKIT_API_IMPORT_COMMON)
+#
+#  define TINY_TOOLKIT_API TINY_TOOLKIT_API_IMPORT
 #
 #else
 #
-#  define TINY_TOOLKIT_API TINY_TOOLKIT_API_IMPORT
+#  define TINY_TOOLKIT_API TINY_TOOLKIT_API_EXPORT
 #
 #endif
 

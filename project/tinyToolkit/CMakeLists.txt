@@ -30,21 +30,45 @@ IF(WIN32)
 	#
 	# fmt支持
 	#
-	TRAVERSE_LIBRARY_FOR_PROGRAM_NAME(${PROJECT_SOURCE_DIR}/project/library/fmt/windows/fmt.lib)
+	IF(CMAKE_BUILD_TYPE STREQUAL Debug)
+
+		TRAVERSE_LIBRARY_FOR_PROGRAM_NAME(${PROJECT_SOURCE_DIR}/project/library/fmt/windows/debug/fmtd.lib)
+
+	ELSE()
+
+		TRAVERSE_LIBRARY_FOR_PROGRAM_NAME(${PROJECT_SOURCE_DIR}/project/library/fmt/windows/release/fmt.lib)
+
+	ENDIF()
 
 ELSEIF(APPLE)
 
 	#
 	# fmt支持
 	#
-	TRAVERSE_LIBRARY_FOR_PROGRAM_NAME(${PROJECT_SOURCE_DIR}/project/library/fmt/apple/libfmt.a)
+	IF(CMAKE_BUILD_TYPE STREQUAL Debug)
+
+		TRAVERSE_LIBRARY_FOR_PROGRAM_NAME(${PROJECT_SOURCE_DIR}/project/library/fmt/apple/debug/libfmtd.a)
+
+	ELSE()
+
+		TRAVERSE_LIBRARY_FOR_PROGRAM_NAME(${PROJECT_SOURCE_DIR}/project/library/fmt/apple/release/libfmt.a)
+
+	ENDIF()
 
 ELSE()
 
 	#
 	# fmt支持
 	#
-	TRAVERSE_LIBRARY_FOR_PROGRAM_NAME(${PROJECT_SOURCE_DIR}/project/library/fmt/linux/libfmt.a)
+	IF(CMAKE_BUILD_TYPE STREQUAL Debug)
+
+		TRAVERSE_LIBRARY_FOR_PROGRAM_NAME(${PROJECT_SOURCE_DIR}/project/library/fmt/linux/debug/libfmtd.a)
+
+	ELSE()
+
+		TRAVERSE_LIBRARY_FOR_PROGRAM_NAME(${PROJECT_SOURCE_DIR}/project/library/fmt/linux/release/libfmt.a)
+
+	ENDIF()
 
 ENDIF()
 

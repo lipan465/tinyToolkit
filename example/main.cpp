@@ -63,7 +63,7 @@ TEST(LogSync, FileSink)
 {
 	std::size_t count = 100;
 
-	std::string fileName = tinyToolkit::String::Format("log{}syncFile.log", TINY_TOOLKIT_FOLDER_SEP);
+	std::string fileName = tinyToolkit::String::Format("{0}{1}log{1}syncFile.log", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP);
 	std::string realFileName = fileName;
 
 	auto sink = std::make_shared<tinyToolkit::FileLogSink>("syncFile", fileName, true);
@@ -106,8 +106,8 @@ TEST(LogSync, Syslog)
 TEST(LogSync, DailyFileSink)
 {
 	std::size_t count = 100;
-
-	std::string fileName = tinyToolkit::String::Format("log{}syncDailyFile.log", TINY_TOOLKIT_FOLDER_SEP);
+	
+	std::string fileName = tinyToolkit::String::Format("{0}{1}log{1}syncDailyFile.log", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP);
 	std::string realFileName = tinyToolkit::String::Format
 	(
 		"{}_{}{}",
@@ -140,8 +140,8 @@ TEST(LogSync, StringQueueSink)
 TEST(LogSync, RotatingFileSink)
 {
 	std::size_t count = 100;
-
-	std::string fileName = tinyToolkit::String::Format("log{}syncRotatingFile.log", TINY_TOOLKIT_FOLDER_SEP);
+	
+	std::string fileName = tinyToolkit::String::Format("{0}{1}log{1}syncRotatingFile.log", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP);
 	std::string realFileName = fileName;
 
 	auto sink = std::make_shared<tinyToolkit::RotatingFileLogSink>("syncRotatingFile", fileName, TINY_TOOLKIT_MB);
@@ -194,8 +194,8 @@ static void AsyncLogger(const std::shared_ptr<tinyToolkit::ILogSink> & sink, std
 TEST(LogAsync, FileSink)
 {
 	std::size_t count = 100;
-
-	std::string fileName = tinyToolkit::String::Format("log{}asyncFile.log", TINY_TOOLKIT_FOLDER_SEP);
+	
+	std::string fileName = tinyToolkit::String::Format("{0}{1}log{1}asyncFile.log", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP);
 	std::string realFileName = fileName;
 
 	auto sink = std::make_shared<tinyToolkit::FileLogSink>("asyncFile", fileName, true);
@@ -238,8 +238,8 @@ TEST(LogAsync, OStreamSink)
 TEST(LogAsync, DailyFileSink)
 {
 	std::size_t count = 100;
-
-	std::string fileName = tinyToolkit::String::Format("log{}asyncDailyFile.log", TINY_TOOLKIT_FOLDER_SEP);
+	
+	std::string fileName = tinyToolkit::String::Format("{0}{1}log{1}asyncDailyFile.log", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP);
 	std::string realFileName = tinyToolkit::String::Format
 			(
 					"{}_{}{}",
@@ -259,7 +259,7 @@ TEST(LogAsync, DailyFileSink)
 
 TEST(LogAsync, StringQueueSink)
 {
-	std::size_t count = 10000;
+	std::size_t count = 100;
 
 	auto sink = std::make_shared<tinyToolkit::StringQueueLogSink>("asyncStringQueue");
 
@@ -273,7 +273,7 @@ TEST(LogAsync, RotatingFileSink)
 {
 	std::size_t count = 100;
 
-	std::string fileName = tinyToolkit::String::Format("log{}asyncRotatingFile.log", TINY_TOOLKIT_FOLDER_SEP);
+	std::string fileName = tinyToolkit::String::Format("{0}{1}log{1}asyncRotatingFile.log", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP);
 	std::string realFileName = fileName;
 
 	auto sink = std::make_shared<tinyToolkit::RotatingFileLogSink>("asyncRotatingFile", fileName, TINY_TOOLKIT_MB);
@@ -370,6 +370,8 @@ TEST(Timer, EventNone)
 	EXPECT_EQ(event->_status, -1);
 
 	EXPECT_FALSE(event->_forced);
+
+	delete event;
 }
 
 
@@ -426,6 +428,8 @@ TEST(Timer, EventCricle)
 	EXPECT_EQ(event->_status, -1);
 
 	EXPECT_TRUE(event->_forced);
+
+	delete event;
 }
 
 
@@ -478,6 +482,8 @@ TEST(Timer, EventLessCount)
 	EXPECT_EQ(event->_status, -1);
 
 	EXPECT_FALSE(event->_forced);
+
+	delete event;
 }
 
 
@@ -530,6 +536,8 @@ TEST(Timer, EventGreaterCount)
 	EXPECT_EQ(event->_status, -1);
 
 	EXPECT_TRUE(event->_forced);
+
+	delete event;
 }
 
 
@@ -1171,13 +1179,20 @@ TEST(System, Application)
 
 TEST(Utilities, Net)
 {
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+	WSAData wsaData;
+
+	WSAStartup(MAKEWORD(2, 2), &wsaData);
+
+#endif
+
 	{
 		std::vector<std::string> list;
 
 		tinyToolkit::Net::TraverseAddressFromHost("127.0.0.1", list);
 
 		EXPECT_EQ(list.size(), static_cast<std::size_t>(1));
-		EXPECT_STR_EQ(list[list.size() - 1].c_str(), "127.0.0.1");
 	}
 
 	{
@@ -1186,7 +1201,6 @@ TEST(Utilities, Net)
 		tinyToolkit::Net::TraverseAddressFromHost("192.168.2.1", list);
 
 		EXPECT_EQ(list.size(), static_cast<std::size_t>(1));
-		EXPECT_STR_EQ(list[list.size() - 1].c_str(), "192.168.2.1");
 	}
 
 	EXPECT_STR_EQ(tinyToolkit::Net::AsString(16951488).c_str(), "1.2.168.192");
@@ -1277,6 +1291,12 @@ TEST(Utilities, Net)
 		EXPECT_EQ(head, tinyToolkit::Net::AsHostByte("192.168.2.1"));
 		EXPECT_EQ(tail, tinyToolkit::Net::AsHostByte("192.168.2.255"));
 	}
+
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+	WSACleanup();
+
+#endif
 }
 
 
@@ -1588,18 +1608,18 @@ TEST(Utilities, Filesystem)
 {
 	tinyToolkit::StringVector strVector{ "1", "2", "3", "", "", "6", "", "8" };
 
-	std::string sf = tinyToolkit::String::Format("fileSystem");
-	std::string s1 = tinyToolkit::String::Format("fileSystem{}1.txt", TINY_TOOLKIT_FOLDER_SEP);
-	std::string s2 = tinyToolkit::String::Format("fileSystem{}2.txt", TINY_TOOLKIT_FOLDER_SEP);
-	std::string sa = tinyToolkit::String::Format("fileSystem{}a.txt", TINY_TOOLKIT_FOLDER_SEP);
-	std::string sb = tinyToolkit::String::Format("fileSystem{}b.txt", TINY_TOOLKIT_FOLDER_SEP);
+	std::string sf = tinyToolkit::String::Format("{0}{1}fileSystem", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP);
+	std::string s1 = tinyToolkit::String::Format("{0}{1}fileSystem{1}1.txt", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP);
+	std::string s2 = tinyToolkit::String::Format("{0}{1}fileSystem{1}2.txt", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP);
+	std::string sa = tinyToolkit::String::Format("{0}{1}fileSystem{1}a.txt", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP);
+	std::string sb = tinyToolkit::String::Format("{0}{1}fileSystem{1}b.txt", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP);
 
-	EXPECT_TRUE(tinyToolkit::Filesystem::Exists(tinyToolkit::String::Format("f1{0}f2{0}f3{0}f4", TINY_TOOLKIT_FOLDER_SEP)));
+	EXPECT_TRUE(tinyToolkit::Filesystem::Exists(tinyToolkit::String::Format("{0}{1}f1{1}f2{1}f3{1}f4", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP)));
 
 	EXPECT_FALSE(tinyToolkit::Filesystem::Exists(s1));
 	EXPECT_FALSE(tinyToolkit::Filesystem::Exists(s2));
 
-	EXPECT_TRUE(tinyToolkit::Filesystem::CreateFile(s1));
+	EXPECT_TRUE(tinyToolkit::Filesystem::CreateFile(s1)) << strerror(errno);
 	EXPECT_TRUE(tinyToolkit::Filesystem::WriteFile(s2, strVector.begin(), strVector.end()));
 
 	EXPECT_TRUE(tinyToolkit::Filesystem::Exists(s1));
@@ -1636,10 +1656,10 @@ TEST(Utilities, Filesystem)
 	EXPECT_EQ(tinyToolkit::Filesystem::TraverseFile(sf, std::regex(".*.txt")).size(), static_cast<std::size_t>(2));
 	EXPECT_EQ(tinyToolkit::Filesystem::TraverseFile(sf, std::regex(".*.txt"), true).size(), static_cast<std::size_t>(2));
 
-	EXPECT_EQ(tinyToolkit::Filesystem::TraverseDirectory(".").size(), static_cast<std::size_t>(4));
-	EXPECT_EQ(tinyToolkit::Filesystem::TraverseDirectory(".", true).size(), static_cast<std::size_t>(7));
-	EXPECT_EQ(tinyToolkit::Filesystem::TraverseDirectory(".", std::regex(".*log")).size(), static_cast<std::size_t>(1));
-	EXPECT_EQ(tinyToolkit::Filesystem::TraverseDirectory(".", std::regex(".*log"), true).size(), static_cast<std::size_t>(1));
+	EXPECT_EQ(tinyToolkit::Filesystem::TraverseDirectory(tinyToolkit::Application::Directory()).size(), static_cast<std::size_t>(4));
+	EXPECT_EQ(tinyToolkit::Filesystem::TraverseDirectory(tinyToolkit::Application::Directory(), true).size(), static_cast<std::size_t>(7));
+	EXPECT_EQ(tinyToolkit::Filesystem::TraverseDirectory(tinyToolkit::Application::Directory(), std::regex(".*log")).size(), static_cast<std::size_t>(1));
+	EXPECT_EQ(tinyToolkit::Filesystem::TraverseDirectory(tinyToolkit::Application::Directory(), std::regex(".*log"), true).size(), static_cast<std::size_t>(1));
 }
 
 
@@ -1648,27 +1668,43 @@ class TestEnvironment : public tinyToolkit::TestEnvironment
 public:
 	void SetUp() override
 	{
-		tinyToolkit::Filesystem::CreateDirectory("log");
-		tinyToolkit::Filesystem::CreateDirectory("file");
-		tinyToolkit::Filesystem::CreateDirectory("fileSystem");
-		tinyToolkit::Filesystem::CreateDirectories(tinyToolkit::String::Format("f1{0}f2{0}f3{0}f4", TINY_TOOLKIT_FOLDER_SEP));
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		std::system(tinyToolkit::String::Format("rd /s /q {0}{1}f1", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP).c_str());
+		std::system(tinyToolkit::String::Format("rd /s /q {0}{1}log", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP).c_str());
+		std::system(tinyToolkit::String::Format("rd /s /q {0}{1}file", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP).c_str());
+		std::system(tinyToolkit::String::Format("rd /s /q {0}{1}fileSystem", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP).c_str());
+
+#else
+
+		std::system(tinyToolkit::String::Format("rm -rf {0}{1}f1", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP).c_str());
+		std::system(tinyToolkit::String::Format("rm -rf {0}{1}log", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP).c_str());
+		std::system(tinyToolkit::String::Format("rm -rf {0}{1}file", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP).c_str());
+		std::system(tinyToolkit::String::Format("rm -rf {0}{1}fileSystem", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP).c_str());
+
+#endif
+
+		tinyToolkit::Filesystem::CreateDirectory(tinyToolkit::String::Format("{0}{1}log", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP));
+		tinyToolkit::Filesystem::CreateDirectory(tinyToolkit::String::Format("{0}{1}file", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP));
+		tinyToolkit::Filesystem::CreateDirectory(tinyToolkit::String::Format("{0}{1}fileSystem", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP));
+		tinyToolkit::Filesystem::CreateDirectories(tinyToolkit::String::Format("{0}{1}f1{1}f2{1}f3{1}f4", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP));
 	}
 
 	void TearDown() override
 	{
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-		std::system("rd /s /q f1");
-		std::system("rd /s /q log");
-		std::system("rd /s /q file");
-		std::system("rd /s /q fileSystem");
+		std::system(tinyToolkit::String::Format("rd /s /q {0}{1}f1", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP).c_str());
+		std::system(tinyToolkit::String::Format("rd /s /q {0}{1}log", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP).c_str());
+		std::system(tinyToolkit::String::Format("rd /s /q {0}{1}file", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP).c_str());
+		std::system(tinyToolkit::String::Format("rd /s /q {0}{1}fileSystem", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP).c_str());
 
 #else
 
-		std::system("rm -rf f1");
-		std::system("rm -rf log");
-		std::system("rm -rf file");
-		std::system("rm -rf fileSystem");
+		std::system(tinyToolkit::String::Format("rm -rf {0}{1}f1", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP).c_str());
+		std::system(tinyToolkit::String::Format("rm -rf {0}{1}log", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP).c_str());
+		std::system(tinyToolkit::String::Format("rm -rf {0}{1}file", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP).c_str());
+		std::system(tinyToolkit::String::Format("rm -rf {0}{1}fileSystem", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP).c_str());
 
 #endif
 	}

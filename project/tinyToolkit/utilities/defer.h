@@ -16,7 +16,7 @@
 
 namespace tinyToolkit
 {
-	class DeferHelper
+	class TINY_TOOLKIT_API DeferHelper
 	{
 	public:
 		/**

@@ -636,7 +636,7 @@ namespace tinyToolkit
 					session->_remotePort = remotePort;
 					session->_remoteHost = remoteHost;
 
-					auto pipe = std::make_shared<TCPSessionPipe>(_managerEvent.socket, sock, session, NET_EVENT_TYPE::TRANSMIT);
+					auto pipe = std::make_shared<TCPSessionPipe>(_managerEvent, sock, session, NET_EVENT_TYPE::TRANSMIT);
 
 					struct kevent event[2]{ };
 

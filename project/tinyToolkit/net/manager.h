@@ -92,14 +92,14 @@ namespace tinyToolkit
 		 * 构造函数
 		 *
 		 */
-		NetWorkManager() = default;
+		NetWorkManager();
 
 		/**
 		 *
 		 * 析构函数
 		 *
 		 */
-		~NetWorkManager();
+		~NetWorkManager() override;
 
 		/**
 		 *
@@ -120,9 +120,9 @@ namespace tinyToolkit
 	private:
 		bool _status{ false };
 
-		int32_t _socket{ -1 };
-
 		std::thread _thread{ };
+
+		NetManagerEvent _event{ };
 	};
 }
 

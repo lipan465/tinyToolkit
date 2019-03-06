@@ -25,13 +25,13 @@ namespace tinyToolkit
 		 *
 		 * 构造函数
 		 *
-		 * @param managerSocket 管理句柄
-		 * @param sessionSocket 会话句柄
+		 * @param managerEvent 管理事件
+		 * @param socket 会话句柄
 		 * @param session 会话
-		 * @param netEventType 事件类型
+		 * @param type 事件类型
 		 *
 		 */
-		TCPSessionPipe(int32_t managerSocket, int32_t sessionSocket, ITCPSession * session, NET_EVENT_TYPE netEventType);
+		TCPSessionPipe(NetManagerEvent & managerEvent, int32_t socket, ITCPSession * session, NET_EVENT_TYPE type);
 
 		/**
 		 *
@@ -62,19 +62,21 @@ namespace tinyToolkit
 		 *
 		 * 连接处理
 		 *
+		 * @param netEvent 网络事件
 		 * @param sysEvent 系统事件
 		 *
 		 */
-		void DoConnect(const void * sysEvent);
+		void DoConnect(const NetEvent * netEvent, const void * sysEvent);
 
 		/**
 		 *
 		 * 交互处理
 		 *
+		 * @param netEvent 网络事件
 		 * @param sysEvent 系统事件
 		 *
 		 */
-		void DoTransmit(const void * sysEvent);
+		void DoTransmit(const NetEvent * netEvent, const void * sysEvent);
 
 		/**
 		 *
@@ -92,10 +94,11 @@ namespace tinyToolkit
 		NetEvent _netEvent{ };
 
 	private:
-		int32_t _managerSocket{ -1 };
-		int32_t _sessionSocket{ -1 };
+		int32_t _socket{ -1 };
 
 		ITCPSession * _session{ nullptr };
+
+		NetManagerEvent & _managerEvent;
 
 		std::queue<NetEventPackage> _sendQueue{ };
 	};
@@ -107,13 +110,13 @@ namespace tinyToolkit
 		 *
 		 * 构造函数
 		 *
-		 * @param managerSocket 管理句柄
-		 * @param sessionSocket 会话句柄
+		 * @param managerEvent 管理事件
+		 * @param socket 会话句柄
 		 * @param server 服务器
-		 * @param netEventType 事件类型
+		 * @param type 事件类型
 		 *
 		 */
-		TCPServerPipe(int32_t managerSocket, int32_t sessionSocket, ITCPServer * server, NET_EVENT_TYPE netEventType);
+		TCPServerPipe(NetManagerEvent & managerEvent, int32_t socket, ITCPServer * server, NET_EVENT_TYPE type);
 
 		/**
 		 *
@@ -144,10 +147,11 @@ namespace tinyToolkit
 		 *
 		 * 连接处理
 		 *
+		 * @param netEvent 网络事件
 		 * @param sysEvent 系统事件
 		 *
 		 */
-		void DoAccept(const void * sysEvent);
+		void DoAccept(const NetEvent * netEvent, const void * sysEvent);
 
 		/**
 		 *
@@ -163,10 +167,11 @@ namespace tinyToolkit
 		NetEvent _netEvent{ };
 
 	private:
-		int32_t _managerSocket{ -1 };
-		int32_t _sessionSocket{ -1 };
+		int32_t _socket{ -1 };
 
 		ITCPServer * _server{ nullptr };
+
+		NetManagerEvent & _managerEvent;
 	};
 }
 

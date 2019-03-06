@@ -23,10 +23,19 @@ namespace tinyToolkit
 		TRANSMIT,
 	};
 
+	typedef union
+	{
+		void * handle;
+
+		int32_t socket;
+	}NetManagerEvent;
+
 	class TINY_TOOLKIT_API NetEvent
 	{
 	public:
 		int32_t _socket{ -1 };
+
+		std::size_t _bytes{ 0 };
 
 		NET_EVENT_TYPE _type{ NET_EVENT_TYPE::TRANSMIT };
 

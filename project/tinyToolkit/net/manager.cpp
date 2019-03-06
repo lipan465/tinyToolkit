@@ -61,6 +61,24 @@ namespace tinyToolkit
 
 	/**
 	 *
+	 * 构造函数
+	 *
+	 */
+	NetWorkManager::NetWorkManager()
+	{
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		_event.handle = nullptr;
+
+#else
+
+		_event.socket = -1;
+
+#endif
+	}
+
+	/**
+	 *
 	 * 析构函数
 	 *
 	 */
@@ -75,12 +93,25 @@ namespace tinyToolkit
 				_thread.join();
 			}
 
-			if (_socket != -1)
-			{
-				::close(_socket);
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-				_socket = -1;
+			if (_event.handle)
+			{
+				CloseHandel(_event.handle);
+
+				_event.handle = nullptr;
 			}
+
+#else
+
+			if (_event.socket != -1)
+			{
+				::close(_event.socket);
+
+				_event.socket = -1;
+			}
+
+#endif
 		}
 	}
 
@@ -147,7 +178,7 @@ namespace tinyToolkit
 
 		GetLocalName(sock, client->_localHost, client->_localPort);
 
-		auto pipe = std::make_shared<UDPSessionPipe>(_socket, sock, client, NET_EVENT_TYPE::TRANSMIT);
+		auto pipe = std::make_shared<UDPSessionPipe>(_event, sock, client, NET_EVENT_TYPE::TRANSMIT);
 
 	#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
@@ -156,7 +187,7 @@ namespace tinyToolkit
 		EV_SET(&event[0], sock, EVFILT_READ,  EV_ADD | EV_ENABLE,  0, 0, (void *)&pipe->_netEvent);
 		EV_SET(&event[1], sock, EVFILT_WRITE, EV_ADD | EV_DISABLE, 0, 0, (void *)&pipe->_netEvent);
 
-		if (kevent(_socket, event, 2, nullptr, 0, nullptr) == -1)
+		if (kevent(_event.socket, event, 2, nullptr, 0, nullptr) == -1)
 		{
 			::close(sock);
 
@@ -182,7 +213,7 @@ namespace tinyToolkit
 		event.events = EPOLLIN;
 		event.data.ptr = &pipe->_netEvent;
 
-		if (epoll_ctl(_socket, EPOLL_CTL_ADD, sock, &event) == -1)
+		if (epoll_ctl(_event.socket, EPOLL_CTL_ADD, sock, &event) == -1)
 		{
 			::close(sock);
 
@@ -269,7 +300,7 @@ namespace tinyToolkit
 			return false;
 		}
 
-		auto pipe = std::make_shared<UDPServerPipe>(_socket, sock, server, NET_EVENT_TYPE::ACCEPT);
+		auto pipe = std::make_shared<UDPServerPipe>(_event, sock, server, NET_EVENT_TYPE::ACCEPT);
 
 	#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
@@ -278,7 +309,7 @@ namespace tinyToolkit
 		EV_SET(&event[0], sock, EVFILT_READ,  EV_ADD | EV_ENABLE,  0, 0, (void *)&pipe->_netEvent);
 		EV_SET(&event[1], sock, EVFILT_WRITE, EV_ADD | EV_DISABLE, 0, 0, (void *)&pipe->_netEvent);
 
-		if (kevent(_socket, event, 2, nullptr, 0, nullptr) == -1)
+		if (kevent(_event.socket, event, 2, nullptr, 0, nullptr) == -1)
 		{
 			::close(sock);
 
@@ -298,7 +329,7 @@ namespace tinyToolkit
 		event.events = EPOLLIN;
 		event.data.ptr = &pipe->_netEvent;
 
-		if (epoll_ctl(_socket, EPOLL_CTL_ADD, sock, &event) == -1)
+		if (epoll_ctl(_event.socket, EPOLL_CTL_ADD, sock, &event) == -1)
 		{
 			::close(sock);
 
@@ -377,7 +408,7 @@ namespace tinyToolkit
 		{
 			GetLocalName(sock, client->_localHost, client->_localPort);
 
-			auto pipe = std::make_shared<TCPSessionPipe>(_socket, sock, client, NET_EVENT_TYPE::TRANSMIT);
+			auto pipe = std::make_shared<TCPSessionPipe>(_event, sock, client, NET_EVENT_TYPE::TRANSMIT);
 
 		#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
@@ -386,7 +417,7 @@ namespace tinyToolkit
 			EV_SET(&event[0], sock, EVFILT_READ,  EV_ADD | EV_ENABLE,  0, 0, (void *)&pipe->_netEvent);
 			EV_SET(&event[1], sock, EVFILT_WRITE, EV_ADD | EV_DISABLE, 0, 0, (void *)&pipe->_netEvent);
 
-			if (kevent(_socket, event, 2, nullptr, 0, nullptr) == -1)
+			if (kevent(_event.socket, event, 2, nullptr, 0, nullptr) == -1)
 			{
 				::close(sock);
 
@@ -410,7 +441,7 @@ namespace tinyToolkit
 			event.events = EPOLLIN;
 			event.data.ptr = &pipe->_netEvent;
 
-			if (epoll_ctl(_socket, EPOLL_CTL_ADD, sock, &event) == -1)
+			if (epoll_ctl(_event.socket, EPOLL_CTL_ADD, sock, &event) == -1)
 			{
 				::close(sock);
 
@@ -441,7 +472,7 @@ namespace tinyToolkit
 		{
 			GetLocalName(sock, client->_localHost, client->_localPort);
 
-			auto pipe = std::make_shared<TCPSessionPipe>(_socket, sock, client, NET_EVENT_TYPE::CONNECT);
+			auto pipe = std::make_shared<TCPSessionPipe>(_event, sock, client, NET_EVENT_TYPE::CONNECT);
 
 		#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
@@ -450,7 +481,7 @@ namespace tinyToolkit
 			EV_SET(&event[0], sock, EVFILT_READ,  EV_ADD | EV_DISABLE, 0, 0, (void *)&pipe->_netEvent);
 			EV_SET(&event[1], sock, EVFILT_WRITE, EV_ADD | EV_ENABLE,  0, 0, (void *)&pipe->_netEvent);
 
-			if (kevent(_socket, event, 2, nullptr, 0, nullptr) == -1)
+			if (kevent(_event.socket, event, 2, nullptr, 0, nullptr) == -1)
 			{
 				::close(sock);
 
@@ -470,7 +501,7 @@ namespace tinyToolkit
 			event.events = EPOLLOUT;
 			event.data.ptr = &pipe->_netEvent;
 
-			if (epoll_ctl(_socket, EPOLL_CTL_ADD, sock, &event) == -1)
+			if (epoll_ctl(_event.socket, EPOLL_CTL_ADD, sock, &event) == -1)
 			{
 				::close(sock);
 
@@ -562,7 +593,7 @@ namespace tinyToolkit
 			return false;
 		}
 
-		auto pipe = std::make_shared<TCPServerPipe>(_socket, sock, server, NET_EVENT_TYPE::ACCEPT);
+		auto pipe = std::make_shared<TCPServerPipe>(_event, sock, server, NET_EVENT_TYPE::ACCEPT);
 
 	#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
@@ -571,7 +602,7 @@ namespace tinyToolkit
 		EV_SET(&event[0], sock, EVFILT_READ,  EV_ADD | EV_ENABLE,  0, 0, (void *)&pipe->_netEvent);
 		EV_SET(&event[1], sock, EVFILT_WRITE, EV_ADD | EV_DISABLE, 0, 0, (void *)&pipe->_netEvent);
 
-		if (kevent(_socket, event, 2, nullptr, 0, nullptr) == -1)
+		if (kevent(_event.socket, event, 2, nullptr, 0, nullptr) == -1)
 		{
 			::close(sock);
 
@@ -591,7 +622,7 @@ namespace tinyToolkit
 		event.events = EPOLLIN;
 		event.data.ptr = &pipe->_netEvent;
 
-		if (epoll_ctl(_socket, EPOLL_CTL_ADD, sock, &event) == -1)
+		if (epoll_ctl(_event.socket, EPOLL_CTL_ADD, sock, &event) == -1)
 		{
 			::close(sock);
 
@@ -620,25 +651,33 @@ namespace tinyToolkit
 	 */
 	bool NetWorkManager::Launch()
 	{
-		if (_socket == -1)
-		{
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-			/// todo
+		if (_event.handle == nullptr)
+		{
+			WSADATA wsaData;
 
-#elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
-
-			_socket = kqueue();
-
-#else
-
-			_socket = epoll_create(TINY_TOOLKIT_NET_COUNT);
-
-#endif
-
-			if (_socket == -1)
+			if (WSAStartup(MAKEWORD(1, 1), &wsaData) != 0)
 			{
-				TINY_TOOLKIT_ASSERT(false, "create net manager socket error : {}", OS::LastErrorMessage());
+				TINY_TOOLKIT_ASSERT(false, "Start socket error : {}", OS::LastErrorMessage());
+
+				return false;
+			}
+
+			if (LOBYTE(wsaData.wVersion) != 1 || HIBYTE(wsaData.wVersion) != 1)
+			{
+				WSACleanup();
+
+				TINY_TOOLKIT_ASSERT(false, "Socket version error : {}", OS::LastErrorMessage());
+
+				return false;
+			}
+
+			_event.handle = CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, 0, 0);
+
+			if (_event.handle == nullptr)
+			{
+				TINY_TOOLKIT_ASSERT(false, "Create net manager event error : {}", OS::LastErrorMessage());
 
 				return false;
 			}
@@ -649,7 +688,38 @@ namespace tinyToolkit
 			return true;
 		}
 
-		return _socket != -1;
+		return _event.handle != nullptr;
+
+#else
+
+		if (_event.socket == -1)
+		{
+		#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
+
+			_event.socket = kqueue();
+
+		#else
+
+			_event.socket = epoll_create(TINY_TOOLKIT_NET_COUNT);
+
+		#endif
+
+			if (_event.socket == -1)
+			{
+				TINY_TOOLKIT_ASSERT(false, "Create net manager event error : {}", OS::LastErrorMessage());
+
+				return false;
+			}
+
+			_status = true;
+			_thread = std::thread(&NetWorkManager::ThreadProcess, this);
+
+			return true;
+		}
+
+		return _event.socket != -1;
+
+#endif
 	}
 
 	/**
@@ -661,11 +731,37 @@ namespace tinyToolkit
 	{
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-		/// todo
+		while (_status)
+		{
+			DWORD bytes = 0;
+
+			SOCKET socket = -1;
+
+			NetEvent * eventValue = nullptr;
+
+			if (GetQueuedCompletionStatus(_event.handle, &bytes, (PULONG_PTR)&sock, (LPOVERLAPPED *)&eventValue, 1) == 0)
+			{
+				if (GetLastError() == WAIT_TIMEOUT)
+				{
+					TINY_TOOLKIT_ASSERT(false, OS::LastErrorMessage());
+
+					return;
+				}
+
+				continue;
+			}
+
+			if (eventValue && eventValue->_callback)
+			{
+				eventValue->bytes = bytes;
+
+				eventValue->_callback(eventValue, &events[i]);
+			}
+		}
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
-		static struct kevent events[TINY_TOOLKIT_NET_COUNT]{ };
+		struct kevent events[TINY_TOOLKIT_NET_COUNT]{ };
 
 		while (_status)
 		{
@@ -674,7 +770,7 @@ namespace tinyToolkit
 			timeout.tv_sec = 1;
 			timeout.tv_nsec = 0;
 
-			int32_t count = kevent(_socket, nullptr, 0, events, TINY_TOOLKIT_NET_COUNT, &timeout);
+			int32_t count = kevent(_event.socket, nullptr, 0, events, TINY_TOOLKIT_NET_COUNT, &timeout);
 
 			if (count == -1)
 			{
@@ -701,11 +797,11 @@ namespace tinyToolkit
 
 #else
 
-		static struct epoll_event events[TINY_TOOLKIT_NET_COUNT]{ };
+		struct epoll_event events[TINY_TOOLKIT_NET_COUNT]{ };
 
 		while (_status)
 		{
-			int32_t count = epoll_wait(_socket, events, TINY_TOOLKIT_NET_COUNT, 10);
+			int32_t count = epoll_wait(_event.socket, events, TINY_TOOLKIT_NET_COUNT, 10);
 
 			if (count == -1)
 			{

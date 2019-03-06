@@ -76,7 +76,8 @@
 #
 #  define strcasecmp _stricmp
 #
-#  pragma comment(lib,"ws2_32.lib")
+#  pragma comment(lib,"ws2_32.lib")  /// socket编程需用的动态链接库
+#  pragma comment(lib, "kernel32.lib")  /// IOCP需要用到的动态链接库
 #
 # elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 #

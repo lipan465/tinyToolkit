@@ -1149,21 +1149,21 @@ TEST(System, Application)
 
 	EXPECT_TRUE(tinyToolkit::Application::Exist()) << strerror(errno);
 
-	EXPECT_STR_EQ(tinyToolkit::Application::Name().c_str(), "example.exe");
+	EXPECT_STR_EQ(tinyToolkit::Application::Name().c_str(), "benchmarkTest.exe");
 	EXPECT_STR_EQ(tinyToolkit::Application::Extension().c_str(), ".exe");
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
 	EXPECT_TRUE(tinyToolkit::Application::Exist()) << tinyToolkit::OS::LastErrorMessage();
 
-	EXPECT_STR_EQ(tinyToolkit::Application::Name().c_str(), "example");
+	EXPECT_STR_EQ(tinyToolkit::Application::Name().c_str(), "benchmarkTest");
 	EXPECT_STR_EQ(tinyToolkit::Application::Extension().c_str(), "");
 
 #else
 
 	EXPECT_FALSE(tinyToolkit::Application::Exist()) << strerror(errno);
 
-	EXPECT_STR_EQ(tinyToolkit::Application::Name().c_str(), "example");
+	EXPECT_STR_EQ(tinyToolkit::Application::Name().c_str(), "benchmarkTest");
 	EXPECT_STR_EQ(tinyToolkit::Application::Extension().c_str(), "");
 
 #endif
@@ -1171,7 +1171,7 @@ TEST(System, Application)
 	EXPECT_LE(tinyToolkit::Application::CompileTime(), tinyToolkit::Time::Seconds());
 	EXPECT_EQ(tinyToolkit::Application::CompileTime(), tinyToolkit::Time::FromTimeString(tinyToolkit::Application::CompileTimeString()));
 
-	EXPECT_STR_EQ(tinyToolkit::Application::Steam().c_str(), "example");
+	EXPECT_STR_EQ(tinyToolkit::Application::Steam().c_str(), "benchmarkTest");
 	EXPECT_STR_EQ(tinyToolkit::Application::Path().c_str(),
 				  (tinyToolkit::Application::Directory() + TINY_TOOLKIT_FOLDER_SEP + tinyToolkit::Application::Name()).c_str());
 }

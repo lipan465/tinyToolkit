@@ -47,6 +47,7 @@
 #include "net/udp.h"
 #include "net/pipe.h"
 #include "net/event.h"
+#include "net/buffer.h"
 #include "net/server.h"
 #include "net/session.h"
 #include "net/manager.h"

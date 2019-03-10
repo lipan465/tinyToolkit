@@ -41,11 +41,13 @@ namespace tinyToolkit
 		 * @param client 客户端
 		 * @param host 主机地址
 		 * @param port 主机端口
+		 * @param sSize 发送缓冲区大小
+		 * @param rSize 接受缓冲区大小
 		 *
 		 * @return 是否启动成功
 		 *
 		 */
-		bool LaunchUDPClient(IUDPSession * client, const std::string & host, uint16_t port);
+		bool LaunchUDPClient(IUDPSession * client, const std::string & host, uint16_t port, std::size_t sSize, std::size_t rSize);
 
 		/**
 		 *
@@ -54,11 +56,13 @@ namespace tinyToolkit
 		 * @param server 服务器
 		 * @param host 主机地址
 		 * @param port 主机端口
+		 * @param sSize 发送缓冲区大小
+		 * @param rSize 接受缓冲区大小
 		 *
 		 * @return 是否启动成功
 		 *
 		 */
-		bool LaunchUDPServer(IUDPServer * server, const std::string & host, uint16_t port);
+		bool LaunchUDPServer(IUDPServer * server, const std::string & host, uint16_t port, std::size_t sSize, std::size_t rSize);
 
 		/**
 		 *
@@ -67,11 +71,13 @@ namespace tinyToolkit
 		 * @param client 客户端
 		 * @param host 主机地址
 		 * @param port 主机端口
+		 * @param sSize 发送缓冲区大小
+		 * @param rSize 接受缓冲区大小
 		 *
 		 * @return 是否启动成功
 		 *
 		 */
-		bool LaunchTCPClient(ITCPSession * client, const std::string & host, uint16_t port);
+		bool LaunchTCPClient(ITCPSession * client, const std::string & host, uint16_t port, std::size_t sSize, std::size_t rSize);
 
 		/**
 		 *
@@ -80,11 +86,13 @@ namespace tinyToolkit
 		 * @param server 服务器
 		 * @param host 主机地址
 		 * @param port 主机端口
+		 * @param sSize 发送缓冲区大小
+		 * @param rSize 接受缓冲区大小
 		 *
 		 * @return 是否启动成功
 		 *
 		 */
-		bool LaunchTCPServer(ITCPServer * server, const std::string & host, uint16_t port);
+		bool LaunchTCPServer(ITCPServer * server, const std::string & host, uint16_t port, std::size_t sSize, std::size_t rSize);
 
 	private:
 		/**
@@ -120,9 +128,9 @@ namespace tinyToolkit
 	private:
 		bool _status{ false };
 
-		std::thread _thread{ };
+		NetHandle _handle{ };
 
-		NetManagerEvent _event{ };
+		std::thread _thread{ };
 	};
 }
 

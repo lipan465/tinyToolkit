@@ -313,4 +313,35 @@
 #endif
 
 
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+#
+#  ifndef TINY_TOOLKIT_SOCKET_TYPE
+#  define TINY_TOOLKIT_SOCKET_TYPE						SOCKET
+#  endif
+#
+#  ifndef TINY_TOOLKIT_SOCKET_ERROR
+#  define TINY_TOOLKIT_SOCKET_ERROR						SOCKET_ERROR
+#  endif
+#
+#  ifndef TINY_TOOLKIT_SOCKET_INVALID
+#  define TINY_TOOLKIT_SOCKET_INVALID					INVALID_SOCKET
+#  endif
+
+#
+#else
+#
+#  ifndef TINY_TOOLKIT_SOCKET_TYPE
+#  define TINY_TOOLKIT_SOCKET_TYPE						int32_t
+#  endif
+#
+#  ifndef TINY_TOOLKIT_SOCKET_ERROR
+#  define TINY_TOOLKIT_SOCKET_ERROR						-1
+#  endif
+#
+#  ifndef TINY_TOOLKIT_SOCKET_INVALID
+#  define TINY_TOOLKIT_SOCKET_INVALID					-1
+#  endif
+#
+#endif
+
 #endif // __TINY_TOOLKIT__COMMON__MACRO__H__

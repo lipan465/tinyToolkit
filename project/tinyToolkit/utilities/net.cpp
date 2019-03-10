@@ -134,7 +134,7 @@ namespace tinyToolkit
 	 */
 	bool Net::TraverseAddressFromHost(const char * host, std::vector<std::string> & list)
 	{
-		bool status = true;
+		bool status = false;
 
 		struct addrinfo   hints{ };
 		struct addrinfo * result{ nullptr };
@@ -156,6 +156,8 @@ namespace tinyToolkit
 
 				if (res == 0)
 				{
+					status = true;
+
 					list.emplace_back(address);
 				}
 				else
@@ -182,6 +184,33 @@ namespace tinyToolkit
 
 	/**
 	 *
+	 * 设置延时关闭
+	 *
+	 * @param socket 句柄
+	 *
+	 * @return 是否设置成功
+	 *
+	 */
+	bool Net::EnableLinger(TINY_TOOLKIT_SOCKET_TYPE socket, int32_t status, int32_t timeout)
+	{
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		LINGER val{ };
+
+#else
+
+		struct linger val{ };
+
+#endif
+
+		val.l_onoff = status;
+		val.l_linger = timeout;
+
+		return setsockopt(socket, SOL_SOCKET, SO_LINGER, reinterpret_cast<const char *>(&val), sizeof(val)) == 0;
+	}
+
+	/**
+	 *
 	 * 启用Nagle算法
 	 *
 	 * @param socket 句柄
@@ -189,7 +218,7 @@ namespace tinyToolkit
 	 * @return 是否设置成功
 	 *
 	 */
-	bool Net::EnableNoDelay(int32_t socket)
+	bool Net::EnableNoDelay(TINY_TOOLKIT_SOCKET_TYPE socket)
 	{
 		int32_t val = 1l;
 
@@ -205,11 +234,13 @@ namespace tinyToolkit
 	 * @return 是否设置成功
 	 *
 	 */
-	bool Net::EnableNonBlock(int32_t socket)
+	bool Net::EnableNonBlock(TINY_TOOLKIT_SOCKET_TYPE socket)
 	{
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-		return true;
+		u_long opt = 1;
+
+		return ioctlsocket(socket, FIONBIO, &opt) == 0;
 
 #else
 
@@ -227,7 +258,7 @@ namespace tinyToolkit
 	 * @return 是否设置成功
 	 *
 	 */
-	bool Net::EnableReuseAddress(int32_t socket)
+	bool Net::EnableReuseAddress(TINY_TOOLKIT_SOCKET_TYPE socket)
 	{
 		int32_t val = 1l;
 
@@ -244,7 +275,7 @@ namespace tinyToolkit
 	 * @return 是否设置成功
 	 *
 	 */
-	bool Net::SetSendBufferSize(int32_t sock, int32_t size)
+	bool Net::SetSendBufferSize(TINY_TOOLKIT_SOCKET_TYPE sock, int32_t size)
 	{
 		return setsockopt(sock, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<const char *>(&size), sizeof(size)) == 0;
 	}
@@ -259,7 +290,7 @@ namespace tinyToolkit
 	 * @return 是否设置成功
 	 *
 	 */
-	bool Net::SetReceiveBufferSize(int32_t sock, int32_t size)
+	bool Net::SetReceiveBufferSize(TINY_TOOLKIT_SOCKET_TYPE sock, int32_t size)
 	{
 		return setsockopt(sock, SOL_SOCKET, SO_RCVBUF, reinterpret_cast<const char *>(&size), sizeof(size)) == 0;
 	}

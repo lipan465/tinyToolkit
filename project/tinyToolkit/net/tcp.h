@@ -13,25 +13,28 @@
 
 #include "event.h"
 #include "server.h"
+#include "buffer.h"
+#include "handle.h"
 #include "session.h"
 
 
 namespace tinyToolkit
 {
-	class TINY_TOOLKIT_API TCPSessionPipe : public ITCPPipe
+	class TINY_TOOLKIT_API TCPSessionPipe : public ITCPPipe, public INetCompleter
 	{
 	public:
 		/**
 		 *
 		 * 构造函数
 		 *
-		 * @param managerEvent 管理事件
-		 * @param socket 会话句柄
+		 * @param handle 管理句柄
 		 * @param session 会话
-		 * @param type 事件类型
+		 * @param socket 会话句柄
+		 * @param sSize 发送缓冲区大小
+		 * @param rSize 接收缓冲区大小
 		 *
 		 */
-		TCPSessionPipe(NetManagerEvent & managerEvent, int32_t socket, ITCPSession * session, NET_EVENT_TYPE type);
+		TCPSessionPipe(NetHandle & handle, ITCPSession * session, TINY_TOOLKIT_SOCKET_TYPE socket, std::size_t sSize, std::size_t rSize);
 
 		/**
 		 *
@@ -53,11 +56,42 @@ namespace tinyToolkit
 		 *
 		 * @param value 待发送数据
 		 * @param size 待发送数据长度
+		 * @param delay 延迟发送
 		 *
 		 */
-		void Send(const void * value, std::size_t size) override;
+		void Send(const void * value, std::size_t size, bool delay) override;
+
+		/**
+		 *
+		 * 回调函数
+		 *
+		 * @param netEvent 网络事件
+		 * @param sysEvent 系统事件
+		 *
+		 */
+		void OnCallback(const NetEvent * netEvent, const void * sysEvent) override;
 
 	protected:
+		/**
+		 *
+		 * 交互处理
+		 *
+		 * @param netEvent 网络事件
+		 * @param sysEvent 系统事件
+		 *
+		 */
+		void DoSend(const NetEvent * netEvent, const void * sysEvent);
+
+		/**
+		 *
+		 * 交互处理
+		 *
+		 * @param netEvent 网络事件
+		 * @param sysEvent 系统事件
+		 *
+		 */
+		void DoReceive(const NetEvent * netEvent, const void * sysEvent);
+
 		/**
 		 *
 		 * 连接处理
@@ -78,45 +112,39 @@ namespace tinyToolkit
 		 */
 		void DoTransmit(const NetEvent * netEvent, const void * sysEvent);
 
-		/**
-		 *
-		 * 回调函数
-		 *
-		 * @param netEvent 网络事件
-		 * @param sysEvent 系统事件
-		 *
-		 */
-		void OnCallBack(const NetEvent * netEvent, const void * sysEvent);
-
 	public:
+		bool _isSend{ false };
+		bool _isReceive{ false };
 		bool _isConnect{ false };
 
 		NetEvent _netEvent{ };
 
 	private:
-		int32_t _socket{ -1 };
+		NetBuffer _sendBuffer;
+		NetBuffer _receiveBuffer;
+
+		NetHandle & _managerHandle;
 
 		ITCPSession * _session{ nullptr };
 
-		NetManagerEvent & _managerEvent;
-
-		std::queue<NetEventPackage> _sendQueue{ };
+		TINY_TOOLKIT_SOCKET_TYPE _socket{ TINY_TOOLKIT_SOCKET_INVALID };
 	};
 
-	class TINY_TOOLKIT_API TCPServerPipe : public ITCPPipe
+	class TINY_TOOLKIT_API TCPServerPipe : public ITCPPipe, public INetCompleter
 	{
 	public:
 		/**
 		 *
 		 * 构造函数
 		 *
-		 * @param managerEvent 管理事件
-		 * @param socket 会话句柄
+		 * @param handle 管理句柄
 		 * @param server 服务器
-		 * @param type 事件类型
+		 * @param socket 会话句柄
+		 * @param sSize 发送缓冲区大小
+		 * @param rSize 接收缓冲区大小
 		 *
 		 */
-		TCPServerPipe(NetManagerEvent & managerEvent, int32_t socket, ITCPServer * server, NET_EVENT_TYPE type);
+		TCPServerPipe(NetHandle & handle, ITCPServer * server, TINY_TOOLKIT_SOCKET_TYPE socket, std::size_t sSize, std::size_t rSize);
 
 		/**
 		 *
@@ -138,9 +166,20 @@ namespace tinyToolkit
 		 *
 		 * @param value 待发送数据
 		 * @param size 待发送数据长度
+		 * @param delay 延迟发送
 		 *
 		 */
-		void Send(const void * value, std::size_t size) override;
+		void Send(const void * value, std::size_t size, bool delay) override;
+
+		/**
+		 *
+		 * 回调函数
+		 *
+		 * @param netEvent 网络事件
+		 * @param sysEvent 系统事件
+		 *
+		 */
+		void OnCallback(const NetEvent * netEvent, const void * sysEvent) override;
 
 	protected:
 		/**
@@ -153,25 +192,18 @@ namespace tinyToolkit
 		 */
 		void DoAccept(const NetEvent * netEvent, const void * sysEvent);
 
-		/**
-		 *
-		 * 回调函数
-		 *
-		 * @param netEvent 网络事件
-		 * @param sysEvent 系统事件
-		 *
-		 */
-		void OnCallBack(const NetEvent * netEvent, const void * sysEvent);
-
 	public:
 		NetEvent _netEvent{ };
 
 	private:
-		int32_t _socket{ -1 };
+		std::size_t _sSize{ 0 };
+		std::size_t _rSize{ 0 };
+
+		NetHandle & _managerHandle;
 
 		ITCPServer * _server{ nullptr };
 
-		NetManagerEvent & _managerEvent;
+		TINY_TOOLKIT_SOCKET_TYPE _socket{ TINY_TOOLKIT_SOCKET_INVALID };
 	};
 }
 

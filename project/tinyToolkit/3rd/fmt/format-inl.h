@@ -650,7 +650,7 @@ FMT_FUNC void grisu2_prettify(const gen_digits_params& params, int size,
     // 1234e-2 -> 12.34[0+]
     handler.insert(full_exp, '.');
     if (!params.trailing_zeros) {
-      // Remove trailing zeros.
+      // RemoveFile trailing zeros.
       handler.remove_trailing('0');
     } else if (params.num_digits > size) {
       // Add trailing zeros.

@@ -32,7 +32,7 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 删除文件
+		 * 删除目录
 		 *
 		 * @param path 文件路径
 		 *

@@ -1147,14 +1147,14 @@ TEST(System, Application)
 {
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-	EXPECT_TRUE(tinyToolkit::Application::Exist()) << strerror(errno);
+	EXPECT_FALSE(tinyToolkit::Application::Exist()) << strerror(errno);
 
 	EXPECT_STR_EQ(tinyToolkit::Application::Name().c_str(), "benchmarkTest.exe");
 	EXPECT_STR_EQ(tinyToolkit::Application::Extension().c_str(), ".exe");
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
-	EXPECT_TRUE(tinyToolkit::Application::Exist()) << tinyToolkit::OS::LastErrorMessage();
+	EXPECT_FALSE(tinyToolkit::Application::Exist()) << strerror(errno);
 
 	EXPECT_STR_EQ(tinyToolkit::Application::Name().c_str(), "benchmarkTest");
 	EXPECT_STR_EQ(tinyToolkit::Application::Extension().c_str(), "");
@@ -1668,21 +1668,10 @@ class TestEnvironment : public tinyToolkit::TestEnvironment
 public:
 	void SetUp() override
 	{
-#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
-
-		std::system(tinyToolkit::String::Format("rd /s /q {0}{1}f1", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP).c_str());
-		std::system(tinyToolkit::String::Format("rd /s /q {0}{1}log", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP).c_str());
-		std::system(tinyToolkit::String::Format("rd /s /q {0}{1}file", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP).c_str());
-		std::system(tinyToolkit::String::Format("rd /s /q {0}{1}fileSystem", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP).c_str());
-
-#else
-
-		std::system(tinyToolkit::String::Format("rm -rf {0}{1}f1", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP).c_str());
-		std::system(tinyToolkit::String::Format("rm -rf {0}{1}log", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP).c_str());
-		std::system(tinyToolkit::String::Format("rm -rf {0}{1}file", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP).c_str());
-		std::system(tinyToolkit::String::Format("rm -rf {0}{1}fileSystem", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP).c_str());
-
-#endif
+		tinyToolkit::Filesystem::Remove(tinyToolkit::String::Format("{0}{1}f1", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP));
+		tinyToolkit::Filesystem::Remove(tinyToolkit::String::Format("{0}{1}log", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP));
+		tinyToolkit::Filesystem::Remove(tinyToolkit::String::Format("{0}{1}file", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP));
+		tinyToolkit::Filesystem::Remove(tinyToolkit::String::Format("{0}{1}fileSystem", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP));
 
 		tinyToolkit::Filesystem::CreateDirectory(tinyToolkit::String::Format("{0}{1}log", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP));
 		tinyToolkit::Filesystem::CreateDirectory(tinyToolkit::String::Format("{0}{1}file", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP));
@@ -1692,21 +1681,10 @@ public:
 
 	void TearDown() override
 	{
-#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
-
-		std::system(tinyToolkit::String::Format("rd /s /q {0}{1}f1", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP).c_str());
-		std::system(tinyToolkit::String::Format("rd /s /q {0}{1}log", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP).c_str());
-		std::system(tinyToolkit::String::Format("rd /s /q {0}{1}file", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP).c_str());
-		std::system(tinyToolkit::String::Format("rd /s /q {0}{1}fileSystem", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP).c_str());
-
-#else
-
-		std::system(tinyToolkit::String::Format("rm -rf {0}{1}f1", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP).c_str());
-		std::system(tinyToolkit::String::Format("rm -rf {0}{1}log", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP).c_str());
-		std::system(tinyToolkit::String::Format("rm -rf {0}{1}file", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP).c_str());
-		std::system(tinyToolkit::String::Format("rm -rf {0}{1}fileSystem", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP).c_str());
-
-#endif
+		tinyToolkit::Filesystem::Remove(tinyToolkit::String::Format("{0}{1}f1", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP));
+		tinyToolkit::Filesystem::Remove(tinyToolkit::String::Format("{0}{1}log", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP));
+		tinyToolkit::Filesystem::Remove(tinyToolkit::String::Format("{0}{1}file", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP));
+		tinyToolkit::Filesystem::Remove(tinyToolkit::String::Format("{0}{1}fileSystem", tinyToolkit::Application::Directory(), TINY_TOOLKIT_FOLDER_SEP));
 	}
 };
 

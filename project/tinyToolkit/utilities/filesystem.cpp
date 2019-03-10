@@ -36,7 +36,7 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 删除文件
+	 * 删除目录
 	 *
 	 * @param path 文件路径
 	 *
@@ -45,7 +45,140 @@ namespace tinyToolkit
 	 */
 	bool Filesystem::Remove(const std::string & path)
 	{
-		return std::remove(path.c_str()) == 0;
+		if (IsDirectory(path))
+		{
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+			std::string dir{ };
+
+			if (path[path.size() - 1] == TINY_TOOLKIT_FOLDER_SEP[0])
+			{
+				dir = path + "*.*";
+			}
+			else
+			{
+				dir = path + TINY_TOOLKIT_FOLDER_SEP + "*.*";
+			}
+
+			WIN32_FIND_DATA finder{ };
+
+			HANDLE hFind = FindFirstFile(dir.c_str(), &finder);
+
+			if (hFind == INVALID_HANDLE_VALUE)
+			{
+				throw std::runtime_error("No such file or directory : [" + path + "]");
+			}
+
+			do
+			{
+				if (strcmp(finder.cFileName, ".") == 0 || strcmp(finder.cFileName, "..") == 0)
+				{
+					continue;
+				}
+
+				std::string value{ };
+
+				if (path[path.size() - 1] == TINY_TOOLKIT_FOLDER_SEP[0])
+				{
+					value = path + finder.cFileName;
+				}
+				else
+				{
+					value = path + TINY_TOOLKIT_FOLDER_SEP + finder.cFileName;
+				}
+
+				if (finder.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+				{
+					if (!Remove(value))
+					{
+						closedir(dir);
+
+						return false;
+					}
+				}
+
+				if (std::remove(value.c_str()) == -1)
+				{
+					closedir(dir);
+
+					return false;
+				}
+			}
+			while (FindNextFile(hFind, &finder));
+
+			if (std::remove(path.c_str()) == -1)
+			{
+				closedir(dir);
+
+				return false;
+			}
+
+			return true;
+
+#else
+
+			DIR * dir = opendir(path.c_str());
+
+			if (dir == nullptr)
+			{
+				throw std::runtime_error("No such file or directory : [" + path + "]");
+			}
+
+			struct dirent * dirEvent = readdir(dir);
+
+			while (dirEvent)
+			{
+				if (dirEvent->d_name[0] != '.')
+				{
+					std::string value{ };
+
+					if (path[path.size() - 1] == TINY_TOOLKIT_FOLDER_SEP[0])
+					{
+						value = path + dirEvent->d_name;
+					}
+					else
+					{
+						value = path + TINY_TOOLKIT_FOLDER_SEP + dirEvent->d_name;
+					}
+
+					if (IsDirectory(value))
+					{
+						if (!Remove(value))
+						{
+							closedir(dir);
+
+							return false;
+						}
+					}
+
+					if (std::remove(value.c_str()) == -1)
+					{
+						closedir(dir);
+
+						return false;
+					}
+				}
+
+				dirEvent = readdir(dir);
+			}
+
+			if (std::remove(path.c_str()) == -1)
+			{
+				closedir(dir);
+
+				return false;
+			}
+
+			closedir(dir);
+
+			return true;
+
+#endif // TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+		}
+		else
+		{
+			return std::remove(path.c_str()) == 0;
+		}
 	}
 
 	/**
@@ -81,22 +214,29 @@ namespace tinyToolkit
 	 */
 	bool Filesystem::IsDirectory(const std::string & path)
 	{
-	#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
-
-		return GetFileAttributesA(path.c_str()) & FILE_ATTRIBUTE_DIRECTORY;
-
-	#else
-
-		struct stat status{ };
-
-		if (::stat(path.c_str(), &status) == -1)
+		if (Exists(path))
 		{
-			throw std::runtime_error("Failed stat : [" + path + "]");
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+			return GetFileAttributesA(path.c_str()) & FILE_ATTRIBUTE_DIRECTORY;
+
+#else
+
+			struct stat status{ };
+
+			if (::stat(path.c_str(), &status) == -1)
+			{
+				throw std::runtime_error("Failed stat : [" + path + "]");
+			}
+
+			return S_ISDIR(status.st_mode);
+
+#endif // TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 		}
-
-		return S_ISDIR(status.st_mode);
-
-	#endif // TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+		else
+		{
+			return false;
+		}
 	}
 
 	/**

@@ -29,20 +29,7 @@ TCPClientSession::TCPClientSession(int32_t id) : _id(id)
  */
 TCPClientSession::~TCPClientSession()
 {
-	tinyToolkit::String::Print("客户端会话析构\r\n");
-}
-
-/**
- *
- * 接收数据触发回调函数
- *
- * @param data 接收的数据缓冲区
- * @param size 接收的数据缓冲区长度
- *
- */
-void TCPClientSession::OnReceive(const char * data, std::size_t size)
-{
-	tinyToolkit::String::Print("客户端会话[{}:{}]接收到服务器会话[{}:{}]长度为[{}]的信息 : {}\r\n", _localHost, _localPort, _remoteHost, _remotePort, size, data);
+	tinyToolkit::String::Print("Client session destructor\r\n");
 }
 
 /**
@@ -52,9 +39,9 @@ void TCPClientSession::OnReceive(const char * data, std::size_t size)
  */
 void TCPClientSession::OnConnect()
 {
-	tinyToolkit::String::Print("客户端会话[{}:{}]连接服务器会话[{}:{}]成功\r\n", _localHost, _localPort, _remoteHost, _remotePort);
+	tinyToolkit::String::Print("Client session [{}:{}] connect server session [{}:{}] success\r\n", _localHost, _localPort, _remoteHost, _remotePort);
 
-	std::string value = tinyToolkit::String::Format("tcp服务器你好, 我的编号为{}", _id);
+	std::string value = tinyToolkit::String::Format("Hello TCP server, my client number is {}", _id);
 
 	Send(value.c_str(), value.size());
 }
@@ -66,7 +53,7 @@ void TCPClientSession::OnConnect()
  */
 void TCPClientSession::OnDisconnect()
 {
-	tinyToolkit::String::Print("客户端会话[{}:{}]断开连接 : {}\r\n", _localHost, _localPort, strerror(errno));
+	tinyToolkit::String::Print("Client session [{}:{}] disconnect : {}\r\n", _localHost, _localPort, strerror(errno));
 }
 
 /**
@@ -76,7 +63,24 @@ void TCPClientSession::OnDisconnect()
  */
 void TCPClientSession::OnConnectFailed()
 {
-	tinyToolkit::String::Print("客户端会话[{}:{}]连接服务器会话[{}:{}]失败 : {}\r\n", _localHost, _localPort, _remoteHost, _remotePort, strerror(errno));
+	tinyToolkit::String::Print("Client session [{}:{}] connect server session [{}:{}] failed : {}\r\n", _localHost, _localPort, _remoteHost, _remotePort, strerror(errno));
+}
+
+/**
+ *
+ * 接收数据触发回调函数
+ *
+ * @param data 接收的数据缓冲区
+ * @param size 接收的数据缓冲区长度
+ *
+ * @return 使用的字节数
+ *
+ */
+std::size_t TCPClientSession::OnReceive(const char * data, std::size_t size)
+{
+	tinyToolkit::String::Print("Client session [{}:{}] received server session [{}:{}] lengeth [{}] message : {}\r\n", _localHost, _localPort, _remoteHost, _remotePort, size, data);
+
+	return size;
 }
 
 
@@ -102,27 +106,7 @@ TCPServerSession::TCPServerSession(int32_t id) : _id(id)
  */
 TCPServerSession::~TCPServerSession()
 {
-	tinyToolkit::String::Print("服务器会话析构\r\n");
-}
-
-/**
- *
- * 接收数据触发回调函数
- *
- * @param data 接收的数据缓冲区
- * @param size 接收的数据缓冲区长度
- *
- */
-void TCPServerSession::OnReceive(const char * data, std::size_t size)
-{
-	tinyToolkit::String::Print("服务器会话[{}:{}]接收到客户端会话[{}:{}]长度为[{}]的信息 : {}\r\n", _localHost, _localPort, _remoteHost, _remotePort, size, data);
-
-	if (strstr(data, "request"))
-	{
-		std::string value = tinyToolkit::String::Format("tcp客户端你好, 请求已收到");
-
-		Send(value.c_str(), value.size());
-	}
+	tinyToolkit::String::Print("Server session destructor\r\n");
 }
 
 /**
@@ -132,9 +116,9 @@ void TCPServerSession::OnReceive(const char * data, std::size_t size)
  */
 void TCPServerSession::OnConnect()
 {
-	tinyToolkit::String::Print("服务器会话[{}:{}]连接客户端会话[{}:{}]成功\r\n", _localHost, _localPort, _remoteHost, _remotePort);
+	tinyToolkit::String::Print("Server session [{}:{}] connect client session [{}:{}] success\r\n", _localHost, _localPort, _remoteHost, _remotePort);
 
-	std::string value = tinyToolkit::String::Format("tcp客户端你好, 我的编号为{}", _id);
+	std::string value = tinyToolkit::String::Format("Hello TCP client, my server number is {}", _id);
 
 	Send(value.c_str(), value.size());
 }
@@ -146,7 +130,7 @@ void TCPServerSession::OnConnect()
  */
 void TCPServerSession::OnDisconnect()
 {
-	tinyToolkit::String::Print("服务器会话[{}:{}]断开连接 : {}\r\n", _localHost, _localPort, strerror(errno));
+	tinyToolkit::String::Print("Server session [{}:{}] disconnect : {}\r\n", _localHost, _localPort, strerror(errno));
 }
 
 /**
@@ -156,7 +140,31 @@ void TCPServerSession::OnDisconnect()
  */
 void TCPServerSession::OnConnectFailed()
 {
-	tinyToolkit::String::Print("服务器会话[{}:{}]连接客户端会话[{}:{}]失败 : {}\r\n", _localHost, _localPort, _remoteHost, _remotePort, strerror(errno));
+	tinyToolkit::String::Print("Server session [{}:{}] connect client session [{}:{}] failed : {}\r\n", _localHost, _localPort, _remoteHost, _remotePort, strerror(errno));
+}
+
+/**
+ *
+ * 接收数据触发回调函数
+ *
+ * @param data 接收的数据缓冲区
+ * @param size 接收的数据缓冲区长度
+ *
+ * @return 使用的字节数
+ *
+ */
+std::size_t TCPServerSession::OnReceive(const char * data, std::size_t size)
+{
+	tinyToolkit::String::Print("Server session [{}:{}] received client session [{}:{}] lengeth [{}] message : {}\r\n", _localHost, _localPort, _remoteHost, _remotePort, size, data);
+
+	if (strstr(data, "request"))
+	{
+		std::string value = tinyToolkit::String::Format("Hello TCP client , i will accept your request");
+
+		Send(value.c_str(), value.size());
+	}
+
+	return size;
 }
 
 
@@ -170,7 +178,7 @@ void TCPServerSession::OnConnectFailed()
  */
 TCPServer::~TCPServer()
 {
-	tinyToolkit::String::Print("服务器析构\r\n");
+	tinyToolkit::String::Print("Server destructor\r\n");
 }
 
 /**
@@ -185,7 +193,7 @@ TCPServer::~TCPServer()
  */
 tinyToolkit::ITCPSession * TCPServer::OnNewConnect(const std::string & host, uint16_t port)
 {
-	tinyToolkit::String::Print("服务器[{}:{}]接收到客户端[{}:{}]会话请求\r\n", _host, _port, host, port);
+	tinyToolkit::String::Print("Server [{}:{}] accept client [{}:{}] session request\r\n", _host, _port, host, port);
 
 	auto key = tinyToolkit::String::Join(host, ":", port);
 
@@ -210,7 +218,7 @@ void TCPServer::OnSessionError(tinyToolkit::ITCPSession * session)
 {
 	if (session)
 	{
-		tinyToolkit::String::Print("服务器[{}:{}]与客户端[{}:{}]会话错误 : {}\r\n", _host, _port, session->_remoteHost, session->_remotePort, strerror(errno));
+		tinyToolkit::String::Print("Server [{}:{}] and client [{}:{}] session error : {}\r\n", _host, _port, session->_remoteHost, session->_remotePort, strerror(errno));
 
 		auto key = tinyToolkit::String::Join(session->_remoteHost, ":", session->_remotePort);
 
@@ -238,7 +246,7 @@ void TCPServer::OnSessionError(tinyToolkit::ITCPSession * session)
  */
 void TCPServer::OnError()
 {
-	tinyToolkit::String::Print("服务器[{}:{}]异常 : {}\r\n", _host, _port, strerror(errno));
+	tinyToolkit::String::Print("Server [{}:{}] error : {}\r\n", _host, _port, strerror(errno));
 }
 
 /**
@@ -248,7 +256,7 @@ void TCPServer::OnError()
  */
 void TCPServer::OnRelease()
 {
-	tinyToolkit::String::Print("服务器[{}:{}]断开连接 : {}\r\n", _host, _port, strerror(errno));
+	tinyToolkit::String::Print("Server [{}:{}] disconnect : {}\r\n", _host, _port, strerror(errno));
 
 	for (auto &iter : _pool)
 	{

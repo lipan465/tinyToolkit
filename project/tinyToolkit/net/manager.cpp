@@ -12,10 +12,96 @@
 #include "../system/os.h"
 #include "../debug/trace.h"
 #include "../utilities/net.h"
+#include "../utilities/singleton.h"
 
 
 namespace tinyToolkit
 {
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+	class FunctionAddress
+	{
+	public:
+		/**
+		 *
+		 * 构造函数
+		 *
+		 */
+		FunctionAddress()
+		{
+			_socket = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, WSA_FLAG_OVERLAPPED);
+		}
+
+		/**
+		 *
+		 * 析构函数
+		 *
+		 */
+		~FunctionAddress()
+		{
+			closesocket(_socket);
+		}
+
+		/**
+		 *
+		 * 获取accept函数
+		 *
+		 * @return 函数
+		 *
+		 */
+		LPFN_ACCEPTEX GetAcceptEx()
+		{
+			LPFN_ACCEPTEX function = nullptr;
+
+			if (_socket == TINY_TOOLKIT_SOCKET_INVALID)
+			{
+				
+			}
+			else
+			{
+				GUID guid = WSAID_ACCEPTEX;
+
+				DWORD byte = 0;
+
+				WSAIoctl(_socket, SIO_GET_EXTENSION_FUNCTION_POINTER, &guid, sizeof(guid), &function, sizeof(function), &byte, nullptr, nullptr);
+			}
+			
+			return function;
+		}
+
+		/**
+		 *
+		 * 获取connect函数
+		 *
+		 * @return 函数
+		 *
+		 */
+		LPFN_CONNECTEX GetConnectEx()
+		{
+			LPFN_CONNECTEX function = nullptr;
+
+			if (_socket == TINY_TOOLKIT_SOCKET_INVALID)
+			{
+
+			}
+			else
+			{
+				GUID guid = WSAID_CONNECTEX;
+
+				DWORD byte = 0;
+
+				WSAIoctl(_socket, SIO_GET_EXTENSION_FUNCTION_POINTER, &guid, sizeof(guid), &function, sizeof(function), &byte, nullptr, nullptr);
+			}
+
+			return function;
+		}
+
+	private:
+		TINY_TOOLKIT_SOCKET_TYPE _socket{ TINY_TOOLKIT_SOCKET_INVALID };
+	};
+
+#endif
+
 	/**
 	 *
 	 * 获取本地名称
@@ -27,7 +113,7 @@ namespace tinyToolkit
 	 * @return 是否获取成功
 	 *
 	 */
-	static bool GetLocalName(int32_t socket, std::string & host, uint16_t & port)
+	static bool GetLocalName(TINY_TOOLKIT_SOCKET_TYPE socket, std::string & host, uint16_t & port)
 	{
 		struct sockaddr_in address { };
 
@@ -68,11 +154,11 @@ namespace tinyToolkit
 	{
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-		_event.handle = nullptr;
+		_managerHandle.handle = nullptr;
 
 #else
 
-		_event.socket = -1;
+		_handle.socket = TINY_TOOLKIT_SOCKET_INVALID;
 
 #endif
 	}
@@ -95,20 +181,20 @@ namespace tinyToolkit
 
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-			if (_event.handle)
+			if (_managerHandle.handle)
 			{
-				CloseHandel(_event.handle);
+				::CloseHandle(_managerHandle.handle);
 
-				_event.handle = nullptr;
+				_managerHandle.handle = nullptr;
 			}
 
 #else
 
-			if (_event.socket != -1)
+			if (_handle.socket != TINY_TOOLKIT_SOCKET_INVALID)
 			{
-				::close(_event.socket);
+				::close(_handle.socket);
 
-				_event.socket = -1;
+				_handle.socket = TINY_TOOLKIT_SOCKET_INVALID;
 			}
 
 #endif
@@ -122,26 +208,22 @@ namespace tinyToolkit
 	 * @param client 客户端
 	 * @param host 主机地址
 	 * @param port 主机端口
+	 * @param sSize 发送缓冲区大小
+	 * @param rSize 接受缓冲区大小
 	 *
 	 * @return 是否启动成功
 	 *
 	 */
-	bool NetWorkManager::LaunchUDPClient(IUDPSession * client, const std::string & host, uint16_t port)
+	bool NetWorkManager::LaunchUDPClient(IUDPSession * client, const std::string & host, uint16_t port, std::size_t sSize, std::size_t rSize)
 	{
 		if (!Launch())
 		{
 			return false;
 		}
 
-#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+		std::vector<std::string> hostList{ };
 
-		/// todo
-
-#else
-
-		int32_t sock = ::socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-
-		if (sock == -1)
+		if (!Net::TraverseAddressFromHost(host.c_str(), hostList))
 		{
 			client->OnConnectFailed();
 
@@ -149,7 +231,22 @@ namespace tinyToolkit
 		}
 
 		client->_remotePort = port;
-		client->_remoteHost = host;
+		client->_remoteHost = hostList.front();
+
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		/// todo
+
+#else
+
+		TINY_TOOLKIT_SOCKET_TYPE sock = ::socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+
+		if (sock == TINY_TOOLKIT_SOCKET_INVALID)
+		{
+			client->OnConnectFailed();
+
+			return false;
+		}
 
 		if (!Net::EnableNonBlock(sock) ||
 			!Net::EnableReuseAddress(sock))
@@ -167,7 +264,7 @@ namespace tinyToolkit
 		serverAddress.sin_family = AF_INET;
 		serverAddress.sin_addr.s_addr = Net::AsNetByte(host.c_str());
 
-		if (::connect(sock, (struct sockaddr *)&serverAddress, sizeof(struct sockaddr_in)) == -1)
+		if (::connect(sock, (struct sockaddr *)&serverAddress, sizeof(struct sockaddr_in)) == TINY_TOOLKIT_SOCKET_ERROR)
 		{
 			::close(sock);
 
@@ -178,7 +275,7 @@ namespace tinyToolkit
 
 		GetLocalName(sock, client->_localHost, client->_localPort);
 
-		auto pipe = std::make_shared<UDPSessionPipe>(_event, sock, client, NET_EVENT_TYPE::TRANSMIT);
+		auto pipe = std::make_shared<UDPSessionPipe>(_handle, client, sock, sSize, rSize);
 
 	#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
@@ -187,7 +284,7 @@ namespace tinyToolkit
 		EV_SET(&event[0], sock, EVFILT_READ,  EV_ADD | EV_ENABLE,  0, 0, (void *)&pipe->_netEvent);
 		EV_SET(&event[1], sock, EVFILT_WRITE, EV_ADD | EV_DISABLE, 0, 0, (void *)&pipe->_netEvent);
 
-		if (kevent(_event.socket, event, 2, nullptr, 0, nullptr) == -1)
+		if (kevent(_handle.socket, event, 2, nullptr, 0, nullptr) == -1)
 		{
 			::close(sock);
 
@@ -213,7 +310,7 @@ namespace tinyToolkit
 		event.events = EPOLLIN;
 		event.data.ptr = &pipe->_netEvent;
 
-		if (epoll_ctl(_event.socket, EPOLL_CTL_ADD, sock, &event) == -1)
+		if (epoll_ctl(_managerHandle.socket, EPOLL_CTL_ADD, sock, &event) == -1)
 		{
 			::close(sock);
 
@@ -246,26 +343,22 @@ namespace tinyToolkit
 	 * @param server 服务器
 	 * @param host 主机地址
 	 * @param port 主机端口
+	 * @param sSize 发送缓冲区大小
+	 * @param rSize 接受缓冲区大小
 	 *
 	 * @return 是否启动成功
 	 *
 	 */
-	bool NetWorkManager::LaunchUDPServer(IUDPServer * server, const std::string & host, uint16_t port)
+	bool NetWorkManager::LaunchUDPServer(IUDPServer * server, const std::string & host, uint16_t port, std::size_t sSize, std::size_t rSize)
 	{
 		if (!Launch())
 		{
 			return false;
 		}
 
-#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+		std::vector<std::string> hostList{ };
 
-		/// todo
-
-#else
-
-		int32_t sock = ::socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-
-		if (sock == -1)
+		if (!Net::TraverseAddressFromHost(host.c_str(), hostList))
 		{
 			server->OnError();
 
@@ -273,7 +366,22 @@ namespace tinyToolkit
 		}
 
 		server->_port = port;
-		server->_host = host;
+		server->_host = hostList.front();
+
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		/// todo
+
+#else
+
+		TINY_TOOLKIT_SOCKET_TYPE sock = ::socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+
+		if (sock == TINY_TOOLKIT_SOCKET_INVALID)
+		{
+			server->OnError();
+
+			return false;
+		}
 
 		if (!Net::EnableNonBlock(sock) ||
 			!Net::EnableReuseAddress(sock))
@@ -291,7 +399,7 @@ namespace tinyToolkit
 		address.sin_family = AF_INET;
 		address.sin_addr.s_addr = Net::AsNetByte(server->_host.c_str());
 
-		if (::bind(sock, (struct sockaddr *)&address, sizeof(struct sockaddr)) == -1)
+		if (::bind(sock, (struct sockaddr *)&address, sizeof(struct sockaddr)) == TINY_TOOLKIT_SOCKET_ERROR)
 		{
 			::close(sock);
 
@@ -300,7 +408,7 @@ namespace tinyToolkit
 			return false;
 		}
 
-		auto pipe = std::make_shared<UDPServerPipe>(_event, sock, server, NET_EVENT_TYPE::ACCEPT);
+		auto pipe = std::make_shared<UDPServerPipe>(_handle, server, sock, sSize, rSize);
 
 	#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
@@ -309,7 +417,7 @@ namespace tinyToolkit
 		EV_SET(&event[0], sock, EVFILT_READ,  EV_ADD | EV_ENABLE,  0, 0, (void *)&pipe->_netEvent);
 		EV_SET(&event[1], sock, EVFILT_WRITE, EV_ADD | EV_DISABLE, 0, 0, (void *)&pipe->_netEvent);
 
-		if (kevent(_event.socket, event, 2, nullptr, 0, nullptr) == -1)
+		if (kevent(_handle.socket, event, 2, nullptr, 0, nullptr) == -1)
 		{
 			::close(sock);
 
@@ -329,7 +437,7 @@ namespace tinyToolkit
 		event.events = EPOLLIN;
 		event.data.ptr = &pipe->_netEvent;
 
-		if (epoll_ctl(_event.socket, EPOLL_CTL_ADD, sock, &event) == -1)
+		if (epoll_ctl(_managerHandle.socket, EPOLL_CTL_ADD, sock, &event) == -1)
 		{
 			::close(sock);
 
@@ -356,26 +464,22 @@ namespace tinyToolkit
 	 * @param client 客户端
 	 * @param host 主机地址
 	 * @param port 主机端口
+	 * @param sSize 发送缓冲区大小
+	 * @param rSize 接受缓冲区大小
 	 *
 	 * @return 是否启动成功
 	 *
 	 */
-	bool NetWorkManager::LaunchTCPClient(ITCPSession * client, const std::string & host, uint16_t port)
+	bool NetWorkManager::LaunchTCPClient(ITCPSession * client, const std::string & host, uint16_t port, std::size_t sSize, std::size_t rSize)
 	{
 		if (!Launch())
 		{
 			return false;
 		}
 
-#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+		std::vector<std::string> hostList{ };
 
-		/// todo
-
-#else
-
-		int32_t sock = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-
-		if (sock == -1)
+		if (!Net::TraverseAddressFromHost(host.c_str(), hostList))
 		{
 			client->OnConnectFailed();
 
@@ -383,9 +487,21 @@ namespace tinyToolkit
 		}
 
 		client->_remotePort = port;
-		client->_remoteHost = host;
+		client->_remoteHost = hostList.front();
 
-		if (!Net::EnableNoDelay(sock) ||
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		TINY_TOOLKIT_SOCKET_TYPE sock = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, nullptr, 0, WSA_FLAG_OVERLAPPED);
+
+		if (sock == TINY_TOOLKIT_SOCKET_INVALID)
+		{
+			client->OnConnectFailed();
+
+			return false;
+		}
+
+		if (!Net::EnableLinger(sock) || 
+			!Net::EnableNoDelay(sock) ||
 			!Net::EnableNonBlock(sock) ||
 			!Net::EnableReuseAddress(sock))
 		{
@@ -396,19 +512,96 @@ namespace tinyToolkit
 			return false;
 		}
 
-		struct sockaddr_in address{ };
+		sockaddr_in bindAddress{ };
 
-		address.sin_port = htons(client->_remotePort);
-		address.sin_family = AF_INET;
-		address.sin_addr.s_addr = Net::AsNetByte(client->_remoteHost.c_str());
+		bindAddress.sin_family = AF_INET;
 
-		int32_t ret = ::connect(sock, (struct sockaddr *)&address, sizeof(struct sockaddr_in));
+		if (::bind(sock, (struct sockaddr *)&bindAddress, sizeof(struct sockaddr_in)) == TINY_TOOLKIT_SOCKET_ERROR)
+		{
+			::close(sock);
+
+			client->OnConnectFailed();
+
+			return false;
+		}
+
+		if (CreateIoCompletionPort((HANDLE)sock, (HANDLE)_managerHandle.handle, (ULONG_PTR)socket, 0) != _managerHandle.handle)
+		{
+			::close(sock);
+
+			client->OnConnectFailed();
+
+			return false;
+		}
+
+		GetLocalName(sock, client->_localHost, client->_localPort);
+
+		auto pipe = std::make_shared<TCPSessionPipe>(_managerHandle, client, sock, sSize, rSize);
+
+		auto * netEvent = new NetEvent(NET_EVENT_TYPE::CONNECT, sock, pipe.get());
+
+		DWORD bytes = 0;
+
+		struct sockaddr_in serverAddress { };
+
+		serverAddress.sin_port = htons(client->_remotePort);
+		serverAddress.sin_family = AF_INET;
+		serverAddress.sin_addr.s_addr = Net::AsNetByte(client->_remoteHost.c_str());
+
+		LPFN_CONNECTEX connectEx = Singleton<FunctionAddress>::Instance().GetConnectEx();
+
+		if (connectEx(sock, (struct sockaddr *)&serverAddress, sizeof(struct sockaddr_in), nullptr, 0, &bytes, (LPOVERLAPPED)netEvent) == TINY_TOOLKIT_SOCKET_ERROR)
+		{
+			if (WSAGetLastError() != WSA_IO_PENDING)
+			{
+				::close(sock);
+
+				delete netEvent;
+
+				client->OnConnectFailed();
+
+				return false;
+			}
+		}
+
+		client->_pipe = pipe;
+
+#else
+
+		TINY_TOOLKIT_SOCKET_TYPE sock = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+
+		if (sock == TINY_TOOLKIT_SOCKET_INVALID)
+		{
+			client->OnConnectFailed();
+
+			return false;
+		}
+
+		if (!Net::EnableLinger(sock) ||
+			!Net::EnableNoDelay(sock) ||
+			!Net::EnableNonBlock(sock) ||
+			!Net::EnableReuseAddress(sock))
+		{
+			::close(sock);
+
+			client->OnConnectFailed();
+
+			return false;
+		}
+
+		struct sockaddr_in serverAddress { };
+
+		serverAddress.sin_port = htons(client->_remotePort);
+		serverAddress.sin_family = AF_INET;
+		serverAddress.sin_addr.s_addr = Net::AsNetByte(client->_remoteHost.c_str());
+
+		int32_t ret = ::connect(sock, (struct sockaddr *)&serverAddress, sizeof(struct sockaddr_in));
 
 		if (ret == 0)
 		{
 			GetLocalName(sock, client->_localHost, client->_localPort);
 
-			auto pipe = std::make_shared<TCPSessionPipe>(_event, sock, client, NET_EVENT_TYPE::TRANSMIT);
+			auto pipe = std::make_shared<TCPSessionPipe>(_handle, client, sock, sSize, rSize);
 
 		#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
@@ -417,7 +610,7 @@ namespace tinyToolkit
 			EV_SET(&event[0], sock, EVFILT_READ,  EV_ADD | EV_ENABLE,  0, 0, (void *)&pipe->_netEvent);
 			EV_SET(&event[1], sock, EVFILT_WRITE, EV_ADD | EV_DISABLE, 0, 0, (void *)&pipe->_netEvent);
 
-			if (kevent(_event.socket, event, 2, nullptr, 0, nullptr) == -1)
+			if (kevent(_handle.socket, event, 2, nullptr, 0, nullptr) == -1)
 			{
 				::close(sock);
 
@@ -441,7 +634,7 @@ namespace tinyToolkit
 			event.events = EPOLLIN;
 			event.data.ptr = &pipe->_netEvent;
 
-			if (epoll_ctl(_event.socket, EPOLL_CTL_ADD, sock, &event) == -1)
+			if (epoll_ctl(_managerHandle.socket, EPOLL_CTL_ADD, sock, &event) == -1)
 			{
 				::close(sock);
 
@@ -472,18 +665,22 @@ namespace tinyToolkit
 		{
 			GetLocalName(sock, client->_localHost, client->_localPort);
 
-			auto pipe = std::make_shared<TCPSessionPipe>(_event, sock, client, NET_EVENT_TYPE::CONNECT);
+			auto pipe = std::make_shared<TCPSessionPipe>(_handle, client, sock, sSize, rSize);
+
+			auto * netEvent = new NetEvent(NET_EVENT_TYPE::CONNECT, sock, pipe.get());
 
 		#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
 			struct kevent event[2]{ };
 
-			EV_SET(&event[0], sock, EVFILT_READ,  EV_ADD | EV_DISABLE, 0, 0, (void *)&pipe->_netEvent);
-			EV_SET(&event[1], sock, EVFILT_WRITE, EV_ADD | EV_ENABLE,  0, 0, (void *)&pipe->_netEvent);
+			EV_SET(&event[0], sock, EVFILT_READ,  EV_ADD | EV_DISABLE, 0, 0, (void *)netEvent);
+			EV_SET(&event[1], sock, EVFILT_WRITE, EV_ADD | EV_ENABLE,  0, 0, (void *)netEvent);
 
-			if (kevent(_event.socket, event, 2, nullptr, 0, nullptr) == -1)
+			if (kevent(_handle.socket, event, 2, nullptr, 0, nullptr) == -1)
 			{
 				::close(sock);
+
+				delete netEvent;
 
 				client->OnConnectFailed();
 
@@ -499,11 +696,13 @@ namespace tinyToolkit
 			struct epoll_event event{ };
 
 			event.events = EPOLLOUT;
-			event.data.ptr = &pipe->_netEvent;
+			event.data.ptr = netEvent;
 
-			if (epoll_ctl(_event.socket, EPOLL_CTL_ADD, sock, &event) == -1)
+			if (epoll_ctl(_managerHandle.socket, EPOLL_CTL_ADD, sock, &event) == -1)
 			{
 				::close(sock);
+
+				delete netEvent;
 
 				client->OnConnectFailed();
 
@@ -529,26 +728,22 @@ namespace tinyToolkit
 	 * @param server 服务器
 	 * @param host 主机地址
 	 * @param port 主机端口
+	 * @param sSize 发送缓冲区大小
+	 * @param rSize 接受缓冲区大小
 	 *
 	 * @return 是否启动成功
 	 *
 	 */
-	bool NetWorkManager::LaunchTCPServer(ITCPServer * server, const std::string & host, uint16_t port)
+	bool NetWorkManager::LaunchTCPServer(ITCPServer * server, const std::string & host, uint16_t port, std::size_t sSize, std::size_t rSize)
 	{
 		if (!Launch())
 		{
 			return false;
 		}
 
-#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+		std::vector<std::string> hostList{ };
 
-		/// todo
-
-#else
-
-		int32_t sock = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-
-		if (sock == -1)
+		if (!Net::TraverseAddressFromHost(host.c_str(), hostList))
 		{
 			server->OnError();
 
@@ -556,9 +751,25 @@ namespace tinyToolkit
 		}
 
 		server->_port = port;
-		server->_host = host;
+		server->_host = hostList.front();
 
-		if (!Net::EnableNoDelay(sock) ||
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		/// todo
+
+#else
+
+		TINY_TOOLKIT_SOCKET_TYPE sock = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+
+		if (sock == TINY_TOOLKIT_SOCKET_INVALID)
+		{
+			server->OnError();
+
+			return false;
+		}
+
+		if (!Net::EnableLinger(sock) ||
+			!Net::EnableNoDelay(sock) ||
 			!Net::EnableNonBlock(sock) ||
 			!Net::EnableReuseAddress(sock))
 		{
@@ -575,7 +786,7 @@ namespace tinyToolkit
 		address.sin_family = AF_INET;
 		address.sin_addr.s_addr = Net::AsNetByte(server->_host.c_str());
 
-		if (::bind(sock, (struct sockaddr *)&address, sizeof(struct sockaddr_in)) == -1)
+		if (::bind(sock, (struct sockaddr *)&address, sizeof(struct sockaddr_in)) == TINY_TOOLKIT_SOCKET_ERROR)
 		{
 			::close(sock);
 
@@ -584,7 +795,7 @@ namespace tinyToolkit
 			return false;
 		}
 
-		if (::listen(sock, 20) == -1)
+		if (::listen(sock, 20) == TINY_TOOLKIT_SOCKET_ERROR)
 		{
 			::close(sock);
 
@@ -593,7 +804,7 @@ namespace tinyToolkit
 			return false;
 		}
 
-		auto pipe = std::make_shared<TCPServerPipe>(_event, sock, server, NET_EVENT_TYPE::ACCEPT);
+		auto pipe = std::make_shared<TCPServerPipe>(_handle, server, sock, sSize, rSize);
 
 	#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
@@ -602,7 +813,7 @@ namespace tinyToolkit
 		EV_SET(&event[0], sock, EVFILT_READ,  EV_ADD | EV_ENABLE,  0, 0, (void *)&pipe->_netEvent);
 		EV_SET(&event[1], sock, EVFILT_WRITE, EV_ADD | EV_DISABLE, 0, 0, (void *)&pipe->_netEvent);
 
-		if (kevent(_event.socket, event, 2, nullptr, 0, nullptr) == -1)
+		if (kevent(_handle.socket, event, 2, nullptr, 0, nullptr) == -1)
 		{
 			::close(sock);
 
@@ -622,7 +833,7 @@ namespace tinyToolkit
 		event.events = EPOLLIN;
 		event.data.ptr = &pipe->_netEvent;
 
-		if (epoll_ctl(_event.socket, EPOLL_CTL_ADD, sock, &event) == -1)
+		if (epoll_ctl(_managerHandle.socket, EPOLL_CTL_ADD, sock, &event) == -1)
 		{
 			::close(sock);
 
@@ -653,7 +864,7 @@ namespace tinyToolkit
 	{
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-		if (_event.handle == nullptr)
+		if (_managerHandle.handle == nullptr)
 		{
 			WSADATA wsaData;
 
@@ -673,9 +884,9 @@ namespace tinyToolkit
 				return false;
 			}
 
-			_event.handle = CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, 0, 0);
+			_managerHandle.handle = CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, 0, 0);
 
-			if (_event.handle == nullptr)
+			if (_managerHandle.handle == nullptr)
 			{
 				TINY_TOOLKIT_ASSERT(false, "Create net manager event error : {}", OS::LastErrorMessage());
 
@@ -688,23 +899,23 @@ namespace tinyToolkit
 			return true;
 		}
 
-		return _event.handle != nullptr;
+		return _managerHandle.handle != nullptr;
 
 #else
 
-		if (_event.socket == -1)
+		if (_handle.socket == TINY_TOOLKIT_SOCKET_INVALID)
 		{
 		#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
-			_event.socket = kqueue();
+			_handle.socket = kqueue();
 
 		#else
 
-			_event.socket = epoll_create(TINY_TOOLKIT_NET_COUNT);
+			_managerHandle.socket = epoll_create(TINY_TOOLKIT_NET_COUNT);
 
 		#endif
 
-			if (_event.socket == -1)
+			if (_handle.socket == TINY_TOOLKIT_SOCKET_INVALID)
 			{
 				TINY_TOOLKIT_ASSERT(false, "Create net manager event error : {}", OS::LastErrorMessage());
 
@@ -717,7 +928,7 @@ namespace tinyToolkit
 			return true;
 		}
 
-		return _event.socket != -1;
+		return _handle.socket != TINY_TOOLKIT_SOCKET_INVALID;
 
 #endif
 	}
@@ -735,13 +946,13 @@ namespace tinyToolkit
 		{
 			DWORD bytes = 0;
 
-			SOCKET socket = -1;
-
 			NetEvent * eventValue = nullptr;
 
-			if (GetQueuedCompletionStatus(_event.handle, &bytes, (PULONG_PTR)&sock, (LPOVERLAPPED *)&eventValue, 1) == 0)
+			TINY_TOOLKIT_SOCKET_TYPE socket = TINY_TOOLKIT_SOCKET_INVALID;
+
+			if (GetQueuedCompletionStatus(_managerHandle.handle, &bytes, (PULONG_PTR)&socket, (LPOVERLAPPED *)&eventValue, 10) == 0)
 			{
-				if (GetLastError() == WAIT_TIMEOUT)
+				if (GetLastError() != WAIT_TIMEOUT)
 				{
 					TINY_TOOLKIT_ASSERT(false, OS::LastErrorMessage());
 
@@ -751,11 +962,11 @@ namespace tinyToolkit
 				continue;
 			}
 
-			if (eventValue && eventValue->_callback)
+			if (eventValue && eventValue->_completer)
 			{
-				eventValue->bytes = bytes;
+				eventValue->_bytes = bytes;
 
-				eventValue->_callback(eventValue, &events[i]);
+				eventValue->_completer->OnCallback(eventValue, nullptr);
 			}
 		}
 
@@ -767,10 +978,10 @@ namespace tinyToolkit
 		{
 			struct timespec timeout{ };
 
-			timeout.tv_sec = 1;
-			timeout.tv_nsec = 0;
+			timeout.tv_sec = 0;
+			timeout.tv_nsec = 10000000; /// 10毫秒
 
-			int32_t count = kevent(_event.socket, nullptr, 0, events, TINY_TOOLKIT_NET_COUNT, &timeout);
+			int32_t count = kevent(_handle.socket, nullptr, 0, events, TINY_TOOLKIT_NET_COUNT, &timeout);
 
 			if (count == -1)
 			{
@@ -786,11 +997,11 @@ namespace tinyToolkit
 
 			for (int32_t i = 0; i < count; ++i)
 			{
-				auto * eventValue = (NetEvent *)events[i].udata;
+				auto * eventValue = reinterpret_cast<NetEvent *>(events[i].udata);
 
-				if (eventValue && eventValue->_callback)
+				if (eventValue && eventValue->_completer)
 				{
-					eventValue->_callback(eventValue, &events[i]);
+					eventValue->_completer->OnCallback(eventValue, &events[i]);
 				}
 			}
 		}
@@ -801,7 +1012,7 @@ namespace tinyToolkit
 
 		while (_status)
 		{
-			int32_t count = epoll_wait(_event.socket, events, TINY_TOOLKIT_NET_COUNT, 10);
+			int32_t count = epoll_wait(_managerHandle.socket, events, TINY_TOOLKIT_NET_COUNT, 10);
 
 			if (count == -1)
 			{
@@ -817,11 +1028,11 @@ namespace tinyToolkit
 
 			for (int32_t i = 0; i < count; ++i)
 			{
-				auto * eventValue = (NetEvent *)events[i].data.ptr;
+				auto * eventValue = reinterpret_cast<NetEvent *>(events[i].data.ptr);
 
-				if (eventValue && eventValue->_callback)
+				if (eventValue && eventValue->_completer)
 				{
-					eventValue->_callback(eventValue, &events[i]);
+					eventValue->_completer->OnCallback(eventValue, &events[i]);
 				}
 			}
 		}

@@ -127,7 +127,7 @@ namespace tinyToolkit
 
 				if (hProcessSnap == INVALID_HANDLE_VALUE)
 				{
-					return false;
+					return true;
 				}
 
 				bool find = false;

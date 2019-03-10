@@ -35,16 +35,6 @@ public:
 
 	/**
 	 *
-	 * 接收数据触发回调函数
-	 *
-	 * @param data 接收的数据缓冲区
-	 * @param size 接收的数据缓冲区长度
-	 *
-	 */
-	void OnReceive(const char * data, std::size_t size) override;
-
-	/**
-	 *
 	 * 连接成功触发回调函数
 	 *
 	 */
@@ -63,6 +53,18 @@ public:
 	 *
 	 */
 	void OnConnectFailed() override;
+
+	/**
+	 *
+	 * 接收数据触发回调函数
+	 *
+	 * @param data 接收的数据缓冲区
+	 * @param size 接收的数据缓冲区长度
+	 *
+	 * @return 使用的字节数
+	 *
+	 */
+	std::size_t OnReceive(const char * data, std::size_t size) override;
 
 private:
 	int32_t _id{ 0 };
@@ -90,16 +92,6 @@ public:
 
 	/**
 	 *
-	 * 接收数据触发回调函数
-	 *
-	 * @param data 接收的数据缓冲区
-	 * @param size 接收的数据缓冲区长度
-	 *
-	 */
-	void OnReceive(const char * data, std::size_t size) override;
-
-	/**
-	 *
 	 * 连接成功触发回调函数
 	 *
 	 */
@@ -118,6 +110,18 @@ public:
 	 *
 	 */
 	void OnConnectFailed() override;
+
+	/**
+	 *
+	 * 接收数据触发回调函数
+	 *
+	 * @param data 接收的数据缓冲区
+	 * @param size 接收的数据缓冲区长度
+	 *
+	 * @return 使用的字节数
+	 *
+	 */
+	std::size_t OnReceive(const char * data, std::size_t size) override;
 
 private:
 	int32_t _id{ 0 };

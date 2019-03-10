@@ -31,7 +31,7 @@ namespace tinyToolkit
 	 * @return 新生成的句柄
 	 *
 	 */
-	static int32_t Accept(int32_t socket, struct sockaddr * address, socklen_t * addressLen)
+	static int32_t Accept(TINY_TOOLKIT_SOCKET_TYPE socket, struct sockaddr * address, socklen_t * addressLen)
 	{
 		static char buffer[TINY_TOOLKIT_MB]{ 0 };
 
@@ -78,19 +78,22 @@ namespace tinyToolkit
 	 *
 	 * 构造函数
 	 *
-	 * @param managerEvent 管理事件
-	 * @param socket 会话句柄
+	 * @param handle 管理句柄
 	 * @param session 会话
-	 * @param type 事件类型
+	 * @param socket 会话句柄
+	 * @param sSize 发送缓冲区大小
+	 * @param rSize 接收缓冲区大小
 	 *
 	 */
-	UDPSessionPipe::UDPSessionPipe(NetManagerEvent & managerEvent, int32_t socket, IUDPSession * session, NET_EVENT_TYPE type) : _socket(socket),
-																																 _session(session),
-																																 _managerEvent(managerEvent)
+	UDPSessionPipe::UDPSessionPipe(NetHandle & handle, IUDPSession * session, TINY_TOOLKIT_SOCKET_TYPE socket, std::size_t sSize, std::size_t rSize) : _sendBuffer(sSize),
+																																					   _receiveBuffer(rSize),
+																																					   _managerHandle(handle),
+																																					   _session(session),
+																																					   _socket(socket)
 	{
-		_netEvent._type = type;
+		_netEvent._type = NET_EVENT_TYPE::TRANSMIT;
 		_netEvent._socket = socket;
-		_netEvent._callback = std::bind(&UDPSessionPipe::OnCallBack, this, std::placeholders::_1, std::placeholders::_2);
+		_netEvent._completer = this;
 	}
 
 	/**
@@ -100,13 +103,13 @@ namespace tinyToolkit
 	 */
 	void UDPSessionPipe::Close()
 	{
-		if (_socket != -1)
+		if (_socket != TINY_TOOLKIT_SOCKET_INVALID)
 		{
 			_isConnect = false;
 
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-			/// todo
+			::closesocket(_socket);
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
@@ -115,17 +118,19 @@ namespace tinyToolkit
 			EV_SET(&event[0], _socket, EVFILT_READ,  EV_DELETE, 0, 0, nullptr);
 			EV_SET(&event[1], _socket, EVFILT_WRITE, EV_DELETE, 0, 0, nullptr);
 
-			kevent(_managerEvent.socket, event, 2, nullptr, 0, nullptr);
-
-#else
-
-			epoll_ctl(_managerEvent.socket, EPOLL_CTL_DEL, _socket, nullptr);
-
-#endif
+			kevent(_managerHandle.socket, event, 2, nullptr, 0, nullptr);
 
 			::close(_socket);
 
-			_socket = -1;
+#else
+
+			epoll_ctl(_managerHandle.socket, EPOLL_CTL_DEL, _socket, nullptr);
+
+			::close(_socket);
+
+#endif
+
+			_socket = TINY_TOOLKIT_SOCKET_INVALID;
 
 			if (_session)
 			{
@@ -138,8 +143,6 @@ namespace tinyToolkit
 
 				_session->OnDisconnect();
 			}
-
-			Operator::Clear(_sendQueue);
 		}
 	}
 
@@ -149,14 +152,30 @@ namespace tinyToolkit
 	 *
 	 * @param value 待发送数据
 	 * @param size 待发送数据长度
+	 * @param delay 延迟发送
 	 *
 	 */
-	void UDPSessionPipe::Send(const void * value, std::size_t size)
+	void UDPSessionPipe::Send(const void * value, std::size_t size, bool delay)
 	{
-		if (_isConnect)
+		if (size == 0)
 		{
-			_sendQueue.emplace(_session->_remoteHost.c_str(), _session->_remotePort, value, size);
+			return;
+		}
 
+		if (!_isConnect)
+		{
+			return;
+		}
+
+		if (!_sendBuffer.Push(value, size))
+		{
+			Close();
+
+			return;
+		}
+
+		if (!_isSend && !delay)
+		{
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
 			/// todo
@@ -168,7 +187,7 @@ namespace tinyToolkit
 			EV_SET(&event[0], _socket, EVFILT_READ,  EV_ENABLE, 0, 0, (void *)&_netEvent);
 			EV_SET(&event[1], _socket, EVFILT_WRITE, EV_ENABLE, 0, 0, (void *)&_netEvent);
 
-			if (kevent(_managerEvent.socket, event, 2, nullptr, 0, nullptr) == -1)
+			if (kevent(_managerHandle.socket, event, 2, nullptr, 0, nullptr) == -1)
 			{
 				Close();
 			}
@@ -180,12 +199,47 @@ namespace tinyToolkit
 			event.events = EPOLLIN | EPOLLOUT;
 			event.data.ptr = &_netEvent;
 
-			if (epoll_ctl(_managerEvent.socket, EPOLL_CTL_MOD, _socket, &event) == -1)
+			if (epoll_ctl(_managerHandle.socket, EPOLL_CTL_MOD, _socket, &event) == -1)
 			{
 				Close();
 			}
 
 #endif
+		}
+	}
+
+	/**
+	 *
+	 * 回调函数
+	 *
+	 * @param netEvent 网络事件
+	 * @param sysEvent 系统事件
+	 *
+	 */
+	void UDPSessionPipe::OnCallback(const NetEvent * netEvent, const void * sysEvent)
+	{
+		switch (netEvent->_type)
+		{
+			case NET_EVENT_TYPE::CONNECT:
+			{
+				DoConnect(netEvent, sysEvent);
+
+				break;
+			}
+
+			case NET_EVENT_TYPE::TRANSMIT:
+			{
+				DoTransmit(netEvent, sysEvent);
+
+				break;
+			}
+
+			default:
+			{
+				TINY_TOOLKIT_ASSERT(false, "UDPSessionPipe type error : {}", netEvent->_socket);
+
+				break;
+			}
 		}
 	}
 
@@ -199,13 +253,13 @@ namespace tinyToolkit
 	 */
 	void UDPSessionPipe::DoConnect(const NetEvent * netEvent, const void * sysEvent)
 	{
+		(void)netEvent;
+
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
 		/// todo
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
-
-		(void)netEvent;
 
 		auto * currentEventPtr = reinterpret_cast<const struct kevent *>(sysEvent);
 
@@ -215,7 +269,7 @@ namespace tinyToolkit
 			EV_SET(&event[0], _socket, EVFILT_READ,  EV_DELETE, 0, 0, nullptr);
 			EV_SET(&event[1], _socket, EVFILT_WRITE, EV_DELETE, 0, 0, nullptr);
 
-			kevent(_managerEvent.socket, event, 2, nullptr, 0, nullptr);
+			kevent(_managerHandle.socket, event, 2, nullptr, 0, nullptr);
 		}
 
 		if (currentEventPtr->flags & EV_ERROR)
@@ -237,7 +291,7 @@ namespace tinyToolkit
 			EV_SET(&event[0], _socket, EVFILT_READ,  EV_ADD | EV_ENABLE,  0, 0, (void *)&_netEvent);
 			EV_SET(&event[1], _socket, EVFILT_WRITE, EV_ADD | EV_DISABLE, 0, 0, (void *)&_netEvent);
 
-			if (kevent(_managerEvent.socket, event, 2, nullptr, 0, nullptr) == -1)
+			if (kevent(_managerHandle.socket, event, 2, nullptr, 0, nullptr) == -1)
 			{
 				Close();
 
@@ -270,11 +324,9 @@ namespace tinyToolkit
 
 #else
 
-		(void)netEvent;
-
 		auto currentEvent = reinterpret_cast<const struct epoll_event *>(sysEvent);
 
-		epoll_ctl(_managerEvent.socket, EPOLL_CTL_DEL, _socket, nullptr);
+		epoll_ctl(_managerHandle.socket, EPOLL_CTL_DEL, _socket, nullptr);
 
 		if (currentEvent->events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP))
 		{
@@ -295,7 +347,7 @@ namespace tinyToolkit
 			event.events = EPOLLIN;
 			event.data.ptr = &_netEvent;
 
-			if (epoll_ctl(_managerEvent.socket, EPOLL_CTL_ADD, _socket, &event) == -1)
+			if (epoll_ctl(_managerHandle.socket, EPOLL_CTL_ADD, _socket, &event) == -1)
 			{
 				Close();
 
@@ -339,13 +391,13 @@ namespace tinyToolkit
 	 */
 	void UDPSessionPipe::DoTransmit(const NetEvent * netEvent, const void * sysEvent)
 	{
+		(void)netEvent;
+
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
 		/// todo
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
-
-		(void)netEvent;
 
 		auto currentEvent = reinterpret_cast<const struct kevent *>(sysEvent);
 
@@ -358,13 +410,15 @@ namespace tinyToolkit
 
 		if (currentEvent->filter == EVFILT_READ)
 		{
-			auto tick = Time::Microseconds();
-
 			static char buffer[TINY_TOOLKIT_MB]{ 0 };
 
-			while (_isConnect && Time::Microseconds() - tick <= 1000)
+			if (_isConnect)
 			{
+				_isSend = true;
+
 				auto len = ::read(_socket, buffer, sizeof(buffer));
+
+				_isSend = false;
 
 				if (len < 0 && errno == EAGAIN)
 				{
@@ -372,11 +426,18 @@ namespace tinyToolkit
 				}
 				else if (len > 0)
 				{
-					buffer[len] = '\0';
-
-					if (_session)
+					if (_receiveBuffer.Push(buffer, static_cast<std::size_t>(len)))
 					{
-						_session->OnReceive(buffer, static_cast<std::size_t>(len));
+						if (_session)
+						{
+							_receiveBuffer.Reduced(_session->OnReceive(_receiveBuffer.Value(), _receiveBuffer.Length()));
+						}
+					}
+					else
+					{
+						Close();
+
+						return;
 					}
 				}
 				else
@@ -390,55 +451,48 @@ namespace tinyToolkit
 
 		if (currentEvent->filter == EVFILT_WRITE)
 		{
-			if (!_sendQueue.empty())
+			if (_isConnect)
 			{
-				std::size_t count = 0;
+				_isReceive = true;
 
-				std::size_t length = _sendQueue.front()._value.size();
+				auto len = ::write(_socket, _sendBuffer.Value(), _sendBuffer.Length());
 
-				const char * value = _sendQueue.front()._value.c_str();
+				_isReceive = false;
 
-				while (_isConnect && count < length)
+				if (len > 0)
 				{
-					auto len = ::write(_socket, value + count, length - count);
-
-					if (len > 0)
-					{
-						count += len;
-
-						if (count == length)
-						{
-							_sendQueue.pop();
-
-							if (_sendQueue.empty())
-							{
-								struct kevent event[2]{ };
-
-								EV_SET(&event[0], _socket, EVFILT_READ,  EV_ENABLE,  0, 0, (void *)&_netEvent);
-								EV_SET(&event[1], _socket, EVFILT_WRITE, EV_DISABLE, 0, 0, (void *)&_netEvent);
-
-								if (kevent(_managerEvent.socket, event, 2, nullptr, 0, nullptr) == -1)
-								{
-									Close();
-
-									return;
-								}
-							}
-						}
-					}
-					else if (len <= 0 && errno != EAGAIN)
+					if (!_sendBuffer.Reduced(static_cast<std::size_t>(len)))
 					{
 						Close();
 
 						return;
 					}
+
+					if (_sendBuffer.Length() == 0)
+					{
+						struct kevent event[2]{ };
+
+						EV_SET(&event[0], _socket, EVFILT_READ,  EV_ENABLE,  0, 0, (void *)&_netEvent);
+						EV_SET(&event[1], _socket, EVFILT_WRITE, EV_DISABLE, 0, 0, (void *)&_netEvent);
+
+						if (kevent(_managerHandle.socket, event, 2, nullptr, 0, nullptr) == -1)
+						{
+							Close();
+
+							return;
+						}
+					}
+				}
+				else if (len <= 0 && errno != EAGAIN)
+				{
+					Close();
+
+					return;
 				}
 			}
 		}
 
 #else
-
-		(void)netEvent;
 
 		auto currentEvent = reinterpret_cast<const struct epoll_event *>(sysEvent);
 
@@ -451,13 +505,15 @@ namespace tinyToolkit
 
 		if (currentEvent->events & EPOLLIN)
 		{
-			auto tick = Time::Microseconds();
-
 			static char buffer[TINY_TOOLKIT_MB]{ 0 };
 
-			while (_isConnect && Time::Microseconds() - tick <= 1000)
+			if (_isConnect)
 			{
+				_isSend = true;
+
 				auto len = ::read(_socket, buffer, sizeof(buffer));
+
+				_isSend = false;
 
 				if (len < 0 && errno == EAGAIN)
 				{
@@ -465,11 +521,18 @@ namespace tinyToolkit
 				}
 				else if (len > 0)
 				{
-					buffer[len] = '\0';
-
-					if (_session)
+					if (_receiveBuffer.Push(buffer, static_cast<std::size_t>(len)))
 					{
-						_session->OnReceive(buffer, static_cast<std::size_t>(len));
+						if (_session)
+						{
+							_receiveBuffer.Reduced(_session->OnReceive(_receiveBuffer.Value(), _receiveBuffer.Length()));
+						}
+					}
+					else
+					{
+						Close();
+
+						return;
 					}
 				}
 				else
@@ -483,88 +546,48 @@ namespace tinyToolkit
 
 		if (currentEvent->events & EPOLLOUT)
 		{
-			if (!_sendQueue.empty())
+			if (_isConnect)
 			{
-				std::size_t count = 0;
+				_isReceive = true;
 
-				std::size_t length = _sendQueue.front()._value.size();
+				auto len = ::write(_socket, _sendBuffer.Value(), _sendBuffer.Length());
 
-				const char * value = _sendQueue.front()._value.c_str();
+				_isReceive = false;
 
-				while (_isConnect && count < length)
+				if (len > 0)
 				{
-					auto len = ::write(_socket, value + count, length - count);
-
-					if (len > 0)
-					{
-						count += len;
-
-						if (count == length)
-						{
-							_sendQueue.pop();
-
-							if (_sendQueue.empty())
-							{
-								struct epoll_event event{ };
-
-								event.events = EPOLLIN;
-								event.data.ptr = &_netEvent;
-
-								if (epoll_ctl(_managerEvent.socket, EPOLL_CTL_MOD, _socket, &event) == -1)
-								{
-									Close();
-
-									return;
-								}
-							}
-						}
-					}
-					else if (len <= 0 && errno != EAGAIN)
+					if (!_sendBuffer.Reduced(static_cast<std::size_t>(len)))
 					{
 						Close();
 
 						return;
 					}
+
+					if (_sendBuffer.Length() == 0)
+					{
+						struct epoll_event event{ };
+
+						event.events = EPOLLIN;
+						event.data.ptr = &_netEvent;
+
+						if (epoll_ctl(_managerHandle.socket, EPOLL_CTL_MOD, _socket, &event) == -1)
+						{
+							Close();
+
+							return;
+						}
+					}
+				}
+				else if (len <= 0 && errno != EAGAIN)
+				{
+					Close();
+
+					return;
 				}
 			}
 		}
 
 #endif
-	}
-
-	/**
-	 *
-	 * 回调函数
-	 *
-	 * @param netEvent 网络事件
-	 * @param sysEvent 系统事件
-	 *
-	 */
-	void UDPSessionPipe::OnCallBack(const NetEvent * netEvent, const void * sysEvent)
-	{
-		switch(netEvent->_type)
-		{
-			case NET_EVENT_TYPE::CONNECT:
-			{
-				DoConnect(netEvent, sysEvent);
-
-				break;
-			}
-
-			case NET_EVENT_TYPE::TRANSMIT:
-			{
-				DoTransmit(netEvent, sysEvent);
-
-				break;
-			}
-
-			default:
-			{
-				TINY_TOOLKIT_ASSERT(false, "UDPSessionPipe type error : {}", netEvent->_socket)
-
-				break;
-			}
-		}
 	}
 
 
@@ -575,19 +598,22 @@ namespace tinyToolkit
 	 *
 	 * 构造函数
 	 *
-	 * @param managerEvent 管理事件
-	 * @param socket 会话句柄
+	 * @param handle 管理句柄
 	 * @param server 服务器
-	 * @param type 事件类型
+	 * @param socket 会话句柄
+	 * @param sSize 发送缓冲区大小
+	 * @param rSize 接收缓冲区大小
 	 *
 	 */
-	UDPServerPipe::UDPServerPipe(NetManagerEvent & managerEvent, int32_t socket, IUDPServer * server, NET_EVENT_TYPE type) : _socket(socket),
-																															 _server(server),
-																															 _managerEvent(managerEvent)
+	UDPServerPipe::UDPServerPipe(NetHandle & handle, IUDPServer * server, TINY_TOOLKIT_SOCKET_TYPE socket, std::size_t sSize, std::size_t rSize) : _sSize(sSize),
+																																				   _rSize(rSize),
+																																				   _managerHandle(handle),
+																																				   _server(server),
+																																				   _socket(socket)
 	{
-		_netEvent._type = type;
+		_netEvent._type = NET_EVENT_TYPE::ACCEPT;
 		_netEvent._socket = _socket;
-		_netEvent._callback = std::bind(&UDPServerPipe::OnCallBack, this, std::placeholders::_1, std::placeholders::_2);
+		_netEvent._completer = this;
 	}
 
 	/**
@@ -597,11 +623,11 @@ namespace tinyToolkit
 	 */
 	void UDPServerPipe::Close()
 	{
-		if (_socket != -1)
+		if (_socket != TINY_TOOLKIT_SOCKET_INVALID)
 		{
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-			/// todo
+			::closesocket(_socket);
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
@@ -610,17 +636,19 @@ namespace tinyToolkit
 			EV_SET(&event[0], _socket, EVFILT_READ,  EV_DELETE, 0, 0, nullptr);
 			EV_SET(&event[1], _socket, EVFILT_WRITE, EV_DELETE, 0, 0, nullptr);
 
-			kevent(_managerEvent.socket, event, 2, nullptr, 0, nullptr);
-
-#else
-
-			epoll_ctl(_managerEvent.socket, EPOLL_CTL_DEL, _socket, nullptr);
-
-#endif
+			kevent(_managerHandle.socket, event, 2, nullptr, 0, nullptr);
 
 			::close(_socket);
 
-			_socket = -1;
+#else
+
+			epoll_ctl(_managerHandle.socket, EPOLL_CTL_DEL, _socket, nullptr);
+
+			::close(_socket);
+
+#endif
+
+			_socket = TINY_TOOLKIT_SOCKET_INVALID;
 
 			if (_server)
 			{
@@ -635,12 +663,42 @@ namespace tinyToolkit
 	 *
 	 * @param value 待发送数据
 	 * @param size 待发送数据长度
+	 * @param delay 延迟发送
 	 *
 	 */
-	void UDPServerPipe::Send(const void * value, std::size_t size)
+	void UDPServerPipe::Send(const void * value, std::size_t size, bool delay)
 	{
 		(void)size;
+		(void)delay;
 		(void)value;
+	}
+
+	/**
+	 *
+	 * 回调函数
+	 *
+	 * @param netEvent 网络事件
+	 * @param sysEvent 系统事件
+	 *
+	 */
+	void UDPServerPipe::OnCallback(const NetEvent * netEvent, const void * sysEvent)
+	{
+		switch (netEvent->_type)
+		{
+			case NET_EVENT_TYPE::ACCEPT:
+			{
+				DoAccept(netEvent, sysEvent);
+
+				break;
+			}
+
+			default:
+			{
+				TINY_TOOLKIT_ASSERT(false, "UDPServerPipe type error : {}", netEvent->_socket);
+
+				break;
+			}
+		}
 	}
 
 	/**
@@ -653,13 +711,13 @@ namespace tinyToolkit
 	 */
 	void UDPServerPipe::DoAccept(const NetEvent * netEvent, const void * sysEvent)
 	{
+		(void)netEvent;
+
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
 		/// todo
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
-
-		(void)netEvent;
 
 		auto currentEvent = reinterpret_cast<const struct kevent *>(sysEvent);
 
@@ -669,7 +727,7 @@ namespace tinyToolkit
 
 			std::size_t addressLen = sizeof(struct sockaddr);
 
-			int32_t sock = Accept(_socket, (struct sockaddr *)&clientAddress, (socklen_t *)&addressLen);
+			TINY_TOOLKIT_SOCKET_TYPE sock = Accept(_socket, (struct sockaddr *)&clientAddress, (socklen_t *)&addressLen);
 
 			if (sock >= 0)
 			{
@@ -689,7 +747,7 @@ namespace tinyToolkit
 				serverAddress.sin_family = AF_INET;
 				serverAddress.sin_addr.s_addr = Net::AsNetByte(_server->_host.c_str());
 
-				if (::bind(sock, (struct sockaddr *)&serverAddress, sizeof(struct sockaddr_in)) == -1)
+				if (::bind(sock, (struct sockaddr *)&serverAddress, sizeof(struct sockaddr_in)) == TINY_TOOLKIT_SOCKET_ERROR)
 				{
 					::close(sock);
 
@@ -698,7 +756,7 @@ namespace tinyToolkit
 					return;
 				}
 
-				if (::connect(sock, (struct sockaddr *)&clientAddress, sizeof(struct sockaddr)) == -1)
+				if (::connect(sock, (struct sockaddr *)&clientAddress, sizeof(struct sockaddr)) == TINY_TOOLKIT_SOCKET_ERROR)
 				{
 					::close(sock);
 
@@ -723,14 +781,14 @@ namespace tinyToolkit
 					session->_remotePort = remotePort;
 					session->_remoteHost = remoteHost;
 
-					auto pipe = std::make_shared<UDPSessionPipe>(_managerEvent, sock, session, NET_EVENT_TYPE::TRANSMIT);
+					auto pipe = std::make_shared<UDPSessionPipe>(_managerHandle, session, sock, _sSize, _rSize);
 
 					struct kevent event[2]{ };
 
-					EV_SET(&event[0], _socket, EVFILT_READ,  EV_ADD | EV_ENABLE,  0, 0, (void *)&pipe->_netEvent);
-					EV_SET(&event[1], _socket, EVFILT_WRITE, EV_ADD | EV_DISABLE, 0, 0, (void *)&pipe->_netEvent);
+					EV_SET(&event[0], sock, EVFILT_READ,  EV_ADD | EV_ENABLE,  0, 0, (void *)&pipe->_netEvent);
+					EV_SET(&event[1], sock, EVFILT_WRITE, EV_ADD | EV_DISABLE, 0, 0, (void *)&pipe->_netEvent);
 
-					if (kevent(_managerEvent.socket, event, 2, nullptr, 0, nullptr) == -1)
+					if (kevent(_managerHandle.socket, event, 2, nullptr, 0, nullptr) == -1)
 					{
 						::close(sock);
 
@@ -758,8 +816,6 @@ namespace tinyToolkit
 
 #else
 
-		(void)netEvent;
-
 		auto currentEvent = reinterpret_cast<const struct epoll_event *>(sysEvent);
 
 		if (currentEvent->events & EPOLLIN)
@@ -788,7 +844,7 @@ namespace tinyToolkit
 				serverAddress.sin_family = AF_INET;
 				serverAddress.sin_addr.s_addr = Net::AsNetByte(_server->_host.c_str());
 
-				if (::bind(sock, (struct sockaddr *)&serverAddress, sizeof(struct sockaddr_in)) == -1)
+				if (::bind(sock, (struct sockaddr *)&serverAddress, sizeof(struct sockaddr_in)) == TINY_TOOLKIT_SOCKET_ERROR)
 				{
 					::close(sock);
 
@@ -797,7 +853,7 @@ namespace tinyToolkit
 					return;
 				}
 
-				if (::connect(sock, (struct sockaddr *)&clientAddress, sizeof(struct sockaddr)) == -1)
+				if (::connect(sock, (struct sockaddr *)&clientAddress, sizeof(struct sockaddr)) == TINY_TOOLKIT_SOCKET_ERROR)
 				{
 					::close(sock);
 
@@ -822,14 +878,14 @@ namespace tinyToolkit
 					session->_remotePort = remotePort;
 					session->_remoteHost = remoteHost;
 
-					auto pipe = std::make_shared<UDPSessionPipe>(_managerEvent, sock, session, NET_EVENT_TYPE::TRANSMIT);
+					auto pipe = std::make_shared<UDPSessionPipe>(_managerHandle, session, sock, _sSize, _rSize);
 
 					struct epoll_event event{ };
 
 					event.events = EPOLLIN;
 					event.data.ptr = &pipe->_netEvent;
 
-					if (epoll_ctl(_managerEvent.socket, EPOLL_CTL_ADD, sock, &event) == -1)
+					if (epoll_ctl(_managerHandle.socket, EPOLL_CTL_ADD, sock, &event) == -1)
 					{
 						::close(sock);
 
@@ -862,33 +918,5 @@ namespace tinyToolkit
 		}
 
 #endif
-	}
-
-	/**
-	 *
-	 * 回调函数
-	 *
-	 * @param netEvent 网络事件
-	 * @param sysEvent 系统事件
-	 *
-	 */
-	void UDPServerPipe::OnCallBack(const NetEvent * netEvent, const void * sysEvent)
-	{
-		switch (netEvent->_type)
-		{
-			case NET_EVENT_TYPE::ACCEPT:
-			{
-				DoAccept(netEvent, sysEvent);
-
-				break;
-			}
-
-			default:
-			{
-				TINY_TOOLKIT_ASSERT(false, "UDPServerPipe type error : {}", netEvent->_socket)
-
-				break;
-			}
-		}
 	}
 }

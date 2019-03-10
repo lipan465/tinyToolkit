@@ -19,13 +19,15 @@ namespace tinyToolkit
 	 *
 	 * @param host 主机地址
 	 * @param port 主机端口
+	 * @param sSize 发送缓冲区大小
+	 * @param rSize 接受缓冲区大小
 	 *
 	 * @return 是否启动成功
 	 *
 	 */
-	bool ITCPSession::Launch(const std::string & host, uint16_t port)
+	bool ITCPSession::Launch(const std::string & host, uint16_t port, std::size_t sSize, std::size_t rSize)
 	{
-		return NetWorkManager::Instance().LaunchTCPClient(this, host, port);
+		return NetWorkManager::Instance().LaunchTCPClient(this, host, port, sSize, rSize);
 	}
 
 	/**
@@ -47,13 +49,14 @@ namespace tinyToolkit
 	 *
 	 * @param value 待发送数据
 	 * @param size 待发送数据长度
+	 * @param delay 延迟发送
 	 *
 	 */
-	void ITCPSession::Send(const void * value, std::size_t size)
+	void ITCPSession::Send(const void * value, std::size_t size, bool delay)
 	{
 		if (_pipe)
 		{
-			_pipe->Send(value, size);
+			_pipe->Send(value, size, delay);
 		}
 	}
 
@@ -67,13 +70,15 @@ namespace tinyToolkit
 	 *
 	 * @param host 主机地址
 	 * @param port 主机端口
+	 * @param sSize 发送缓冲区大小
+	 * @param rSize 接受缓冲区大小
 	 *
 	 * @return 是否启动成功
 	 *
 	 */
-	bool IUDPSession::Launch(const std::string & host, uint16_t port)
+	bool IUDPSession::Launch(const std::string & host, uint16_t port, std::size_t sSize, std::size_t rSize)
 	{
-		return NetWorkManager::Instance().LaunchUDPClient(this, host, port);
+		return NetWorkManager::Instance().LaunchUDPClient(this, host, port, sSize, rSize);
 	}
 
 	/**
@@ -95,13 +100,14 @@ namespace tinyToolkit
 	 *
 	 * @param value 待发送数据
 	 * @param size 待发送数据长度
+	 * @param delay 延迟发送
 	 *
 	 */
-	void IUDPSession::Send(const void * value, std::size_t size)
+	void IUDPSession::Send(const void * value, std::size_t size, bool delay)
 	{
 		if (_pipe)
 		{
-			_pipe->Send(value, size);
+			_pipe->Send(value, size, delay);
 		}
 	}
 }

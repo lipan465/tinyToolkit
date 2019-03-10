@@ -59,6 +59,17 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 设置延时关闭
+		 *
+		 * @param socket 句柄
+		 *
+		 * @return 是否设置成功
+		 *
+		 */
+		static bool EnableLinger(TINY_TOOLKIT_SOCKET_TYPE socket, int32_t status = 1, int32_t timeout = 0);
+
+		/**
+		 *
 		 * 启用Nagle算法
 		 *
 		 * @param socket 句柄
@@ -66,7 +77,7 @@ namespace tinyToolkit
 		 * @return 是否设置成功
 		 *
 		 */
-		static bool EnableNoDelay(int32_t socket);
+		static bool EnableNoDelay(TINY_TOOLKIT_SOCKET_TYPE socket);
 
 		/**
 		 *
@@ -77,7 +88,7 @@ namespace tinyToolkit
 		 * @return 是否设置成功
 		 *
 		 */
-		static bool EnableNonBlock(int32_t socket);
+		static bool EnableNonBlock(TINY_TOOLKIT_SOCKET_TYPE socket);
 
 		/**
 		 *
@@ -88,7 +99,7 @@ namespace tinyToolkit
 		 * @return 是否设置成功
 		 *
 		 */
-		static bool EnableReuseAddress(int32_t socket);
+		static bool EnableReuseAddress(TINY_TOOLKIT_SOCKET_TYPE socket);
 
 		/**
 		 *
@@ -100,7 +111,7 @@ namespace tinyToolkit
 		 * @return 是否设置成功
 		 *
 		 */
-		static bool SetSendBufferSize(int32_t sock, int32_t size);
+		static bool SetSendBufferSize(TINY_TOOLKIT_SOCKET_TYPE sock, int32_t size);
 
 		/**
 		 *
@@ -112,7 +123,7 @@ namespace tinyToolkit
 		 * @return 是否设置成功
 		 *
 		 */
-		static bool SetReceiveBufferSize(int32_t sock, int32_t size);
+		static bool SetReceiveBufferSize(TINY_TOOLKIT_SOCKET_TYPE sock, int32_t size);
 
 		/**
 		 *

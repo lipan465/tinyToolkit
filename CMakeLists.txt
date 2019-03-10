@@ -26,6 +26,7 @@ INCLUDE(TraverseLibrary)
 INCLUDE(TraverseInstall)
 INCLUDE(TraverseInclude)
 INCLUDE(TraverseCMakeLists)
+INCLUDE(TraverseSourceGroup)
 
 
 #

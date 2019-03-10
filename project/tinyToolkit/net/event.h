@@ -11,62 +11,41 @@
  */
 
 
-#include "../common/common.h"
+#include "type.h"
+#include "completer.h"
 
 
 namespace tinyToolkit
 {
-	enum class NET_EVENT_TYPE : uint8_t
-	{
-		ACCEPT,
-		CONNECT,
-		TRANSMIT,
-	};
-
-	typedef union
-	{
-		void * handle;
-
-		int32_t socket;
-	}NetManagerEvent;
-
 	class TINY_TOOLKIT_API NetEvent
-	{
-	public:
-		int32_t _socket{ -1 };
-
-		std::size_t _bytes{ 0 };
-
-		NET_EVENT_TYPE _type{ NET_EVENT_TYPE::TRANSMIT };
-
-		std::function<void(const NetEvent *, const void *)> _callback;
-	};
-
-	class TINY_TOOLKIT_API NetEventPackage
 	{
 	public:
 		/**
 		 *
 		 * 构造函数
 		 *
-		 * @param host 主机地址
-		 * @param port 主机端口
-		 * @param value 待发送数据
-		 * @param size 待发送数据长度
+		 */
+		NetEvent() = default;
+
+		/**
+		 *
+		 * 构造函数
+		 *
+		 * @param type 事件类型
+		 * @param socket 句柄
+		 * @param completer 完成者
 		 *
 		 */
-		NetEventPackage(const char * host, uint16_t port, const void * value, std::size_t size) : _port(port),
-																								  _host(host),
-																								  _value(std::string(reinterpret_cast<const char *>(value), size))
-		{
-
-		}
+		NetEvent(NET_EVENT_TYPE type, TINY_TOOLKIT_SOCKET_TYPE socket, INetCompleter * completer);
 
 	public:
-		uint16_t _port{ 0 };
+		std::size_t _bytes{ 0 };
 
-		std::string _host{ };
-		std::string _value{ };
+		INetCompleter * _completer{ nullptr };
+
+		NET_EVENT_TYPE _type{ NET_EVENT_TYPE::TRANSMIT };
+
+		TINY_TOOLKIT_SOCKET_TYPE _socket{ TINY_TOOLKIT_SOCKET_INVALID };
 	};
 }
 

@@ -71,7 +71,9 @@
 #  include <io.h>
 #  include <direct.h>
 #  include <Ws2tcpip.h>
+#  include <MSWSock.h>
 #  include <windows.h>
+#  include <WinSock2.h>
 #  include <tlhelp32.h>
 #
 #  define strcasecmp _stricmp

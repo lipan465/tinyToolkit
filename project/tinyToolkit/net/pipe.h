@@ -43,9 +43,10 @@ namespace tinyToolkit
 		 *
 		 * @param value 待发送数据
 		 * @param size 待发送数据长度
+		 * @param delay 延迟发送
 		 *
 		 */
-		virtual void Send(const void * value, std::size_t size) = 0;
+		virtual void Send(const void * value, std::size_t size, bool delay) = 0;
 	};
 
 	class TINY_TOOLKIT_API IUDPPipe : public INetPipe
@@ -57,9 +58,10 @@ namespace tinyToolkit
 		 *
 		 * @param value 待发送数据
 		 * @param size 待发送数据长度
+		 * @param delay 延迟发送
 		 *
 		 */
-		virtual void Send(const void * value, std::size_t size) = 0;
+		virtual void Send(const void * value, std::size_t size, bool delay) = 0;
 	};
 }
 

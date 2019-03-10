@@ -153,17 +153,17 @@ namespace tinyToolkit
 }
 
 
-#define TINY_TOOLKIT_DEBUG(...)			tinyToolkit::TraceHelper::Debug(TINY_TOOLKIT_FILE_LINE, ##__VA_ARGS__);
-#define TINY_TOOLKIT_FATAL(...)			tinyToolkit::TraceHelper::Fatal(TINY_TOOLKIT_FILE_LINE, ##__VA_ARGS__);
+#define TINY_TOOLKIT_DEBUG(...)			tinyToolkit::TraceHelper::Debug(TINY_TOOLKIT_FILE_LINE, ##__VA_ARGS__)
+#define TINY_TOOLKIT_FATAL(...)			tinyToolkit::TraceHelper::Fatal(TINY_TOOLKIT_FILE_LINE, ##__VA_ARGS__)
 
 
 #ifdef DEBUG
 
-#define TINY_TOOLKIT_ASSERT(cond, ...)	if (!(cond)) tinyToolkit::TraceHelper::Assert(TINY_TOOLKIT_FILE_LINE, #cond, ##__VA_ARGS__);
+#define TINY_TOOLKIT_ASSERT(cond, ...)	if (!(cond)) tinyToolkit::TraceHelper::Assert(TINY_TOOLKIT_FILE_LINE, #cond, ##__VA_ARGS__)
 
 #else
 
-#define TINY_TOOLKIT_ASSERT(cond, ...)	{ }
+#define TINY_TOOLKIT_ASSERT(cond, ...)	(void)cond
 
 #endif
 

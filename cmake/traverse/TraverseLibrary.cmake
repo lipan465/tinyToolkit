@@ -3,6 +3,12 @@
 #
 MACRO(TRAVERSE_LIBRARY_FOR_PROGRAM_NAME)
 
+	IF(${ARGC} LESS 1)
+
+		MESSAGE(FATAL_ERROR "Has and is greater than one parameter")
+
+	ENDIF()
+
 	FOREACH(param ${ARGN})
 
 		TARGET_LINK_LIBRARIES(${PROGRAM_NAME} PUBLIC ${param})

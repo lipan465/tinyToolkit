@@ -126,7 +126,7 @@ namespace tinyToolkit
 	{
 		while (true)
 		{
-			LogEvent event;
+			LogEvent event{ };
 
 			{
 				std::unique_lock<std::mutex> lock(_mutex);

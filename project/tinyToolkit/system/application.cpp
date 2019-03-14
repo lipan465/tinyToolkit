@@ -143,7 +143,7 @@ namespace tinyToolkit
 						if (strcmp(process.szExeFile, Name().c_str()) == 0)
 						{
 							find = true;
-
+							
 							break;
 						}
 					}

@@ -1147,7 +1147,7 @@ TEST(System, Application)
 {
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-	EXPECT_FALSE(tinyToolkit::Application::Exist()) << strerror(errno);
+	EXPECT_TRUE(tinyToolkit::Application::Exist()) << strerror(errno);
 
 	EXPECT_STR_EQ(tinyToolkit::Application::Name().c_str(), "benchmarkTest.exe");
 	EXPECT_STR_EQ(tinyToolkit::Application::Extension().c_str(), ".exe");

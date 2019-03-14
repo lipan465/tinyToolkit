@@ -36,7 +36,7 @@ namespace tinyToolkit
 		 * @param sysEvent 系统事件
 		 *
 		 */
-		virtual void OnCallback(const NetEvent * netEvent, const void * sysEvent) = 0;
+		virtual void OnCallback(NetEvent * netEvent, void * sysEvent) = 0;
 	};
 }
 

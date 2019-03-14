@@ -16,6 +16,24 @@ namespace tinyToolkit
 	 *
 	 * 构造函数
 	 *
+	 */
+	NetEvent::NetEvent()
+	{
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		memset(&_overlap, 0, sizeof(OVERLAPPED));
+
+#else
+
+		_type = NET_EVENT_TYPE::INVALID;
+
+#endif
+	}
+
+	/**
+	 *
+	 * 构造函数
+	 *
 	 * @param type 事件类型
 	 * @param socket 句柄
 	 * @param completer 完成者
@@ -25,6 +43,10 @@ namespace tinyToolkit
 																										  _type(type),
 																										  _socket(socket)
 	{
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
+		memset(&_overlap, 0, sizeof(OVERLAPPED));
+
+#endif
 	}
 }

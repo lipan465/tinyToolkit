@@ -184,9 +184,31 @@ namespace tinyToolkit
 
 	/**
 	 *
+	 * 关闭套接字
+	 *
+	 * @param socket 套接字
+	 *
+	 * @return 是否关闭成功
+	 *
+	 */
+	bool Net::CloseSocket(TINY_TOOLKIT_SOCKET_TYPE socket)
+	{
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		return ::closesocket(socket) == 0;
+
+#else
+
+		return ::close(socket) == 0;
+
+#endif
+	}
+
+	/**
+	 *
 	 * 设置延时关闭
 	 *
-	 * @param socket 句柄
+	 * @param socket 套接字
 	 *
 	 * @return 是否设置成功
 	 *
@@ -213,7 +235,7 @@ namespace tinyToolkit
 	 *
 	 * 启用Nagle算法
 	 *
-	 * @param socket 句柄
+	 * @param socket 套接字
 	 *
 	 * @return 是否设置成功
 	 *
@@ -229,7 +251,7 @@ namespace tinyToolkit
 	 *
 	 * 启用非堵塞
 	 *
-	 * @param socket 句柄
+	 * @param socket 套接字
 	 *
 	 * @return 是否设置成功
 	 *
@@ -238,7 +260,7 @@ namespace tinyToolkit
 	{
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-		u_long opt = 1;
+		u_long opt = 1l;
 
 		return ioctlsocket(socket, FIONBIO, &opt) == 0;
 
@@ -253,7 +275,7 @@ namespace tinyToolkit
 	 *
 	 * 启用地址复用
 	 *
-	 * @param socket 句柄
+	 * @param socket 套接字
 	 *
 	 * @return 是否设置成功
 	 *
@@ -267,9 +289,43 @@ namespace tinyToolkit
 
 	/**
 	 *
+	 * 获取本地地址
+	 *
+	 * @param socket 套接字
+	 * @param address 地址
+	 *
+	 * @return 是否获取成功
+	 *
+	 */
+	bool Net::GetLocalAddress(TINY_TOOLKIT_SOCKET_TYPE socket, struct sockaddr_in & address)
+	{
+		std::size_t len = sizeof(struct sockaddr_in);
+
+		return ::getsockname(socket, reinterpret_cast<struct sockaddr *>(&address), reinterpret_cast<socklen_t *>(&len)) == 0;
+	}
+
+	/**
+	 *
+	 * 获取远程地址
+	 *
+	 * @param socket 套接字
+	 * @param address 地址
+	 *
+	 * @return 是否获取成功
+	 *
+	 */
+	bool Net::GetRemoteAddress(TINY_TOOLKIT_SOCKET_TYPE socket, struct sockaddr_in & address)
+	{
+		std::size_t len = sizeof(struct sockaddr_in);
+
+		return ::getpeername(socket, reinterpret_cast<struct sockaddr *>(&address), reinterpret_cast<socklen_t *>(&len)) == 0;
+	}
+
+	/**
+	 *
 	 * 设置发送缓冲区大小
 	 *
-	 * @param sock 句柄
+	 * @param sock 套接字
 	 * @param size 缓冲区大小
 	 *
 	 * @return 是否设置成功
@@ -284,7 +340,7 @@ namespace tinyToolkit
 	 *
 	 * 设置接收缓冲区大小
 	 *
-	 * @param sock 句柄
+	 * @param sock 套接字
 	 * @param size 缓冲区大小
 	 *
 	 * @return 是否设置成功

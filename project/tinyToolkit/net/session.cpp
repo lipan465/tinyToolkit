@@ -10,6 +10,8 @@
 #include "session.h"
 #include "manager.h"
 
+#include "../utilities/net.h"
+
 
 namespace tinyToolkit
 {
@@ -45,6 +47,39 @@ namespace tinyToolkit
 
 	/**
 	 *
+	 * 获取地址
+	 *
+	 */
+	void ITCPSession::GetAddress()
+	{
+		if (_pipe)
+		{
+			if (_localPort == 0)
+			{
+				struct sockaddr_in address{ };
+
+				if (Net::GetLocalAddress(_pipe->Socket(), address))
+				{
+					_localPort = ntohs(address.sin_port);
+					_localHost = inet_ntoa(address.sin_addr);
+				}
+			}
+
+			if (_remotePort == 0)
+			{
+				struct sockaddr_in address{ };
+
+				if (Net::GetRemoteAddress(_pipe->Socket(), address))
+				{
+					_remotePort = ntohs(address.sin_port);
+					_remoteHost = inet_ntoa(address.sin_addr);
+				}
+			}
+		}
+	}
+
+	/**
+	 *
 	 * 发送数据
 	 *
 	 * @param value 待发送数据
@@ -59,7 +94,6 @@ namespace tinyToolkit
 			_pipe->Send(value, size, delay);
 		}
 	}
-
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -91,6 +125,39 @@ namespace tinyToolkit
 		if (_pipe)
 		{
 			_pipe->Close();
+		}
+	}
+
+	/**
+	 *
+	 * 获取地址
+	 *
+	 */
+	void IUDPSession::GetAddress()
+	{
+		if (_pipe)
+		{
+			if (_localPort == 0)
+			{
+				struct sockaddr_in address{ };
+
+				if (Net::GetLocalAddress(_pipe->Socket(), address))
+				{
+					_localPort = ntohs(address.sin_port);
+					_localHost = inet_ntoa(address.sin_addr);
+				}
+			}
+
+			if (_remotePort == 0)
+			{
+				struct sockaddr_in address{ };
+
+				if (Net::GetRemoteAddress(_pipe->Socket(), address))
+				{
+					_remotePort = ntohs(address.sin_port);
+					_remoteHost = inet_ntoa(address.sin_addr);
+				}
+			}
 		}
 	}
 

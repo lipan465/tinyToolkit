@@ -92,7 +92,7 @@ namespace tinyToolkit
 
 		if (!handle)
 		{
-			TINY_TOOLKIT_ASSERT(false, "Load [{}] : {}", path, OS::LastErrorMessage())
+			TINY_TOOLKIT_ASSERT(false, "Load [{}] : {}", path, OS::LastErrorMessage());
 
 			return false;
 		}

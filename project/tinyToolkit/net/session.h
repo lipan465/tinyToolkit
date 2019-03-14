@@ -82,6 +82,13 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 获取地址
+		 *
+		 */
+		void GetAddress();
+
+		/**
+		 *
 		 * 发送数据
 		 *
 		 * @param value 待发送数据
@@ -94,6 +101,9 @@ namespace tinyToolkit
 	public:
 		uint16_t _localPort{ 0 };
 		uint16_t _remotePort{ 0 };
+
+		std::size_t _sSize{ 0 };
+		std::size_t _rSize{ 0 };
 
 		std::string _localHost{ };
 		std::string _remoteHost{ };
@@ -167,6 +177,13 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 获取地址
+		 *
+		 */
+		void GetAddress();
+
+		/**
+		 *
 		 * 发送数据
 		 *
 		 * @param value 待发送数据
@@ -179,6 +196,9 @@ namespace tinyToolkit
 	public:
 		uint16_t _localPort{ 0 };
 		uint16_t _remotePort{ 0 };
+
+		std::size_t _sSize{ 0 };
+		std::size_t _rSize{ 0 };
 
 		std::string _localHost{ };
 		std::string _remoteHost{ };

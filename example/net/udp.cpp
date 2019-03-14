@@ -39,6 +39,8 @@ UDPClientSession::~UDPClientSession()
  */
 void UDPClientSession::OnConnect()
 {
+	GetAddress();
+
 	tinyToolkit::String::Print("Client session [{}:{}] connect server session [{}:{}] success\r\n", _localHost, _localPort, _remoteHost, _remotePort);
 
 	std::string value = tinyToolkit::String::Format("Hello UDP server, my client number is {}", _id);
@@ -116,6 +118,8 @@ UDPServerSession::~UDPServerSession()
  */
 void UDPServerSession::OnConnect()
 {
+	GetAddress();
+
 	tinyToolkit::String::Print("Server session [{}:{}] connect client session [{}:{}] success\r\n", _localHost, _localPort, _remoteHost, _remotePort);
 
 	std::string value = tinyToolkit::String::Format("Hello UDP client, my server number is {}", _id);

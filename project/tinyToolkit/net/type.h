@@ -18,11 +18,12 @@ namespace tinyToolkit
 {
 	enum class NET_EVENT_TYPE : uint8_t
 	{
+		IO,
 		SEND,
 		ACCEPT,
 		CONNECT,
 		RECEIVE,
-		TRANSMIT,
+		INVALID,
 	};
 }
 

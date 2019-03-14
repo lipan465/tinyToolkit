@@ -47,6 +47,42 @@ namespace tinyToolkit
 		 *
 		 */
 		virtual void Send(const void * value, std::size_t size, bool delay) = 0;
+
+		/**
+		 *
+		 * 异步发送
+		 *
+		 * @return 是否处理成功
+		 *
+		 */
+		virtual bool AsyncSend() = 0;
+
+		/**
+		 *
+		 * 异步连接
+		 *
+		 * @return 是否处理成功
+		 *
+		 */
+		virtual bool AsyncAccept() = 0;
+
+		/**
+		 *
+		 * 异步接收
+		 *
+		 * @return 是否处理成功
+		 *
+		 */
+		virtual bool AsyncReceive() = 0;
+
+		/**
+		 *
+		 * 套接字
+		 *
+		 * @return 套接字
+		 *
+		 */
+		virtual TINY_TOOLKIT_SOCKET_TYPE Socket() = 0;
 	};
 
 	class TINY_TOOLKIT_API IUDPPipe : public INetPipe
@@ -62,6 +98,42 @@ namespace tinyToolkit
 		 *
 		 */
 		virtual void Send(const void * value, std::size_t size, bool delay) = 0;
+
+		/**
+		 *
+		 * 异步发送
+		 *
+		 * @return 是否处理成功
+		 *
+		 */
+		virtual bool AsyncSend() = 0;
+
+		/**
+		 *
+		 * 异步连接
+		 *
+		 * @return 是否处理成功
+		 *
+		 */
+		virtual bool AsyncAccept() = 0;
+
+		/**
+		 *
+		 * 异步接收
+		 *
+		 * @return 是否处理成功
+		 *
+		 */
+		virtual bool AsyncReceive() = 0;
+
+		/**
+		 *
+		 * 套接字
+		 *
+		 * @return 套接字
+		 *
+		 */
+		virtual TINY_TOOLKIT_SOCKET_TYPE Socket() = 0;
 	};
 }
 

@@ -85,6 +85,9 @@ namespace tinyToolkit
 
 		std::string _host{ };
 
+		std::size_t _sSize{ 0 };
+		std::size_t _rSize{ 0 };
+
 		std::shared_ptr<ITCPPipe> _pipe{ };
 	};
 
@@ -156,6 +159,9 @@ namespace tinyToolkit
 		uint16_t _port{ 0 };
 
 		std::string _host{ };
+
+		std::size_t _sSize{ 0 };
+		std::size_t _rSize{ 0 };
 
 		std::shared_ptr<IUDPPipe> _pipe{ };
 	};

@@ -14,7 +14,6 @@
 #include "event.h"
 #include "server.h"
 #include "buffer.h"
-#include "handle.h"
 #include "session.h"
 
 
@@ -27,14 +26,12 @@ namespace tinyToolkit
 		 *
 		 * 构造函数
 		 *
-		 * @param handle 管理句柄
 		 * @param session 会话
-		 * @param socket 会话句柄
-		 * @param sSize 发送缓冲区大小
-		 * @param rSize 接收缓冲区大小
+		 * @param socket 会话套接字
+		 * @param handle 管理句柄
 		 *
 		 */
-		UDPSessionPipe(NetHandle & handle, IUDPSession * session, TINY_TOOLKIT_SOCKET_TYPE socket, std::size_t sSize, std::size_t rSize);
+		UDPSessionPipe(IUDPSession * session, TINY_TOOLKIT_SOCKET_TYPE socket, TINY_TOOLKIT_SOCKET_HANDLE handle);
 
 		/**
 		 *
@@ -45,6 +42,15 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 套接字
+		 *
+		 * @return 套接字
+		 *
+		 */
+		TINY_TOOLKIT_SOCKET_TYPE Socket() override;
+
+		/**
+		 *
 		 * 关闭会话
 		 *
 		 */
@@ -63,24 +69,51 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 异步发送
+		 *
+		 * @return 是否处理成功
+		 *
+		 */
+		bool AsyncSend() override;
+
+		/**
+		 *
+		 * 异步连接
+		 *
+		 * @return 是否处理成功
+		 *
+		 */
+		bool AsyncAccept() override;
+
+		/**
+		 *
+		 * 异步接收
+		 *
+		 * @return 是否处理成功
+		 *
+		 */
+		bool AsyncReceive() override;
+
+		/**
+		 *
 		 * 回调函数
 		 *
 		 * @param netEvent 网络事件
 		 * @param sysEvent 系统事件
 		 *
 		 */
-		void OnCallback(const NetEvent * netEvent, const void * sysEvent) override;
+		void OnCallback(NetEvent * netEvent, void * sysEvent) override;
 
 	protected:
 		/**
 		 *
-		 * 连接处理
+		 * 交互处理
 		 *
 		 * @param netEvent 网络事件
 		 * @param sysEvent 系统事件
 		 *
 		 */
-		void DoConnect(const NetEvent * netEvent, const void * sysEvent);
+		void DoIO(NetEvent * netEvent, void * sysEvent);
 
 		/**
 		 *
@@ -90,24 +123,53 @@ namespace tinyToolkit
 		 * @param sysEvent 系统事件
 		 *
 		 */
-		void DoTransmit(const NetEvent * netEvent, const void * sysEvent);
+		void DoSend(NetEvent * netEvent, void * sysEvent);
+
+		/**
+		 *
+		 * 交互处理
+		 *
+		 * @param netEvent 网络事件
+		 * @param sysEvent 系统事件
+		 *
+		 */
+		void DoReceive(NetEvent * netEvent, void * sysEvent);
+
+		/**
+		 *
+		 * 连接处理
+		 *
+		 * @param netEvent 网络事件
+		 * @param sysEvent 系统事件
+		 *
+		 */
+		void DoConnect(NetEvent * netEvent, void * sysEvent);
 
 	public:
 		bool _isSend{ false };
 		bool _isReceive{ false };
 		bool _isConnect{ false };
 
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		NetEvent _sendEvent{ };
+		NetEvent _receiveEvent{ };
+
+#else
+
 		NetEvent _netEvent{ };
+
+#endif
 
 	private:
 		NetBuffer _sendBuffer;
 		NetBuffer _receiveBuffer;
 
-		NetHandle & _managerHandle;
-
 		IUDPSession * _session{ nullptr };
 
 		TINY_TOOLKIT_SOCKET_TYPE _socket{ TINY_TOOLKIT_SOCKET_INVALID };
+
+		TINY_TOOLKIT_SOCKET_HANDLE _handle{ TINY_TOOLKIT_SOCKET_HANDLE_INVALID };
 	};
 
 	class TINY_TOOLKIT_API UDPServerPipe : public IUDPPipe, public INetCompleter
@@ -117,14 +179,12 @@ namespace tinyToolkit
 		 *
 		 * 构造函数
 		 *
-		 * @param handle 管理句柄
 		 * @param server 服务器
-		 * @param socket 会话句柄
-		 * @param sSize 发送缓冲区大小
-		 * @param rSize 接收缓冲区大小
+		 * @param socket 会话套接字
+		 * @param handle 管理句柄
 		 *
 		 */
-		UDPServerPipe(NetHandle & handle, IUDPServer * server, TINY_TOOLKIT_SOCKET_TYPE socket, std::size_t sSize, std::size_t rSize);
+		UDPServerPipe(IUDPServer * server, TINY_TOOLKIT_SOCKET_TYPE socket, TINY_TOOLKIT_SOCKET_HANDLE handle);
 
 		/**
 		 *
@@ -135,6 +195,15 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 套接字
+		 *
+		 * @return 套接字
+		 *
+		 */
+		TINY_TOOLKIT_SOCKET_TYPE Socket() override;
+
+		/**
+		 *
 		 * 关闭会话
 		 *
 		 */
@@ -153,13 +222,40 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 异步发送
+		 *
+		 * @return 是否处理成功
+		 *
+		 */
+		bool AsyncSend() override;
+
+		/**
+		 *
+		 * 异步连接
+		 *
+		 * @return 是否处理成功
+		 *
+		 */
+		bool AsyncAccept() override;
+
+		/**
+		 *
+		 * 异步接收
+		 *
+		 * @return 是否处理成功
+		 *
+		 */
+		bool AsyncReceive() override;
+
+		/**
+		 *
 		 * 回调函数
 		 *
 		 * @param netEvent 网络事件
 		 * @param sysEvent 系统事件
 		 *
 		 */
-		void OnCallback(const NetEvent * netEvent, const void * sysEvent) override;
+		void OnCallback(NetEvent * netEvent, void * sysEvent) override;
 
 	protected:
 		/**
@@ -170,20 +266,17 @@ namespace tinyToolkit
 		 * @param sysEvent 系统事件
 		 *
 		 */
-		void DoAccept(const NetEvent * netEvent, const void * sysEvent);
+		void DoAccept(NetEvent * netEvent, void * sysEvent);
 
 	public:
 		NetEvent _netEvent{ };
 
 	private:
-		std::size_t _sSize{ 0 };
-		std::size_t _rSize{ 0 };
-
-		NetHandle & _managerHandle;
-
 		IUDPServer * _server{ nullptr };
 
 		TINY_TOOLKIT_SOCKET_TYPE _socket{ TINY_TOOLKIT_SOCKET_INVALID };
+
+		TINY_TOOLKIT_SOCKET_HANDLE _handle{ TINY_TOOLKIT_SOCKET_HANDLE_INVALID };
 	};
 }
 

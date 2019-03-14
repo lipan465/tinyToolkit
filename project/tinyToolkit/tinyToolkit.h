@@ -46,11 +46,13 @@
 #include "net/tcp.h"
 #include "net/udp.h"
 #include "net/pipe.h"
+#include "net/type.h"
 #include "net/event.h"
 #include "net/buffer.h"
 #include "net/server.h"
 #include "net/session.h"
 #include "net/manager.h"
+#include "net/completer.h"
 
 /// test
 #include "test/case.h"

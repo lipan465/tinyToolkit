@@ -100,7 +100,7 @@ namespace tinyToolkit
 		 * 构造函数
 		 *
 		 */
-		NetWorkManager();
+		NetWorkManager() = default;
 
 		/**
 		 *
@@ -128,9 +128,9 @@ namespace tinyToolkit
 	private:
 		bool _status{ false };
 
-		NetHandle _handle{ };
-
 		std::thread _thread{ };
+
+		TINY_TOOLKIT_SOCKET_HANDLE _handle{ TINY_TOOLKIT_SOCKET_HANDLE_INVALID };
 	};
 }
 

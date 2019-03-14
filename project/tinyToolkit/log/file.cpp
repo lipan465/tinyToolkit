@@ -86,7 +86,7 @@ namespace tinyToolkit
 
 		if (IsOpen())
 		{
-			_size += _file.tellp();
+			_size += static_cast<std::size_t>(_file.tellp());
 
 			return true;
 		}

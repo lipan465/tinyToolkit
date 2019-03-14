@@ -59,9 +59,20 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 关闭套接字
+		 *
+		 * @param socket 套接字
+		 *
+		 * @return 是否关闭成功
+		 *
+		 */
+		static bool CloseSocket(TINY_TOOLKIT_SOCKET_TYPE socket);
+
+		/**
+		 *
 		 * 设置延时关闭
 		 *
-		 * @param socket 句柄
+		 * @param socket 套接字
 		 *
 		 * @return 是否设置成功
 		 *
@@ -72,7 +83,7 @@ namespace tinyToolkit
 		 *
 		 * 启用Nagle算法
 		 *
-		 * @param socket 句柄
+		 * @param socket 套接字
 		 *
 		 * @return 是否设置成功
 		 *
@@ -83,7 +94,7 @@ namespace tinyToolkit
 		 *
 		 * 启用非堵塞
 		 *
-		 * @param socket 句柄
+		 * @param socket 套接字
 		 *
 		 * @return 是否设置成功
 		 *
@@ -94,7 +105,7 @@ namespace tinyToolkit
 		 *
 		 * 启用地址复用
 		 *
-		 * @param socket 句柄
+		 * @param socket 套接字
 		 *
 		 * @return 是否设置成功
 		 *
@@ -103,9 +114,33 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 获取本地地址
+		 *
+		 * @param socket 套接字
+		 * @param address 地址
+		 *
+		 * @return 是否获取成功
+		 *
+		 */
+		static bool GetLocalAddress(TINY_TOOLKIT_SOCKET_TYPE socket, struct sockaddr_in & address);
+
+		/**
+		 *
+		 * 获取远程地址
+		 *
+		 * @param socket 套接字
+		 * @param address 地址
+		 *
+		 * @return 是否获取成功
+		 *
+		 */
+		static bool GetRemoteAddress(TINY_TOOLKIT_SOCKET_TYPE socket, struct sockaddr_in & address);
+
+		/**
+		 *
 		 * 设置发送缓冲区大小
 		 *
-		 * @param sock 句柄
+		 * @param sock 套接字
 		 * @param size 缓冲区大小
 		 *
 		 * @return 是否设置成功
@@ -117,7 +152,7 @@ namespace tinyToolkit
 		 *
 		 * 设置接收缓冲区大小
 		 *
-		 * @param sock 句柄
+		 * @param sock 套接字
 		 * @param size 缓冲区大小
 		 *
 		 * @return 是否设置成功

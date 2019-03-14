@@ -91,16 +91,12 @@ namespace tinyToolkit
 				{
 					if (!Remove(value))
 					{
-						closedir(dir);
-
 						return false;
 					}
 				}
 
 				if (std::remove(value.c_str()) == -1)
 				{
-					closedir(dir);
-
 					return false;
 				}
 			}
@@ -108,8 +104,6 @@ namespace tinyToolkit
 
 			if (std::remove(path.c_str()) == -1)
 			{
-				closedir(dir);
-
 				return false;
 			}
 

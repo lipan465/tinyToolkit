@@ -6,17 +6,16 @@
  *
  */
 
-
 #include "main.h"
 
 
 void ParseOption(int argc, char const * argv[])
 {
 	tinyToolkit::OptionManager::Instance().DefineArg("mode",  nullptr, "client",		tinyToolkit::Application::Name().c_str());
-	tinyToolkit::OptionManager::Instance().DefineArg("type",  nullptr, "tcp",			tinyToolkit::Application::Name().c_str());
+	tinyToolkit::OptionManager::Instance().DefineArg("type",  nullptr, "udp",			tinyToolkit::Application::Name().c_str());
 	tinyToolkit::OptionManager::Instance().DefineArg("host",  nullptr, "192.168.2.71",	tinyToolkit::Application::Name().c_str());
 	tinyToolkit::OptionManager::Instance().DefineArg("port",  nullptr, "1234",			tinyToolkit::Application::Name().c_str());
-	tinyToolkit::OptionManager::Instance().DefineArg("size",  nullptr, "1",				tinyToolkit::Application::Name().c_str());
+	tinyToolkit::OptionManager::Instance().DefineArg("size",  nullptr, "3",				tinyToolkit::Application::Name().c_str());
 
 	tinyToolkit::OptionManager::Instance().DefineVersion(tinyToolkit::Application::CompileTimeString());
 

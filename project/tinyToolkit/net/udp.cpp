@@ -142,18 +142,6 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 套接字
-	 *
-	 * @return 套接字
-	 *
-	 */
-	TINY_TOOLKIT_SOCKET_TYPE UDPSessionPipe::Socket()
-	{
-		return _socket;
-	}
-
-	/**
-	 *
 	 * 关闭会话
 	 *
 	 */
@@ -195,10 +183,10 @@ namespace tinyToolkit
 	 *
 	 * @param value 待发送数据
 	 * @param size 待发送数据长度
-	 * @param delay 延迟发送
+	 * @param cache 缓冲发送
 	 *
 	 */
-	void UDPSessionPipe::Send(const void * value, std::size_t size, bool delay)
+	void UDPSessionPipe::Send(const void * value, std::size_t size, bool cache)
 	{
 		if (size == 0)
 		{
@@ -217,7 +205,7 @@ namespace tinyToolkit
 			return;
 		}
 
-		if (!_isSend && !delay)
+		if (!_isSend && !cache)
 		{
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
@@ -849,18 +837,6 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 套接字
-	 *
-	 * @return 套接字
-	 *
-	 */
-	TINY_TOOLKIT_SOCKET_TYPE UDPServerPipe::Socket()
-	{
-		return _socket;
-	}
-
-	/**
-	 *
 	 * 关闭会话
 	 *
 	 */
@@ -900,13 +876,13 @@ namespace tinyToolkit
 	 *
 	 * @param value 待发送数据
 	 * @param size 待发送数据长度
-	 * @param delay 延迟发送
+	 * @param cache 缓冲发送
 	 *
 	 */
-	void UDPServerPipe::Send(const void * value, std::size_t size, bool delay)
+	void UDPServerPipe::Send(const void * value, std::size_t size, bool cache)
 	{
 		(void)size;
-		(void)delay;
+		(void)cache;
 		(void)value;
 	}
 

@@ -78,25 +78,7 @@ namespace tinyToolkit
 		 * @return 模块
 		 *
 		 */
-		ILogicModule * Next();
-
-		/**
-		 *
-		 * 下一个模块
-		 *
-		 * @return 模块
-		 *
-		 */
 		ILogicModule * Next() const;
-
-		/**
-		 *
-		 * 名称
-		 *
-		 * @return 名称
-		 *
-		 */
-		const std::string & Name();
 
 		/**
 		 *

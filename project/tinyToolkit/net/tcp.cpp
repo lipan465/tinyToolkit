@@ -120,18 +120,6 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 套接字
-	 *
-	 * @return 套接字
-	 *
-	 */
-	TINY_TOOLKIT_SOCKET_TYPE TCPSessionPipe::Socket()
-	{
-		return _socket;
-	}
-
-	/**
-	 *
 	 * 关闭会话
 	 *
 	 */
@@ -173,10 +161,10 @@ namespace tinyToolkit
 	 *
 	 * @param value 待发送数据
 	 * @param size 待发送数据长度
-	 * @param delay 延迟发送
+	 * @param cache 缓冲发送
 	 *
 	 */
-	void TCPSessionPipe::Send(const void * value, std::size_t size, bool delay)
+	void TCPSessionPipe::Send(const void * value, std::size_t size, bool cache)
 	{
 		if (size == 0)
 		{
@@ -195,7 +183,7 @@ namespace tinyToolkit
 			return;
 		}
 
-		if (!_isSend && !delay)
+		if (!_isSend && !cache)
 		{
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
@@ -667,6 +655,15 @@ namespace tinyToolkit
 
 		delete netEvent;
 
+		if (Net::GetLocalAddress(_socket, _netEvent._address))
+		{
+			if (_session)
+			{
+				_session->_localPort = ntohs(_netEvent._address.sin_port);
+				_session->_localHost = inet_ntoa(_netEvent._address.sin_addr);
+			}
+		}
+
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
 		if (setsockopt(_socket, SOL_SOCKET, SO_UPDATE_CONNECT_CONTEXT, nullptr, 0) == -1)
@@ -685,12 +682,6 @@ namespace tinyToolkit
 
 			if (_session)
 			{
-				if (Net::GetLocalAddress(_socket, _netEvent._address))
-				{
-					_session->_localPort = ntohs(_netEvent._address.sin_port);
-					_session->_localHost = inet_ntoa(_netEvent._address.sin_addr);
-				}
-
 				_session->OnConnect();
 			}
 		}
@@ -751,12 +742,6 @@ namespace tinyToolkit
 
 				if (_session)
 				{
-					if (Net::GetLocalAddress(_socket, _netEvent._address))
-					{
-						_session->_localPort = ntohs(_netEvent._address.sin_port);
-						_session->_localHost = inet_ntoa(_netEvent._address.sin_addr);
-					}
-
 					_session->OnConnect();
 				}
 			}
@@ -811,12 +796,6 @@ namespace tinyToolkit
 
 				if (_session)
 				{
-					if (Net::GetLocalAddress(_socket, _netEvent._address))
-					{
-						_session->_localPort = ntohs(_netEvent._address.sin_port);
-						_session->_localHost = inet_ntoa(_netEvent._address.sin_addr);
-					}
-
 					_session->OnConnect();
 				}
 			}
@@ -854,18 +833,6 @@ namespace tinyToolkit
 		_netEvent._type = NET_EVENT_TYPE::ACCEPT;
 		_netEvent._socket = socket;
 		_netEvent._completer = this;
-	}
-
-	/**
-	 *
-	 * 套接字
-	 *
-	 * @return 套接字
-	 *
-	 */
-	TINY_TOOLKIT_SOCKET_TYPE TCPServerPipe::Socket()
-	{
-		return _socket;
 	}
 
 	/**
@@ -909,13 +876,13 @@ namespace tinyToolkit
 	 *
 	 * @param value 待发送数据
 	 * @param size 待发送数据长度
-	 * @param delay 延迟发送
+	 * @param cache 缓冲发送
 	 *
 	 */
-	void TCPServerPipe::Send(const void * value, std::size_t size, bool delay)
+	void TCPServerPipe::Send(const void * value, std::size_t size, bool cache)
 	{
 		(void)size;
-		(void)delay;
+		(void)cache;
 		(void)value;
 	}
 

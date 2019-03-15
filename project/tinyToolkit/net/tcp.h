@@ -14,7 +14,6 @@
 #include "event.h"
 #include "server.h"
 #include "buffer.h"
-#include "session.h"
 
 
 namespace tinyToolkit
@@ -42,15 +41,6 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 套接字
-		 *
-		 * @return 套接字
-		 *
-		 */
-		TINY_TOOLKIT_SOCKET_TYPE Socket() override;
-
-		/**
-		 *
 		 * 关闭会话
 		 *
 		 */
@@ -62,10 +52,10 @@ namespace tinyToolkit
 		 *
 		 * @param value 待发送数据
 		 * @param size 待发送数据长度
-		 * @param delay 延迟发送
+		 * @param cache 缓冲发送
 		 *
 		 */
-		void Send(const void * value, std::size_t size, bool delay) override;
+		void Send(const void * value, std::size_t size, bool cache) override;
 
 		/**
 		 *
@@ -195,15 +185,6 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 套接字
-		 *
-		 * @return 套接字
-		 *
-		 */
-		TINY_TOOLKIT_SOCKET_TYPE Socket() override;
-
-		/**
-		 *
 		 * 关闭会话
 		 *
 		 */
@@ -215,10 +196,10 @@ namespace tinyToolkit
 		 *
 		 * @param value 待发送数据
 		 * @param size 待发送数据长度
-		 * @param delay 延迟发送
+		 * @param cache 缓冲发送
 		 *
 		 */
-		void Send(const void * value, std::size_t size, bool delay) override;
+		void Send(const void * value, std::size_t size, bool cache) override;
 
 		/**
 		 *

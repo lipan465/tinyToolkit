@@ -210,6 +210,12 @@ namespace tinyToolkit
 
 		auto pipe = std::make_shared<UDPSessionPipe>(client, sock, _handle);
 
+		if (Net::GetLocalAddress(sock, pipe->_netEvent._address))
+		{
+			client->_localPort = ntohs(pipe->_netEvent._address.sin_port);
+			client->_localHost = inet_ntoa(pipe->_netEvent._address.sin_addr);
+		}
+
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
 		BOOL bNewBehavior = FALSE;
@@ -556,6 +562,12 @@ namespace tinyToolkit
 		{
 			auto pipe = std::make_shared<TCPSessionPipe>(client, sock, _handle);
 
+			if (Net::GetLocalAddress(sock, pipe->_netEvent._address))
+			{
+				client->_localPort = ntohs(pipe->_netEvent._address.sin_port);
+				client->_localHost = inet_ntoa(pipe->_netEvent._address.sin_addr);
+			}
+
 			struct kevent event[2]{ };
 
 			EV_SET(&event[0], sock, EVFILT_READ,  EV_ADD | EV_ENABLE,  0, 0, (void *)&pipe->_netEvent);
@@ -621,6 +633,12 @@ namespace tinyToolkit
 		if (ret == 0)
 		{
 			auto pipe = std::make_shared<TCPSessionPipe>(client, sock, _handle);
+
+			if (Net::GetLocalAddress(sock, pipe->_netEvent._address))
+			{
+				client->_localPort = ntohs(pipe->_netEvent._address.sin_port);
+				client->_localHost = inet_ntoa(pipe->_netEvent._address.sin_addr);
+			}
 
 			struct epoll_event event{ };
 

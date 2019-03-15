@@ -82,21 +82,14 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 获取地址
-		 *
-		 */
-		void GetAddress();
-
-		/**
-		 *
 		 * 发送数据
 		 *
 		 * @param value 待发送数据
 		 * @param size 待发送数据长度
-		 * @param delay 延迟发送
+		 * @param cache 缓冲发送
 		 *
 		 */
-		void Send(const void * value, std::size_t size, bool delay = false);
+		void Send(const void * value, std::size_t size, bool cache = false);
 
 	public:
 		uint16_t _localPort{ 0 };
@@ -177,21 +170,14 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 获取地址
-		 *
-		 */
-		void GetAddress();
-
-		/**
-		 *
 		 * 发送数据
 		 *
 		 * @param value 待发送数据
 		 * @param size 待发送数据长度
-		 * @param delay 延迟发送
+		 * @param cache 缓冲发送
 		 *
 		 */
-		void Send(const void * value, std::size_t size, bool delay = false);
+		void Send(const void * value, std::size_t size, bool cache = false);
 
 	public:
 		uint16_t _localPort{ 0 };

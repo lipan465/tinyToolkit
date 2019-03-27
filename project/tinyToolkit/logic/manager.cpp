@@ -92,7 +92,7 @@ namespace tinyToolkit
 
 		if (!handle)
 		{
-			TINY_TOOLKIT_ASSERT(false, "Load [{}] : {}", path, OS::LastErrorMessage());
+			TINY_TOOLKIT_EXCEPTION_THROW(NullPointException, String::Format("Load [{}] : {}", path, strerror(errno)));
 
 			return false;
 		}
@@ -105,7 +105,7 @@ namespace tinyToolkit
 
 		if (handle == nullptr)
 		{
-			TINY_TOOLKIT_ASSERT(false, "Load [{}] : {}", path, dlerror());
+			TINY_TOOLKIT_EXCEPTION_THROW(NullPointException, String::Format("Load [{}] : {}", path, dlerror()));
 
 			return false;
 		}

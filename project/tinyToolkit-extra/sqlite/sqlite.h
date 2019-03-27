@@ -280,12 +280,85 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 移动到头一行
+		 *
+		 */
+		void MoveToHeadRow();
+
+		/**
+		 *
+		 * 移动到上一行
+		 *
+		 */
+		void MoveToPrevRow();
+
+		/**
+		 *
+		 * 移动到下一行
+		 *
+		 */
+		void MoveToNextRow();
+
+		/**
+		 *
+		 * 移动到结尾行
+		 *
+		 */
+		void MoveToTailRow();
+
+		/**
+		 *
+		 * 关闭数据库
+		 *
+		 * @return 是否关闭成功
+		 *
+		 */
+		bool Close();
+
+		/**
+		 *
 		 * 打开内存数据库
 		 *
 		 * @return 是否打开成功
 		 *
 		 */
 		bool OpenMemory();
+
+		/**
+		 *
+		 * 是否是有效的行
+		 *
+		 * @return 是否是有效的行
+		 *
+		 */
+		bool IsValidRow();
+
+		/**
+		 *
+		 * 开启事务
+		 *
+		 * @return 是否开启成功
+		 *
+		 */
+		bool BeginTransaction();
+
+		/**
+		 *
+		 * 结束事务
+		 *
+		 * @return 是否结束成功
+		 *
+		 */
+		bool CommitTransaction();
+
+		/**
+		 *
+		 * 回滚事务
+		 *
+		 * @return 是否回滚成功
+		 *
+		 */
+		bool RollbackTransaction();
 
 		/**
 		 *
@@ -308,112 +381,6 @@ namespace tinyToolkit
 		 *
 		 */
 		bool OpenFile(const std::string & path);
-
-		/**
-		 *
-		 * 关闭数据库
-		 *
-		 * @return 是否关闭成功
-		 *
-		 */
-		bool Close();
-
-		/**
-		 *
-		 * 获取索引对应的值
-		 *
-		 * @tparam ValueTypeT [all built-in types]
-		 *
-		 * @param index 索引
-		 *
-		 * @return 获取的值
-		 *
-		 */
-		template <typename ValueTypeT>
-		ValueTypeT GetValue(std::size_t index)
-		{
-			std::stringstream ss;
-
-			ValueTypeT value = ValueTypeT();
-
-			ss << GetString(index);
-			ss >> value;
-
-			return value;
-		}
-
-		/**
-		 *
-		 * 获取索引对应的值
-		 *
-		 * @tparam ValueTypeT [all built-in types]
-		 *
-		 * @param field 索引名
-		 *
-		 * @return 获取的值
-		 *
-		 */
-		template <typename ValueTypeT>
-		ValueTypeT GetValue(const std::string & field)
-		{
-			auto find = _field.find(field);
-
-			if (find == _field.end())
-			{
-				throw std::runtime_error("Invalid field");
-			}
-
-			return GetValue<ValueTypeT>(find->second);
-		}
-
-		/**
-		 *
-		 * 获取索引对应的字符串
-		 *
-		 * @param index 索引
-		 *
-		 * @return 获取的值
-		 *
-		 */
-		const std::string & GetString(std::size_t index);
-
-		/**
-		 *
-		 * 获取索引对应的字符串
-		 *
-		 * @param field 索引名
-		 *
-		 * @return 获取的值
-		 *
-		 */
-		const std::string & GetString(const std::string & field);
-
-		/**
-		 *
-		 * 开启事务
-		 *
-		 * @return 是否开启成功
-		 *
-		 */
-		bool Begin();
-
-		/**
-		 *
-		 * 结束事务
-		 *
-		 * @return 是否结束成功
-		 *
-		 */
-		bool Commit();
-
-		/**
-		 *
-		 * 回滚事务
-		 *
-		 * @return 是否回滚成功
-		 *
-		 */
-		bool Rollback();
 
 		/**
 		 *
@@ -491,43 +458,6 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 是否是有效的行
-		 *
-		 * @return 是否是有效的行
-		 *
-		 */
-		bool IsValidRow();
-
-		/**
-		 *
-		 * 移动到头一行
-		 *
-		 */
-		void MoveToHeadRow();
-
-		/**
-		 *
-		 * 移动到上一行
-		 *
-		 */
-		void MoveToPrevRow();
-
-		/**
-		 *
-		 * 移动到下一行
-		 *
-		 */
-		void MoveToNextRow();
-
-		/**
-		 *
-		 * 移动到结尾行
-		 *
-		 */
-		void MoveToTailRow();
-
-		/**
-		 *
 		 * 受影响的行
 		 *
 		 * @return 受影响的行
@@ -555,12 +485,82 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 获取索引对应的值
+		 *
+		 * @tparam ValueTypeT [all built-in types]
+		 *
+		 * @param index 索引
+		 *
+		 * @return 获取的值
+		 *
+		 */
+		template <typename ValueTypeT>
+		ValueTypeT GetValue(std::size_t index)
+		{
+			std::stringstream ss;
+
+			ValueTypeT value = ValueTypeT();
+
+			ss << GetString(index);
+			ss >> value;
+
+			return value;
+		}
+
+		/**
+		 *
+		 * 获取索引对应的值
+		 *
+		 * @tparam ValueTypeT [all built-in types]
+		 *
+		 * @param field 索引名
+		 *
+		 * @return 获取的值
+		 *
+		 */
+		template <typename ValueTypeT>
+		ValueTypeT GetValue(const std::string & field)
+		{
+			auto find = _field.find(field);
+
+			if (find == _field.end())
+			{
+				throw std::runtime_error("Invalid field");
+			}
+
+			return GetValue<ValueTypeT>(find->second);
+		}
+
+		/**
+		 *
 		 * 最后一次错误信息
 		 *
 		 * @return 错误信息
 		 *
 		 */
 		const char * LastErrorMessage() const;
+
+		/**
+		 *
+		 * 获取索引对应的字符串
+		 *
+		 * @param index 索引
+		 *
+		 * @return 获取的值
+		 *
+		 */
+		const std::string & GetString(std::size_t index);
+
+		/**
+		 *
+		 * 获取索引对应的字符串
+		 *
+		 * @param field 索引名
+		 *
+		 * @return 获取的值
+		 *
+		 */
+		const std::string & GetString(const std::string & field);
 
 	protected:
 		/**

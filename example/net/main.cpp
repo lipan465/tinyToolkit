@@ -47,7 +47,7 @@ void StartApp()
 				}
 				else
 				{
-					tinyToolkit::String::Print("Client connect [{}:{}] failed : {}\r\n", host, port, tinyToolkit::OS::LastErrorMessage());
+					tinyToolkit::String::Print("Client connect [{}:{}] failed : {}\r\n", host, port, strerror(errno));
 				}
 
 				pool.push_back(session);
@@ -89,7 +89,7 @@ void StartApp()
 			}
 			else
 			{
-				tinyToolkit::String::Print("Server [{}:{}] start failed : {}\r\n", host, port, tinyToolkit::OS::LastErrorMessage());
+				tinyToolkit::String::Print("Server [{}:{}] start failed : {}\r\n", host, port, strerror(errno));
 			}
 
 			while (true)
@@ -119,7 +119,7 @@ void StartApp()
 				}
 				else
 				{
-					tinyToolkit::String::Print("Client connect [{}:{}] failed : {}\r\n", host, port, tinyToolkit::OS::LastErrorMessage());
+					tinyToolkit::String::Print("Client connect [{}:{}] failed : {}\r\n", host, port, strerror(errno));
 				}
 
 				pool.push_back(session);
@@ -161,7 +161,7 @@ void StartApp()
 			}
 			else
 			{
-				tinyToolkit::String::Print("Server [{}:{}] start failed : {}\r\n", host, port, tinyToolkit::OS::LastErrorMessage());
+				tinyToolkit::String::Print("Server [{}:{}] start failed : {}\r\n", host, port, strerror(errno));
 			}
 
 			while (true)

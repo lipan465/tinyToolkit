@@ -54,7 +54,7 @@ namespace tinyToolkit
 	 */
 	int32_t SqliteBind::BindValue(sqlite3_stmt * statement, int32_t index, std::float_t value)
 	{
-		return sqlite3_bind_double(statement, index, value);
+		return sqlite3_bind_double(statement, index, static_cast<std::double_t>(value));
 	}
 
 	/**
@@ -357,44 +357,48 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 打开内存数据库
-	 *
-	 * @return 是否打开成功
+	 * 移动到头一行
 	 *
 	 */
-	bool SqliteDataBase::OpenMemory()
+	void SqliteDataBase::MoveToHeadRow()
 	{
-		return OpenFile(":memory:");
+		_iter = _list.begin();
 	}
 
 	/**
 	 *
-	 * 打开文件数据库
-	 *
-	 * @param path 数据库路径
-	 *
-	 * @return 是否打开成功
+	 * 移动到上一行
 	 *
 	 */
-	bool SqliteDataBase::OpenFile(const char * path)
+	void SqliteDataBase::MoveToPrevRow()
 	{
-		_code = sqlite3_open(path, &_db);
-
-		return _code == SQLITE_OK;
+		if (IsValidRow())
+		{
+			--_iter;
+		}
 	}
 
 	/**
 	 *
-	 * 打开文件数据库
-	 *
-	 * @param path 数据库路径
-	 *
-	 * @return 是否打开成功
+	 * 移动到下一行
 	 *
 	 */
-	bool SqliteDataBase::OpenFile(const std::string & path)
+	void SqliteDataBase::MoveToNextRow()
 	{
-		return OpenFile(path.c_str());
+		if (IsValidRow())
+		{
+			++_iter;
+		}
+	}
+
+	/**
+	 *
+	 * 移动到结尾行
+	 *
+	 */
+	void SqliteDataBase::MoveToTailRow()
+	{
+		_iter = std::prev(_list.end());
 	}
 
 	/**
@@ -439,37 +443,26 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 获取索引对应的字符串
+	 * 打开内存数据库
 	 *
-	 * @param index 索引
-	 *
-	 * @return 获取的值
+	 * @return 是否打开成功
 	 *
 	 */
-	const std::string & SqliteDataBase::GetString(std::size_t index)
+	bool SqliteDataBase::OpenMemory()
 	{
-		return _iter->at(index);
+		return OpenFile(":memory:");
 	}
 
 	/**
 	 *
-	 * 获取索引对应的字符串
+	 * 是否是有效的行
 	 *
-	 * @param field 索引名
-	 *
-	 * @return 获取的值
+	 * @return 是否是有效的行
 	 *
 	 */
-	const std::string & SqliteDataBase::GetString(const std::string & field)
+	bool SqliteDataBase::IsValidRow()
 	{
-		auto find = _field.find(field);
-
-		if (find == _field.end())
-		{
-			throw std::runtime_error("Invalid field");
-		}
-
-		return GetString(find->second);
+		return _iter != _list.end();
 	}
 
 	/**
@@ -479,7 +472,7 @@ namespace tinyToolkit
 	 * @return 是否开启成功
 	 *
 	 */
-	bool SqliteDataBase::Begin()
+	bool SqliteDataBase::BeginTransaction()
 	{
 		_code = sqlite3_exec(_db, "begin", nullptr, nullptr, nullptr);
 
@@ -493,7 +486,7 @@ namespace tinyToolkit
 	 * @return 是否结束成功
 	 *
 	 */
-	bool SqliteDataBase::Commit()
+	bool SqliteDataBase::CommitTransaction()
 	{
 		_code = sqlite3_exec(_db, "commit", nullptr, nullptr, nullptr);
 
@@ -507,11 +500,41 @@ namespace tinyToolkit
 	 * @return 是否回滚成功
 	 *
 	 */
-	bool SqliteDataBase::Rollback()
+	bool SqliteDataBase::RollbackTransaction()
 	{
 		_code = sqlite3_exec(_db, "rollback", nullptr, nullptr, nullptr);
 
 		return _code == SQLITE_OK;
+	}
+
+	/**
+	 *
+	 * 打开文件数据库
+	 *
+	 * @param path 数据库路径
+	 *
+	 * @return 是否打开成功
+	 *
+	 */
+	bool SqliteDataBase::OpenFile(const char * path)
+	{
+		_code = sqlite3_open(path, &_db);
+
+		return _code == SQLITE_OK;
+	}
+
+	/**
+	 *
+	 * 打开文件数据库
+	 *
+	 * @param path 数据库路径
+	 *
+	 * @return 是否打开成功
+	 *
+	 */
+	bool SqliteDataBase::OpenFile(const std::string & path)
+	{
+		return OpenFile(path.c_str());
 	}
 
 	/**
@@ -552,64 +575,6 @@ namespace tinyToolkit
 		}
 
 		return ExecuteQuery();
-	}
-
-	/**
-	 *
-	 * 是否是有效的行
-	 *
-	 * @return 是否是有效的行
-	 *
-	 */
-	bool SqliteDataBase::IsValidRow()
-	{
-		return _iter != _list.end();
-	}
-
-	/**
-	 *
-	 * 移动到头一行
-	 *
-	 */
-	void SqliteDataBase::MoveToHeadRow()
-	{
-		_iter = _list.begin();
-	}
-
-	/**
-	 *
-	 * 移动到上一行
-	 *
-	 */
-	void SqliteDataBase::MoveToPrevRow()
-	{
-		if (IsValidRow())
-		{
-			--_iter;
-		}
-	}
-
-	/**
-	 *
-	 * 移动到下一行
-	 *
-	 */
-	void SqliteDataBase::MoveToNextRow()
-	{
-		if (IsValidRow())
-		{
-			++_iter;
-		}
-	}
-
-	/**
-	 *
-	 * 移动到结尾行
-	 *
-	 */
-	void SqliteDataBase::MoveToTailRow()
-	{
-		_iter = std::prev(_list.end());
 	}
 
 	/**
@@ -658,6 +623,41 @@ namespace tinyToolkit
 	const char * SqliteDataBase::LastErrorMessage() const
 	{
 		return sqlite3_errmsg(_db);
+	}
+
+	/**
+	 *
+	 * 获取索引对应的字符串
+	 *
+	 * @param index 索引
+	 *
+	 * @return 获取的值
+	 *
+	 */
+	const std::string & SqliteDataBase::GetString(std::size_t index)
+	{
+		return _iter->at(index);
+	}
+
+	/**
+	 *
+	 * 获取索引对应的字符串
+	 *
+	 * @param field 索引名
+	 *
+	 * @return 获取的值
+	 *
+	 */
+	const std::string & SqliteDataBase::GetString(const std::string & field)
+	{
+		auto find = _field.find(field);
+
+		if (find == _field.end())
+		{
+			throw std::runtime_error("Invalid field");
+		}
+
+		return GetString(find->second);
 	}
 
 	/**

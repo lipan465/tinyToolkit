@@ -783,7 +783,7 @@ namespace tinyToolkit
 			return false;
 		}
 
-		if (::listen(sock, TINY_TOOLKIT_SOCKET_LISTEN_SIZE) == TINY_TOOLKIT_SOCKET_ERROR)
+		if (::listen(sock, TINY_TOOLKIT_SOCKET_LISTEN_COUNT) == TINY_TOOLKIT_SOCKET_ERROR)
 		{
 			Net::CloseSocket(sock);
 

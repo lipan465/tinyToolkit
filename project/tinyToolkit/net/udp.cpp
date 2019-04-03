@@ -401,11 +401,11 @@ namespace tinyToolkit
 
 			if (_isConnect)
 			{
-				_isSend = true;
+				_isReceive = true;
 
 				auto len = ::read(_socket, temp, sizeof(temp));
 
-				_isSend = false;
+				_isReceive = false;
 
 				if (len < 0 && errno == EAGAIN)
 				{
@@ -440,11 +440,11 @@ namespace tinyToolkit
 		{
 			if (_isConnect)
 			{
-				_isReceive = true;
+				_isSend = true;
 
 				auto len = ::write(_socket, _sendBuffer.Value(), _sendBuffer.Length());
 
-				_isReceive = false;
+				_isSend = false;
 
 				if (len > 0)
 				{
@@ -496,11 +496,11 @@ namespace tinyToolkit
 
 			if (_isConnect)
 			{
-				_isSend = true;
+				_isReceive = true;
 
 				auto len = ::read(_socket, temp, sizeof(temp));
 
-				_isSend = false;
+				_isReceive = false;
 
 				if (len < 0 && errno == EAGAIN)
 				{
@@ -535,11 +535,11 @@ namespace tinyToolkit
 		{
 			if (_isConnect)
 			{
-				_isReceive = true;
+				_isSend = true;
 
 				auto len = ::write(_socket, _sendBuffer.Value(), _sendBuffer.Length());
 
-				_isReceive = false;
+				_isSend = false;
 
 				if (len > 0)
 				{

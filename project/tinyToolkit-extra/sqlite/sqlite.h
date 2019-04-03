@@ -254,6 +254,7 @@ namespace tinyToolkit
 	protected:
 		int32_t & _code;
 
+		int32_t _row{ 0 };
 		int32_t _column{ 0 };
 
 		std::list<std::vector<std::string>> & _list;

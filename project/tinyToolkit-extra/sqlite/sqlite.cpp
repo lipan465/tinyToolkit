@@ -219,6 +219,7 @@ namespace tinyToolkit
 		_list.clear();
 		_field.clear();
 
+		_row = 0;
 		_column = sqlite3_column_count(statement);
 
 		if (_column == 0)
@@ -249,7 +250,11 @@ namespace tinyToolkit
 				break;
 			}
 
-			if (!ReadRow(statement))
+			if (ReadRow(statement))
+			{
+				++_row;
+			}
+			else
 			{
 				_list.clear();
 
@@ -279,7 +284,10 @@ namespace tinyToolkit
 
 		for (int32_t i = 0; i < _column; ++i)
 		{
-			_field.insert(std::make_pair(sqlite3_column_name(statement, i), i));
+			if (_row == 0)
+			{
+				_field.insert(std::make_pair(sqlite3_column_name(statement, i), i));
+			}
 
 			switch (sqlite3_column_type(statement, i))
 			{

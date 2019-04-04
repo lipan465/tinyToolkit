@@ -41,12 +41,12 @@ namespace tinyToolkit
 		 *
 		 * 发送数据
 		 *
-		 * @param value 待发送数据
+		 * @param data 待发送数据
 		 * @param size 待发送数据长度
 		 * @param cache 缓冲发送
 		 *
 		 */
-		virtual void Send(const void * value, std::size_t size, bool cache) = 0;
+		virtual void Send(const void * data, std::size_t size, bool cache) = 0;
 
 		/**
 		 *
@@ -83,12 +83,13 @@ namespace tinyToolkit
 		 *
 		 * 发送数据
 		 *
-		 * @param value 待发送数据
+		 * @param ip 远端地址
+		 * @param port 远端端口
+		 * @param data 待发送数据
 		 * @param size 待发送数据长度
-		 * @param cache 缓冲发送
 		 *
 		 */
-		virtual void Send(const void * value, std::size_t size, bool cache) = 0;
+		virtual void Send(const char * ip, uint16_t port, const void * data, std::size_t size) = 0;
 
 		/**
 		 *
@@ -98,15 +99,6 @@ namespace tinyToolkit
 		 *
 		 */
 		virtual bool AsyncSend() = 0;
-
-		/**
-		 *
-		 * 异步连接
-		 *
-		 * @return 是否处理成功
-		 *
-		 */
-		virtual bool AsyncAccept() = 0;
 
 		/**
 		 *

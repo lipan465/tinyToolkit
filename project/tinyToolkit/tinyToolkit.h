@@ -52,6 +52,7 @@
 #include "net/server.h"
 #include "net/session.h"
 #include "net/manager.h"
+#include "net/message.h"
 #include "net/completer.h"
 
 /// test

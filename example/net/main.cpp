@@ -6,6 +6,7 @@
  *
  */
 
+
 #include "main.h"
 
 
@@ -41,14 +42,7 @@ void StartApp()
 			{
 				auto session = new TCPClientSession(i);
 
-				if (session->Launch(host, port, TINY_TOOLKIT_MB, TINY_TOOLKIT_MB))
-				{
-					tinyToolkit::String::Print("Client connect [{}:{}] success\r\n", host, port);
-				}
-				else
-				{
-					tinyToolkit::String::Print("Client connect [{}:{}] failed : {}\r\n", host, port, strerror(errno));
-				}
+				session->Launch(host, port, TINY_TOOLKIT_MB, TINY_TOOLKIT_MB);
 
 				pool.push_back(session);
 			}
@@ -83,14 +77,7 @@ void StartApp()
 		{
 			TCPServer server;
 
-			if (server.Launch(host, port, TINY_TOOLKIT_MB, TINY_TOOLKIT_MB))
-			{
-				tinyToolkit::String::Print("Server [{}:{}] start success\r\n", host, port);
-			}
-			else
-			{
-				tinyToolkit::String::Print("Server [{}:{}] start failed : {}\r\n", host, port, strerror(errno));
-			}
+			server.Launch(host, port, TINY_TOOLKIT_MB, TINY_TOOLKIT_MB);
 
 			while (true)
 			{
@@ -105,72 +92,53 @@ void StartApp()
 	}
 	else if (type == "udp")
 	{
-		if (mode == "client")
+		std::vector<UDPClientSession *> pool;
+
+		for (uint32_t i = 0; i < size; ++i)
 		{
-			std::vector<UDPClientSession *> pool;
+			auto session = new UDPClientSession(i);
 
-			for (uint32_t i = 0; i < size; ++i)
+			session->Launch(host, port);
+
+			pool.push_back(session);
+		}
+
+		auto time1 = tinyToolkit::Time::Milliseconds();
+
+		for (int j = 0; j < 10000; ++j)
+		{
+			for (auto &iter : pool)
 			{
-				auto session = new UDPClientSession(i);
-
-				if (session->Launch(host, port, TINY_TOOLKIT_MB, TINY_TOOLKIT_MB))
-				{
-					tinyToolkit::String::Print("Client connect [{}:{}] success\r\n", host, port);
-				}
-				else
-				{
-					tinyToolkit::String::Print("Client connect [{}:{}] failed : {}\r\n", host, port, strerror(errno));
-				}
-
-				pool.push_back(session);
-			}
-
-			while (true)
-			{
-				std::string value{ };
-
-				std::getline(std::cin, value);
-
-				if (value[0] == 'q')
-				{
-					for (auto &iter : pool)
-					{
-						iter->Close();
-
-						delete iter;
-					}
-
-					return;
-				}
-				else
-				{
-					for (auto &iter : pool)
-					{
-						iter->Send(value.c_str(), value.size());
-					}
-				}
+				iter->Send("192.168.2.70", 1234, "this is test message", 20);
 			}
 		}
-		else if (mode == "server")
-		{
-			UDPServer server;
 
-			if (server.Launch(host, port, TINY_TOOLKIT_MB, TINY_TOOLKIT_MB))
+		auto time2 = tinyToolkit::Time::Milliseconds();
+
+		std::cout << "time : " << time2 - time1 << std::endl;
+
+		while (true)
+		{
+			std::string value{ };
+
+			std::getline(std::cin, value);
+
+			if (value[0] == 'q')
 			{
-				tinyToolkit::String::Print("Server [{}:{}] start success\r\n", host, port);
+				for (auto &iter : pool)
+				{
+					iter->Close();
+
+					delete iter;
+				}
+
+				return;
 			}
 			else
 			{
-				tinyToolkit::String::Print("Server [{}:{}] start failed : {}\r\n", host, port, strerror(errno));
-			}
-
-			while (true)
-			{
-				if (getchar() == 'q')
+				for (auto &iter : pool)
 				{
-					server.Close();
-
-					return;
+					iter->Send("192.168.2.70", 1234, value.c_str(), value.size());
 				}
 			}
 		}

@@ -615,16 +615,14 @@ namespace tinyToolkit
 		{
 			if (_receiveBuffer.Push(netEvent->_temp, netEvent->_bytes))
 			{
-				if (!AsyncReceive())
-				{
-					Close();
-
-					return;
-				}
-
 				if (_session)
 				{
 					_receiveBuffer.Reduced(_session->OnReceive(_receiveBuffer.Value(), _receiveBuffer.Length()));
+				}
+
+				if (!AsyncReceive())
+				{
+					Close();
 				}
 			}
 			else

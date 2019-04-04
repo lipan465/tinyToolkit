@@ -123,33 +123,16 @@ namespace tinyToolkit
 	 * @param client 客户端
 	 * @param host 主机地址
 	 * @param port 主机端口
-	 * @param sSize 发送缓冲区大小
-	 * @param rSize 接受缓冲区大小
 	 *
 	 * @return 是否启动成功
 	 *
 	 */
-	bool NetWorkManager::LaunchUDPClient(IUDPSession * client, const std::string & host, uint16_t port, std::size_t sSize, std::size_t rSize)
+	bool NetWorkManager::LaunchUDPClient(IUDPSession * client, const std::string & host, uint16_t port)
 	{
 		if (!Launch())
 		{
 			return false;
 		}
-
-		std::vector<std::string> hostList{ };
-
-		if (!Net::TraverseAddressFromHost(host.c_str(), hostList))
-		{
-			client->OnConnectFailed();
-
-			return false;
-		}
-
-		client->_sSize = sSize;
-		client->_rSize = rSize;
-
-		client->_remotePort = port;
-		client->_remoteHost = hostList.front();
 
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
@@ -178,28 +161,13 @@ namespace tinyToolkit
 			return false;
 		}
 
-		sockaddr_in localAddress{ };
+		struct sockaddr_in localAddress{ };
 
-		localAddress.sin_port = 0;
+		localAddress.sin_port = htons(port);
 		localAddress.sin_family = AF_INET;
-		localAddress.sin_addr.s_addr = INADDR_ANY;
+		localAddress.sin_addr.s_addr = Net::AsNetByte(host.c_str());
 
 		if (::bind(sock, (struct sockaddr *)&localAddress, sizeof(struct sockaddr_in)) == TINY_TOOLKIT_SOCKET_ERROR)
-		{
-			Net::CloseSocket(sock);
-
-			client->OnConnectFailed();
-
-			return false;
-		}
-
-		struct sockaddr_in serverAddress{ };
-
-		serverAddress.sin_port = htons(client->_remotePort);
-		serverAddress.sin_family = AF_INET;
-		serverAddress.sin_addr.s_addr = Net::AsNetByte(client->_remoteHost.c_str());
-
-		if (::connect(sock, (struct sockaddr *)&serverAddress, sizeof(struct sockaddr_in)) == TINY_TOOLKIT_SOCKET_ERROR)
 		{
 			Net::CloseSocket(sock);
 
@@ -303,134 +271,6 @@ namespace tinyToolkit
 			client->_pipe = pipe;
 
 			client->OnConnect();
-		}
-
-#endif
-
-		return true;
-	}
-
-	/**
-	 *
-	 * 启动udp服务器
-	 *
-	 * @param server 服务器
-	 * @param host 主机地址
-	 * @param port 主机端口
-	 * @param sSize 发送缓冲区大小
-	 * @param rSize 接受缓冲区大小
-	 *
-	 * @return 是否启动成功
-	 *
-	 */
-	bool NetWorkManager::LaunchUDPServer(IUDPServer * server, const std::string & host, uint16_t port, std::size_t sSize, std::size_t rSize)
-	{
-		if (!Launch())
-		{
-			return false;
-		}
-
-		std::vector<std::string> hostList{ };
-
-		if (!Net::TraverseAddressFromHost(host.c_str(), hostList))
-		{
-			server->OnError();
-
-			return false;
-		}
-
-		server->_port = port;
-		server->_host = hostList.front();
-
-		server->_sSize = sSize;
-		server->_rSize = rSize;
-
-#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
-
-		TINY_TOOLKIT_SOCKET_TYPE sock = WSASocket(AF_INET, SOCK_DGRAM, IPPROTO_UDP, nullptr, 0, WSA_FLAG_OVERLAPPED);
-
-#else
-
-		TINY_TOOLKIT_SOCKET_TYPE sock = ::socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-
-#endif
-
-		if (sock == TINY_TOOLKIT_SOCKET_INVALID)
-		{
-			server->OnError();
-
-			return false;
-		}
-
-		if (!Net::EnableNonBlock(sock) ||
-			!Net::EnableReuseAddress(sock))
-		{
-			Net::CloseSocket(sock);
-
-			server->OnError();
-
-			return false;
-		}
-
-		struct sockaddr_in localAddress{ };
-
-		localAddress.sin_port = htons(server->_port);
-		localAddress.sin_family = AF_INET;
-		localAddress.sin_addr.s_addr = Net::AsNetByte(server->_host.c_str());
-
-		if (::bind(sock, (struct sockaddr *)&localAddress, sizeof(struct sockaddr)) == TINY_TOOLKIT_SOCKET_ERROR)
-		{
-			Net::CloseSocket(sock);
-
-			server->OnError();
-
-			return false;
-		}
-
-		auto pipe = std::make_shared<UDPServerPipe>(server, sock, _handle);
-
-#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
-
-		/// todo
-
-#elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
-
-		struct kevent event[2]{ };
-
-		EV_SET(&event[0], sock, EVFILT_READ,  EV_ADD | EV_ENABLE,  0, 0, (void *)&pipe->_netEvent);
-		EV_SET(&event[1], sock, EVFILT_WRITE, EV_ADD | EV_DISABLE, 0, 0, (void *)&pipe->_netEvent);
-
-		if (kevent(_handle, event, 2, nullptr, 0, nullptr) == -1)
-		{
-			Net::CloseSocket(sock);
-
-			server->OnError();
-
-			return false;
-		}
-		else
-		{
-			server->_pipe = pipe;
-		}
-
-#elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_LINUX
-
-		struct epoll_event event{ };
-
-		event.events = EPOLLIN;
-		event.data.ptr = &pipe->_netEvent;
-
-		if (epoll_ctl(_handle, EPOLL_CTL_ADD, sock, &event) == -1)
-		{
-			Net::CloseSocket(sock);
-
-			server->OnError();
-
-			return false;
-		}
-		else
-		{
-			server->_pipe = pipe;
 		}
 
 #endif

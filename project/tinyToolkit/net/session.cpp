@@ -69,15 +69,13 @@ namespace tinyToolkit
 	 *
 	 * @param host 主机地址
 	 * @param port 主机端口
-	 * @param sSize 发送缓冲区大小
-	 * @param rSize 接受缓冲区大小
 	 *
 	 * @return 是否启动成功
 	 *
 	 */
-	bool IUDPSession::Launch(const std::string & host, uint16_t port, std::size_t sSize, std::size_t rSize)
+	bool IUDPSession::Launch(const std::string & host, uint16_t port)
 	{
-		return NetWorkManager::Instance().LaunchUDPClient(this, host, port, sSize, rSize);
+		return NetWorkManager::Instance().LaunchUDPClient(this, host, port);
 	}
 
 	/**
@@ -97,16 +95,17 @@ namespace tinyToolkit
 	 *
 	 * 发送数据
 	 *
-	 * @param value 待发送数据
+	 * @param ip 远端地址
+	 * @param port 远端端口
+	 * @param data 待发送数据
 	 * @param size 待发送数据长度
-	 * @param cache 缓冲发送
 	 *
 	 */
-	void IUDPSession::Send(const void * value, std::size_t size, bool cache)
+	void IUDPSession::Send(const char * ip, uint16_t port, const void * data, std::size_t size)
 	{
 		if (_pipe)
 		{
-			_pipe->Send(value, size, cache);
+			_pipe->Send(ip, port, data, size);
 		}
 	}
 }

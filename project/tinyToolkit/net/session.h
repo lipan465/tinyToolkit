@@ -139,13 +139,15 @@ namespace tinyToolkit
 		 *
 		 * 接收数据触发回调函数
 		 *
+		 * @param ip 远端地址
+		 * @param port 远端端口
 		 * @param data 接收的数据缓冲区
 		 * @param size 接收的数据缓冲区长度
 		 *
 		 * @return 使用的字节数
 		 *
 		 */
-		virtual std::size_t OnReceive(const char * data, std::size_t size) = 0;
+		virtual std::size_t OnReceive(const char * ip, uint16_t port, const char * data, std::size_t size) = 0;
 
 		/**
 		 *
@@ -153,13 +155,11 @@ namespace tinyToolkit
 		 *
 		 * @param host 主机地址
 		 * @param port 主机端口
-		 * @param sSize 发送缓冲区大小
-		 * @param rSize 接受缓冲区大小
 		 *
 		 * @return 是否启动成功
 		 *
 		 */
-		bool Launch(const std::string & host, uint16_t port, std::size_t sSize, std::size_t rSize);
+		bool Launch(const std::string & host, uint16_t port);
 
 		/**
 		 *
@@ -172,12 +172,13 @@ namespace tinyToolkit
 		 *
 		 * 发送数据
 		 *
-		 * @param value 待发送数据
+		 * @param ip 远端地址
+		 * @param port 远端端口
+		 * @param data 待发送数据
 		 * @param size 待发送数据长度
-		 * @param cache 缓冲发送
 		 *
 		 */
-		void Send(const void * value, std::size_t size, bool cache = false);
+		void Send(const char * ip, uint16_t port, const void * data, std::size_t size);
 
 	public:
 		uint16_t _localPort{ 0 };

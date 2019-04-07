@@ -1,21 +1,37 @@
 #
-# 遍历添加指定目录下级项目, TRAVERSE_ADD_SUBDIRECTORY(path)
+# 遍历指定目录添加项目, TRAVERSE_DIRECTORY_ADD_PROJECT(path)
 #
-MACRO(TRAVERSE_ADD_SUBDIRECTORY)
+MACRO(TRAVERSE_DIRECTORY_ADD_PROJECT)
 
+	#
+	# 检测参数个数
+	#
 	IF(NOT ${ARGC} EQUAL 1)
 
 		MESSAGE(FATAL_ERROR "There is one and only one parameter")
 
 	ENDIF()
 
-	FILE(GLOB_RECURSE cmakeLists "${ARGV0}/CMakeLists.txt")
+	MESSAGE(STATUS "----- : " ${CMAKE_CURRENT_LIST_DIR})
 
-	FOREACH(cmake ${cmakeLists})
+	#
+	# 遍历指定目录获取cmake文件
+	#
+	FILE(GLOB_RECURSE CMAKE_FILES "${ARGV0}/CMakeLists.txt")
 
+	#
+	# 遍历cmake文件
+	#
+	FOREACH(source ${CMAKE_FILES})
+
+		MESSAGE(STATUS "cmake : " ${source})
+
+		#
+		#
+		#
 		STRING(LENGTH ${ARGV0}/ cmake_prefix_length)
 
-		STRING(SUBSTRING ${cmake} ${cmake_prefix_length} -1 cmake_relative_path)
+		STRING(SUBSTRING ${source} ${cmake_prefix_length} -1 cmake_relative_path)
 
 		STRING(FIND ${cmake_relative_path} "/" cmake_relative_pos)
 
@@ -35,14 +51,26 @@ MACRO(TRAVERSE_ADD_SUBDIRECTORY)
 
 	ENDFOREACH()
 
-ENDMACRO(TRAVERSE_ADD_SUBDIRECTORY)
+ENDMACRO(TRAVERSE_DIRECTORY_ADD_PROJECT)
 
 
 #
-# 遍历添加当前目录下级项目, TRAVERSE_CURRENT_ADD_SUBDIRECTORY()
+# 遍历当前目录添加项目, TRAVERSE_CURRENT_DIRECTORY_ADD_PROJECT()
 #
-MACRO(TRAVERSE_CURRENT_ADD_SUBDIRECTORY)
+MACRO(TRAVERSE_CURRENT_DIRECTORY_ADD_PROJECT)
 
-	TRAVERSE_ADD_SUBDIRECTORY(${CMAKE_CURRENT_LIST_DIR})
+	#
+	# 检测参数个数
+	#
+	IF(NOT ${ARGC} EQUAL 0)
 
-ENDMACRO(TRAVERSE_CURRENT_ADD_SUBDIRECTORY)
+		MESSAGE(FATAL_ERROR "There is not need parameter")
+
+	ENDIF()
+
+	#
+	# 遍历指定目录添加项目
+	#
+	TRAVERSE_DIRECTORY_ADD_PROJECT(${CMAKE_CURRENT_LIST_DIR})
+
+ENDMACRO(TRAVERSE_CURRENT_DIRECTORY_ADD_PROJECT)

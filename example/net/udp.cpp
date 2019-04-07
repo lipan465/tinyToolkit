@@ -14,10 +14,8 @@
  *
  * 构造函数
  *
- * @param id 序号
- *
  */
-UDPClientSession::UDPClientSession(int32_t id) : _id(id)
+UDPClientSession::UDPClientSession()
 {
 
 }

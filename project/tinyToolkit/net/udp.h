@@ -16,6 +16,8 @@
 #include "buffer.h"
 #include "message.h"
 
+#include "../container/queue.h"
+
 
 namespace tinyToolkit
 {
@@ -145,6 +147,8 @@ namespace tinyToolkit
 #endif
 
 	private:
+		std::mutex _mutex{ };
+
 		IUDPSession * _session{ nullptr };
 
 		std::queue<NetMessage *> _sendQueue{ };

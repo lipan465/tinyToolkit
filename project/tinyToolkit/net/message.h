@@ -33,6 +33,15 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 拷贝构造函数
+		 *
+		 * @param rhs 右值对象
+		 *
+		 */
+		NetMessage(NetMessage && rhs) noexcept;
+
+		/**
+		 *
 		 * 析构函数
 		 *
 		 */

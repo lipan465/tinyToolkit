@@ -3,14 +3,23 @@
 #
 MACRO(TRAVERSE_INCLUDE)
 
+	#
+	# 检测参数个数
+	#
 	IF(${ARGC} LESS 1)
 
 		MESSAGE(FATAL_ERROR "Has and is greater than one parameter")
 
 	ENDIF()
 
+	#
+	# 遍历参数
+	#
 	FOREACH(param ${ARGN})
 
+		#
+		# 包含头文件目录
+		#
 		INCLUDE_DIRECTORIES(${param})
 
 	ENDFOREACH()
@@ -23,14 +32,23 @@ ENDMACRO(TRAVERSE_INCLUDE)
 #
 MACRO(TRAVERSE_INCLUDE_FOR_PROGRAM_NAME)
 
+	#
+	# 检测参数个数
+	#
 	IF(${ARGC} LESS 1)
 
 		MESSAGE(FATAL_ERROR "Has and is greater than one parameter")
 
 	ENDIF()
 
+	#
+	# 遍历参数
+	#
 	FOREACH(param ${ARGN})
 
+		#
+		# 包含头文件目录
+		#
 		TARGET_INCLUDE_DIRECTORIES(${PROGRAM_NAME}	PUBLIC	${param})
 
 	ENDFOREACH()

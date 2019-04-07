@@ -106,7 +106,11 @@ namespace tinyToolkit
 			return;
 		}
 
-		_sendQueue.push(new NetMessage(ip, port, data, size));
+		{
+			std::lock_guard<std::mutex> lock(_mutex);
+
+			_sendQueue.push(new NetMessage(ip, port, data, size));
+		}
 
 		if (_isSend)
 		{
@@ -318,7 +322,10 @@ namespace tinyToolkit
 				{
 					if (_session)
 					{
-						_session->OnReceive(inet_ntoa(netEvent->_address.sin_addr), ntohs(netEvent->_address.sin_port), temp, static_cast<size_t>(len));
+						_session->_remotePort = ntohs(netEvent->_address.sin_port);
+						_session->_remoteHost = inet_ntoa(netEvent->_address.sin_addr);
+
+						_session->OnReceive(_session->_remoteHost.c_str(), _session->_remotePort, temp, static_cast<size_t>(len));
 					}
 				}
 				else
@@ -344,11 +351,15 @@ namespace tinyToolkit
 
 				auto len = ::sendto(_socket, value->_data, value->_size, 0, (struct sockaddr *)&netEvent->_address, sizeof(struct sockaddr_in));
 
+				{
+					std::lock_guard<std::mutex> lock(_mutex);
+
+					delete value;
+
+					_sendQueue.pop();
+				}
+
 				_isSend = false;
-
-				delete value;
-
-				_sendQueue.pop();
 
 				if (len > 0)
 				{
@@ -409,7 +420,10 @@ namespace tinyToolkit
 				{
 					if (_session)
 					{
-						_session->OnReceive(inet_ntoa(netEvent->_address.sin_addr), ntohs(netEvent->_address.sin_port), temp, static_cast<size_t>(len));
+						_session->_remotePort = ntohs(netEvent->_address.sin_port);
+						_session->_remoteHost = inet_ntoa(netEvent->_address.sin_addr);
+
+						_session->OnReceive(_session->_remoteHost.c_str(), _session->_remotePort, temp, static_cast<size_t>(len));
 					}
 				}
 				else
@@ -437,9 +451,13 @@ namespace tinyToolkit
 
 				_isSend = false;
 
-				delete value;
+				{
+					std::lock_guard<std::mutex> lock(_mutex);
 
-				_sendQueue.pop();
+					delete value;
+
+					_sendQueue.pop();
+				}
 
 				if (len > 0)
 				{

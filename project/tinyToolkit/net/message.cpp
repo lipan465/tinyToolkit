@@ -33,6 +33,18 @@ namespace tinyToolkit
 
 	/**
 	 *
+	 * 拷贝构造函数
+	 *
+	 * @param rhs 右值对象
+	 *
+	 */
+	NetMessage::NetMessage(tinyToolkit::NetMessage && rhs) noexcept : _data(rhs._data), _ip(rhs._ip), _port(rhs._port), _size(rhs._size)
+	{
+
+	}
+
+	/**
+	 *
 	 * 析构函数
 	 *
 	 */

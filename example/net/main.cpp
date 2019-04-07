@@ -10,41 +10,44 @@
 #include "main.h"
 
 
+#define sOption	tinyToolkit::OptionManager::Instance()
+
+
 void ParseOption(int argc, char const * argv[])
 {
-	tinyToolkit::OptionManager::Instance().DefineArg("mode",  nullptr, "client",		tinyToolkit::Application::Name().c_str());
-	tinyToolkit::OptionManager::Instance().DefineArg("type",  nullptr, "udp",			tinyToolkit::Application::Name().c_str());
-	tinyToolkit::OptionManager::Instance().DefineArg("host",  nullptr, "192.168.2.71",	tinyToolkit::Application::Name().c_str());
-	tinyToolkit::OptionManager::Instance().DefineArg("port",  nullptr, "1234",			tinyToolkit::Application::Name().c_str());
-	tinyToolkit::OptionManager::Instance().DefineArg("size",  nullptr, "3",				tinyToolkit::Application::Name().c_str());
+	sOption.Define("tcp", nullptr, tinyToolkit::Application::Name().c_str());
+	sOption.Define("udp", nullptr, tinyToolkit::Application::Name().c_str());
 
-	tinyToolkit::OptionManager::Instance().DefineVersion(tinyToolkit::Application::CompileTimeString());
+	sOption.Define("client", nullptr, tinyToolkit::Application::Name().c_str());
+	sOption.Define("server", nullptr, tinyToolkit::Application::Name().c_str());
 
-	tinyToolkit::OptionManager::Instance().Parse(argc, argv);
+	sOption.DefineArg("host", nullptr, nullptr, tinyToolkit::Application::Name().c_str());
+	sOption.DefineArg("port", nullptr, nullptr, tinyToolkit::Application::Name().c_str());
+	sOption.DefineArg("size", nullptr, nullptr, tinyToolkit::Application::Name().c_str());
+
+	sOption.DefineVersion(tinyToolkit::Application::CompileTimeString());
+
+	sOption.Parse(argc, argv);
 }
 
 
 void StartApp()
 {
-	auto mode = tinyToolkit::OptionManager::Instance().Get("mode");
-	auto type = tinyToolkit::OptionManager::Instance().Get("type");
-	auto host = tinyToolkit::OptionManager::Instance().Get("host");
-	auto port = tinyToolkit::String::Transform<uint16_t>(tinyToolkit::OptionManager::Instance().Get("port"));
-	auto size = tinyToolkit::String::Transform<uint32_t>(tinyToolkit::OptionManager::Instance().Get("size"));
+	auto host = sOption.Has("host") ? sOption.Get("host") : "127.0.0.1";
+	auto port = sOption.Has("port") ? tinyToolkit::String::Transform<uint16_t>(sOption.Get("port")) : 1234;
+	auto size = sOption.Has("size") ? tinyToolkit::String::Transform<uint32_t>(sOption.Get("size")) : 1;
 
-	if (type == "tcp")
+	if (sOption.Has("tcp"))
 	{
-		if (mode == "client")
+		if (sOption.Has("client"))
 		{
 			std::vector<TCPClientSession *> pool;
 
 			for (uint32_t i = 0; i < size; ++i)
 			{
-				auto session = new TCPClientSession(i);
+				pool.push_back(new TCPClientSession(i));
 
-				session->Launch(host, port, TINY_TOOLKIT_MB, TINY_TOOLKIT_MB);
-
-				pool.push_back(session);
+				pool.back()->Launch(host, port, TINY_TOOLKIT_MB, TINY_TOOLKIT_MB);
 			}
 
 			while (true)
@@ -73,7 +76,7 @@ void StartApp()
 				}
 			}
 		}
-		else if (mode == "server")
+		else if (sOption.Has("server"))
 		{
 			TCPServer server;
 
@@ -90,32 +93,24 @@ void StartApp()
 			}
 		}
 	}
-	else if (type == "udp")
+//	else if (sOption.Has("udp"))
 	{
 		std::vector<UDPClientSession *> pool;
 
 		for (uint32_t i = 0; i < size; ++i)
 		{
-			auto session = new UDPClientSession(i);
+			pool.push_back(new UDPClientSession());
 
-			session->Launch(host, port);
-
-			pool.push_back(session);
+			pool.back()->Launch(host, port);
 		}
 
-		auto time1 = tinyToolkit::Time::Milliseconds();
-
-		for (int j = 0; j < 10000; ++j)
+		for (uint32_t j = 0; j < 100000; ++j)
 		{
 			for (auto &iter : pool)
 			{
-				iter->Send("192.168.2.70", 1234, "this is test message", 20);
+				iter->Send("127.0.0.1", 4321, "this is test message", 20);
 			}
 		}
-
-		auto time2 = tinyToolkit::Time::Milliseconds();
-
-		std::cout << "time : " << time2 - time1 << std::endl;
 
 		while (true)
 		{
@@ -138,7 +133,7 @@ void StartApp()
 			{
 				for (auto &iter : pool)
 				{
-					iter->Send("192.168.2.70", 1234, value.c_str(), value.size());
+					iter->Send("127.0.0.1", 4321, value.c_str(), value.size());
 				}
 			}
 		}

@@ -5,21 +5,15 @@ SET(PROGRAM_NAME benchmarkTest)
 
 
 #
-# 可执行文件的生成目录
+# 设置可执行文件生成目录
 #
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 
 
 #
-# 获取当前目录下源文件
+# 遍历递归当前目录获取源文件
 #
 RECURSE_CURRENT_DIRECTORY_SOURCE_FILE(SOURCE_FILES)
-
-
-#
-# 获取当前目录源文件分组
-#
-TRAVERSE_DIRECTORY_SOURCE_FILE_GROUP(\\\\ ${CMAKE_CURRENT_SOURCE_DIR})
 
 
 #
@@ -32,3 +26,16 @@ ADD_EXECUTABLE(${PROGRAM_NAME} ${SOURCE_FILES})
 # 链接库文件
 #
 TRAVERSE_LIBRARY_FOR_PROGRAM_NAME(tinyToolkit)
+
+
+#
+# 定义当前目录下源文件分组
+#
+IF(WIN32 OR APPLE)
+
+	#
+	# 遍历递归当前目录定义源文件分组
+	#
+	RECURSE_CURRENT_DIRECTORY_SOURCE_FILE_GROUP()
+
+ENDIF()

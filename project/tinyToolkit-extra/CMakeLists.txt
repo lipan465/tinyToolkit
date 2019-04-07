@@ -9,17 +9,23 @@ SET(PROGRAM_NAME tinyToolkit-extra)
 #
 IF(WIN32)
 
+	#
+	# 设置库文件生成目录
+	#
 	SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 
 ELSE()
 
+	#
+	# 设置库文件生成目录
+	#
 	SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 
 ENDIF()
 
 
 #
-# 额外支持
+# 遍历递归指定目录获取源文件
 #
 RECURSE_DIRECTORY_SOURCE_FILE(EXTRA_SOURCE_FILES		${CMAKE_CURRENT_SOURCE_DIR}/extra)
 
@@ -29,6 +35,9 @@ RECURSE_DIRECTORY_SOURCE_FILE(EXTRA_SOURCE_FILES		${CMAKE_CURRENT_SOURCE_DIR}/ex
 #
 IF(WITH_CURL)
 
+	#
+	# 遍历递归指定目录获取源文件
+	#
 	RECURSE_DIRECTORY_SOURCE_FILE(CURL_SOURCE_FILES		${CMAKE_CURRENT_SOURCE_DIR}/curl)
 
 ENDIF()
@@ -38,6 +47,9 @@ ENDIF()
 #
 IF(WITH_SQLITE)
 
+	#
+	# 遍历递归指定目录获取源文件
+	#
 	RECURSE_DIRECTORY_SOURCE_FILE(SQLITE_SOURCE_FILES	${CMAKE_CURRENT_SOURCE_DIR}/sqlite)
 
 ENDIF()
@@ -47,6 +59,9 @@ ENDIF()
 #
 IF(WITH_OPENSSL)
 
+	#
+	# 遍历递归指定目录获取源文件
+	#
 	RECURSE_DIRECTORY_SOURCE_FILE(OPENSSL_SOURCE_FILES	${CMAKE_CURRENT_SOURCE_DIR}/openssl)
 
 ENDIF()
@@ -56,20 +71,12 @@ ENDIF()
 #
 IF(WITH_MEMCACHED)
 
+	#
+	# 遍历递归指定目录获取源文件
+	#
 	RECURSE_DIRECTORY_SOURCE_FILE(MEMCACHED_SOURCE_FILES	${CMAKE_CURRENT_SOURCE_DIR}/memcached)
 
 ENDIF()
-
-
-#
-# 获取目录源文件分组
-#
-TRAVERSE_DIRECTORY_SOURCE_FILE_GROUP(tinyToolkit-extra\\\\				${CMAKE_CURRENT_SOURCE_DIR})
-TRAVERSE_DIRECTORY_SOURCE_FILE_GROUP(tinyToolkit-extra\\\\curl			${CMAKE_CURRENT_SOURCE_DIR}/curl)
-TRAVERSE_DIRECTORY_SOURCE_FILE_GROUP(tinyToolkit-extra\\\\extra			${CMAKE_CURRENT_SOURCE_DIR}/extra)
-TRAVERSE_DIRECTORY_SOURCE_FILE_GROUP(tinyToolkit-extra\\\\sqlite		${CMAKE_CURRENT_SOURCE_DIR}/sqlite)
-TRAVERSE_DIRECTORY_SOURCE_FILE_GROUP(tinyToolkit-extra\\\\openssl		${CMAKE_CURRENT_SOURCE_DIR}/openssl)
-TRAVERSE_DIRECTORY_SOURCE_FILE_GROUP(tinyToolkit-extra\\\\memcached		${CMAKE_CURRENT_SOURCE_DIR}/memcached)
 
 
 #
@@ -83,10 +90,26 @@ ADD_LIBRARY(${PROGRAM_NAME} SHARED	${CURL_SOURCE_FILES}
 
 
 #
+# 定义当前目录下源文件分组
+#
+IF(WIN32 OR APPLE)
+
+	#
+	# 遍历递归当前目录定义源文件分组
+	#
+	RECURSE_CURRENT_DIRECTORY_SOURCE_FILE_GROUP()
+
+ENDIF()
+
+
+#
 # curl支持
 #
 IF(WITH_CURL)
 
+	#
+	# 根据项目名链接多个动态库
+	#
 	TRAVERSE_LIBRARY_FOR_PROGRAM_NAME(curl)
 
 ENDIF()
@@ -96,6 +119,9 @@ ENDIF()
 #
 IF(WITH_SQLITE)
 
+	#
+	# 根据项目名链接多个动态库
+	#
 	TRAVERSE_LIBRARY_FOR_PROGRAM_NAME(sqlite3)
 
 ENDIF()
@@ -105,6 +131,9 @@ ENDIF()
 #
 IF(WITH_OPENSSL)
 
+	#
+	# 根据项目名链接多个动态库
+	#
 	TRAVERSE_LIBRARY_FOR_PROGRAM_NAME(ssl crypto)
 
 ENDIF()
@@ -114,6 +143,9 @@ ENDIF()
 #
 IF(WITH_MEMCACHED)
 
+	#
+	# 根据项目名链接多个动态库
+	#
 	TRAVERSE_LIBRARY_FOR_PROGRAM_NAME(memcached)
 
 ENDIF()
@@ -133,7 +165,7 @@ INSTALL(TARGETS tinyToolkit-extra
 IF(WITH_CURL)
 
 	#
-	# 遍历安装头文件
+	# 遍历递归指定目录安装头文件
 	#
 	TRAVERSE_INSTALL_INCLUDE(curl			${EXTRA_INCLUDE_INSTALL_PREFIX}/curl)
 
@@ -145,7 +177,7 @@ ENDIF()
 IF(WITH_SQLITE)
 
 	#
-	# 遍历安装头文件
+	# 遍历递归指定目录安装头文件
 	#
 	TRAVERSE_INSTALL_INCLUDE(sqlite			${EXTRA_INCLUDE_INSTALL_PREFIX}/sqlite)
 
@@ -157,7 +189,7 @@ ENDIF()
 IF(WITH_OPENSSL)
 
 	#
-	# 遍历安装头文件
+	# 遍历递归指定目录安装头文件
 	#
 	TRAVERSE_INSTALL_INCLUDE(openssl		${EXTRA_INCLUDE_INSTALL_PREFIX}/openssl)
 
@@ -169,7 +201,7 @@ ENDIF()
 IF(WITH_MEMCACHED)
 
 	#
-	# 遍历安装头文件
+	# 遍历递归指定目录安装头文件
 	#
 	TRAVERSE_INSTALL_INCLUDE(memcached		${EXTRA_INCLUDE_INSTALL_PREFIX}/memcached)
 

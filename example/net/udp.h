@@ -21,10 +21,8 @@ public:
 	 *
 	 * 构造函数
 	 *
-	 * @param id 序号
-	 *
 	 */
-	explicit UDPClientSession(int32_t id);
+	explicit UDPClientSession();
 
 	/**
 	 *
@@ -67,9 +65,6 @@ public:
 	 *
 	 */
 	std::size_t OnReceive(const char * ip, uint16_t port, const char * data, std::size_t size) override;
-
-private:
-	int32_t _id{ 0 };
 };
 
 

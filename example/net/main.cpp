@@ -21,9 +21,11 @@ void ParseOption(int argc, char const * argv[])
 	sOption.Define("client", nullptr, tinyToolkit::Application::Name().c_str());
 	sOption.Define("server", nullptr, tinyToolkit::Application::Name().c_str());
 
-	sOption.DefineArg("host", nullptr, nullptr, tinyToolkit::Application::Name().c_str());
-	sOption.DefineArg("port", nullptr, nullptr, tinyToolkit::Application::Name().c_str());
-	sOption.DefineArg("size", nullptr, nullptr, tinyToolkit::Application::Name().c_str());
+	sOption.DefineArg("count", nullptr, nullptr, tinyToolkit::Application::Name().c_str());
+	sOption.DefineArg("localHost", nullptr, nullptr, tinyToolkit::Application::Name().c_str());
+	sOption.DefineArg("localPort", nullptr, nullptr, tinyToolkit::Application::Name().c_str());
+	sOption.DefineArg("remoteHost", nullptr, nullptr, tinyToolkit::Application::Name().c_str());
+	sOption.DefineArg("remotePort", nullptr, nullptr, tinyToolkit::Application::Name().c_str());
 
 	sOption.DefineVersion(tinyToolkit::Application::CompileTimeString());
 
@@ -33,9 +35,13 @@ void ParseOption(int argc, char const * argv[])
 
 void StartApp()
 {
-	auto host = sOption.Has("host") ? sOption.Get("host") : "127.0.0.1";
-	auto port = sOption.Has("port") ? tinyToolkit::String::Transform<uint16_t>(sOption.Get("port")) : 1234;
-	auto size = sOption.Has("size") ? tinyToolkit::String::Transform<uint32_t>(sOption.Get("size")) : 1;
+	auto count = sOption.Has("count") ? tinyToolkit::String::Transform<uint32_t>(sOption.Get("count")) : static_cast<uint16_t>(1);
+
+	auto localHost = sOption.Has("localHost") ? sOption.Get("localHost") : "127.0.0.1";
+	auto localPort = sOption.Has("localPort") ? tinyToolkit::String::Transform<uint16_t>(sOption.Get("localPort")) : static_cast<uint16_t>(1234);
+
+	auto remoteHost = sOption.Has("remoteHost") ? sOption.Get("remoteHost") : "127.0.0.1";
+	auto remotePort = sOption.Has("remotePort") ? tinyToolkit::String::Transform<uint16_t>(sOption.Get("remotePort")) : static_cast<uint16_t>(4321);
 
 	if (sOption.Has("tcp"))
 	{
@@ -43,11 +49,11 @@ void StartApp()
 		{
 			std::vector<TCPClientSession *> pool;
 
-			for (uint32_t i = 0; i < size; ++i)
+			for (uint32_t i = 0; i < count; ++i)
 			{
 				pool.push_back(new TCPClientSession(i));
 
-				pool.back()->Launch(host, port, TINY_TOOLKIT_MB, TINY_TOOLKIT_MB);
+				pool.back()->Launch(remoteHost.c_str(), remotePort, TINY_TOOLKIT_MB, TINY_TOOLKIT_MB);
 			}
 
 			while (true)
@@ -80,7 +86,7 @@ void StartApp()
 		{
 			TCPServer server;
 
-			server.Launch(host, port, TINY_TOOLKIT_MB, TINY_TOOLKIT_MB);
+			server.Launch(localHost.c_str(), localPort, TINY_TOOLKIT_MB, TINY_TOOLKIT_MB);
 
 			while (true)
 			{
@@ -97,18 +103,18 @@ void StartApp()
 	{
 		std::vector<UDPClientSession *> pool;
 
-		for (uint32_t i = 0; i < size; ++i)
+		for (uint32_t i = 0; i < count; ++i)
 		{
 			pool.push_back(new UDPClientSession());
 
-			pool.back()->Launch(host, port);
+			pool.back()->Launch(localHost.c_str(), localPort);
 		}
 
 		for (uint32_t j = 0; j < 100000; ++j)
 		{
 			for (auto &iter : pool)
 			{
-				iter->Send("127.0.0.1", 4321, "this is test message", 20);
+				iter->Send(remoteHost.c_str(), remotePort, "this is test message", 20);
 			}
 		}
 
@@ -133,7 +139,7 @@ void StartApp()
 			{
 				for (auto &iter : pool)
 				{
-					iter->Send("127.0.0.1", 4321, value.c_str(), value.size());
+					iter->Send(remoteHost.c_str(), remotePort, value.c_str(), value.size());
 				}
 			}
 		}

@@ -17,15 +17,15 @@ namespace tinyToolkit
 	 *
 	 * 启动
 	 *
-	 * @param host 主机地址
-	 * @param port 主机端口
+	 * @param host 远端地址
+	 * @param port 远端端口
 	 * @param sSize 发送缓冲区大小
 	 * @param rSize 接受缓冲区大小
 	 *
 	 * @return 是否启动成功
 	 *
 	 */
-	bool ITCPSession::Launch(const std::string & host, uint16_t port, std::size_t sSize, std::size_t rSize)
+	bool ITCPSession::Launch(const char * host, uint16_t port, std::size_t sSize, std::size_t rSize)
 	{
 		return NetWorkManager::Instance().LaunchTCPClient(this, host, port, sSize, rSize);
 	}
@@ -73,7 +73,7 @@ namespace tinyToolkit
 	 * @return 是否启动成功
 	 *
 	 */
-	bool IUDPSession::Launch(const std::string & host, uint16_t port)
+	bool IUDPSession::Launch(const char * host, uint16_t port)
 	{
 		return NetWorkManager::Instance().LaunchUDPClient(this, host, port);
 	}

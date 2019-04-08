@@ -127,7 +127,7 @@ namespace tinyToolkit
 	 * @return 是否启动成功
 	 *
 	 */
-	bool NetWorkManager::LaunchUDPClient(IUDPSession * client, const std::string & host, uint16_t port)
+	bool NetWorkManager::LaunchUDPClient(IUDPSession * client, const char * host, uint16_t port)
 	{
 		if (!Launch())
 		{
@@ -165,7 +165,7 @@ namespace tinyToolkit
 
 		localAddress.sin_port = htons(port);
 		localAddress.sin_family = AF_INET;
-		localAddress.sin_addr.s_addr = Net::AsNetByte(host.c_str());
+		localAddress.sin_addr.s_addr = Net::AsNetByte(host);
 
 		if (::bind(sock, (struct sockaddr *)&localAddress, sizeof(struct sockaddr_in)) == TINY_TOOLKIT_SOCKET_ERROR)
 		{
@@ -283,15 +283,15 @@ namespace tinyToolkit
 	 * 启动tcp客户端
 	 *
 	 * @param client 客户端
-	 * @param host 主机地址
-	 * @param port 主机端口
+	 * @param host 远端地址
+	 * @param port 远端端口
 	 * @param sSize 发送缓冲区大小
 	 * @param rSize 接受缓冲区大小
 	 *
 	 * @return 是否启动成功
 	 *
 	 */
-	bool NetWorkManager::LaunchTCPClient(ITCPSession * client, const std::string & host, uint16_t port, std::size_t sSize, std::size_t rSize)
+	bool NetWorkManager::LaunchTCPClient(ITCPSession * client, const char * host, uint16_t port, std::size_t sSize, std::size_t rSize)
 	{
 		if (!Launch())
 		{
@@ -300,7 +300,7 @@ namespace tinyToolkit
 
 		std::vector<std::string> hostList{ };
 
-		if (!Net::TraverseAddressFromHost(host.c_str(), hostList))
+		if (!Net::TraverseAddressFromHost(host, hostList))
 		{
 			client->OnConnectFailed();
 
@@ -556,7 +556,7 @@ namespace tinyToolkit
 	 * @return 是否启动成功
 	 *
 	 */
-	bool NetWorkManager::LaunchTCPServer(ITCPServer * server, const std::string & host, uint16_t port, std::size_t sSize, std::size_t rSize)
+	bool NetWorkManager::LaunchTCPServer(ITCPServer * server, const char * host, uint16_t port, std::size_t sSize, std::size_t rSize)
 	{
 		if (!Launch())
 		{
@@ -565,7 +565,7 @@ namespace tinyToolkit
 
 		std::vector<std::string> hostList{ };
 
-		if (!Net::TraverseAddressFromHost(host.c_str(), hostList))
+		if (!Net::TraverseAddressFromHost(host, hostList))
 		{
 			server->OnError();
 

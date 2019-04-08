@@ -26,9 +26,11 @@ namespace tinyToolkit
 	 */
 	NetMessage::NetMessage(const char * ip, uint16_t port, const void * data, std::size_t size) : _ip(Net::AsHostByte(ip)), _port(port), _size(size)
 	{
-		_data = new char[size];
+		_data = new char[size + 1];
 
 		memcpy(_data, data, size);
+
+		_data[size] = '\0';
 	}
 
 	/**
@@ -51,5 +53,7 @@ namespace tinyToolkit
 	NetMessage::~NetMessage()
 	{
 		delete[] _data;
+
+		_data = nullptr;
 	}
 }

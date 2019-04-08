@@ -25,7 +25,7 @@ namespace tinyToolkit
 	 * @return 是否启动成功
 	 *
 	 */
-	bool ITCPServer::Launch(const std::string & host, uint16_t port, std::size_t sSize, std::size_t rSize)
+	bool ITCPServer::Launch(const char * host, uint16_t port, std::size_t sSize, std::size_t rSize)
 	{
 		return NetWorkManager::Instance().LaunchTCPServer(this, host, port, sSize, rSize);
 	}

@@ -147,11 +147,9 @@ namespace tinyToolkit
 #endif
 
 	private:
-		std::mutex _mutex{ };
-
 		IUDPSession * _session{ nullptr };
 
-		std::queue<NetMessage *> _sendQueue{ };
+		LockQueue<std::shared_ptr<NetMessage>> _sendQueue{ };
 
 		TINY_TOOLKIT_SOCKET_TYPE _socket{ TINY_TOOLKIT_SOCKET_INVALID };
 

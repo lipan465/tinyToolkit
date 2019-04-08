@@ -12,12 +12,13 @@
 
 
 #include "../utilities/copyable.h"
+#include "../utilities/operator.h"
 
 
 namespace tinyToolkit
 {
 	template<typename TypeT>
-	class TINY_TOOLKIT_API SafeQueue : public NonCopyable
+	class TINY_TOOLKIT_API LockQueue : public NonCopyable
 	{
 	public:
 		/**
@@ -25,7 +26,17 @@ namespace tinyToolkit
 		 * 构造函数
 		 *
 		 */
-		SafeQueue() = default;
+		LockQueue() = default;
+
+		/**
+		 *
+		 * 析构函数
+		 *
+		 */
+		~LockQueue() override
+		{
+			Operator::Clear(_queue);
+		}
 
 		/**
 		 *
@@ -57,6 +68,34 @@ namespace tinyToolkit
 			_queue.push(std::forward<TypeT>(value));
 
 			_condition.notify_one();
+		}
+
+		/**
+		 *
+		 * 弹出数据
+		 *
+		 */
+		void Pop()
+		{
+			std::lock_guard<std::mutex> lock(_mutex);
+
+			_queue.pop();
+		}
+
+		/**
+		 *
+		 * 弹出数据
+		 *
+		 * @param value 存储的数据
+		 *
+		 */
+		void Pop(TypeT & value)
+		{
+			std::lock_guard<std::mutex> lock(_mutex);
+
+			value = std::move(_queue.front());
+
+			_queue.pop();
 		}
 
 		/**
@@ -160,39 +199,11 @@ namespace tinyToolkit
 		 * @return 是否为空
 		 *
 		 */
-		bool Empty()
-		{
-			std::lock_guard<std::mutex> lock(_mutex);
-
-			return _queue.empty();
-		}
-
-		/**
-		 *
-		 * 是否为空
-		 *
-		 * @return 是否为空
-		 *
-		 */
 		bool Empty() const
 		{
 			std::lock_guard<std::mutex> lock(_mutex);
 
 			return _queue.empty();
-		}
-
-		/**
-		 *
-		 * 队列大小
-		 *
-		 * @return 队列大小
-		 *
-		 */
-		std::size_t Size()
-		{
-			std::lock_guard<std::mutex> lock(_mutex);
-
-			return _queue.size();
 		}
 
 		/**
@@ -209,8 +220,36 @@ namespace tinyToolkit
 			return _queue.size();
 		}
 
+		/**
+		 *
+		 * 尾部数据
+		 *
+		 * @return 尾部数据
+		 *
+		 */
+		const TypeT & Back() const
+		{
+			std::lock_guard<std::mutex> lock(_mutex);
+
+			return _queue.back();
+		}
+
+		/**
+		 *
+		 * 头部数据
+		 *
+		 * @return 头部数据
+		 *
+		 */
+		const TypeT & Front() const
+		{
+			std::lock_guard<std::mutex> lock(_mutex);
+
+			return _queue.front();
+		}
+
 	private:
-		std::mutex _mutex{ };
+		mutable std::mutex _mutex{ };
 
 		std::queue<TypeT> _queue{ };
 

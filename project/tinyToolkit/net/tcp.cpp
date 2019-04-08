@@ -78,6 +78,8 @@ namespace tinyToolkit
 	{
 		auto addressLen = sizeof(struct sockaddr_in);
 
+		memset(&event._address, 0, sizeof(struct sockaddr_in));
+
 		return ::accept(socket, (struct sockaddr *)&event._address, (socklen_t *)&addressLen);
 	}
 

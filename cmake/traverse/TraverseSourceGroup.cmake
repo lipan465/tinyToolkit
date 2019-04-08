@@ -23,7 +23,7 @@ MACRO(RECURSE_DIRECTORY_SOURCE_FILE_GROUP)
 	FOREACH(source ${GROUP_FILES})
 
 		#
-		# 获取相对目录的路径
+		# 获取相对路径
 		#
 		FILE(RELATIVE_PATH relative ${ARGV0} ${source})
 
@@ -116,7 +116,7 @@ MACRO(TRAVERSE_DIRECTORY_SOURCE_FILE_GROUP)
 	FOREACH(source ${GROUP_FILES})
 
 		#
-		# 获取相对目录的路径
+		# 获取相对路径
 		#
 		FILE(RELATIVE_PATH relative ${ARGV0} ${source})
 

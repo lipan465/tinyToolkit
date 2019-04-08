@@ -106,11 +106,7 @@ namespace tinyToolkit
 			return;
 		}
 
-		{
-			std::lock_guard<std::mutex> lock(_mutex);
-
-			_sendQueue.push(new NetMessage(ip, port, data, size));
-		}
+		_sendQueue.Push(std::make_shared<NetMessage>(ip, port, data, size));
 
 		if (_isSend)
 		{
@@ -406,6 +402,8 @@ namespace tinyToolkit
 			{
 				_isReceive = true;
 
+				memset(&netEvent->_address, 0, sizeof(struct sockaddr_in));
+
 				auto addressLength = sizeof(struct sockaddr_in);
 
 				auto len = ::recvfrom(_socket, temp, sizeof(temp), MSG_DONTWAIT, (struct sockaddr *)&netEvent->_address, (socklen_t *)&addressLength);
@@ -439,9 +437,11 @@ namespace tinyToolkit
 		{
 			if (_isConnect)
 			{
+				auto & value = _sendQueue.Front();
+
 				_isSend = true;
 
-				auto value = _sendQueue.front();
+				memset(&netEvent->_address, 0, sizeof(struct sockaddr_in));
 
 				netEvent->_address.sin_port = htons(value->_port);
 				netEvent->_address.sin_family = AF_INET;
@@ -451,17 +451,11 @@ namespace tinyToolkit
 
 				_isSend = false;
 
-				{
-					std::lock_guard<std::mutex> lock(_mutex);
-
-					delete value;
-
-					_sendQueue.pop();
-				}
+				_sendQueue.Pop();
 
 				if (len > 0)
 				{
-					if (_sendQueue.empty())
+					if (_sendQueue.Empty())
 					{
 						struct epoll_event event{ };
 

@@ -45,22 +45,22 @@ namespace tinyToolkit
 		 * @return 是否启动成功
 		 *
 		 */
-		bool LaunchUDPClient(IUDPSession * client, const std::string & host, uint16_t port);
+		bool LaunchUDPClient(IUDPSession * client, const char * host, uint16_t port);
 
 		/**
 		 *
 		 * 启动tcp客户端
 		 *
 		 * @param client 客户端
-		 * @param host 主机地址
-		 * @param port 主机端口
+		 * @param host 远端地址
+		 * @param port 远端端口
 		 * @param sSize 发送缓冲区大小
 		 * @param rSize 接受缓冲区大小
 		 *
 		 * @return 是否启动成功
 		 *
 		 */
-		bool LaunchTCPClient(ITCPSession * client, const std::string & host, uint16_t port, std::size_t sSize, std::size_t rSize);
+		bool LaunchTCPClient(ITCPSession * client, const char * host, uint16_t port, std::size_t sSize, std::size_t rSize);
 
 		/**
 		 *
@@ -75,7 +75,7 @@ namespace tinyToolkit
 		 * @return 是否启动成功
 		 *
 		 */
-		bool LaunchTCPServer(ITCPServer * server, const std::string & host, uint16_t port, std::size_t sSize, std::size_t rSize);
+		bool LaunchTCPServer(ITCPServer * server, const char * host, uint16_t port, std::size_t sSize, std::size_t rSize);
 
 	private:
 		/**

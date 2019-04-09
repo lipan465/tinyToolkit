@@ -178,13 +178,13 @@ namespace tinyToolkit
 
 		auto pipe = std::make_shared<UDPSessionPipe>(client, sock, _handle);
 
-		if (Net::GetLocalAddress(sock, pipe->_netEvent._address))
-		{
-			client->_localPort = ntohs(pipe->_netEvent._address.sin_port);
-			client->_localHost = inet_ntoa(pipe->_netEvent._address.sin_addr);
-		}
-
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		if (Net::GetLocalAddress(sock, pipe->_receiveEvent._address))
+		{
+			client->_localPort = ntohs(pipe->_receiveEvent._address.sin_port);
+			client->_localHost = inet_ntoa(pipe->_receiveEvent._address.sin_addr);
+		}
 
 		BOOL bNewBehavior = FALSE;
 
@@ -226,6 +226,12 @@ namespace tinyToolkit
 		}
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
+
+		if (Net::GetLocalAddress(sock, pipe->_netEvent._address))
+		{
+			client->_localPort = ntohs(pipe->_netEvent._address.sin_port);
+			client->_localHost = inet_ntoa(pipe->_netEvent._address.sin_addr);
+		}
 
 		struct kevent event[2]{ };
 

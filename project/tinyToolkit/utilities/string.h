@@ -11,18 +11,17 @@
  */
 
 
-#include "../common/common.h"
+#include <fmt/core.h>
+#include <fmt/posix.h>
+#include <fmt/printf.h>
+#include <fmt/chrono.h>
+#include <fmt/format.h>
+#include <fmt/ranges.h>
+#include <fmt/locale.h>
+#include <fmt/ostream.h>
+#include <fmt/prepare.h>
 
-#include "../3rd/fmt/core.h"
-#include "../3rd/fmt/time.h"
-#include "../3rd/fmt/posix.h"
-#include "../3rd/fmt/printf.h"
-#include "../3rd/fmt/chrono.h"
-#include "../3rd/fmt/format.h"
-#include "../3rd/fmt/ranges.h"
-#include "../3rd/fmt/locale.h"
-#include "../3rd/fmt/ostream.h"
-#include "../3rd/fmt/prepare.h"
+#include "../common/common.h"
 
 
 namespace tinyToolkit

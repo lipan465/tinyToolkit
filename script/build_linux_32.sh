@@ -22,6 +22,36 @@ mkdir -p linux_32 && cd linux_32
 
 
 #
+# 创建目录
+#
+mkdir -p fmt && cd fmt
+
+
+#
+# 解压fmt
+#
+tar -zxvf ../../../3rd/fmt.tgz
+
+
+#
+# 生成make
+#
+cmake .. -DCMAKE_C_FLAGS=-fPIC -DCMAKE_CXX_FLAGS=-fPIC
+
+
+#
+# 返回上级目录
+#
+cd ..
+
+
+#
+# 编译
+#
+cmake --build fmt --config Release -- -j 4
+
+
+#
 # 生成make
 #
 cmake	../../ \

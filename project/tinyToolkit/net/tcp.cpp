@@ -231,6 +231,8 @@ namespace tinyToolkit
 	 */
 	bool TCPSessionPipe::AsyncSend()
 	{
+		_isSend = true;
+
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
 		DWORD flag = 0;
@@ -250,8 +252,6 @@ namespace tinyToolkit
 		}
 
 #endif
-
-		_isSend = true;
 
 		return true;
 	}
@@ -277,6 +277,8 @@ namespace tinyToolkit
 	 */
 	bool TCPSessionPipe::AsyncReceive()
 	{
+		_isReceive = true;
+
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
 		DWORD flag = 0;
@@ -297,8 +299,6 @@ namespace tinyToolkit
 
 #endif
 
-		_isReceive = true;
-
 		return true;
 	}
 
@@ -312,7 +312,7 @@ namespace tinyToolkit
 	 */
 	void TCPSessionPipe::OnCallback(NetEvent * netEvent, void * sysEvent)
 	{
-		switch(netEvent->_type)
+		switch (netEvent->_type)
 		{
 			case NET_EVENT_TYPE::IO:
 			{
@@ -363,6 +363,11 @@ namespace tinyToolkit
 	{
 		(void)netEvent;
 		(void)sysEvent;
+
+		if (!_isConnect)
+		{
+			return;
+		}
 
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
@@ -574,9 +579,12 @@ namespace tinyToolkit
 		(void)netEvent;
 		(void)sysEvent;
 
-#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+		if (!_isConnect)
+		{
+			return;
+		}
 
-		_isSend = false;
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
 		if (!_sendBuffer.Reduced(netEvent->_bytes))
 		{
@@ -585,13 +593,18 @@ namespace tinyToolkit
 			return;
 		}
 
-		if (_sendBuffer.Length() > 0)
+		if (_sendBuffer.Length() == 0)
 		{
-			if (!AsyncSend())
-			{
-				Close();
-			}
+			_isSend = false;
+
+			return;
 		}
+
+		if (!AsyncSend())
+		{
+			Close();
+		}
+
 
 #endif
 	}
@@ -608,6 +621,11 @@ namespace tinyToolkit
 	{
 		(void)netEvent;
 		(void)sysEvent;
+
+		if (!_isConnect)
+		{
+			return;
+		}
 
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
@@ -655,16 +673,16 @@ namespace tinyToolkit
 
 		delete netEvent;
 
-		if (Net::GetLocalAddress(_socket, _netEvent._address))
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		if (Net::GetLocalAddress(_socket, _receiveEvent._address))
 		{
 			if (_session)
 			{
-				_session->_localPort = ntohs(_netEvent._address.sin_port);
-				_session->_localHost = inet_ntoa(_netEvent._address.sin_addr);
+				_session->_localPort = ntohs(_receiveEvent._address.sin_port);
+				_session->_localHost = inet_ntoa(_receiveEvent._address.sin_addr);
 			}
 		}
-
-#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
 		if (setsockopt(_socket, SOL_SOCKET, SO_UPDATE_CONNECT_CONTEXT, nullptr, 0) == -1)
 		{
@@ -696,6 +714,15 @@ namespace tinyToolkit
 		}
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
+
+		if (Net::GetLocalAddress(_socket, _netEvent._address))
+		{
+			if (_session)
+			{
+				_session->_localPort = ntohs(_netEvent._address.sin_port);
+				_session->_localHost = inet_ntoa(_netEvent._address.sin_addr);
+			}
+		}
 
 		auto * currentEventPtr = reinterpret_cast<const struct kevent *>(sysEvent);
 
@@ -757,6 +784,15 @@ namespace tinyToolkit
 		}
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_LINUX
+
+		if (Net::GetLocalAddress(_socket, _netEvent._address))
+		{
+			if (_session)
+			{
+				_session->_localPort = ntohs(_netEvent._address.sin_port);
+				_session->_localHost = inet_ntoa(_netEvent._address.sin_addr);
+			}
+		}
 
 		auto currentEvent = reinterpret_cast<const struct epoll_event *>(sysEvent);
 
@@ -1031,7 +1067,7 @@ namespace tinyToolkit
 		std::string localHost = _server->_host;
 		std::string remoteHost = "";
 
-		if (Net::GetRemoteAddress(_socket, _netEvent._address))
+		if (Net::GetRemoteAddress(sock, _netEvent._address))
 		{
 			remotePort = ntohs(_netEvent._address.sin_port);
 			remoteHost = inet_ntoa(_netEvent._address.sin_addr);

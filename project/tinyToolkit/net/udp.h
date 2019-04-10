@@ -53,13 +53,12 @@ namespace tinyToolkit
 		 *
 		 * 发送数据
 		 *
-		 * @param ip 远端地址
-		 * @param port 远端端口
-		 * @param data 待发送数据
+		 * @param value 待发送数据
 		 * @param size 待发送数据长度
+		 * @param cache 缓冲发送
 		 *
 		 */
-		void Send(const char * ip, uint16_t port, const void * data, std::size_t size) override;
+		void Send(const void * value, std::size_t size, bool cache) override;
 
 		/**
 		 *
@@ -147,9 +146,10 @@ namespace tinyToolkit
 #endif
 
 	private:
-		IUDPSession * _session{ nullptr };
+		NetBuffer _sendBuffer;
+		NetBuffer _receiveBuffer;
 
-		LockQueue<std::shared_ptr<NetMessage>> _sendQueue{ };
+		IUDPSession * _session{ nullptr };
 
 		TINY_TOOLKIT_SOCKET_TYPE _socket{ TINY_TOOLKIT_SOCKET_INVALID };
 

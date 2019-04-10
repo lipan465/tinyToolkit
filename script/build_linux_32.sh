@@ -5,6 +5,15 @@
 
 
 #
+# 绝对路径
+#
+RelativeDirectory=$(cd `dirname $0`; pwd)
+
+
+####################################################################################################
+
+
+#
 # 输出信息
 #
 echo -e ""
@@ -16,39 +25,97 @@ echo -e ""
 
 
 #
-# 创建目录
+# 进入脚本目录
 #
-mkdir -p linux_32 && cd linux_32
+cd ${RelativeDirectory}
 
 
 #
-# 创建目录
+# 拉取fmt
 #
-mkdir -p fmt && cd fmt
+git clone https://github.com/fmtlib/fmt.git fmt_linux_32
+
+
+####################################################################################################
 
 
 #
-# 解压fmt
+# 输出信息
 #
-tar -zxvf ../../../3rd/fmt.tgz
+echo -e ""
+echo -e "\033[1m\033[36m---------- fmt ----------\033[0m"
+echo -e ""
+
+
+####################################################################################################
+
+
+#
+# 进入脚本目录
+#
+cd ${RelativeDirectory}
+
+
+#
+# 创建并进入目录
+#
+mkdir -p fmt_linux_32/build && cd fmt_linux_32/build
 
 
 #
 # 生成make
 #
-cmake .. -DCMAKE_C_FLAGS=-fPIC -DCMAKE_CXX_FLAGS=-fPIC
+cmake	.. 	\
+		\
+		-G "Unix Makefiles" \
+		\
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_VERBOSE_MAKEFILE=ON \
+		\
+		-DCMAKE_C_COMPILER=gcc8.1.0 \
+		-DCMAKE_CXX_COMPILER=g++8.1.0 \
+		\
+		-DCMAKE_C_FLAGS="-m32 -fPIC" \
+		-DCMAKE_CXX_FLAGS="-m32 -fPIC" \
+		-DCMAKE_SHARED_LINKER_FLAGS="-m32 -fPIC"
 
 
 #
-# 返回上级目录
+# 编译安装
 #
-cd ..
+make -j4 && make install
 
 
 #
-# 编译
+# 进入脚本目录
 #
-cmake --build fmt --config Release -- -j 4
+cd ${RelativeDirectory}
+
+
+####################################################################################################
+
+
+#
+# 输出信息
+#
+echo -e ""
+echo -e "\033[1m\033[36m---------- tinyToolkit ----------\033[0m"
+echo -e ""
+
+
+####################################################################################################
+
+
+#
+# 进入脚本目录
+#
+cd ${RelativeDirectory}
+
+
+#
+# 创建并进入目录
+#
+mkdir -p tinyToolkit_linux_32 && cd tinyToolkit_linux_32
 
 
 #
@@ -64,21 +131,21 @@ cmake	../../ \
 		-DCMAKE_C_COMPILER=gcc8.1.0 \
 		-DCMAKE_CXX_COMPILER=g++8.1.0 \
 		\
-		-DCMAKE_C_FLAGS=-m32 \
-		-DCMAKE_CXX_FLAGS=-m32 \
-		-DCMAKE_SHARED_LINKER_FLAGS=-m32
+		-DCMAKE_C_FLAGS="-m32 -fPIC" \
+		-DCMAKE_CXX_FLAGS="-m32 -fPIC" \
+		-DCMAKE_SHARED_LINKER_FLAGS="-m32 -fPIC"
 
 
 #
-# 返回上级目录
+# 编译安装
 #
-cd ..
+make -j4 && make install
 
 
 #
-# 编译
+# 进入脚本目录
 #
-cmake --build linux_32 --config Release -- -j 4
+cd ${RelativeDirectory}
 
 
 ####################################################################################################

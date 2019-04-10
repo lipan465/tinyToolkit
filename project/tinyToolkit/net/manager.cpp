@@ -127,12 +127,31 @@ namespace tinyToolkit
 	 * @return 是否启动成功
 	 *
 	 */
-	bool NetWorkManager::LaunchUDPClient(IUDPSession * client, const char * host, uint16_t port)
+	bool NetWorkManager::LaunchUDPClient(IUDPSession * client, const char * lHost, uint16_t lPort, const char * rHost, uint16_t rPort, std::size_t sSize, std::size_t rSize)
 	{
 		if (!Launch())
 		{
 			return false;
 		}
+
+		std::vector<std::string> localHostList{ };
+		std::vector<std::string> remoteHostList{ };
+
+		if (!Net::TraverseAddressFromHost(lHost, localHostList)||
+			!Net::TraverseAddressFromHost(rHost, remoteHostList))
+		{
+			client->OnConnectFailed();
+
+			return false;
+		}
+
+		client->_sSize = sSize;
+		client->_rSize = rSize;
+
+		client->_localPort = lPort;
+		client->_localHost = localHostList.front();
+		client->_remotePort = rPort;
+		client->_remoteHost = remoteHostList.front();
 
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
@@ -163,11 +182,26 @@ namespace tinyToolkit
 
 		struct sockaddr_in localAddress{ };
 
-		localAddress.sin_port = htons(port);
+		localAddress.sin_port = htons(client->_localPort);
 		localAddress.sin_family = AF_INET;
-		localAddress.sin_addr.s_addr = Net::AsNetByte(host);
+		localAddress.sin_addr.s_addr = Net::AsNetByte(client->_localHost.c_str());
 
 		if (::bind(sock, (struct sockaddr *)&localAddress, sizeof(struct sockaddr_in)) == TINY_TOOLKIT_SOCKET_ERROR)
+		{
+			Net::CloseSocket(sock);
+
+			client->OnConnectFailed();
+
+			return false;
+		}
+
+		struct sockaddr_in serverAddress { };
+
+		serverAddress.sin_port = htons(client->_remotePort);
+		serverAddress.sin_family = AF_INET;
+		serverAddress.sin_addr.s_addr = Net::AsNetByte(client->_remoteHost.c_str());
+
+		if (::connect(sock, (struct sockaddr *)&serverAddress, sizeof(struct sockaddr_in)) == TINY_TOOLKIT_SOCKET_ERROR)
 		{
 			Net::CloseSocket(sock);
 
@@ -179,12 +213,6 @@ namespace tinyToolkit
 		auto pipe = std::make_shared<UDPSessionPipe>(client, sock, _handle);
 
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
-
-		if (Net::GetLocalAddress(sock, pipe->_receiveEvent._address))
-		{
-			client->_localPort = ntohs(pipe->_receiveEvent._address.sin_port);
-			client->_localHost = inet_ntoa(pipe->_receiveEvent._address.sin_addr);
-		}
 
 		BOOL bNewBehavior = FALSE;
 
@@ -226,12 +254,6 @@ namespace tinyToolkit
 		}
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
-
-		if (Net::GetLocalAddress(sock, pipe->_netEvent._address))
-		{
-			client->_localPort = ntohs(pipe->_netEvent._address.sin_port);
-			client->_localHost = inet_ntoa(pipe->_netEvent._address.sin_addr);
-		}
 
 		struct kevent event[2]{ };
 

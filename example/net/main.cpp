@@ -31,7 +31,7 @@ void ParseOption(int argc, char const * argv[])
 
 void StartApp()
 {
-	auto type = sOption.Has("type") ? sOption.Get("type") : "tcp";
+	auto type = sOption.Has("type") ? sOption.Get("type") : "udp";
 	auto mode = sOption.Has("mode") ? sOption.Get("mode") : "client";
 
 	auto count = sOption.Has("count") ? tinyToolkit::String::Transform<uint32_t>(sOption.Get("count")) : static_cast<uint16_t>(1);
@@ -122,7 +122,7 @@ void StartApp()
 		{
 			TCPServer server;
 
-			if (server.Launch(localHost.c_str(), localPort, TINY_TOOLKIT_MB, TINY_TOOLKIT_MB))
+			if (server.Launch(localHost.c_str(), localPort, 100 * TINY_TOOLKIT_MB, TINY_TOOLKIT_MB))
 			{
 				std::cout << "launch tcp server success" << std::endl;
 			}
@@ -150,7 +150,7 @@ void StartApp()
 		{
 			pool.push_back(new UDPClientSession());
 
-			if (pool.back()->Launch(localHost.c_str(), localPort))
+			if (pool.back()->Launch(localHost.c_str(), localPort, remoteHost.c_str(), remotePort, 100 * TINY_TOOLKIT_MB, TINY_TOOLKIT_MB))
 			{
 				std::cout << "launch udp client success" << std::endl;
 			}
@@ -166,7 +166,7 @@ void StartApp()
 
 			for (auto &iter : pool)
 			{
-				iter->Send(remoteHost.c_str(), remotePort, value.c_str(), value.size());
+				iter->Send(value.c_str(), value.size());
 			}
 		}
 
@@ -191,7 +191,7 @@ void StartApp()
 			{
 				for (auto &iter : pool)
 				{
-					iter->Send(remoteHost.c_str(), remotePort, value.c_str(), value.size());
+					iter->Send(value.c_str(), value.size());
 				}
 			}
 		}

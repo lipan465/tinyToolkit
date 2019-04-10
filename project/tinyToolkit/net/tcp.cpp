@@ -382,34 +382,25 @@ namespace tinyToolkit
 
 		if (currentEventPtr->filter == EVFILT_READ)
 		{
-			if (_isConnect)
+			_isReceive = true;
+
+			auto len = ::recv(_socket, netEvent->_temp, sizeof(netEvent->_temp), 0);
+
+			_isReceive = false;
+
+			if (len < 0 && errno == EAGAIN)
 			{
-				_isReceive = true;
+				return;
+			}
+			else if (len > 0)
+			{
+				netEvent->_bytes = static_cast<std::size_t>(len);
 
-				auto len = ::recv(_socket, netEvent->_temp, sizeof(netEvent->_temp), 0);
-
-				_isReceive = false;
-
-				if (len < 0 && errno == EAGAIN)
+				if (_receiveBuffer.Push(netEvent->_temp, netEvent->_bytes))
 				{
-					return;
-				}
-				else if (len > 0)
-				{
-					netEvent->_bytes = static_cast<std::size_t>(len);
-
-					if (_receiveBuffer.Push(netEvent->_temp, netEvent->_bytes))
+					if (_session)
 					{
-						if (_session)
-						{
-							_receiveBuffer.Reduced(_session->OnReceive(_receiveBuffer.Value(), _receiveBuffer.Length()));
-						}
-					}
-					else
-					{
-						Close();
-
-						return;
+						_receiveBuffer.Reduced(_session->OnReceive(_receiveBuffer.Value(), _receiveBuffer.Length()));
 					}
 				}
 				else
@@ -419,50 +410,53 @@ namespace tinyToolkit
 					return;
 				}
 			}
+			else
+			{
+				Close();
+
+				return;
+			}
 		}
 
 		if (currentEventPtr->filter == EVFILT_WRITE)
 		{
-			if (_isConnect)
+			_isSend = true;
+
+			auto len = ::send(_socket, _sendBuffer.Value(), _sendBuffer.Length(), 0);
+
+			_isSend = false;
+
+			if (len > 0)
 			{
-				_isSend = true;
+				netEvent->_bytes = static_cast<std::size_t>(len);
 
-				auto len = ::send(_socket, _sendBuffer.Value(), _sendBuffer.Length(), 0);
-
-				_isSend = false;
-
-				if (len > 0)
-				{
-					netEvent->_bytes = static_cast<std::size_t>(len);
-
-					if (!_sendBuffer.Reduced(netEvent->_bytes))
-					{
-						Close();
-
-						return;
-					}
-
-					if (_sendBuffer.Length() == 0)
-					{
-						struct kevent event[2]{ };
-
-						EV_SET(&event[0], _socket, EVFILT_READ, EV_ENABLE, 0, 0, &_netEvent);
-						EV_SET(&event[1], _socket, EVFILT_WRITE, EV_DISABLE, 0, 0, &_netEvent);
-
-						if (kevent(_handle, event, 2, nullptr, 0, nullptr) == -1)
-						{
-							Close();
-
-							return;
-						}
-					}
-				}
-				else if (len <= 0 && errno != EAGAIN)
+				if (!_sendBuffer.Reduced(netEvent->_bytes))
 				{
 					Close();
 
 					return;
 				}
+
+				if (_sendBuffer.Length() == 0)
+				{
+					struct kevent event[2]{ };
+
+					EV_SET(&event[0], _socket, EVFILT_READ, EV_ENABLE, 0, 0, &_netEvent);
+					EV_SET(&event[1], _socket, EVFILT_WRITE, EV_DISABLE, 0, 0, &_netEvent);
+
+					if (kevent(_handle, event, 2, nullptr, 0, nullptr) == -1)
+					{
+						Close();
+
+						return;
+					}
+				}
+			}
+			else if (len <= 0 && errno != EAGAIN)
+			{
+				Close();
+
+				return;
 			}
 		}
 
@@ -479,34 +473,25 @@ namespace tinyToolkit
 
 		if (currentEvent->events & EPOLLIN)
 		{
-			if (_isConnect)
+			_isReceive = true;
+
+			auto len = ::recv(_socket, netEvent->_temp, sizeof(netEvent->_temp), 0);
+
+			_isReceive = false;
+
+			if (len < 0 && errno == EAGAIN)
 			{
-				_isReceive = true;
+				return;
+			}
+			else if (len > 0)
+			{
+				netEvent->_bytes = static_cast<std::size_t>(len);
 
-				auto len = ::recv(_socket, netEvent->_temp, sizeof(netEvent->_temp), 0);
-
-				_isReceive = false;
-
-				if (len < 0 && errno == EAGAIN)
+				if (_receiveBuffer.Push(netEvent->_temp, netEvent->_bytes))
 				{
-					return;
-				}
-				else if (len > 0)
-				{
-					netEvent->_bytes = static_cast<std::size_t>(len);
-
-					if (_receiveBuffer.Push(netEvent->_temp, netEvent->_bytes))
+					if (_session)
 					{
-						if (_session)
-						{
-							_receiveBuffer.Reduced(_session->OnReceive(_receiveBuffer.Value(), _receiveBuffer.Length()));
-						}
-					}
-					else
-					{
-						Close();
-
-						return;
+						_receiveBuffer.Reduced(_session->OnReceive(_receiveBuffer.Value(), _receiveBuffer.Length()));
 					}
 				}
 				else
@@ -516,50 +501,53 @@ namespace tinyToolkit
 					return;
 				}
 			}
+			else
+			{
+				Close();
+
+				return;
+			}
 		}
 
 		if (currentEvent->events & EPOLLOUT)
 		{
-			if (_isConnect)
+			_isSend = true;
+
+			auto len = ::send(_socket, _sendBuffer.Value(), _sendBuffer.Length(), 0);
+
+			_isSend = false;
+
+			if (len > 0)
 			{
-				_isSend = true;
+				netEvent->_bytes = static_cast<std::size_t>(len);
 
-				auto len = ::send(_socket, _sendBuffer.Value(), _sendBuffer.Length(), 0);
-
-				_isSend = false;
-
-				if (len > 0)
-				{
-					netEvent->_bytes = static_cast<std::size_t>(len);
-
-					if (!_sendBuffer.Reduced(netEvent->_bytes))
-					{
-						Close();
-
-						return;
-					}
-
-					if (_sendBuffer.Length() == 0)
-					{
-						struct epoll_event event{ };
-
-						event.events = EPOLLIN;
-						event.data.ptr = &_netEvent;
-
-						if (epoll_ctl(_handle, EPOLL_CTL_MOD, _socket, &event) == -1)
-						{
-							Close();
-
-							return;
-						}
-					}
-				}
-				else if (len <= 0 && errno != EAGAIN)
+				if (!_sendBuffer.Reduced(netEvent->_bytes))
 				{
 					Close();
 
 					return;
 				}
+
+				if (_sendBuffer.Length() == 0)
+				{
+					struct epoll_event event{ };
+
+					event.events = EPOLLIN;
+					event.data.ptr = &_netEvent;
+
+					if (epoll_ctl(_handle, EPOLL_CTL_MOD, _socket, &event) == -1)
+					{
+						Close();
+
+						return;
+					}
+				}
+			}
+			else if (len <= 0 && errno != EAGAIN)
+			{
+				Close();
+
+				return;
 			}
 		}
 
@@ -604,7 +592,6 @@ namespace tinyToolkit
 		{
 			Close();
 		}
-
 
 #endif
 	}
@@ -670,6 +657,11 @@ namespace tinyToolkit
 	{
 		(void)netEvent;
 		(void)sysEvent;
+
+		if (!_isConnect)
+		{
+			return;
+		}
 
 		delete netEvent;
 

@@ -12,16 +12,6 @@
 
 /**
  *
- * 构造函数
- *
- */
-UDPClientSession::UDPClientSession()
-{
-
-}
-
-/**
- *
  * 析构函数
  *
  */
@@ -64,17 +54,15 @@ void UDPClientSession::OnConnectFailed()
  *
  * 接收数据触发回调函数
  *
- * @param ip 远端地址
- * @param port 远端端口
  * @param data 接收的数据缓冲区
  * @param size 接收的数据缓冲区长度
  *
  * @return 使用的字节数
  *
  */
-std::size_t UDPClientSession::OnReceive(const char * ip, uint16_t port, const char * data, std::size_t size)
+std::size_t UDPClientSession::OnReceive(const char * data, std::size_t size)
 {
-	tinyToolkit::String::Print("UDP Client session [{}:{}] received server session [{}:{}] length [{}] message : {}\r\n", _localHost, _localPort, ip, port, size, data);
+	tinyToolkit::String::Print("UDP Client session [{}:{}] received server session [{}:{}] length [{}] message : {}\r\n", _localHost, _localPort, _remoteHost, _remotePort, size, data);
 
 	return size;
 }

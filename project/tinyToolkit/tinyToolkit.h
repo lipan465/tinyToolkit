@@ -102,6 +102,9 @@
 #include "system/signal.h"
 #include "system/application.h"
 
+/// container
+#include "container/queue.h"
+
 /// utilities
 #include "utilities/net.h"
 #include "utilities/math.h"

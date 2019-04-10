@@ -22,7 +22,7 @@ public:
 	 * 构造函数
 	 *
 	 */
-	explicit UDPClientSession();
+	explicit UDPClientSession() = default;
 
 	/**
 	 *
@@ -56,15 +56,13 @@ public:
 	 *
 	 * 接收数据触发回调函数
 	 *
-	 * @param ip 远端地址
-	 * @param port 远端端口
 	 * @param data 接收的数据缓冲区
 	 * @param size 接收的数据缓冲区长度
 	 *
 	 * @return 使用的字节数
 	 *
 	 */
-	std::size_t OnReceive(const char * ip, uint16_t port, const char * data, std::size_t size) override;
+	std::size_t OnReceive(const char * data, std::size_t size) override;
 };
 
 

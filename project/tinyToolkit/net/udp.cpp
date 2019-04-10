@@ -24,7 +24,9 @@ namespace tinyToolkit
 	 * @param handle 管理句柄
 	 *
 	 */
-	UDPSessionPipe::UDPSessionPipe(IUDPSession * session, TINY_TOOLKIT_SOCKET_TYPE socket, TINY_TOOLKIT_SOCKET_HANDLE handle) : _session(session),
+	UDPSessionPipe::UDPSessionPipe(IUDPSession * session, TINY_TOOLKIT_SOCKET_TYPE socket, TINY_TOOLKIT_SOCKET_HANDLE handle) : _sendBuffer(session->_sSize),
+																																_receiveBuffer(session->_rSize),
+																																_session(session),
 																																_socket(socket),
 																																_handle(handle)
 	{
@@ -88,13 +90,12 @@ namespace tinyToolkit
 	 *
 	 * 发送数据
 	 *
-	 * @param ip 远端地址
-	 * @param port 远端端口
-	 * @param data 待发送数据
+	 * @param value 待发送数据
 	 * @param size 待发送数据长度
+	 * @param cache 缓冲发送
 	 *
 	 */
-	void UDPSessionPipe::Send(const char * ip, uint16_t port, const void * data, std::size_t size)
+	void UDPSessionPipe::Send(const void * value, std::size_t size, bool cache)
 	{
 		if (size == 0)
 		{
@@ -106,45 +107,48 @@ namespace tinyToolkit
 			return;
 		}
 
-		_sendQueue.Push(std::make_shared<NetMessage>(ip, port, data, size));
-
-		if (_isSend)
+		if (!_sendBuffer.Push(value, size))
 		{
+			Close();
+
 			return;
 		}
 
+		if (!_isSend && !cache)
+		{
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-		if (!AsyncSend())
-		{
-			Close();
-		}
+			if (!AsyncSend())
+			{
+				Close();
+			}
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
-		struct kevent event[2]{ };
+			struct kevent event[2]{ };
 
-		EV_SET(&event[0], _socket, EVFILT_READ,  EV_ENABLE, 0, 0, &_netEvent);
-		EV_SET(&event[1], _socket, EVFILT_WRITE, EV_ENABLE, 0, 0, &_netEvent);
+			EV_SET(&event[0], _socket, EVFILT_READ,  EV_ENABLE, 0, 0, &_netEvent);
+			EV_SET(&event[1], _socket, EVFILT_WRITE, EV_ENABLE, 0, 0, &_netEvent);
 
-		if (kevent(_handle, event, 2, nullptr, 0, nullptr) == -1)
-		{
-			Close();
-		}
+			if (kevent(_handle, event, 2, nullptr, 0, nullptr) == -1)
+			{
+				Close();
+			}
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_LINUX
 
-		struct epoll_event event{ };
+			struct epoll_event event{ };
 
-		event.events = EPOLLIN | EPOLLOUT;
-		event.data.ptr = &_netEvent;
+			event.events = EPOLLIN | EPOLLOUT;
+			event.data.ptr = &_netEvent;
 
-		if (epoll_ctl(_handle, EPOLL_CTL_MOD, _socket, &event) == -1)
-		{
-			Close();
-		}
+			if (epoll_ctl(_handle, EPOLL_CTL_MOD, _socket, &event) == -1)
+			{
+				Close();
+			}
 
 #endif
+		}
 	}
 
 	/**
@@ -163,27 +167,18 @@ namespace tinyToolkit
 		DWORD flag = 0;
 		DWORD bytes = 0;
 
-		auto & value = _sendQueue.Front();
-
 		memset(&_sendEvent._overlap, 0, sizeof(OVERLAPPED));
-		memset(&_sendEvent._address, 0, sizeof(struct sockaddr_in));
 
-		_sendEvent._buffer.len = value->_size;
-		_sendEvent._buffer.buf = value->_data;
+		_sendEvent._buffer.len = _sendBuffer.Length() > 1400 ? 1400 : _sendBuffer.Length();
+		_sendEvent._buffer.buf = const_cast<char *>(_sendBuffer.Value());
 
-		_sendEvent._address.sin_port = htons(value->_port);
-		_sendEvent._address.sin_family = AF_INET;
-		_sendEvent._address.sin_addr.s_addr = htonl(value->_ip);
-
-		if (WSASendTo(_socket, &_sendEvent._buffer, 1, &bytes, flag, (struct sockaddr *)&_sendEvent._address, sizeof(struct sockaddr_in), (LPWSAOVERLAPPED)&_sendEvent, NULL) == TINY_TOOLKIT_SOCKET_ERROR)
+		if (WSASend(_socket, &_sendEvent._buffer, 1, &bytes, flag, (LPWSAOVERLAPPED)&_sendEvent, nullptr) == TINY_TOOLKIT_SOCKET_ERROR)
 		{
 			if (WSAGetLastError() != ERROR_IO_PENDING)
 			{
 				return false;
 			}
 		}
-
-		_sendQueue.Pop();
 
 #endif
 
@@ -206,15 +201,12 @@ namespace tinyToolkit
 		DWORD flag = 0;
 		DWORD bytes = 0;
 
-		auto addressLength = sizeof(struct sockaddr_in);
-
 		memset(&_receiveEvent._overlap, 0, sizeof(OVERLAPPED));
-		memset(&_receiveEvent._address, 0, sizeof(struct sockaddr_in));
 
 		_receiveEvent._buffer.len = sizeof(_receiveEvent._temp);
 		_receiveEvent._buffer.buf = _receiveEvent._temp;
 
-		if (WSARecvFrom(_socket, &_receiveEvent._buffer, 1, &bytes, &flag, (struct sockaddr *)&_receiveEvent._address, (LPINT)&addressLength, (LPWSAOVERLAPPED)&_receiveEvent, NULL) == TINY_TOOLKIT_SOCKET_ERROR)
+		if (WSARecv(_socket, &_receiveEvent._buffer, 1, &bytes, &flag, (LPWSAOVERLAPPED)&_receiveEvent, nullptr) == TINY_TOOLKIT_SOCKET_ERROR)
 		{
 			if (WSAGetLastError() != ERROR_IO_PENDING)
 			{
@@ -307,15 +299,9 @@ namespace tinyToolkit
 
 		if (currentEvent->filter == EVFILT_READ)
 		{
-			static char temp[TINY_TOOLKIT_SOCKET_TEMP_SIZE]{ 0 };
-
 			_isReceive = true;
 
-			memset(&netEvent->_address, 0, sizeof(struct sockaddr_in));
-
-			auto addressLength = sizeof(struct sockaddr_in);
-
-			auto len = ::recvfrom(_socket, temp, sizeof(temp), MSG_DONTWAIT, (struct sockaddr *)&netEvent->_address, (socklen_t *)&addressLength);
+			auto len = ::recv(_socket, netEvent->_temp, sizeof(netEvent->_temp), 0);
 
 			_isReceive = false;
 
@@ -325,12 +311,20 @@ namespace tinyToolkit
 			}
 			else if (len > 0)
 			{
-				if (_session)
-				{
-					_session->_remotePort = ntohs(netEvent->_address.sin_port);
-					_session->_remoteHost = inet_ntoa(netEvent->_address.sin_addr);
+				netEvent->_bytes = static_cast<std::size_t>(len);
 
-					_session->OnReceive(_session->_remoteHost.c_str(), _session->_remotePort, temp, static_cast<size_t>(len));
+				if (_receiveBuffer.Push(netEvent->_temp, netEvent->_bytes))
+				{
+					if (_session)
+					{
+						_receiveBuffer.Reduced(_session->OnReceive(_receiveBuffer.Value(), _receiveBuffer.Length()));
+					}
+				}
+				else
+				{
+					Close();
+
+					return;
 				}
 			}
 			else
@@ -343,25 +337,24 @@ namespace tinyToolkit
 
 		if (currentEvent->filter == EVFILT_WRITE)
 		{
-			auto & value = _sendQueue.Front();
-
 			_isSend = true;
 
-			memset(&netEvent->_address, 0, sizeof(struct sockaddr_in));
-
-			netEvent->_address.sin_port = htons(value->_port);
-			netEvent->_address.sin_family = AF_INET;
-			netEvent->_address.sin_addr.s_addr = htonl(value->_ip);
-
-			auto len = ::sendto(_socket, value->_data, value->_size, 0, (struct sockaddr *)&netEvent->_address, sizeof(struct sockaddr_in));
+			auto len = ::send(_socket, _sendBuffer.Value(), _sendBuffer.Length() > 1400 ? 1400 : _sendBuffer.Length(), 0);
 
 			_isSend = false;
 
-			_sendQueue.Pop();
-
 			if (len > 0)
 			{
-				if (_sendQueue.Empty())
+				netEvent->_bytes = static_cast<std::size_t>(len);
+
+				if (!_sendBuffer.Reduced(netEvent->_bytes))
+				{
+					Close();
+
+					return;
+				}
+
+				if (_sendBuffer.Length() == 0)
 				{
 					struct kevent event[2]{ };
 
@@ -397,15 +390,9 @@ namespace tinyToolkit
 
 		if (currentEvent->events & EPOLLIN)
 		{
-			static char temp[TINY_TOOLKIT_SOCKET_TEMP_SIZE]{ 0 };
-
 			_isReceive = true;
 
-			memset(&netEvent->_address, 0, sizeof(struct sockaddr_in));
-
-			auto addressLength = sizeof(struct sockaddr_in);
-
-			auto len = ::recvfrom(_socket, temp, sizeof(temp), MSG_DONTWAIT, (struct sockaddr *)&netEvent->_address, (socklen_t *)&addressLength);
+			auto len = ::recv(_socket, netEvent->_temp, sizeof(netEvent->_temp), 0);
 
 			_isReceive = false;
 
@@ -415,12 +402,20 @@ namespace tinyToolkit
 			}
 			else if (len > 0)
 			{
-				if (_session)
-				{
-					_session->_remotePort = ntohs(netEvent->_address.sin_port);
-					_session->_remoteHost = inet_ntoa(netEvent->_address.sin_addr);
+				netEvent->_bytes = static_cast<std::size_t>(len);
 
-					_session->OnReceive(_session->_remoteHost.c_str(), _session->_remotePort, temp, static_cast<size_t>(len));
+				if (_receiveBuffer.Push(netEvent->_temp, netEvent->_bytes))
+				{
+					if (_session)
+					{
+						_receiveBuffer.Reduced(_session->OnReceive(_receiveBuffer.Value(), _receiveBuffer.Length()));
+					}
+				}
+				else
+				{
+					Close();
+
+					return;
 				}
 			}
 			else
@@ -433,25 +428,24 @@ namespace tinyToolkit
 
 		if (currentEvent->events & EPOLLOUT)
 		{
-			auto & value = _sendQueue.Front();
-
 			_isSend = true;
 
-			memset(&netEvent->_address, 0, sizeof(struct sockaddr_in));
-
-			netEvent->_address.sin_port = htons(value->_port);
-			netEvent->_address.sin_family = AF_INET;
-			netEvent->_address.sin_addr.s_addr = htonl(value->_ip);
-
-			auto len = ::sendto(_socket, value->_data, value->_size, 0, (struct sockaddr *)&netEvent->_address, sizeof(struct sockaddr_in));
+			auto len = ::send(_socket, _sendBuffer.Value(), _sendBuffer.Length() > 1400 ? 1400 : _sendBuffer.Length(), 0);
 
 			_isSend = false;
 
-			_sendQueue.Pop();
-
 			if (len > 0)
 			{
-				if (_sendQueue.Empty())
+				netEvent->_bytes = static_cast<std::size_t>(len);
+
+				if (!_sendBuffer.Reduced(netEvent->_bytes))
+				{
+					Close();
+
+					return;
+				}
+
+				if (_sendBuffer.Length() == 0)
 				{
 					struct epoll_event event{ };
 
@@ -497,7 +491,14 @@ namespace tinyToolkit
 
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-		if (_sendQueue.Empty())
+		if (!_sendBuffer.Reduced(netEvent->_bytes))
+		{
+			Close();
+
+			return;
+		}
+
+		if (_sendBuffer.Length() == 0)
 		{
 			_isSend = false;
 
@@ -536,12 +537,19 @@ namespace tinyToolkit
 
 		if (netEvent->_bytes > 0)
 		{
-			if (_session)
+			if (_receiveBuffer.Push(netEvent->_temp, netEvent->_bytes))
 			{
-				_session->OnReceive(inet_ntoa(netEvent->_address.sin_addr), ntohs(netEvent->_address.sin_port), netEvent->_temp, netEvent->_bytes);
-			}
+				if (_session)
+				{
+					_receiveBuffer.Reduced(_session->OnReceive(_receiveBuffer.Value(), _receiveBuffer.Length()));
+				}
 
-			if (!AsyncReceive())
+				if (!AsyncReceive())
+				{
+					Close();
+				}
+			}
+			else
 			{
 				Close();
 			}
@@ -567,11 +575,11 @@ namespace tinyToolkit
 		(void)netEvent;
 		(void)sysEvent;
 
-		delete netEvent;
-
 		if (!_isConnect)
 		{
 			return;
 		}
+
+		delete netEvent;
 	}
 }

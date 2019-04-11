@@ -20,81 +20,23 @@
 
 namespace tinyToolkit
 {
-	class TINY_TOOLKIT_API NetWorkManager : public NonCopyable
+	class TINY_TOOLKIT_API NetManager : public NonCopyable
 	{
-		friend Singleton<NetWorkManager>;
-
 	public:
-		/**
-		 *
-		 * 获取单例
-		 *
-		 * @return 单例对象引用
-		 *
-		 */
-		static NetWorkManager & Instance();
 
-		/**
-		 *
-		 * 启动udp客户端
-		 *
-		 * @param client 客户端
-		 * @param lHost 主机地址
-		 * @param lPort 主机端口
-		 * @param rHost 远端地址
-		 * @param rPort 远端端口
-		 * @param sSize 发送缓冲区大小
-		 * @param rSize 接受缓冲区大小
-		 *
-		 * @return 是否启动成功
-		 *
-		 */
-		bool LaunchUDPClient(IUDPSession * client, const char * lHost, uint16_t lPort, const char * rHost, uint16_t rPort, std::size_t sSize, std::size_t rSize);
-
-		/**
-		 *
-		 * 启动tcp客户端
-		 *
-		 * @param client 客户端
-		 * @param host 远端地址
-		 * @param port 远端端口
-		 * @param sSize 发送缓冲区大小
-		 * @param rSize 接受缓冲区大小
-		 *
-		 * @return 是否启动成功
-		 *
-		 */
-		bool LaunchTCPClient(ITCPSession * client, const char * host, uint16_t port, std::size_t sSize, std::size_t rSize);
-
-		/**
-		 *
-		 * 启动tcp服务器
-		 *
-		 * @param server 服务器
-		 * @param host 主机地址
-		 * @param port 主机端口
-		 * @param sSize 发送缓冲区大小
-		 * @param rSize 接受缓冲区大小
-		 *
-		 * @return 是否启动成功
-		 *
-		 */
-		bool LaunchTCPServer(ITCPServer * server, const char * host, uint16_t port, std::size_t sSize, std::size_t rSize);
-
-	private:
 		/**
 		 *
 		 * 构造函数
 		 *
 		 */
-		NetWorkManager() = default;
+		NetManager() = default;
 
 		/**
 		 *
 		 * 析构函数
 		 *
 		 */
-		~NetWorkManager() override;
+		~NetManager() override;
 
 		/**
 		 *
@@ -105,6 +47,40 @@ namespace tinyToolkit
 		 */
 		bool Launch();
 
+		/**
+		 *
+		 * 启动udp客户端
+		 *
+		 * @param client 客户端
+		 *
+		 * @return 是否启动成功
+		 *
+		 */
+		bool LaunchUDPClient(IUDPSession * client);
+
+		/**
+		 *
+		 * 启动tcp客户端
+		 *
+		 * @param client 客户端
+		 *
+		 * @return 是否启动成功
+		 *
+		 */
+		bool LaunchTCPClient(ITCPSession * client);
+
+		/**
+		 *
+		 * 启动tcp服务器
+		 *
+		 * @param server 服务器
+		 *
+		 * @return 是否启动成功
+		 *
+		 */
+		bool LaunchTCPServer(ITCPServer * server);
+
+	private:
 		/**
 		 *
 		 * app线程逻辑函数

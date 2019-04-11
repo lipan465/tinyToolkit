@@ -45,10 +45,10 @@ namespace tinyToolkit
 	 */
 	bool Filesystem::Remove(const std::string & path)
 	{
-		if (IsDirectory(path))
-		{
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
+		if (IsDirectory(path))
+		{
 			std::string dir{ };
 
 			if (path[path.size() - 1] == TINY_TOOLKIT_FOLDER_SEP[0])
@@ -94,23 +94,32 @@ namespace tinyToolkit
 						return false;
 					}
 				}
-
-				if (std::remove(value.c_str()) == -1)
+				else
 				{
-					return false;
+					if (DeleteFile(value.c_str()) == FALSE)
+					{
+						return false;
+					}
 				}
 			}
 			while (FindNextFile(hFind, &finder));
 
-			if (std::remove(path.c_str()) == -1)
+			if (RemoveDirectory(path.c_str()) == FALSE)
 			{
 				return false;
 			}
 
 			return true;
+		}
+		else
+		{
+			return DeleteFile(path.c_str()) == TRUE;
+		}
 
 #else
 
+		if (IsDirectory(path))
+		{
 			DIR * dir = opendir(path.c_str());
 
 			if (dir == nullptr)
@@ -144,12 +153,14 @@ namespace tinyToolkit
 							return false;
 						}
 					}
-
-					if (std::remove(value.c_str()) == -1)
+					else
 					{
-						closedir(dir);
+						if (std::remove(value.c_str()) == -1)
+						{
+							closedir(dir);
 
-						return false;
+							return false;
+						}
 					}
 				}
 
@@ -166,13 +177,13 @@ namespace tinyToolkit
 			closedir(dir);
 
 			return true;
-
-#endif // TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 		}
 		else
 		{
 			return std::remove(path.c_str()) == 0;
 		}
+
+#endif // TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 	}
 
 	/**

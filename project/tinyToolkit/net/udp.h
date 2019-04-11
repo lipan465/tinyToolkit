@@ -11,9 +11,10 @@
  */
 
 
+#include "ikcp.h"
+#include "cache.h"
 #include "event.h"
 #include "server.h"
-#include "buffer.h"
 #include "message.h"
 
 #include "../container/queue.h"
@@ -53,12 +54,11 @@ namespace tinyToolkit
 		 *
 		 * 发送数据
 		 *
-		 * @param value 待发送数据
+		 * @param data 待发送数据指针
 		 * @param size 待发送数据长度
-		 * @param cache 缓冲发送
 		 *
 		 */
-		void Send(const void * value, std::size_t size, bool cache) override;
+		void Send(const void * data, std::size_t size) override;
 
 		/**
 		 *
@@ -131,7 +131,6 @@ namespace tinyToolkit
 
 	public:
 		bool _isSend{ false };
-		bool _isReceive{ false };
 		bool _isConnect{ false };
 
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
@@ -146,10 +145,11 @@ namespace tinyToolkit
 #endif
 
 	private:
-		NetBuffer _sendBuffer;
-		NetBuffer _receiveBuffer;
+		NetCache _cache;
 
 		IUDPSession * _session{ nullptr };
+
+		LockQueue<std::shared_ptr<NetMessage>> _sendQueue{ };
 
 		TINY_TOOLKIT_SOCKET_TYPE _socket{ TINY_TOOLKIT_SOCKET_INVALID };
 

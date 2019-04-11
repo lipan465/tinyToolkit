@@ -10,6 +10,8 @@
 #include "session.h"
 #include "manager.h"
 
+#include "../utilities/net.h"
+
 
 namespace tinyToolkit
 {
@@ -17,17 +19,21 @@ namespace tinyToolkit
 	 *
 	 * 启动
 	 *
-	 * @param host 远端地址
-	 * @param port 远端端口
-	 * @param sSize 发送缓冲区大小
-	 * @param rSize 接受缓冲区大小
+	 * @param remoteHost 远端地址
+	 * @param remotePort 远端端口
+	 * @param cacheSize 缓存大小
 	 *
 	 * @return 是否启动成功
 	 *
 	 */
-	bool ITCPSession::Launch(const char * host, uint16_t port, std::size_t sSize, std::size_t rSize)
+	bool ITCPSession::Launch(std::string remoteHost, uint16_t remotePort, std::size_t cacheSize)
 	{
-		return NetWorkManager::Instance().LaunchTCPClient(this, host, port, sSize, rSize);
+		_cacheSize = cacheSize;
+
+		_remotePort = remotePort;
+		_remoteHost = std::move(remoteHost);
+
+		return Singleton<NetManager>::Instance().LaunchTCPClient(this);
 	}
 
 	/**
@@ -47,16 +53,15 @@ namespace tinyToolkit
 	 *
 	 * 发送数据
 	 *
-	 * @param value 待发送数据
+	 * @param data 待发送数据指针
 	 * @param size 待发送数据长度
-	 * @param cache 缓冲发送
 	 *
 	 */
-	void ITCPSession::Send(const void * value, std::size_t size, bool cache)
+	void ITCPSession::Send(const void * data, std::size_t size)
 	{
 		if (_pipe)
 		{
-			_pipe->Send(value, size, cache);
+			_pipe->Send(data, size);
 		}
 	}
 
@@ -67,19 +72,26 @@ namespace tinyToolkit
 	 *
 	 * 启动
 	 *
-	 * @param lHost 主机地址
-	 * @param lPort 主机端口
-	 * @param rHost 远端地址
-	 * @param rPort 远端端口
-	 * @param sSize 发送缓冲区大小
-	 * @param rSize 接受缓冲区大小
+	 * @param localHost 主机地址
+	 * @param localPort 主机端口
+	 * @param remoteHost 远端地址
+	 * @param remotePort 远端端口
+	 * @param cacheSize 缓存大小
 	 *
 	 * @return 是否启动成功
 	 *
 	 */
-	bool IUDPSession::Launch(const char * lHost, uint16_t lPort, const char * rHost, uint16_t rPort, std::size_t sSize, std::size_t rSize)
+	bool IUDPSession::Launch(std::string localHost, uint16_t localPort, std::string remoteHost, uint16_t remotePort, std::size_t cacheSize)
 	{
-		return NetWorkManager::Instance().LaunchUDPClient(this, lHost, lPort, rHost, rPort, sSize, rSize);
+		_cacheSize = cacheSize;
+
+		_localPort = localPort;
+		_localHost = std::move(localHost);
+
+		_remotePort = remotePort;
+		_remoteHost = std::move(remoteHost);
+
+		return Singleton<NetManager>::Instance().LaunchUDPClient(this);
 	}
 
 	/**
@@ -99,16 +111,15 @@ namespace tinyToolkit
 	 *
 	 * 发送数据
 	 *
-	 * @param value 待发送数据
+	 * @param data 待发送数据指针
 	 * @param size 待发送数据长度
-	 * @param cache 缓冲发送
 	 *
 	 */
-	void IUDPSession::Send(const void * value, std::size_t size, bool cache)
+	void IUDPSession::Send(const void * data, std::size_t size)
 	{
 		if (_pipe)
 		{
-			_pipe->Send(value, size, cache);
+			_pipe->Send(data, size);
 		}
 	}
 }

@@ -28,25 +28,6 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 新连接触发回调函数
-		 *
-		 * @param host 主机地址
-		 * @param port 主机端口
-		 *
-		 * @return 会话
-		 *
-		 */
-		virtual tinyToolkit::ITCPSession * OnNewConnect(const std::string & host, uint16_t port) = 0;
-
-		/**
-		 *
-		 * 会话错误触发回调函数
-		 *
-		 */
-		virtual void OnSessionError(tinyToolkit::ITCPSession * session) = 0;
-
-		/**
-		 *
 		 * 错误触发回调函数
 		 *
 		 */
@@ -61,17 +42,32 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 会话错误触发回调函数
+		 *
+		 */
+		virtual void OnSessionError(tinyToolkit::ITCPSession * session) = 0;
+
+		/**
+		 *
+		 * 会话连接触发回调函数
+		 *
+		 * @return 会话
+		 *
+		 */
+		virtual tinyToolkit::ITCPSession * OnSessionConnect() = 0;
+
+		/**
+		 *
 		 * 启动
 		 *
-		 * @param host 主机地址
-		 * @param port 主机端口
-		 * @param sSize 发送缓冲区大小
-		 * @param rSize 接受缓冲区大小
+		 * @param localHost 主机地址
+		 * @param localPort 主机端口
+		 * @param cacheSize 缓存大小
 		 *
 		 * @return 是否启动成功
 		 *
 		 */
-		bool Launch(const char * host, uint16_t port, std::size_t sSize, std::size_t rSize);
+		bool Launch(std::string localHost, uint16_t localPort, std::size_t cacheSize);
 
 		/**
 		 *
@@ -81,12 +77,13 @@ namespace tinyToolkit
 		void Close();
 
 	public:
-		uint16_t _port{ 0 };
+		uint16_t _localPort{ 0 };
+		uint16_t _remotePort{ 0 };
 
-		std::string _host{ };
+		std::string _localHost{ };
+		std::string _remoteHost{ };
 
-		std::size_t _sSize{ 0 };
-		std::size_t _rSize{ 0 };
+		std::size_t _cacheSize{ 0 };
 
 		std::shared_ptr<ITCPPipe> _pipe{ };
 	};

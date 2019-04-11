@@ -18,19 +18,17 @@ namespace tinyToolkit
 	 *
 	 * 构造函数
 	 *
-	 * @param ip 远端地址
-	 * @param port 远端端口
-	 * @param data 待发送数据
+	 * @param data 待发送数据指针
 	 * @param size 待发送数据长度
 	 *
 	 */
-	NetMessage::NetMessage(const char * ip, uint16_t port, const void * data, std::size_t size) : _ip(Net::AsHostByte(ip)), _port(port), _size(size)
+	NetMessage::NetMessage(const void * data, std::size_t size) : _size(size)
 	{
-		_data = new char[size + 1];
+		_data = new char[_size + 1];
 
-		memcpy(_data, data, size);
+		memcpy(_data, data, _size);
 
-		_data[size] = '\0';
+		_data[_size] = '\0';
 	}
 
 	/**
@@ -40,7 +38,7 @@ namespace tinyToolkit
 	 * @param rhs 右值对象
 	 *
 	 */
-	NetMessage::NetMessage(tinyToolkit::NetMessage && rhs) noexcept : _data(rhs._data), _ip(rhs._ip), _port(rhs._port), _size(rhs._size)
+	NetMessage::NetMessage(tinyToolkit::NetMessage && rhs) noexcept : _data(rhs._data), _size(rhs._size)
 	{
 
 	}

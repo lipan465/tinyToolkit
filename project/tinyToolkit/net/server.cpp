@@ -10,6 +10,8 @@
 #include "server.h"
 #include "manager.h"
 
+#include "../utilities/net.h"
+
 
 namespace tinyToolkit
 {
@@ -17,17 +19,21 @@ namespace tinyToolkit
 	 *
 	 * 启动
 	 *
-	 * @param host 主机地址
-	 * @param port 主机端口
-	 * @param sSize 发送缓冲区大小
-	 * @param rSize 接受缓冲区大小
+	 * @param localHost 主机地址
+	 * @param localPort 主机端口
+	 * @param cacheSize 缓存大小
 	 *
 	 * @return 是否启动成功
 	 *
 	 */
-	bool ITCPServer::Launch(const char * host, uint16_t port, std::size_t sSize, std::size_t rSize)
+	bool ITCPServer::Launch(std::string localHost, uint16_t localPort, std::size_t cacheSize)
 	{
-		return NetWorkManager::Instance().LaunchTCPServer(this, host, port, sSize, rSize);
+		_cacheSize = cacheSize;
+
+		_localPort = localPort;
+		_localHost = std::move(localHost);
+
+		return Singleton<NetManager>::Instance().LaunchTCPServer(this);
 	}
 
 	/**

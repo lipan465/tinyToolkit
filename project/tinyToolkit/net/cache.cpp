@@ -2,12 +2,12 @@
  *
  *  作者: hm
  *
- *  说明: 通讯缓冲区
+ *  说明: 通讯缓存
  *
  */
 
 
-#include "buffer.h"
+#include "cache.h"
 
 
 namespace tinyToolkit
@@ -16,10 +16,10 @@ namespace tinyToolkit
 	 *
 	 * 构造函数
 	 *
-	 * @param size 缓冲区大小
+	 * @param size 缓存大小
 	 *
 	 */
-	NetBuffer::NetBuffer(std::size_t size) : _size(size)
+	NetCache::NetCache(std::size_t size) : _size(size)
 	{
 		_value = new char[size];
 	}
@@ -29,7 +29,7 @@ namespace tinyToolkit
 	 * 析构函数
 	 *
 	 */
-	NetBuffer::~NetBuffer()
+	NetCache::~NetCache()
 	{
 		delete[] _value;
 	}
@@ -43,7 +43,7 @@ namespace tinyToolkit
 	 * @return 是否减少成功
 	 *
 	 */
-	bool NetBuffer::Reduced(std::size_t size)
+	bool NetCache::Reduced(std::size_t size)
 	{
 		std::lock_guard<std::mutex> lock(_mutex);
 
@@ -63,13 +63,13 @@ namespace tinyToolkit
 	 *
 	 * 压入数据
 	 *
-	 * @param value 待压入数据
+	 * @param data 待压入数据指针
 	 * @param size 待压入数据长度
 	 *
 	 * @return 是否压入成功
 	 *
 	 */
-	bool NetBuffer::Push(const void * value, std::size_t size)
+	bool NetCache::Push(const void * data, std::size_t size)
 	{
 		std::lock_guard<std::mutex> lock(_mutex);
 
@@ -91,7 +91,7 @@ namespace tinyToolkit
 			}
 		}
 
-		memcpy(_value + _wPos, value, size);
+		memcpy(_value + _wPos, data, size);
 
 		_wPos += size;
 
@@ -107,7 +107,7 @@ namespace tinyToolkit
 	 * @return 数据长度
 	 *
 	 */
-	std::size_t NetBuffer::Length()
+	std::size_t NetCache::Length()
 	{
 		return _wPos - _rPos;
 	}
@@ -119,7 +119,7 @@ namespace tinyToolkit
 	 * @return 数据长度
 	 *
 	 */
-	std::size_t NetBuffer::Length() const
+	std::size_t NetCache::Length() const
 	{
 		return _wPos - _rPos;
 	}
@@ -131,7 +131,7 @@ namespace tinyToolkit
 	 * @return 数据
 	 *
 	 */
-	const char * NetBuffer::Value()
+	const char * NetCache::Value()
 	{
 		return _value + _rPos;
 	}
@@ -143,7 +143,7 @@ namespace tinyToolkit
 	 * @return 数据
 	 *
 	 */
-	const char * NetBuffer::Value() const
+	const char * NetCache::Value() const
 	{
 		return _value + _rPos;
 	}

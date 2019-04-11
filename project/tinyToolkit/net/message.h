@@ -23,13 +23,11 @@ namespace tinyToolkit
 		 *
 		 * 构造函数
 		 *
-		 * @param ip 远端地址
-		 * @param port 远端端口
-		 * @param data 待发送数据
+		 * @param data 待发送数据指针
 		 * @param size 待发送数据长度
 		 *
 		 */
-		NetMessage(const char * ip, uint16_t port, const void * data, std::size_t size);
+		NetMessage(const void * data, std::size_t size);
 
 		/**
 		 *
@@ -49,10 +47,6 @@ namespace tinyToolkit
 
 	public:
 		char * _data{ nullptr };
-
-		uint32_t _ip{ 0 };
-
-		uint16_t _port{ 0 };
 
 		std::size_t _size{ 0 };
 	};

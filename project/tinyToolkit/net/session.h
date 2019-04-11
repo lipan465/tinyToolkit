@@ -51,7 +51,7 @@ namespace tinyToolkit
 		 *
 		 * 接收数据触发回调函数
 		 *
-		 * @param data 接收的数据缓冲区
+		 * @param data 接收的数据缓冲区指针
 		 * @param size 接收的数据缓冲区长度
 		 *
 		 * @return 使用的字节数
@@ -63,15 +63,14 @@ namespace tinyToolkit
 		 *
 		 * 启动
 		 *
-		 * @param host 远端地址
-		 * @param port 远端端口
-		 * @param sSize 发送缓冲区大小
-		 * @param rSize 接受缓冲区大小
+		 * @param remoteHost 远端地址
+		 * @param remotePort 远端端口
+		 * @param cacheSize 缓存大小
 		 *
 		 * @return 是否启动成功
 		 *
 		 */
-		bool Launch(const char * host, uint16_t port, std::size_t sSize, std::size_t rSize);
+		bool Launch(std::string remoteHost, uint16_t remotePort, std::size_t cacheSize);
 
 		/**
 		 *
@@ -84,22 +83,20 @@ namespace tinyToolkit
 		 *
 		 * 发送数据
 		 *
-		 * @param value 待发送数据
+		 * @param data 待发送数据指针
 		 * @param size 待发送数据长度
-		 * @param cache 缓冲发送
 		 *
 		 */
-		void Send(const void * value, std::size_t size, bool cache = false);
+		void Send(const void * data, std::size_t size);
 
 	public:
 		uint16_t _localPort{ 0 };
 		uint16_t _remotePort{ 0 };
 
-		std::size_t _sSize{ 0 };
-		std::size_t _rSize{ 0 };
-
 		std::string _localHost{ };
 		std::string _remoteHost{ };
+
+		std::size_t _cacheSize{ 0 };
 
 		std::shared_ptr<ITCPPipe> _pipe{ };
 	};
@@ -139,7 +136,7 @@ namespace tinyToolkit
 		 *
 		 * 接收数据触发回调函数
 		 *
-		 * @param data 接收的数据缓冲区
+		 * @param data 接收的数据缓冲区指针
 		 * @param size 接收的数据缓冲区长度
 		 *
 		 * @return 使用的字节数
@@ -151,17 +148,16 @@ namespace tinyToolkit
 		 *
 		 * 启动
 		 *
-		 * @param lHost 主机地址
-		 * @param lPort 主机端口
-		 * @param rHost 远端地址
-		 * @param rPort 远端端口
-		 * @param sSize 发送缓冲区大小
-		 * @param rSize 接受缓冲区大小
+		 * @param localHost 主机地址
+		 * @param localPort 主机端口
+		 * @param remoteHost 远端地址
+		 * @param remotePort 远端端口
+		 * @param cacheSize 缓存大小
 		 *
 		 * @return 是否启动成功
 		 *
 		 */
-		bool Launch(const char * lHost, uint16_t lPort, const char * rHost, uint16_t rPort, std::size_t sSize, std::size_t rSize);
+		bool Launch(std::string localHost, uint16_t localPort, std::string remoteHost, uint16_t remotePort, std::size_t cacheSize);
 
 		/**
 		 *
@@ -174,22 +170,20 @@ namespace tinyToolkit
 		 *
 		 * 发送数据
 		 *
-		 * @param value 待发送数据
+		 * @param data 待发送数据指针
 		 * @param size 待发送数据长度
-		 * @param cache 缓冲发送
 		 *
 		 */
-		void Send(const void * value, std::size_t size, bool cache = false);
+		void Send(const void * data, std::size_t size);
 
 	public:
 		uint16_t _localPort{ 0 };
 		uint16_t _remotePort{ 0 };
 
-		std::size_t _sSize{ 0 };
-		std::size_t _rSize{ 0 };
-
 		std::string _localHost{ };
 		std::string _remoteHost{ };
+
+		std::size_t _cacheSize{ 0 };
 
 		std::shared_ptr<IUDPPipe> _pipe{ };
 	};

@@ -38,26 +38,26 @@ void StartApp()
 
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-	auto localHost = sOption.Has("localHost") ? sOption.Get("localHost") : "192.168.2.70";
+	auto localHost = sOption.Has("localHost") ? sOption.Get("localHost") : "0.0.0.0";
 	auto localPort = sOption.Has("localPort") ? tinyToolkit::String::Transform<uint16_t>(sOption.Get("localPort")) : static_cast<uint16_t>(1234);
 
 	auto remoteHost = sOption.Has("remoteHost") ? sOption.Get("remoteHost") : "192.168.2.71";
-	auto remotePort = sOption.Has("remotePort") ? tinyToolkit::String::Transform<uint16_t>(sOption.Get("remotePort")) : static_cast<uint16_t>(4321);
+	auto remotePort = sOption.Has("remotePort") ? tinyToolkit::String::Transform<uint16_t>(sOption.Get("remotePort")) : static_cast<uint16_t>(1234);
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_LINUX
 
-	auto localHost = sOption.Has("localHost") ? sOption.Get("localHost") : "192.168.2.71";
-	auto localPort = sOption.Has("localPort") ? tinyToolkit::String::Transform<uint16_t>(sOption.Get("localPort")) : static_cast<uint16_t>(4321);
+	auto localHost = sOption.Has("localHost") ? sOption.Get("localHost") : "0.0.0.0";
+	auto localPort = sOption.Has("localPort") ? tinyToolkit::String::Transform<uint16_t>(sOption.Get("localPort")) : static_cast<uint16_t>(1234);
 
 	auto remoteHost = sOption.Has("remoteHost") ? sOption.Get("remoteHost") : "192.168.2.70";
 	auto remotePort = sOption.Has("remotePort") ? tinyToolkit::String::Transform<uint16_t>(sOption.Get("remotePort")) : static_cast<uint16_t>(1234);
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
-	auto localHost = sOption.Has("localHost") ? sOption.Get("localHost") : "127.0.0.1";
-	auto localPort = sOption.Has("localPort") ? tinyToolkit::String::Transform<uint16_t>(sOption.Get("localPort")) : static_cast<uint16_t>(4321);
+	auto localHost = sOption.Has("localHost") ? sOption.Get("localHost") : "0.0.0.0";
+	auto localPort = sOption.Has("localPort") ? tinyToolkit::String::Transform<uint16_t>(sOption.Get("localPort")) : static_cast<uint16_t>(1234);
 
-	auto remoteHost = sOption.Has("remoteHost") ? sOption.Get("remoteHost") : "127.0.0.1";
+	auto remoteHost = sOption.Has("remoteHost") ? sOption.Get("remoteHost") : "192.168.0.71";
 	auto remotePort = sOption.Has("remotePort") ? tinyToolkit::String::Transform<uint16_t>(sOption.Get("remotePort")) : static_cast<uint16_t>(1234);
 
 #endif
@@ -72,23 +72,13 @@ void StartApp()
 			{
 				pool.push_back(new TCPClientSession(i));
 
-				if (pool.back()->Launch(remoteHost.c_str(), remotePort, 100 * TINY_TOOLKIT_MB, TINY_TOOLKIT_MB))
+				if (pool.back()->Launch(remoteHost.c_str(), remotePort, TINY_TOOLKIT_MB))
 				{
 					std::cout << "launch tcp client success" << std::endl;
 				}
 				else
 				{
 					std::cout << "launch tcp client failed" << std::endl;
-				}
-			}
-
-			for (uint32_t j = 0; j < 100000; ++j)
-			{
-				std::string value = tinyToolkit::String::Format("[{}]", j);
-
-				for (auto &iter : pool)
-				{
-					iter->Send(value.c_str(), value.size());
 				}
 			}
 
@@ -122,7 +112,7 @@ void StartApp()
 		{
 			TCPServer server;
 
-			if (server.Launch(localHost.c_str(), localPort, 100 * TINY_TOOLKIT_MB, TINY_TOOLKIT_MB))
+			if (server.Launch(localHost.c_str(), localPort, TINY_TOOLKIT_MB))
 			{
 				std::cout << "launch tcp server success" << std::endl;
 			}
@@ -150,7 +140,7 @@ void StartApp()
 		{
 			pool.push_back(new UDPClientSession());
 
-			if (pool.back()->Launch(localHost.c_str(), localPort, remoteHost.c_str(), remotePort, 100 * TINY_TOOLKIT_MB, TINY_TOOLKIT_MB))
+			if (pool.back()->Launch(localHost.c_str(), localPort, remoteHost.c_str(), remotePort, TINY_TOOLKIT_MB))
 			{
 				std::cout << "launch udp client success" << std::endl;
 			}

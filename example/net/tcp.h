@@ -58,7 +58,7 @@ public:
 	 *
 	 * 接收数据触发回调函数
 	 *
-	 * @param data 接收的数据缓冲区
+	 * @param data 接收的数据缓冲区指针
 	 * @param size 接收的数据缓冲区长度
 	 *
 	 * @return 使用的字节数
@@ -115,7 +115,7 @@ public:
 	 *
 	 * 接收数据触发回调函数
 	 *
-	 * @param data 接收的数据缓冲区
+	 * @param data 接收的数据缓冲区指针
 	 * @param size 接收的数据缓冲区长度
 	 *
 	 * @return 使用的字节数
@@ -140,25 +140,6 @@ public:
 
 	/**
 	 *
-	 * 新连接触发回调函数
-	 *
-	 * @param host 主机地址
-	 * @param port 主机端口
-	 *
-	 * @return 会话
-	 *
-	 */
-	tinyToolkit::ITCPSession * OnNewConnect(const std::string & host, uint16_t port) override;
-
-	/**
-	 *
-	 * 会话错误触发回调函数
-	 *
-	 */
-	void OnSessionError(tinyToolkit::ITCPSession * session) override;
-
-	/**
-	 *
 	 * 错误触发回调函数
 	 *
 	 */
@@ -170,6 +151,22 @@ public:
 	 *
 	 */
 	void OnRelease() override;
+
+	/**
+	 *
+	 * 会话错误触发回调函数
+	 *
+	 */
+	void OnSessionError(tinyToolkit::ITCPSession * session) override;
+
+	/**
+	 *
+	 * 会话连接触发回调函数
+	 *
+	 * @return 会话
+	 *
+	 */
+	tinyToolkit::ITCPSession * OnSessionConnect() override;
 
 protected:
 	std::unordered_map<std::string, tinyToolkit::ITCPSession *> _pool{ };

@@ -41,9 +41,12 @@ void TCPClientSession::OnConnect()
 {
 	tinyToolkit::String::Print("Client session [{}:{}] connect server session [{}:{}] success\r\n", _localHost, _localPort, _remoteHost, _remotePort);
 
-	std::string value = tinyToolkit::String::Format("Hello TCP server, my client number is {}", _id);
+	for (uint32_t i = 0; i < 100000; ++i)
+	{
+		std::string value = tinyToolkit::String::Format("Hello TCP server, message number [{}]", i);
 
-	Send(value.c_str(), value.size());
+		Send(value.c_str(), value.size());
+	}
 }
 
 /**
@@ -70,7 +73,7 @@ void TCPClientSession::OnConnectFailed()
  *
  * 接收数据触发回调函数
  *
- * @param data 接收的数据缓冲区
+ * @param data 接收的数据缓冲区指针
  * @param size 接收的数据缓冲区长度
  *
  * @return 使用的字节数
@@ -118,9 +121,12 @@ void TCPServerSession::OnConnect()
 {
 	tinyToolkit::String::Print("Server session [{}:{}] connect client session [{}:{}] success\r\n", _localHost, _localPort, _remoteHost, _remotePort);
 
-	std::string value = tinyToolkit::String::Format("Hello TCP client, my server number is {}", _id);
+	for (uint32_t i = 0; i < 100000; ++i)
+	{
+		std::string value = tinyToolkit::String::Format("Hello TCP client, message number [{}]", i);
 
-	Send(value.c_str(), value.size());
+		Send(value.c_str(), value.size());
+	}
 }
 
 /**
@@ -147,7 +153,7 @@ void TCPServerSession::OnConnectFailed()
  *
  * 接收数据触发回调函数
  *
- * @param data 接收的数据缓冲区
+ * @param data 接收的数据缓冲区指针
  * @param size 接收的数据缓冲区长度
  *
  * @return 使用的字节数
@@ -183,30 +189,29 @@ TCPServer::~TCPServer()
 
 /**
  *
- * 新连接触发回调函数
- *
- * @param host 主机地址
- * @param port 主机端口
- *
- * @return 会话
+ * 错误触发回调函数
  *
  */
-tinyToolkit::ITCPSession * TCPServer::OnNewConnect(const std::string & host, uint16_t port)
+void TCPServer::OnError()
 {
-	tinyToolkit::String::Print("Server [{}:{}] accept client [{}:{}] session request\r\n", _host, _port, host, port);
+	tinyToolkit::String::Print("Server [{}:{}] error : {}\r\n", _localHost, _localPort, strerror(errno));
+}
 
-	auto key = tinyToolkit::String::Join(host, ":", port);
+/**
+ *
+ * 断开连接触发回调函数
+ *
+ */
+void TCPServer::OnRelease()
+{
+	tinyToolkit::String::Print("Server [{}:{}] disconnect : {}\r\n", _localHost, _localPort, strerror(errno));
 
-	auto find = _pool.find(key);
-
-	if (find == _pool.end())
+	for (auto &iter : _pool)
 	{
-		_pool.insert(std::make_pair(key, new TCPServerSession(port)));
+		iter.second->Close();
 
-		find = _pool.find(key);
+		delete iter.second;
 	}
-
-	return find->second;
 }
 
 /**
@@ -218,9 +223,9 @@ void TCPServer::OnSessionError(tinyToolkit::ITCPSession * session)
 {
 	if (session)
 	{
-		tinyToolkit::String::Print("Server [{}:{}] and client [{}:{}] session error : {}\r\n", _host, _port, session->_remoteHost, session->_remotePort, strerror(errno));
+		tinyToolkit::String::Print("Server [{}:{}] and client [{}:{}] session error : {}\r\n", _localHost, _localPort, _remoteHost, _remotePort, strerror(errno));
 
-		auto key = tinyToolkit::String::Join(session->_remoteHost, ":", session->_remotePort);
+		auto key = tinyToolkit::String::Join(_remoteHost, ":", _remotePort);
 
 		auto find = _pool.find(key);
 
@@ -241,27 +246,25 @@ void TCPServer::OnSessionError(tinyToolkit::ITCPSession * session)
 
 /**
  *
- * 错误触发回调函数
+ * 会话连接触发回调函数
+ *
+ * @return 会话
  *
  */
-void TCPServer::OnError()
+tinyToolkit::ITCPSession * TCPServer::OnSessionConnect()
 {
-	tinyToolkit::String::Print("Server [{}:{}] error : {}\r\n", _host, _port, strerror(errno));
-}
+	tinyToolkit::String::Print("Server [{}:{}] accept client [{}:{}] session request\r\n", _localHost, _localPort, _remoteHost, _remotePort);
 
-/**
- *
- * 断开连接触发回调函数
- *
- */
-void TCPServer::OnRelease()
-{
-	tinyToolkit::String::Print("Server [{}:{}] disconnect : {}\r\n", _host, _port, strerror(errno));
+	auto key = tinyToolkit::String::Join(_remoteHost, ":", _remotePort);
 
-	for (auto &iter : _pool)
+	auto find = _pool.find(key);
+
+	if (find == _pool.end())
 	{
-		iter.second->Close();
+		_pool.insert(std::make_pair(key, new TCPServerSession(_remotePort)));
 
-		delete iter.second;
+		find = _pool.find(key);
 	}
+
+	return find->second;
 }

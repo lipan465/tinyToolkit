@@ -54,7 +54,7 @@ void UDPClientSession::OnConnectFailed()
  *
  * 接收数据触发回调函数
  *
- * @param data 接收的数据缓冲区
+ * @param data 接收的数据缓冲区指针
  * @param size 接收的数据缓冲区长度
  *
  * @return 使用的字节数

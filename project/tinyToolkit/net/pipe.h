@@ -41,12 +41,11 @@ namespace tinyToolkit
 		 *
 		 * 发送数据
 		 *
-		 * @param data 待发送数据
+		 * @param data 待发送数据指针
 		 * @param size 待发送数据长度
-		 * @param cache 缓冲发送
 		 *
 		 */
-		virtual void Send(const void * data, std::size_t size, bool cache) = 0;
+		virtual void Send(const void * data, std::size_t size) = 0;
 
 		/**
 		 *
@@ -83,12 +82,11 @@ namespace tinyToolkit
 		 *
 		 * 发送数据
 		 *
-		 * @param data 待发送数据
+		 * @param data 待发送数据指针
 		 * @param size 待发送数据长度
-		 * @param cache 缓冲发送
 		 *
 		 */
-		virtual void Send(const void * data, std::size_t size, bool cache) = 0;
+		virtual void Send(const void * data, std::size_t size) = 0;
 
 		/**
 		 *

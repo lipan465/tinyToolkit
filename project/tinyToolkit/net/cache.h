@@ -6,7 +6,7 @@
  *
  *  作者: hm
  *
- *  说明: 通讯缓冲区
+ *  说明: 通讯缓存
  *
  */
 
@@ -16,24 +16,24 @@
 
 namespace tinyToolkit
 {
-	class TINY_TOOLKIT_API NetBuffer
+	class TINY_TOOLKIT_API NetCache
 	{
 	public:
 		/**
 		 *
 		 * 构造函数
 		 *
-		 * @param size 缓冲区大小
+		 * @param size 缓存大小
 		 *
 		 */
-		explicit NetBuffer(std::size_t size);
+		explicit NetCache(std::size_t size);
 
 		/**
 		 *
 		 * 析构函数
 		 *
 		 */
-		~NetBuffer();
+		~NetCache();
 
 		/**
 		 *

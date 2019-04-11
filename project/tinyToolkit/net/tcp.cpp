@@ -94,11 +94,10 @@ namespace tinyToolkit
 	 * @param handle 管理句柄
 	 *
 	 */
-	TCPSessionPipe::TCPSessionPipe(ITCPSession * session, TINY_TOOLKIT_SOCKET_TYPE socket, TINY_TOOLKIT_SOCKET_HANDLE handle) :  _sendBuffer(session->_sSize),
-																																 _receiveBuffer(session->_rSize),
-																																 _session(session),
-																																 _socket(socket),
-																																 _handle(handle)
+	TCPSessionPipe::TCPSessionPipe(ITCPSession * session, TINY_TOOLKIT_SOCKET_TYPE socket, TINY_TOOLKIT_SOCKET_HANDLE handle) : _cache(session->_cacheSize),
+																																_session(session),
+																																_socket(socket),
+																																_handle(handle)
 
 	{
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
@@ -161,32 +160,28 @@ namespace tinyToolkit
 	 *
 	 * 发送数据
 	 *
-	 * @param value 待发送数据
+	 * @param data 待发送数据指针
 	 * @param size 待发送数据长度
-	 * @param cache 缓冲发送
 	 *
 	 */
-	void TCPSessionPipe::Send(const void * value, std::size_t size, bool cache)
+	void TCPSessionPipe::Send(const void * data, std::size_t size)
 	{
-		if (size == 0)
-		{
-			return;
-		}
-
 		if (!_isConnect)
 		{
 			return;
 		}
-		
-		if (!_sendBuffer.Push(value, size))
-		{
-			Close();
 
+		if (data == nullptr || size == 0)
+		{
 			return;
 		}
 
-		if (!_isSend && !cache)
+		_sendQueue.Push(std::make_shared<NetMessage>(data, size));
+
+		if (!_isSend)
 		{
+			_isSend = true;
+
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
 			if (!AsyncSend())
@@ -231,17 +226,17 @@ namespace tinyToolkit
 	 */
 	bool TCPSessionPipe::AsyncSend()
 	{
-		_isSend = true;
-
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
 		DWORD flag = 0;
 		DWORD bytes = 0;
 
+		auto & value = _sendQueue.Front();
+
 		memset(&_sendEvent._overlap, 0, sizeof(OVERLAPPED));
 
-		_sendEvent._buffer.len = _sendBuffer.Length();
-		_sendEvent._buffer.buf = const_cast<char *>(_sendBuffer.Value());
+		_sendEvent._buffer.buf = value->_data;
+		_sendEvent._buffer.len = value->_size;
 
 		if (WSASend(_socket, &_sendEvent._buffer, 1, &bytes, flag, (LPWSAOVERLAPPED)&_sendEvent, nullptr) == TINY_TOOLKIT_SOCKET_ERROR)
 		{
@@ -277,8 +272,6 @@ namespace tinyToolkit
 	 */
 	bool TCPSessionPipe::AsyncReceive()
 	{
-		_isReceive = true;
-
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
 		DWORD flag = 0;
@@ -286,8 +279,8 @@ namespace tinyToolkit
 
 		memset(&_receiveEvent._overlap, 0, sizeof(OVERLAPPED));
 
-		_receiveEvent._buffer.len = sizeof(_receiveEvent._temp);
 		_receiveEvent._buffer.buf = _receiveEvent._temp;
+		_receiveEvent._buffer.len = sizeof(_receiveEvent._temp);
 
 		if (WSARecv(_socket, &_receiveEvent._buffer, 1, &bytes, &flag, (LPWSAOVERLAPPED)&_receiveEvent, nullptr) == TINY_TOOLKIT_SOCKET_ERROR)
 		{
@@ -382,25 +375,30 @@ namespace tinyToolkit
 
 		if (currentEventPtr->filter == EVFILT_READ)
 		{
-			_isReceive = true;
-
-			auto len = ::recv(_socket, netEvent->_temp, sizeof(netEvent->_temp), 0);
-
-			_isReceive = false;
-
-			if (len < 0 && errno == EAGAIN)
+			if (_isConnect)
 			{
-				return;
-			}
-			else if (len > 0)
-			{
-				netEvent->_bytes = static_cast<std::size_t>(len);
+				auto len = ::recv(_socket, netEvent->_temp, sizeof(netEvent->_temp), 0);
 
-				if (_receiveBuffer.Push(netEvent->_temp, netEvent->_bytes))
+				if (len < 0 && errno == EAGAIN)
 				{
-					if (_session)
+					return;
+				}
+				else if (len > 0)
+				{
+					netEvent->_bytes = static_cast<std::size_t>(len);
+
+					if (_cache.Push(netEvent->_temp, netEvent->_bytes))
 					{
-						_receiveBuffer.Reduced(_session->OnReceive(_receiveBuffer.Value(), _receiveBuffer.Length()));
+						if (_session)
+						{
+							_cache.Reduced(_session->OnReceive(_cache.Value(), _cache.Length()));
+						}
+					}
+					else
+					{
+						Close();
+
+						return;
 					}
 				}
 				else
@@ -410,53 +408,43 @@ namespace tinyToolkit
 					return;
 				}
 			}
-			else
-			{
-				Close();
-
-				return;
-			}
 		}
 
 		if (currentEventPtr->filter == EVFILT_WRITE)
 		{
-			_isSend = true;
-
-			auto len = ::send(_socket, _sendBuffer.Value(), _sendBuffer.Length(), 0);
-
-			_isSend = false;
-
-			if (len > 0)
+			if (_isConnect)
 			{
-				netEvent->_bytes = static_cast<std::size_t>(len);
+				auto & value = _sendQueue.Front();
 
-				if (!_sendBuffer.Reduced(netEvent->_bytes))
+				auto len = ::send(_socket, value->_data, value->_size, 0);
+
+				if (len > 0)
+				{
+					_sendQueue.Pop();
+
+					if (_sendQueue.Empty())
+					{
+						_isSend = false;
+
+						struct kevent event[2]{ };
+
+						EV_SET(&event[0], _socket, EVFILT_READ, EV_ENABLE, 0, 0, &_netEvent);
+						EV_SET(&event[1], _socket, EVFILT_WRITE, EV_DISABLE, 0, 0, &_netEvent);
+
+						if (kevent(_handle, event, 2, nullptr, 0, nullptr) == -1)
+						{
+							Close();
+
+							return;
+						}
+					}
+				}
+				else if (len <= 0 && errno != EAGAIN)
 				{
 					Close();
 
 					return;
 				}
-
-				if (_sendBuffer.Length() == 0)
-				{
-					struct kevent event[2]{ };
-
-					EV_SET(&event[0], _socket, EVFILT_READ, EV_ENABLE, 0, 0, &_netEvent);
-					EV_SET(&event[1], _socket, EVFILT_WRITE, EV_DISABLE, 0, 0, &_netEvent);
-
-					if (kevent(_handle, event, 2, nullptr, 0, nullptr) == -1)
-					{
-						Close();
-
-						return;
-					}
-				}
-			}
-			else if (len <= 0 && errno != EAGAIN)
-			{
-				Close();
-
-				return;
 			}
 		}
 
@@ -473,25 +461,30 @@ namespace tinyToolkit
 
 		if (currentEvent->events & EPOLLIN)
 		{
-			_isReceive = true;
-
-			auto len = ::recv(_socket, netEvent->_temp, sizeof(netEvent->_temp), 0);
-
-			_isReceive = false;
-
-			if (len < 0 && errno == EAGAIN)
+			if (_isConnect)
 			{
-				return;
-			}
-			else if (len > 0)
-			{
-				netEvent->_bytes = static_cast<std::size_t>(len);
+				auto len = ::recv(_socket, netEvent->_temp, sizeof(netEvent->_temp), 0);
 
-				if (_receiveBuffer.Push(netEvent->_temp, netEvent->_bytes))
+				if (len < 0 && errno == EAGAIN)
 				{
-					if (_session)
+					return;
+				}
+				else if (len > 0)
+				{
+					netEvent->_bytes = static_cast<std::size_t>(len);
+
+					if (_cache.Push(netEvent->_temp, netEvent->_bytes))
 					{
-						_receiveBuffer.Reduced(_session->OnReceive(_receiveBuffer.Value(), _receiveBuffer.Length()));
+						if (_session)
+						{
+							_cache.Reduced(_session->OnReceive(_cache.Value(), _cache.Length()));
+						}
+					}
+					else
+					{
+						Close();
+
+						return;
 					}
 				}
 				else
@@ -501,53 +494,43 @@ namespace tinyToolkit
 					return;
 				}
 			}
-			else
-			{
-				Close();
-
-				return;
-			}
 		}
 
 		if (currentEvent->events & EPOLLOUT)
 		{
-			_isSend = true;
-
-			auto len = ::send(_socket, _sendBuffer.Value(), _sendBuffer.Length(), 0);
-
-			_isSend = false;
-
-			if (len > 0)
+			if (_isConnect)
 			{
-				netEvent->_bytes = static_cast<std::size_t>(len);
+				auto & value = _sendQueue.Front();
 
-				if (!_sendBuffer.Reduced(netEvent->_bytes))
+				auto len = ::send(_socket, value->_data, value->_size, 0);
+
+				if (len > 0)
+				{
+					_sendQueue.Pop();
+
+					if (_sendQueue.Empty())
+					{
+						_isSend = false;
+
+						struct epoll_event event{ };
+
+						event.events = EPOLLIN;
+						event.data.ptr = &_netEvent;
+
+						if (epoll_ctl(_handle, EPOLL_CTL_MOD, _socket, &event) == -1)
+						{
+							Close();
+
+							return;
+						}
+					}
+				}
+				else if (len <= 0 && errno != EAGAIN)
 				{
 					Close();
 
 					return;
 				}
-
-				if (_sendBuffer.Length() == 0)
-				{
-					struct epoll_event event{ };
-
-					event.events = EPOLLIN;
-					event.data.ptr = &_netEvent;
-
-					if (epoll_ctl(_handle, EPOLL_CTL_MOD, _socket, &event) == -1)
-					{
-						Close();
-
-						return;
-					}
-				}
-			}
-			else if (len <= 0 && errno != EAGAIN)
-			{
-				Close();
-
-				return;
 			}
 		}
 
@@ -574,14 +557,9 @@ namespace tinyToolkit
 
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-		if (!_sendBuffer.Reduced(netEvent->_bytes))
-		{
-			Close();
+		_sendQueue.Pop();
 
-			return;
-		}
-
-		if (_sendBuffer.Length() == 0)
+		if (_sendQueue.Empty())
 		{
 			_isSend = false;
 
@@ -616,15 +594,13 @@ namespace tinyToolkit
 
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-		_isReceive = false;
-
 		if (netEvent->_bytes > 0)
 		{
-			if (_receiveBuffer.Push(netEvent->_temp, netEvent->_bytes))
+			if (_cache.Push(netEvent->_temp, netEvent->_bytes))
 			{
 				if (_session)
 				{
-					_receiveBuffer.Reduced(_session->OnReceive(_receiveBuffer.Value(), _receiveBuffer.Length()));
+					_cache.Reduced(_session->OnReceive(_cache.Value(), _cache.Length()));
 				}
 
 				if (!AsyncReceive())
@@ -657,11 +633,6 @@ namespace tinyToolkit
 	{
 		(void)netEvent;
 		(void)sysEvent;
-
-		if (!_isConnect)
-		{
-			return;
-		}
 
 		delete netEvent;
 
@@ -902,16 +873,14 @@ namespace tinyToolkit
 	 *
 	 * 发送数据
 	 *
-	 * @param value 待发送数据
+	 * @param data 待发送数据指针
 	 * @param size 待发送数据长度
-	 * @param cache 缓冲发送
 	 *
 	 */
-	void TCPServerPipe::Send(const void * value, std::size_t size, bool cache)
+	void TCPServerPipe::Send(const void * data, std::size_t size)
 	{
 		(void)size;
-		(void)cache;
-		(void)value;
+		(void)data;
 	}
 
 	/**
@@ -1053,30 +1022,23 @@ namespace tinyToolkit
 			return;
 		}
 
-		uint16_t localPort = _server->_port;
-		uint16_t remotePort = 0;
-
-		std::string localHost = _server->_host;
-		std::string remoteHost = "";
-
 		if (Net::GetRemoteAddress(sock, _netEvent._address))
 		{
-			remotePort = ntohs(_netEvent._address.sin_port);
-			remoteHost = inet_ntoa(_netEvent._address.sin_addr);
+			_server->_remotePort = ntohs(_netEvent._address.sin_port);
+			_server->_remoteHost = inet_ntoa(_netEvent._address.sin_addr);
 		}
 
-		auto session = _server->OnNewConnect(remoteHost, remotePort);
+		auto session = _server->OnSessionConnect();
 
 		if (session)
 		{
-			session->_sSize = _server->_sSize;
-			session->_rSize = _server->_rSize;
+			session->_cacheSize = _server->_cacheSize;
 
-			session->_localPort = localPort;
-			session->_localHost = localHost;
+			session->_localPort = _server->_localPort;
+			session->_localHost = _server->_localHost;
 
-			session->_remotePort = remotePort;
-			session->_remoteHost = remoteHost;
+			session->_remotePort = _server->_remotePort;
+			session->_remoteHost = _server->_remoteHost;
 
 			auto pipe = std::make_shared<TCPSessionPipe>(session, sock, _handle);
 
@@ -1130,24 +1092,20 @@ namespace tinyToolkit
 					return;
 				}
 
-				uint16_t localPort = _server->_port;
-				uint16_t remotePort = ntohs(_netEvent._address.sin_port);
+				_server->_remotePort = ntohs(_netEvent._address.sin_port);
+				_server->_remoteHost = inet_ntoa(_netEvent._address.sin_addr);
 
-				std::string localHost = _server->_host;
-				std::string remoteHost = inet_ntoa(_netEvent._address.sin_addr);
-
-				auto session = _server->OnNewConnect(remoteHost, remotePort);
+				auto session = _server->OnSessionConnect();
 
 				if (session)
 				{
-					session->_sSize = _server->_sSize;
-					session->_rSize = _server->_rSize;
+					session->_cacheSize = _server->_cacheSize;
 
-					session->_localPort = localPort;
-					session->_localHost = localHost;
+					session->_localPort = _server->_localPort;
+					session->_localHost = _server->_localHost;
 
-					session->_remotePort = remotePort;
-					session->_remoteHost = remoteHost;
+					session->_remotePort = _server->_remotePort;
+					session->_remoteHost = _server->_remoteHost;
 
 					auto pipe = std::make_shared<TCPSessionPipe>(session, sock, _handle);
 
@@ -1206,24 +1164,20 @@ namespace tinyToolkit
 					return;
 				}
 
-				uint16_t localPort = _server->_port;
-				uint16_t remotePort = ntohs(_netEvent._address.sin_port);
+				_server->_remotePort = ntohs(_netEvent._address.sin_port);
+				_server->_remoteHost = inet_ntoa(_netEvent._address.sin_addr);
 
-				std::string localHost = _server->_host;
-				std::string remoteHost = inet_ntoa(_netEvent._address.sin_addr);
-
-				auto session = _server->OnNewConnect(remoteHost, remotePort);
+				auto session = _server->OnSessionConnect();
 
 				if (session)
 				{
-					session->_sSize = _server->_sSize;
-					session->_rSize = _server->_rSize;
+					session->_cacheSize = _server->_cacheSize;
 
-					session->_localPort = localPort;
-					session->_localHost = localHost;
+					session->_localPort = _server->_localPort;
+					session->_localHost = _server->_localHost;
 
-					session->_remotePort = remotePort;
-					session->_remoteHost = remoteHost;
+					session->_remotePort = _server->_remotePort;
+					session->_remoteHost = _server->_remoteHost;
 
 					auto pipe = std::make_shared<TCPSessionPipe>(session, sock, _handle);
 
@@ -1249,8 +1203,6 @@ namespace tinyToolkit
 				}
 				else
 				{
-					Net::CloseSocket(sock);
-
 					_server->OnSessionError(session);
 				}
 			}

@@ -18,6 +18,9 @@ namespace tinyToolkit
 {
 	class TINY_TOOLKIT_API ITCPServer
 	{
+		friend class NetManager;
+		friend class TCPServerPipe;
+
 	public:
 		/**
 		 *
@@ -58,6 +61,23 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 关闭会话
+		 *
+		 */
+		void Close();
+
+		/**
+		 *
+		 * 发送数据
+		 *
+		 * @param data 待发送数据指针
+		 * @param size 待发送数据长度
+		 *
+		 */
+		void Send(const void * data, std::size_t size);
+
+		/**
+		 *
 		 * 启动
 		 *
 		 * @param localHost 主机地址
@@ -71,12 +91,50 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 关闭会话
+		 * 主机端口
+		 *
+		 * @return 主机端口
 		 *
 		 */
-		void Close();
+		uint16_t LocalPort() const;
 
-	public:
+		/**
+		 *
+		 * 远端端口
+		 *
+		 * @return 远端端口
+		 *
+		 */
+		uint16_t RemotePort() const;
+
+		/**
+		 *
+		 * 缓存大小
+		 *
+		 * @return 缓存大小
+		 *
+		 */
+		std::size_t CacheSize() const;
+
+		/**
+		 *
+		 * 主机地址
+		 *
+		 * @return 主机地址
+		 *
+		 */
+		const std::string & LocalHost() const;
+
+		/**
+		 *
+		 * 远端地址
+		 *
+		 * @return 远端地址
+		 *
+		 */
+		const std::string & RemoteHost() const;
+
+	private:
 		uint16_t _localPort{ 0 };
 		uint16_t _remotePort{ 0 };
 

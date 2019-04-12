@@ -11,7 +11,6 @@
  */
 
 
-#include "ikcp.h"
 #include "cache.h"
 #include "event.h"
 #include "server.h"
@@ -62,6 +61,16 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 回调函数
+		 *
+		 * @param netEvent 网络事件
+		 * @param sysEvent 系统事件
+		 *
+		 */
+		void OnCallback(NetEvent * netEvent, void * sysEvent) override;
+
+		/**
+		 *
 		 * 异步发送
 		 *
 		 * @return 是否处理成功
@@ -78,17 +87,7 @@ namespace tinyToolkit
 		 */
 		bool AsyncReceive() override;
 
-		/**
-		 *
-		 * 回调函数
-		 *
-		 * @param netEvent 网络事件
-		 * @param sysEvent 系统事件
-		 *
-		 */
-		void OnCallback(NetEvent * netEvent, void * sysEvent) override;
-
-	protected:
+	private:
 		/**
 		 *
 		 * 交互处理

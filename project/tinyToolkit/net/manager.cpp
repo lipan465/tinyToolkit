@@ -169,9 +169,8 @@ namespace tinyToolkit
 #endif
 
 			_status = true;
-			_thread = std::thread(&NetManager::ThreadProcess, this);
 
-			return true;
+			_thread = std::thread(&NetManager::ThreadProcess, this);
 		}
 
 		return _handle != TINY_TOOLKIT_SOCKET_HANDLE_INVALID;
@@ -385,6 +384,59 @@ namespace tinyToolkit
 #endif
 
 		return true;
+	}
+
+	/**
+	 *
+	 * 启动可靠udp客户端
+	 *
+	 * @param client 客户端
+	 *
+	 * @return 是否启动成功
+	 *
+	 */
+	bool NetManager::LaunchRUDPClient(IRUDPSession * client)
+	{
+		if (client == nullptr)
+		{
+			return false;
+		}
+
+		if (!Launch())
+		{
+			return false;
+		}
+
+		{
+			std::vector<std::string> localHostList{ };
+			std::vector<std::string> remoteHostList{ };
+
+			if (Net::TraverseAddressFromHost(client->_localHost.c_str(), localHostList) &&
+				Net::TraverseAddressFromHost(client->_remoteHost.c_str(), remoteHostList))
+			{
+				client->_localHost = std::move(localHostList.front());
+				client->_remoteHost = std::move(remoteHostList.front());
+			}
+			else
+			{
+				client->OnConnectFailed();
+
+				return false;
+			}
+		}
+
+		auto pipe = std::make_shared<RUDPSessionPipe>(client);
+
+		if (pipe->Launch())
+		{
+			client->_pipe = pipe;
+
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 
 	/**

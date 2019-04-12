@@ -2,7 +2,7 @@
  *
  *  作者: hm
  *
- *  说明: tcp
+ *  说明: udp
  *
  */
 
@@ -17,7 +17,7 @@
  */
 UDPClientSession::~UDPClientSession()
 {
-	tinyToolkit::String::Print("UDP Client session destructor\r\n");
+	TINY_TOOLKIT_SYNC_LOG_INFO("UDP Client session destructor");
 }
 
 /**
@@ -27,7 +27,7 @@ UDPClientSession::~UDPClientSession()
  */
 void UDPClientSession::OnConnect()
 {
-	tinyToolkit::String::Print("UDP Client session [{}:{}] create success\r\n", _localHost, _localPort);
+	TINY_TOOLKIT_SYNC_LOG_INFO("UDP Client session [{}:{}] create success", LocalHost(), LocalPort());
 }
 
 /**
@@ -37,7 +37,7 @@ void UDPClientSession::OnConnect()
  */
 void UDPClientSession::OnDisconnect()
 {
-	tinyToolkit::String::Print("UDP Client session [{}:{}] disconnect : {}\r\n", _localHost, _localPort, strerror(errno));
+	TINY_TOOLKIT_SYNC_LOG_INFO("UDP Client session [{}:{}] disconnect : {}", LocalHost(), LocalPort(), strerror(errno));
 }
 
 /**
@@ -47,7 +47,7 @@ void UDPClientSession::OnDisconnect()
  */
 void UDPClientSession::OnConnectFailed()
 {
-	tinyToolkit::String::Print("UDP Client session [{}:{}] create failed : {}\r\n", _localHost, _localPort, strerror(errno));
+	TINY_TOOLKIT_SYNC_LOG_INFO("UDP Client session [{}:{}] create failed : {}", LocalHost(), LocalPort(), strerror(errno));
 }
 
 /**
@@ -62,7 +62,7 @@ void UDPClientSession::OnConnectFailed()
  */
 std::size_t UDPClientSession::OnReceive(const char * data, std::size_t size)
 {
-	tinyToolkit::String::Print("UDP Client session [{}:{}] received server session [{}:{}] length [{}] message : {}\r\n", _localHost, _localPort, _remoteHost, _remotePort, size, data);
+	TINY_TOOLKIT_SYNC_LOG_INFO("UDP Client session [{}:{}] received server session [{}:{}] length [{}] message : {}", LocalHost(), LocalPort(), RemoteHost(), RemotePort(), size, data);
 
 	return size;
 }

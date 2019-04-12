@@ -37,6 +37,13 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 清空
+		 *
+		 */
+		void Clear();
+
+		/**
+		 *
 		 * 减少长度
 		 *
 		 * @param size 待减少长度
@@ -65,25 +72,7 @@ namespace tinyToolkit
 		 * @return 数据长度
 		 *
 		 */
-		std::size_t Length();
-
-		/**
-		 *
-		 * 数据长度
-		 *
-		 * @return 数据长度
-		 *
-		 */
 		std::size_t Length() const;
-
-		/**
-		 *
-		 * 数据
-		 *
-		 * @return 数据
-		 *
-		 */
-		const char * Value();
 
 		/**
 		 *
@@ -97,11 +86,11 @@ namespace tinyToolkit
 	private:
 		char * _value{ nullptr };
 
-		std::mutex _mutex{ };
-
 		std::size_t _size{ 0 };
 		std::size_t _wPos{ 0 };
 		std::size_t _rPos{ 0 };
+
+		mutable std::mutex _mutex{ };
 	};
 }
 

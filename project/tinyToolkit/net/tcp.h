@@ -23,6 +23,8 @@ namespace tinyToolkit
 {
 	class TINY_TOOLKIT_API TCPSessionPipe : public ITCPPipe, public INetCompleter
 	{
+		friend class TCPServerPipe;
+
 	public:
 		/**
 		 *
@@ -40,7 +42,7 @@ namespace tinyToolkit
 		 * 析构函数
 		 *
 		 */
-		~TCPSessionPipe() override = default;
+		~TCPSessionPipe() override;
 
 		/**
 		 *
@@ -58,6 +60,16 @@ namespace tinyToolkit
 		 *
 		 */
 		void Send(const void * data, std::size_t size) override;
+
+		/**
+		 *
+		 * 回调函数
+		 *
+		 * @param netEvent 网络事件
+		 * @param sysEvent 系统事件
+		 *
+		 */
+		void OnCallback(NetEvent * netEvent, void * sysEvent) override;
 
 		/**
 		 *
@@ -86,17 +98,7 @@ namespace tinyToolkit
 		 */
 		bool AsyncReceive() override;
 
-		/**
-		 *
-		 * 回调函数
-		 *
-		 * @param netEvent 网络事件
-		 * @param sysEvent 系统事件
-		 *
-		 */
-		void OnCallback(NetEvent * netEvent, void * sysEvent) override;
-
-	protected:
+	private:
 		/**
 		 *
 		 * 交互处理
@@ -183,7 +185,7 @@ namespace tinyToolkit
 		 * 析构函数
 		 *
 		 */
-		~TCPServerPipe() override = default;
+		~TCPServerPipe() override;
 
 		/**
 		 *
@@ -201,6 +203,16 @@ namespace tinyToolkit
 		 *
 		 */
 		void Send(const void * data, std::size_t size) override;
+
+		/**
+		 *
+		 * 回调函数
+		 *
+		 * @param netEvent 网络事件
+		 * @param sysEvent 系统事件
+		 *
+		 */
+		void OnCallback(NetEvent * netEvent, void * sysEvent) override;
 
 		/**
 		 *
@@ -229,17 +241,7 @@ namespace tinyToolkit
 		 */
 		bool AsyncReceive() override;
 
-		/**
-		 *
-		 * 回调函数
-		 *
-		 * @param netEvent 网络事件
-		 * @param sysEvent 系统事件
-		 *
-		 */
-		void OnCallback(NetEvent * netEvent, void * sysEvent) override;
-
-	protected:
+	private:
 		/**
 		 *
 		 * 连接处理

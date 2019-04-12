@@ -31,7 +31,7 @@ void ParseOption(int argc, char const * argv[])
 
 void StartApp()
 {
-	auto type = sOption.Has("type") ? sOption.Get("type") : "udp";
+	auto type = sOption.Has("type") ? sOption.Get("type") : "rudp";
 	auto mode = sOption.Has("mode") ? sOption.Get("mode") : "client";
 
 	auto count = sOption.Has("count") ? tinyToolkit::String::Transform<uint32_t>(sOption.Get("count")) : static_cast<uint16_t>(1);
@@ -72,13 +72,13 @@ void StartApp()
 			{
 				pool.push_back(new TCPClientSession(i));
 
-				if (pool.back()->Launch(remoteHost.c_str(), remotePort, TINY_TOOLKIT_MB))
+				if (pool.back()->Launch(remoteHost, remotePort, TINY_TOOLKIT_MB))
 				{
-					std::cout << "launch tcp client success" << std::endl;
+					TINY_TOOLKIT_SYNC_LOG_INFO("launch tcp client success");
 				}
 				else
 				{
-					std::cout << "launch tcp client failed" << std::endl;
+					TINY_TOOLKIT_SYNC_LOG_INFO("launch tcp client failed");
 				}
 			}
 
@@ -112,13 +112,13 @@ void StartApp()
 		{
 			TCPServer server;
 
-			if (server.Launch(localHost.c_str(), localPort, TINY_TOOLKIT_MB))
+			if (server.Launch(localHost, localPort, TINY_TOOLKIT_MB))
 			{
-				std::cout << "launch tcp server success" << std::endl;
+				TINY_TOOLKIT_SYNC_LOG_INFO("launch tcp server success");
 			}
 			else
 			{
-				std::cout << "launch tcp server failed" << std::endl;
+				TINY_TOOLKIT_SYNC_LOG_INFO("launch tcp server failed");
 			}
 
 			while (true)
@@ -132,7 +132,7 @@ void StartApp()
 			}
 		}
 	}
-	else
+	else if (type == "udp")
 	{
 		std::vector<UDPClientSession *> pool;
 
@@ -140,13 +140,13 @@ void StartApp()
 		{
 			pool.push_back(new UDPClientSession());
 
-			if (pool.back()->Launch(localHost.c_str(), localPort, remoteHost.c_str(), remotePort, TINY_TOOLKIT_MB))
+			if (pool.back()->Launch(localHost, localPort, remoteHost, remotePort, TINY_TOOLKIT_MB))
 			{
-				std::cout << "launch udp client success" << std::endl;
+				TINY_TOOLKIT_SYNC_LOG_INFO("launch udp client success");
 			}
 			else
 			{
-				std::cout << "launch udp client failed" << std::endl;
+				TINY_TOOLKIT_SYNC_LOG_INFO("launch udp client failed");
 			}
 		}
 
@@ -186,6 +186,50 @@ void StartApp()
 			}
 		}
 	}
+	else if (type == "rudp")
+	{
+		std::vector<RUDPClientSession *> pool;
+
+		for (uint32_t i = 0; i < count; ++i)
+		{
+			pool.push_back(new RUDPClientSession());
+
+			if (pool.back()->Launch(localHost, localPort, remoteHost, remotePort, TINY_TOOLKIT_MB))
+			{
+				TINY_TOOLKIT_SYNC_LOG_INFO("launch rudp client success");
+			}
+			else
+			{
+				TINY_TOOLKIT_SYNC_LOG_INFO("launch rudp client failed");
+			}
+		}
+
+		while (true)
+		{
+			std::string value{ };
+
+			std::getline(std::cin, value);
+
+			if (value[0] == 'q')
+			{
+				for (auto &iter : pool)
+				{
+					iter->Close();
+
+					delete iter;
+				}
+
+				return;
+			}
+			else
+			{
+				for (auto &iter : pool)
+				{
+					iter->Send(value.c_str(), value.size());
+				}
+			}
+		}
+	}
 }
 
 
@@ -195,6 +239,10 @@ int main(int argc, char const * argv[])
 
 	tinyToolkit::Signal::RegisterIgnore();
 	tinyToolkit::Signal::RegisterStackTrace(tinyToolkit::Backtrace::Print);
+
+	tinyToolkit::SyncLogger::Instance().AddSink<tinyToolkit::ConsoleLogSink>("console");
+	tinyToolkit::SyncLogger::Instance().SetSinkLayout<tinyToolkit::SimpleLogLayout>();
+	tinyToolkit::SyncLogger::Instance().EnableSinkAutoFlush();
 
 	StartApp();
 

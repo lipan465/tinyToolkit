@@ -11,7 +11,6 @@
 
 #include "../debug/trace.h"
 #include "../utilities/net.h"
-#include "../utilities/time.h"
 
 
 namespace tinyToolkit
@@ -145,72 +144,6 @@ namespace tinyToolkit
 
 #endif
 		}
-	}
-
-	/**
-	 *
-	 * 异步发送
-	 *
-	 * @return 是否处理成功
-	 *
-	 */
-	bool UDPSessionPipe::AsyncSend()
-	{
-#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
-
-		DWORD flag = 0;
-		DWORD bytes = 0;
-
-		auto & value = _sendQueue.Front();
-
-		memset(&_sendEvent._overlap, 0, sizeof(OVERLAPPED));
-
-		_sendEvent._buffer.buf = value->_data;
-		_sendEvent._buffer.len = value->_size;
-
-		if (WSASend(_socket, &_sendEvent._buffer, 1, &bytes, flag, (LPWSAOVERLAPPED)&_sendEvent, nullptr) == TINY_TOOLKIT_SOCKET_ERROR)
-		{
-			if (WSAGetLastError() != ERROR_IO_PENDING)
-			{
-				return false;
-			}
-		}
-
-#endif
-
-		return true;
-	}
-
-	/**
-	 *
-	 * 异步接收
-	 *
-	 * @return 是否处理成功
-	 *
-	 */
-	bool UDPSessionPipe::AsyncReceive()
-	{
-#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
-
-		DWORD flag = 0;
-		DWORD bytes = 0;
-
-		memset(&_receiveEvent._overlap, 0, sizeof(OVERLAPPED));
-
-		_receiveEvent._buffer.buf = _receiveEvent._temp;
-		_receiveEvent._buffer.len = sizeof(_receiveEvent._temp);
-
-		if (WSARecv(_socket, &_receiveEvent._buffer, 1, &bytes, &flag, (LPWSAOVERLAPPED)&_receiveEvent, nullptr) == TINY_TOOLKIT_SOCKET_ERROR)
-		{
-			if (WSAGetLastError() != ERROR_IO_PENDING)
-			{
-				return false;
-			}
-		}
-
-#endif
-
-		return true;
 	}
 
 	/**
@@ -553,5 +486,71 @@ namespace tinyToolkit
 		(void)sysEvent;
 
 		delete netEvent;
+	}
+
+	/**
+	 *
+	 * 异步发送
+	 *
+	 * @return 是否处理成功
+	 *
+	 */
+	bool UDPSessionPipe::AsyncSend()
+	{
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		DWORD flag = 0;
+		DWORD bytes = 0;
+
+		auto & value = _sendQueue.Front();
+
+		memset(&_sendEvent._overlap, 0, sizeof(OVERLAPPED));
+
+		_sendEvent._buffer.buf = value->_data;
+		_sendEvent._buffer.len = value->_size;
+
+		if (WSASend(_socket, &_sendEvent._buffer, 1, &bytes, flag, (LPWSAOVERLAPPED)&_sendEvent, nullptr) == TINY_TOOLKIT_SOCKET_ERROR)
+		{
+			if (WSAGetLastError() != ERROR_IO_PENDING)
+			{
+				return false;
+			}
+		}
+
+#endif
+
+		return true;
+	}
+
+	/**
+	 *
+	 * 异步接收
+	 *
+	 * @return 是否处理成功
+	 *
+	 */
+	bool UDPSessionPipe::AsyncReceive()
+	{
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		DWORD flag = 0;
+		DWORD bytes = 0;
+
+		memset(&_receiveEvent._overlap, 0, sizeof(OVERLAPPED));
+
+		_receiveEvent._buffer.buf = _receiveEvent._temp;
+		_receiveEvent._buffer.len = sizeof(_receiveEvent._temp);
+
+		if (WSARecv(_socket, &_receiveEvent._buffer, 1, &bytes, &flag, (LPWSAOVERLAPPED)&_receiveEvent, nullptr) == TINY_TOOLKIT_SOCKET_ERROR)
+		{
+			if (WSAGetLastError() != ERROR_IO_PENDING)
+			{
+				return false;
+			}
+		}
+
+#endif
+
+		return true;
 	}
 }

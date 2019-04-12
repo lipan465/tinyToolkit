@@ -32,6 +32,23 @@ namespace tinyToolkit
 	NetCache::~NetCache()
 	{
 		delete[] _value;
+
+		_value = nullptr;
+	}
+
+	/**
+	 *
+	 * 清空
+	 *
+	 */
+	void NetCache::Clear()
+	{
+		std::lock_guard<std::mutex> lock(_mutex);
+
+		_rPos = 0;
+		_wPos = 0;
+
+		memset(_value, 0, _size);
 	}
 
 	/**
@@ -107,33 +124,9 @@ namespace tinyToolkit
 	 * @return 数据长度
 	 *
 	 */
-	std::size_t NetCache::Length()
-	{
-		return _wPos - _rPos;
-	}
-
-	/**
-	 *
-	 * 数据长度
-	 *
-	 * @return 数据长度
-	 *
-	 */
 	std::size_t NetCache::Length() const
 	{
 		return _wPos - _rPos;
-	}
-
-	/**
-	 *
-	 * 数据
-	 *
-	 * @return 数据
-	 *
-	 */
-	const char * NetCache::Value()
-	{
-		return _value + _rPos;
 	}
 
 	/**

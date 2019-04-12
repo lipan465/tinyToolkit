@@ -121,6 +121,16 @@ namespace tinyToolkit
 
 	/**
 	 *
+	 * 析构函数
+	 *
+	 */
+	TCPSessionPipe::~TCPSessionPipe()
+	{
+		Close();
+	}
+
+	/**
+	 *
 	 * 关闭会话
 	 *
 	 */
@@ -215,84 +225,6 @@ namespace tinyToolkit
 
 #endif
 		}
-	}
-
-	/**
-	 *
-	 * 异步发送
-	 *
-	 * @return 是否处理成功
-	 *
-	 */
-	bool TCPSessionPipe::AsyncSend()
-	{
-#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
-
-		DWORD flag = 0;
-		DWORD bytes = 0;
-
-		auto & value = _sendQueue.Front();
-
-		memset(&_sendEvent._overlap, 0, sizeof(OVERLAPPED));
-
-		_sendEvent._buffer.buf = value->_data;
-		_sendEvent._buffer.len = value->_size;
-
-		if (WSASend(_socket, &_sendEvent._buffer, 1, &bytes, flag, (LPWSAOVERLAPPED)&_sendEvent, nullptr) == TINY_TOOLKIT_SOCKET_ERROR)
-		{
-			if (WSAGetLastError() != ERROR_IO_PENDING)
-			{
-				return false;
-			}
-		}
-
-#endif
-
-		return true;
-	}
-
-	/**
-	 *
-	 * 异步连接
-	 *
-	 * @return 是否处理成功
-	 *
-	 */
-	bool TCPSessionPipe::AsyncAccept()
-	{
-		return true;
-	}
-
-	/**
-	 *
-	 * 异步接收
-	 *
-	 * @return 是否处理成功
-	 *
-	 */
-	bool TCPSessionPipe::AsyncReceive()
-	{
-#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
-
-		DWORD flag = 0;
-		DWORD bytes = 0;
-
-		memset(&_receiveEvent._overlap, 0, sizeof(OVERLAPPED));
-
-		_receiveEvent._buffer.buf = _receiveEvent._temp;
-		_receiveEvent._buffer.len = sizeof(_receiveEvent._temp);
-
-		if (WSARecv(_socket, &_receiveEvent._buffer, 1, &bytes, &flag, (LPWSAOVERLAPPED)&_receiveEvent, nullptr) == TINY_TOOLKIT_SOCKET_ERROR)
-		{
-			if (WSAGetLastError() != ERROR_IO_PENDING)
-			{
-				return false;
-			}
-		}
-
-#endif
-
-		return true;
 	}
 
 	/**
@@ -812,6 +744,84 @@ namespace tinyToolkit
 #endif
 	}
 
+	/**
+	 *
+	 * 异步发送
+	 *
+	 * @return 是否处理成功
+	 *
+	 */
+	bool TCPSessionPipe::AsyncSend()
+	{
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		DWORD flag = 0;
+		DWORD bytes = 0;
+
+		auto & value = _sendQueue.Front();
+
+		memset(&_sendEvent._overlap, 0, sizeof(OVERLAPPED));
+
+		_sendEvent._buffer.buf = value->_data;
+		_sendEvent._buffer.len = value->_size;
+
+		if (WSASend(_socket, &_sendEvent._buffer, 1, &bytes, flag, (LPWSAOVERLAPPED)&_sendEvent, nullptr) == TINY_TOOLKIT_SOCKET_ERROR)
+		{
+			if (WSAGetLastError() != ERROR_IO_PENDING)
+			{
+				return false;
+			}
+		}
+
+#endif
+
+		return true;
+	}
+
+	/**
+	 *
+	 * 异步连接
+	 *
+	 * @return 是否处理成功
+	 *
+	 */
+	bool TCPSessionPipe::AsyncAccept()
+	{
+		return true;
+	}
+
+	/**
+	 *
+	 * 异步接收
+	 *
+	 * @return 是否处理成功
+	 *
+	 */
+	bool TCPSessionPipe::AsyncReceive()
+	{
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		DWORD flag = 0;
+		DWORD bytes = 0;
+
+		memset(&_receiveEvent._overlap, 0, sizeof(OVERLAPPED));
+
+		_receiveEvent._buffer.buf = _receiveEvent._temp;
+		_receiveEvent._buffer.len = sizeof(_receiveEvent._temp);
+
+		if (WSARecv(_socket, &_receiveEvent._buffer, 1, &bytes, &flag, (LPWSAOVERLAPPED)&_receiveEvent, nullptr) == TINY_TOOLKIT_SOCKET_ERROR)
+		{
+			if (WSAGetLastError() != ERROR_IO_PENDING)
+			{
+				return false;
+			}
+		}
+
+#endif
+
+		return true;
+	}
+
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -832,6 +842,16 @@ namespace tinyToolkit
 		_netEvent._type = NET_EVENT_TYPE::ACCEPT;
 		_netEvent._socket = socket;
 		_netEvent._completer = this;
+	}
+
+	/**
+	 *
+	 * 析构函数
+	 *
+	 */
+	TCPServerPipe::~TCPServerPipe()
+	{
+		Close();
 	}
 
 	/**
@@ -881,82 +901,6 @@ namespace tinyToolkit
 	{
 		(void)size;
 		(void)data;
-	}
-
-	/**
-	 *
-	 * 异步发送
-	 *
-	 * @return 是否处理成功
-	 *
-	 */
-	bool TCPServerPipe::AsyncSend()
-	{
-		return true;
-	}
-
-	/**
-	 *
-	 * 异步连接
-	 *
-	 * @return 是否处理成功
-	 *
-	 */
-	bool TCPServerPipe::AsyncAccept()
-	{
-#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
-
-		TINY_TOOLKIT_SOCKET_TYPE sock = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, nullptr, 0, WSA_FLAG_OVERLAPPED);
-
-		if (sock == TINY_TOOLKIT_SOCKET_INVALID)
-		{
-			Net::CloseSocket(sock);
-
-			return false;
-		}
-
-		if (!Net::EnableLinger(sock) ||
-			!Net::EnableNoDelay(sock) ||
-			!Net::EnableNonBlock(sock) ||
-			!Net::EnableReuseAddress(sock))
-		{
-			Net::CloseSocket(sock);
-
-			return false;
-		}
-
-		_netEvent._socket = sock;
-
-		_netEvent._buffer.buf = _netEvent._temp;
-		_netEvent._buffer.len = sizeof(_netEvent._temp);
-
-		memset(&_netEvent._overlap, 0, sizeof(OVERLAPPED));
-
-		if (!AcceptEx(_socket, sock, _netEvent._temp, (LPOVERLAPPED)&_netEvent))
-		{
-			if (WSAGetLastError() != WSA_IO_PENDING)
-			{
-				Net::CloseSocket(sock);
-
-				return false;
-			}
-		}
-
-#endif
-
-		return true;
-	}
-
-	/**
-	 *
-	 * 异步接收
-	 *
-	 * @return 是否处理成功
-	 *
-	 */
-	bool TCPServerPipe::AsyncReceive()
-	{
-		return true;
 	}
 
 	/**
@@ -1209,5 +1153,81 @@ namespace tinyToolkit
 		}
 
 #endif
+	}
+
+	/**
+	 *
+	 * 异步发送
+	 *
+	 * @return 是否处理成功
+	 *
+	 */
+	bool TCPServerPipe::AsyncSend()
+	{
+		return true;
+	}
+
+	/**
+	 *
+	 * 异步连接
+	 *
+	 * @return 是否处理成功
+	 *
+	 */
+	bool TCPServerPipe::AsyncAccept()
+	{
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		TINY_TOOLKIT_SOCKET_TYPE sock = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, nullptr, 0, WSA_FLAG_OVERLAPPED);
+
+		if (sock == TINY_TOOLKIT_SOCKET_INVALID)
+		{
+			Net::CloseSocket(sock);
+
+			return false;
+		}
+
+		if (!Net::EnableLinger(sock) ||
+			!Net::EnableNoDelay(sock) ||
+			!Net::EnableNonBlock(sock) ||
+			!Net::EnableReuseAddress(sock))
+		{
+			Net::CloseSocket(sock);
+
+			return false;
+		}
+
+		_netEvent._socket = sock;
+
+		_netEvent._buffer.buf = _netEvent._temp;
+		_netEvent._buffer.len = sizeof(_netEvent._temp);
+
+		memset(&_netEvent._overlap, 0, sizeof(OVERLAPPED));
+
+		if (!AcceptEx(_socket, sock, _netEvent._temp, (LPOVERLAPPED)&_netEvent))
+		{
+			if (WSAGetLastError() != WSA_IO_PENDING)
+			{
+				Net::CloseSocket(sock);
+
+				return false;
+			}
+		}
+
+#endif
+
+		return true;
+	}
+
+	/**
+	 *
+	 * 异步接收
+	 *
+	 * @return 是否处理成功
+	 *
+	 */
+	bool TCPServerPipe::AsyncReceive()
+	{
+		return true;
 	}
 }

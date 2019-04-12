@@ -1,0 +1,69 @@
+#ifndef __EXAMPLE__NET__R_UDP__H__
+#define __EXAMPLE__NET__R_UDP__H__
+
+
+/**
+ *
+ *  作者: hm
+ *
+ *  说明: 可靠udp
+ *
+ */
+
+
+#include "tinyToolkit/tinyToolkit.h"
+
+
+class RUDPClientSession : public tinyToolkit::IRUDPSession
+{
+public:
+	/**
+	 *
+	 * 构造函数
+	 *
+	 */
+	RUDPClientSession() = default;
+
+	/**
+	 *
+	 * 析构函数
+	 *
+	 */
+	~RUDPClientSession() override;
+
+	/**
+	 *
+	 * 连接成功触发回调函数
+	 *
+	 */
+	void OnConnect() override;
+
+	/**
+	 *
+	 * 断开连接触发回调函数
+	 *
+	 */
+	void OnDisconnect() override;
+
+	/**
+	 *
+	 * 连接失败触发回调函数
+	 *
+	 */
+	void OnConnectFailed() override;
+
+	/**
+	 *
+	 * 接收数据触发回调函数
+	 *
+	 * @param data 接收的数据缓冲区指针
+	 * @param size 接收的数据缓冲区长度
+	 *
+	 * @return 使用的字节数
+	 *
+	 */
+	std::size_t OnReceive(const char * data, std::size_t size) override;
+};
+
+
+#endif // __EXAMPLE__NET__R_UDP__H__

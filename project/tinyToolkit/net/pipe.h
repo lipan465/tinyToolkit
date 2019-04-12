@@ -106,6 +106,20 @@ namespace tinyToolkit
 		 */
 		virtual bool AsyncReceive() = 0;
 	};
+
+	class TINY_TOOLKIT_API IRUDPPipe : public INetPipe
+	{
+	public:
+		/**
+		 *
+		 * 发送数据
+		 *
+		 * @param data 待发送数据指针
+		 * @param size 待发送数据长度
+		 *
+		 */
+		virtual void Send(const void * data, std::size_t size) = 0;
+	};
 }
 
 

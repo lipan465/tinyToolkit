@@ -13,30 +13,20 @@
 
 #include "tcp.h"
 #include "udp.h"
-
-#include "../utilities/copyable.h"
-#include "../utilities/singleton.h"
+#include "rudp.h"
 
 
 namespace tinyToolkit
 {
-	class TINY_TOOLKIT_API NetManager : public NonCopyable
+	class TINY_TOOLKIT_API NetManager
 	{
 	public:
-
-		/**
-		 *
-		 * 构造函数
-		 *
-		 */
-		NetManager() = default;
-
 		/**
 		 *
 		 * 析构函数
 		 *
 		 */
-		~NetManager() override;
+		~NetManager();
 
 		/**
 		 *
@@ -57,6 +47,17 @@ namespace tinyToolkit
 		 *
 		 */
 		bool LaunchUDPClient(IUDPSession * client);
+
+		/**
+		 *
+		 * 启动可靠udp客户端
+		 *
+		 * @param client 客户端
+		 *
+		 * @return 是否启动成功
+		 *
+		 */
+		bool LaunchRUDPClient(IRUDPSession * client);
 
 		/**
 		 *

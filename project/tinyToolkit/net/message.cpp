@@ -9,8 +9,6 @@
 
 #include "message.h"
 
-#include "../utilities/net.h"
-
 
 namespace tinyToolkit
 {

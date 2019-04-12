@@ -29,7 +29,7 @@ TCPClientSession::TCPClientSession(int32_t id) : _id(id)
  */
 TCPClientSession::~TCPClientSession()
 {
-	tinyToolkit::String::Print("Client session destructor\r\n");
+	TINY_TOOLKIT_SYNC_LOG_INFO("TCP client session destructor");
 }
 
 /**
@@ -39,7 +39,7 @@ TCPClientSession::~TCPClientSession()
  */
 void TCPClientSession::OnConnect()
 {
-	tinyToolkit::String::Print("Client session [{}:{}] connect server session [{}:{}] success\r\n", _localHost, _localPort, _remoteHost, _remotePort);
+	TINY_TOOLKIT_SYNC_LOG_INFO("TCP client session [{}:{}] connect server session [{}:{}] success", LocalHost(), LocalPort(), RemoteHost(), RemotePort());
 
 	for (uint32_t i = 0; i < 100000; ++i)
 	{
@@ -56,7 +56,7 @@ void TCPClientSession::OnConnect()
  */
 void TCPClientSession::OnDisconnect()
 {
-	tinyToolkit::String::Print("Client session [{}:{}] disconnect : {}\r\n", _localHost, _localPort, strerror(errno));
+	TINY_TOOLKIT_SYNC_LOG_INFO("TCP client session [{}:{}] disconnect : {}", LocalHost(), LocalPort(), strerror(errno));
 }
 
 /**
@@ -66,7 +66,7 @@ void TCPClientSession::OnDisconnect()
  */
 void TCPClientSession::OnConnectFailed()
 {
-	tinyToolkit::String::Print("Client session [{}:{}] connect server session [{}:{}] failed : {}\r\n", _localHost, _localPort, _remoteHost, _remotePort, strerror(errno));
+	TINY_TOOLKIT_SYNC_LOG_INFO("TCP client session [{}:{}] connect server session [{}:{}] failed : {}", LocalHost(), LocalPort(), RemoteHost(), RemotePort(), strerror(errno));
 }
 
 /**
@@ -81,7 +81,7 @@ void TCPClientSession::OnConnectFailed()
  */
 std::size_t TCPClientSession::OnReceive(const char * data, std::size_t size)
 {
-	tinyToolkit::String::Print("Client session [{}:{}] received server session [{}:{}] lengeth [{}] message : {}\r\n", _localHost, _localPort, _remoteHost, _remotePort, size, data);
+	TINY_TOOLKIT_SYNC_LOG_INFO("TCP client session [{}:{}] received server session [{}:{}] lengeth [{}] message : {}", LocalHost(), LocalPort(), RemoteHost(), RemotePort(), size, data);
 
 	return size;
 }
@@ -109,7 +109,7 @@ TCPServerSession::TCPServerSession(int32_t id) : _id(id)
  */
 TCPServerSession::~TCPServerSession()
 {
-	tinyToolkit::String::Print("Server session destructor\r\n");
+	TINY_TOOLKIT_SYNC_LOG_INFO("TCP server session destructor");
 }
 
 /**
@@ -119,7 +119,7 @@ TCPServerSession::~TCPServerSession()
  */
 void TCPServerSession::OnConnect()
 {
-	tinyToolkit::String::Print("Server session [{}:{}] connect client session [{}:{}] success\r\n", _localHost, _localPort, _remoteHost, _remotePort);
+	TINY_TOOLKIT_SYNC_LOG_INFO("TCP server session [{}:{}] connect client session [{}:{}] success", LocalHost(), LocalPort(), RemoteHost(), RemotePort());
 
 	for (uint32_t i = 0; i < 100000; ++i)
 	{
@@ -136,7 +136,7 @@ void TCPServerSession::OnConnect()
  */
 void TCPServerSession::OnDisconnect()
 {
-	tinyToolkit::String::Print("Server session [{}:{}] disconnect : {}\r\n", _localHost, _localPort, strerror(errno));
+	TINY_TOOLKIT_SYNC_LOG_INFO("TCP server session [{}:{}] disconnect : {}", LocalHost(), LocalPort(), strerror(errno));
 }
 
 /**
@@ -146,7 +146,7 @@ void TCPServerSession::OnDisconnect()
  */
 void TCPServerSession::OnConnectFailed()
 {
-	tinyToolkit::String::Print("Server session [{}:{}] connect client session [{}:{}] failed : {}\r\n", _localHost, _localPort, _remoteHost, _remotePort, strerror(errno));
+	TINY_TOOLKIT_SYNC_LOG_INFO("TCP server session [{}:{}] connect client session [{}:{}] failed : {}", LocalHost(), LocalPort(), RemoteHost(), RemotePort(), strerror(errno));
 }
 
 /**
@@ -161,7 +161,7 @@ void TCPServerSession::OnConnectFailed()
  */
 std::size_t TCPServerSession::OnReceive(const char * data, std::size_t size)
 {
-	tinyToolkit::String::Print("Server session [{}:{}] received client session [{}:{}] lengeth [{}] message : {}\r\n", _localHost, _localPort, _remoteHost, _remotePort, size, data);
+	TINY_TOOLKIT_SYNC_LOG_INFO("TCP server session [{}:{}] received client session [{}:{}] lengeth [{}] message : {}", LocalHost(), LocalPort(), RemoteHost(), RemotePort(), size, data);
 
 	if (strstr(data, "request"))
 	{
@@ -184,7 +184,7 @@ std::size_t TCPServerSession::OnReceive(const char * data, std::size_t size)
  */
 TCPServer::~TCPServer()
 {
-	tinyToolkit::String::Print("Server destructor\r\n");
+	TINY_TOOLKIT_SYNC_LOG_INFO("TCP server destructor");
 }
 
 /**
@@ -194,7 +194,7 @@ TCPServer::~TCPServer()
  */
 void TCPServer::OnError()
 {
-	tinyToolkit::String::Print("Server [{}:{}] error : {}\r\n", _localHost, _localPort, strerror(errno));
+	TINY_TOOLKIT_SYNC_LOG_INFO("TCP server [{}:{}] error : {}", LocalHost(), LocalPort(), strerror(errno));
 }
 
 /**
@@ -204,7 +204,7 @@ void TCPServer::OnError()
  */
 void TCPServer::OnRelease()
 {
-	tinyToolkit::String::Print("Server [{}:{}] disconnect : {}\r\n", _localHost, _localPort, strerror(errno));
+	TINY_TOOLKIT_SYNC_LOG_INFO("TCP server [{}:{}] disconnect : {}", LocalHost(), LocalPort(), strerror(errno));
 
 	for (auto &iter : _pool)
 	{
@@ -223,9 +223,9 @@ void TCPServer::OnSessionError(tinyToolkit::ITCPSession * session)
 {
 	if (session)
 	{
-		tinyToolkit::String::Print("Server [{}:{}] and client [{}:{}] session error : {}\r\n", _localHost, _localPort, _remoteHost, _remotePort, strerror(errno));
+		TINY_TOOLKIT_SYNC_LOG_INFO("TCP server [{}:{}] and client [{}:{}] session error : {}", LocalHost(), LocalPort(), RemoteHost(), RemotePort(), strerror(errno));
 
-		auto key = tinyToolkit::String::Join(_remoteHost, ":", _remotePort);
+		auto key = tinyToolkit::String::Join(RemoteHost(), ":", RemotePort());
 
 		auto find = _pool.find(key);
 
@@ -240,7 +240,7 @@ void TCPServer::OnSessionError(tinyToolkit::ITCPSession * session)
 	}
 	else
 	{
-		std::cout << "session null" << std::endl;
+		TINY_TOOLKIT_SYNC_LOG_INFO("session null");
 	}
 }
 
@@ -253,15 +253,15 @@ void TCPServer::OnSessionError(tinyToolkit::ITCPSession * session)
  */
 tinyToolkit::ITCPSession * TCPServer::OnSessionConnect()
 {
-	tinyToolkit::String::Print("Server [{}:{}] accept client [{}:{}] session request\r\n", _localHost, _localPort, _remoteHost, _remotePort);
+	TINY_TOOLKIT_SYNC_LOG_INFO("TCP server [{}:{}] accept client [{}:{}] session request", LocalHost(), LocalPort(), RemoteHost(), RemotePort());
 
-	auto key = tinyToolkit::String::Join(_remoteHost, ":", _remotePort);
+	auto key = tinyToolkit::String::Join(RemoteHost(), ":", RemotePort());
 
 	auto find = _pool.find(key);
 
 	if (find == _pool.end())
 	{
-		_pool.insert(std::make_pair(key, new TCPServerSession(_remotePort)));
+		_pool.insert(std::make_pair(key, new TCPServerSession(RemotePort())));
 
 		find = _pool.find(key);
 	}

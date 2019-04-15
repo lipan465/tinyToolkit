@@ -11,7 +11,6 @@
  */
 
 
-#include "ikcp.h"
 #include "pipe.h"
 #include "cache.h"
 #include "message.h"

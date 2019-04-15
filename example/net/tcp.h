@@ -21,10 +21,8 @@ public:
 	 *
 	 * 构造函数
 	 *
-	 * @param id 序号
-	 *
 	 */
-	explicit TCPClientSession(int32_t id);
+	TCPClientSession();
 
 	/**
 	 *
@@ -65,9 +63,6 @@ public:
 	 *
 	 */
 	std::size_t OnReceive(const char * data, std::size_t size) override;
-
-private:
-	int32_t _id{ 0 };
 };
 
 
@@ -78,10 +73,8 @@ public:
 	 *
 	 * 构造函数
 	 *
-	 * @param id 序号
-	 *
 	 */
-	explicit TCPServerSession(int32_t id);
+	TCPServerSession();
 
 	/**
 	 *
@@ -122,15 +115,19 @@ public:
 	 *
 	 */
 	std::size_t OnReceive(const char * data, std::size_t size) override;
-
-private:
-	int32_t _id{ 0 };
 };
 
 
 class TCPServer : public tinyToolkit::ITCPServer
 {
 public:
+	/**
+	 *
+	 * 构造函数
+	 *
+	 */
+	TCPServer();
+
 	/**
 	 *
 	 * 析构函数

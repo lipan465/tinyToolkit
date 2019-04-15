@@ -22,7 +22,7 @@ public:
 	 * 构造函数
 	 *
 	 */
-	UDPClientSession() = default;
+	UDPClientSession();
 
 	/**
 	 *

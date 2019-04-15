@@ -5,9 +5,21 @@
 
 
 #
-# 绝对路径
+# 脚本路径
 #
-RelativeDirectory=$(cd `dirname $0`; pwd)
+shellDirectory=$(cd `dirname $0`; pwd)
+
+
+#
+# 项目路径
+#
+projectDirectory=${shellDirectory}/..
+
+
+#
+# 编译路径
+#
+buildDirectory=${projectDirectory}/build_linux_32
 
 
 ####################################################################################################
@@ -25,21 +37,6 @@ echo -e ""
 
 
 #
-# 进入脚本目录
-#
-cd ${RelativeDirectory}
-
-
-#
-# 拉取fmt
-#
-git clone https://github.com/fmtlib/fmt.git fmt_linux_32
-
-
-####################################################################################################
-
-
-#
 # 输出信息
 #
 echo -e ""
@@ -51,29 +48,20 @@ echo -e ""
 
 
 #
-# 进入脚本目录
-#
-cd ${RelativeDirectory}
-
-
-#
 # 创建并进入目录
 #
-mkdir -p fmt_linux_32/build && cd fmt_linux_32/build
+mkdir -p ${buildDirectory}/fmt && cd ${buildDirectory}/fmt
 
 
 #
 # 生成make
 #
-cmake	.. 	\
+cmake	${projectDirectory}/3rd/fmt \
 		\
 		-G "Unix Makefiles" \
 		\
 		-DCMAKE_BUILD_TYPE=Release \
 		-DCMAKE_VERBOSE_MAKEFILE=ON \
-		\
-		-DCMAKE_C_COMPILER=gcc8.1.0 \
-		-DCMAKE_CXX_COMPILER=g++8.1.0 \
 		\
 		-DCMAKE_C_FLAGS="-m32 -fPIC" \
 		-DCMAKE_CXX_FLAGS="-m32 -fPIC" \
@@ -89,7 +77,7 @@ make -j4 && make install
 #
 # 进入脚本目录
 #
-cd ${RelativeDirectory}
+cd ${shellDirectory}
 
 
 ####################################################################################################
@@ -107,29 +95,20 @@ echo -e ""
 
 
 #
-# 进入脚本目录
-#
-cd ${RelativeDirectory}
-
-
-#
 # 创建并进入目录
 #
-mkdir -p tinyToolkit_linux_32 && cd tinyToolkit_linux_32
+mkdir -p ${buildDirectory}/tinyToolkit && cd ${buildDirectory}/tinyToolkit
 
 
 #
 # 生成make
 #
-cmake	../../ \
+cmake	${projectDirectory} \
 		\
 		-G "Unix Makefiles" \
 		\
 		-DCMAKE_BUILD_TYPE=Release \
 		-DCMAKE_VERBOSE_MAKEFILE=ON \
-		\
-		-DCMAKE_C_COMPILER=gcc8.1.0 \
-		-DCMAKE_CXX_COMPILER=g++8.1.0 \
 		\
 		-DCMAKE_C_FLAGS="-m32 -fPIC" \
 		-DCMAKE_CXX_FLAGS="-m32 -fPIC" \
@@ -145,7 +124,7 @@ make -j4 && make install
 #
 # 进入脚本目录
 #
-cd ${RelativeDirectory}
+cd ${shellDirectory}
 
 
 ####################################################################################################

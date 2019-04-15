@@ -13,7 +13,6 @@
 
 #include "tcp.h"
 #include "udp.h"
-#include "rudp.h"
 
 
 namespace tinyToolkit
@@ -47,17 +46,6 @@ namespace tinyToolkit
 		 *
 		 */
 		bool LaunchUDPClient(IUDPSession * client);
-
-		/**
-		 *
-		 * 启动可靠udp客户端
-		 *
-		 * @param client 客户端
-		 *
-		 * @return 是否启动成功
-		 *
-		 */
-		bool LaunchRUDPClient(IRUDPSession * client);
 
 		/**
 		 *

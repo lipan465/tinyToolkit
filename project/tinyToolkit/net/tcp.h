@@ -11,12 +11,8 @@
  */
 
 
-#include "cache.h"
 #include "event.h"
 #include "server.h"
-#include "message.h"
-
-#include "../container/queue.h"
 
 
 namespace tinyToolkit

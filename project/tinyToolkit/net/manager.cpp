@@ -388,59 +388,6 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 启动可靠udp客户端
-	 *
-	 * @param client 客户端
-	 *
-	 * @return 是否启动成功
-	 *
-	 */
-	bool NetManager::LaunchRUDPClient(IRUDPSession * client)
-	{
-		if (client == nullptr)
-		{
-			return false;
-		}
-
-		if (!Launch())
-		{
-			return false;
-		}
-
-		{
-			std::vector<std::string> localHostList{ };
-			std::vector<std::string> remoteHostList{ };
-
-			if (Net::TraverseAddressFromHost(client->_localHost.c_str(), localHostList) &&
-				Net::TraverseAddressFromHost(client->_remoteHost.c_str(), remoteHostList))
-			{
-				client->_localHost = std::move(localHostList.front());
-				client->_remoteHost = std::move(remoteHostList.front());
-			}
-			else
-			{
-				client->OnConnectFailed();
-
-				return false;
-			}
-		}
-
-		auto pipe = std::make_shared<RUDPSessionPipe>(client);
-
-		if (pipe->Launch())
-		{
-			client->_pipe = pipe;
-
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
-
-	/**
-	 *
 	 * 启动tcp客户端
 	 *
 	 * @param client 客户端

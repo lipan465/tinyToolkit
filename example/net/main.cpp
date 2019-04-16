@@ -131,16 +131,6 @@ void LaunchUDPClient(const std::string & localHost, uint16_t localPort, const st
 		}
 	}
 
-	for (uint32_t j = 0; j < 1000; ++j)
-	{
-		std::string value = tinyToolkit::String::Format("this is test message [{}]", j);
-
-		for (auto &iter : pool)
-		{
-			iter->Send(value.c_str(), value.size());
-		}
-	}
-
 	while (true)
 	{
 		std::string value{ };

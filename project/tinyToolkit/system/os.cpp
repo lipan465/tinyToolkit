@@ -14,6 +14,58 @@ namespace tinyToolkit
 {
 	/**
 	 *
+	 * 是否是大端字节序
+	 *
+	 * @return 是否是大端字节序
+	 *
+	 */
+	bool OS::IsBigEndian()
+	{
+		static uint32_t value = 0x0001;
+
+		return *((uint8_t *)&value) == 0;
+	}
+
+	/**
+	 *
+	 * 是否是小端字节序
+	 *
+	 * @return 是否是小端字节序
+	 *
+	 */
+	bool OS::IsLittleEndian()
+	{
+		static uint32_t value = 0x0001;
+
+		return *((uint8_t *)&value) == 1;
+	}
+
+	/**
+	 *
+	 * 获取处理器个数
+	 *
+	 * @return 处理器个数
+	 *
+	 */
+	int64_t OS::ProcessorCount()
+	{
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		SYSTEM_INFO info{ };
+
+		GetSystemInfo(&info);
+
+		return info.dwNumberOfProcessors;
+
+#else
+
+		return sysconf(_SC_NPROCESSORS_CONF);
+
+#endif
+	}
+
+	/**
+	 *
 	 * 获取线程id
 	 *
 	 * @return 线程id
@@ -62,5 +114,61 @@ namespace tinyToolkit
 		return static_cast<uint64_t>(::getpid());
 
 	#endif
+	}
+
+	/**
+	 *
+	 * 获取用户名
+	 *
+	 * @return 用户名
+	 *
+	 */
+	std::string OS::UserName()
+	{
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		char name[TINY_TOOLKIT_NAME_MAX]{ 0 };
+
+		DWORD size = sizeof(name);
+
+		return GetUserName(name, &size) ? name : "";
+
+#else
+
+		char name[TINY_TOOLKIT_NAME_MAX]{ 0 };
+
+		struct passwd   pwd{ };
+		struct passwd * result = nullptr;
+
+		int err = getpwuid_r(getuid(), &pwd, name, sizeof(name), &result);
+
+		return result == nullptr && err ? "" : name;
+
+#endif
+	}
+
+	/**
+	 *
+	 * 获取计算机名称
+	 *
+	 * @return 计算机名称
+	 *
+	 */
+	std::string OS::ComputerName()
+	{
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		char name[TINY_TOOLKIT_PATH_MAX]{ 0 };
+
+		DWORD size = sizeof(name);
+
+		return GetComputerName(name, &size) ? name : "";
+#else
+
+		char name[TINY_TOOLKIT_PATH_MAX]{ 0 };
+
+		return gethostname(name, sizeof(name)) == 0 ? name : "";
+
+#endif
 	}
 }

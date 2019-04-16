@@ -434,34 +434,44 @@ namespace tinyToolkit
 			{
 				auto & value = _sendQueue.Front();
 
-				auto len = ::send(_socket, value->_data, value->_size, 0);
+				std::size_t total = 0;
 
-				if (len > 0)
+				while (total < value->_size)
 				{
-					_sendQueue.Pop();
+					auto len = ::send(_socket, value->_data, value->_size, 0);
 
-					if (_sendQueue.Empty())
+					if (len > 0)
 					{
-						_isSend = false;
+						total += len;
 
-						struct epoll_event event{ };
-
-						event.events = EPOLLIN;
-						event.data.ptr = &_netEvent;
-
-						if (epoll_ctl(_handle, EPOLL_CTL_MOD, _socket, &event) == -1)
+						if (total >= value->_size)
 						{
-							Close();
+							_sendQueue.Pop();
 
-							return;
+							if (_sendQueue.Empty())
+							{
+								_isSend = false;
+
+								struct epoll_event event{ };
+
+								event.events = EPOLLIN;
+								event.data.ptr = &_netEvent;
+
+								if (epoll_ctl(_handle, EPOLL_CTL_MOD, _socket, &event) == -1)
+								{
+									Close();
+
+									return;
+								}
+							}
 						}
 					}
-				}
-				else if (len <= 0 && errno != EAGAIN)
-				{
-					Close();
+					else if (len <= 0 && errno != EAGAIN)
+					{
+						Close();
 
-					return;
+						return;
+					}
 				}
 			}
 		}

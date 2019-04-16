@@ -21,6 +21,33 @@ namespace tinyToolkit
 	public:
 		/**
 		 *
+		 * 是否是大端字节序
+		 *
+		 * @return 是否是大端字节序
+		 *
+		 */
+		static bool IsBigEndian();
+
+		/**
+		 *
+		 * 是否是小端字节序
+		 *
+		 * @return 是否是小端字节序
+		 *
+		 */
+		static bool IsLittleEndian();
+
+		/**
+		 *
+		 * 获取处理器个数
+		 *
+		 * @return 处理器个数
+		 *
+		 */
+		static int64_t ProcessorCount();
+
+		/**
+		 *
 		 * 获取线程id
 		 *
 		 * @return 线程id
@@ -36,6 +63,24 @@ namespace tinyToolkit
 		 *
 		 */
 		static uint64_t ProcessID();
+
+		/**
+		 *
+		 * 获取用户名
+		 *
+		 * @return 用户名
+		 *
+		 */
+		static std::string UserName();
+
+		/**
+		 *
+		 * 获取计算机名称
+		 *
+		 * @return 计算机名称
+		 *
+		 */
+		static std::string ComputerName();
 	};
 }
 

@@ -138,6 +138,30 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 设置发送超时时间
+		 *
+		 * @param sock 套接字
+		 * @param second 超时秒数
+		 *
+		 * @return 是否设置成功
+		 *
+		 */
+		static bool SetSendTimeout(TINY_TOOLKIT_SOCKET_TYPE sock, std::time_t second);
+
+		/**
+		 *
+		 * 设置接收超时时间
+		 *
+		 * @param sock 套接字
+		 * @param second 超时秒数
+		 *
+		 * @return 是否设置成功
+		 *
+		 */
+		static bool SetReceiveTimeout(TINY_TOOLKIT_SOCKET_TYPE sock, std::time_t second);
+
+		/**
+		 *
 		 * 设置发送缓冲区大小
 		 *
 		 * @param sock 套接字
@@ -159,6 +183,39 @@ namespace tinyToolkit
 		 *
 		 */
 		static bool SetReceiveBufferSize(TINY_TOOLKIT_SOCKET_TYPE sock, int32_t size);
+
+		/**
+		 *
+		 * 获取协议族
+		 *
+		 * @param sock 套接字
+		 *
+		 * @return 协议族
+		 *
+		 */
+		static int32_t GetFamily(TINY_TOOLKIT_SOCKET_TYPE sock);
+
+		/**
+		 *
+		 * 获取发送缓冲区大小
+		 *
+		 * @param sock 套接字
+		 *
+		 * @return 发送缓冲区大小
+		 *
+		 */
+		static int32_t GetSendBufferSize(TINY_TOOLKIT_SOCKET_TYPE sock);
+
+		/**
+		 *
+		 * 获取接收缓冲区大小
+		 *
+		 * @param sock 套接字
+		 *
+		 * @return 接收缓冲区大小
+		 *
+		 */
+		static int32_t GetReceiveBufferSize(TINY_TOOLKIT_SOCKET_TYPE sock);
 
 		/**
 		 *

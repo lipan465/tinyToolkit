@@ -323,6 +323,68 @@ namespace tinyToolkit
 
 	/**
 	 *
+	 * 设置发送超时时间
+	 *
+	 * @param sock 套接字
+	 * @param second 超时秒数
+	 *
+	 * @return 是否设置成功
+	 *
+	 */
+	bool Net::SetSendTimeout(TINY_TOOLKIT_SOCKET_TYPE sock, std::time_t second)
+	{
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		int32_t timeout = second * 1000;
+
+		return setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, reinterpret_cast<const char *>(&timeout), sizeof(timeout)) == 0;
+
+#else
+
+		struct timeval timeout
+		{
+			.tv_sec = second,
+			.tv_usec = 0
+		};
+
+		return setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, reinterpret_cast<const char *>(&timeout), sizeof(timeout)) == 0;
+
+#endif
+	}
+
+	/**
+	 *
+	 * 设置接收超时时间
+	 *
+	 * @param sock 套接字
+	 * @param second 超时秒数
+	 *
+	 * @return 是否设置成功
+	 *
+	 */
+	bool Net::SetReceiveTimeout(TINY_TOOLKIT_SOCKET_TYPE sock, std::time_t second)
+	{
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		int32_t timeout = second * 1000;
+
+		return setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<const char *>(&timeout), sizeof(timeout)) == 0;
+
+#else
+
+		struct timeval timeout
+		{
+			.tv_sec = second,
+			.tv_usec = 0
+		};
+
+		return setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<const char *>(&timeout), sizeof(timeout)) == 0;
+
+#endif
+	}
+
+	/**
+	 *
 	 * 设置发送缓冲区大小
 	 *
 	 * @param sock 套接字
@@ -349,6 +411,60 @@ namespace tinyToolkit
 	bool Net::SetReceiveBufferSize(TINY_TOOLKIT_SOCKET_TYPE sock, int32_t size)
 	{
 		return setsockopt(sock, SOL_SOCKET, SO_RCVBUF, reinterpret_cast<const char *>(&size), sizeof(size)) == 0;
+	}
+
+	/**
+	 *
+	 * 获取协议族
+	 *
+	 * @param sock 套接字
+	 *
+	 * @return 协议族
+	 *
+	 */
+	int32_t Net::GetFamily(TINY_TOOLKIT_SOCKET_TYPE sock)
+	{
+		socklen_t len = sizeof(struct sockaddr_storage);
+
+		struct sockaddr_storage storage{ };
+
+		return getsockname(sock, reinterpret_cast<struct sockaddr *>(&storage), &len) == 0 ? storage.ss_family : -1;
+	}
+
+	/**
+	 *
+	 * 获取发送缓冲区大小
+	 *
+	 * @param sock 套接字
+	 *
+	 * @return 发送缓冲区大小
+	 *
+	 */
+	int32_t Net::GetSendBufferSize(TINY_TOOLKIT_SOCKET_TYPE sock)
+	{
+		int32_t optionValue = -1;
+
+		socklen_t optionLength = sizeof(optionValue);
+
+		return getsockopt(sock, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<char *>(&optionValue), &optionLength) == 0 ? optionValue : -1;
+	}
+
+	/**
+	 *
+	 * 获取接收缓冲区大小
+	 *
+	 * @param sock 套接字
+	 *
+	 * @return 接收缓冲区大小
+	 *
+	 */
+	int32_t Net::GetReceiveBufferSize(TINY_TOOLKIT_SOCKET_TYPE sock)
+	{
+		int32_t optionValue = -1;
+
+		socklen_t optionLength = sizeof(optionValue);
+
+		return getsockopt(sock, SOL_SOCKET, SO_RCVBUF, reinterpret_cast<char *>(&optionValue), &optionLength) == 0 ? optionValue : -1;
 	}
 
 	/**

@@ -81,31 +81,9 @@
 #  pragma comment(lib,"ws2_32.lib")  /// socket编程需用的动态链接库
 #  pragma comment(lib, "kernel32.lib")  /// IOCP需要用到的动态链接库
 #
-# elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
-#
-#  include <dlfcn.h>
-#  include <netdb.h>
-#  include <dirent.h>
-#  include <cxxabi.h>
-#  include <unistd.h>
-#  include <syslog.h>
-#  include <execinfo.h>
-#  include <sys/stat.h>
-#  include <sys/event.h>
-#  include <sys/ioctl.h>
-#  include <arpa/inet.h>
-#  include <sys/socket.h>
-#  include <netinet/ip.h>
-#  include <sys/syscall.h>
-#  include <netinet/tcp.h>
-#  include <netinet/udp.h>
-#  include <mach-o/dyld.h>
-#  include <net/ethernet.h>
-#  include <sys/resource.h>
-#  include <netinet/if_ether.h>
-#
 #else
 #
+#  include <pwd.h>
 #  include <dlfcn.h>
 #  include <netdb.h>
 #  include <dirent.h>
@@ -113,18 +91,31 @@
 #  include <unistd.h>
 #  include <syslog.h>
 #  include <execinfo.h>
+#
 #  include <sys/stat.h>
+#  include <sys/types.h>
 #  include <sys/ioctl.h>
-#  include <arpa/inet.h>
-#  include <sys/epoll.h>
 #  include <sys/socket.h>
-#  include <netinet/ip.h>
 #  include <sys/syscall.h>
+#  include <sys/resource.h>
+#
+#  include <arpa/inet.h>
+#
+#  include <netinet/ip.h>
 #  include <netinet/tcp.h>
 #  include <netinet/udp.h>
-#  include <net/ethernet.h>
-#  include <sys/resource.h>
 #  include <netinet/if_ether.h>
+#
+#  if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
+#
+#    include <sys/event.h>
+#    include <mach-o/dyld.h>
+#
+#  elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_LINUX
+#
+#    include <sys/epoll.h>
+#
+#  endif
 #
 #endif
 

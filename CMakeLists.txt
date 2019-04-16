@@ -41,11 +41,35 @@ INCLUDE(CheckInstallPrefix)
 
 
 #
-# 添加头文件路径
+# 包含多个头文件目录
 #
-TRAVERSE_INCLUDE(
-		${PROJECT_SOURCE_DIR}/
+TRAVERSE_INCLUDE_DIRECTORIES(
+		${PROJECT_SOURCE_DIR}
 		${PROJECT_SOURCE_DIR}/project)
+
+
+#
+# 添加目录
+#
+IF(APPLE OR UNIX)
+
+	#
+	# 包含多个头文件目录
+	#
+	TRAVERSE_INCLUDE_DIRECTORIES(
+			/usr/inlcude
+			/usr/local/include)
+
+	#
+	# 包含多个连接库目录
+	#
+	TRAVERSE_LIBRARY_DIRECTORIES(
+			/usr/lib
+			/usr/lib64
+			/usr/local/lib
+			/usr/local/lib64)
+
+ENDIF()
 
 
 #

@@ -19,7 +19,7 @@ set projectDirectory=%shellDirectory%\..
 ::
 :: 编译路径
 ::
-set buildDirectory=%projectDirectory%\build_windows_32
+set buildDirectory=%projectDirectory%\build_windows
 
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -29,7 +29,7 @@ set buildDirectory=%projectDirectory%\build_windows_32
 :: 输出信息
 ::
 echo;
-echo [windows_32] Start build project
+echo [windows] Start build project
 echo;
 
 
@@ -64,19 +64,14 @@ pushd %buildDirectory%\fmt
 ::
 cmake	%projectDirectory%\3rd\fmt ^
 		^
-		-G "Visual Studio 15 2017" ^
-		^
 		-DCMAKE_BUILD_TYPE=Release ^
-		-DCMAKE_VERBOSE_MAKEFILE=ON ^
-		^
-		-DCMAKE_C_FLAGS=-fPIC ^
-		-DCMAKE_CXX_FLAGS=-fPIC
+        -DCMAKE_VERBOSE_MAKEFILE=ON
 
 
 ::
 :: 编译
 ::
-cmake --build . --config Releas
+cmake --build . --config release
 
 
 ::
@@ -116,16 +111,22 @@ pushd %buildDirectory%\tinyToolkit
 ::
 cmake	%projectDirectory% ^
 		^
-		-G "Visual Studio 15 2017" ^
-		^
 		-DCMAKE_BUILD_TYPE=Release ^
 		-DCMAKE_VERBOSE_MAKEFILE=ON
 
 
 ::
+:: 复制文件
+::
+copy %buildDirectory%\fmt\release\fmt.lib %buildDirectory%\tinyToolkit\example\net
+copy %buildDirectory%\fmt\release\fmt.lib %buildDirectory%\tinyToolkit\example\benchmark
+copy %buildDirectory%\fmt\release\fmt.lib %buildDirectory%\tinyToolkit\project\tinyToolkit
+
+
+::
 :: 编译
 ::
-cmake --build  . --config Release
+cmake --build . --config release
 
 
 ::
@@ -141,7 +142,7 @@ popd
 :: 输出信息
 ::
 echo;
-echo [windows_32] End build project
+echo [windows] End build project
 echo;
 
 

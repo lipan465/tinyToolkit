@@ -97,11 +97,9 @@ IF (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 	IF(NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.0)
 
 		TRAVERSE_SET(CMAKE_CXX_FLAGS	-Wtrampolines
-										-Wuseless-cast						# 警告无用的cast
 										-Wdouble-promotion					# 对从float到double的隐式转换, 给出警告
 										-Wsized-deallocation
-										-Wvector-operation-performance		# 当在SIMD之外编译向量操作时, 给出警告
-										-Wzero-as-null-pointer-constant)	# 当使用文字0作为空指针时, 给出警告
+										-Wvector-operation-performance)		# 当在SIMD之外编译向量操作时, 给出警告
 
 	ENDIF()
 

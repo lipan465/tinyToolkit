@@ -51,7 +51,14 @@ TRAVERSE_INCLUDE_DIRECTORIES(
 #
 # 添加目录
 #
-IF(APPLE OR UNIX)
+IF(WIN32)
+
+	#
+	# 包含多个头文件目录
+	#
+	TRAVERSE_INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/3rd/fmt/include)
+
+ELSE()
 
 	#
 	# 包含多个头文件目录

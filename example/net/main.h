@@ -11,8 +11,7 @@
  */
 
 
-#include "tcp.h"
-#include "udp.h"
+#include "logic.h"
 
 
 #endif // __EXAMPLE__NET__MAIN__H__

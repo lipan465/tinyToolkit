@@ -21,6 +21,19 @@ namespace tinyToolkit
 	public:
 		/**
 		 *
+		 * 转换范围
+		 *
+		 * @param value 待转换字符串
+		 * @param head 转换后范围首部
+		 * @param tail 转换后范围尾部
+		 *
+		 * @return 是否转换成功
+		 *
+		 */
+		static bool AsRange(const std::string & value, uint16_t & head, uint16_t & tail);
+
+		/**
+		 *
 		 * 转换网络字节序范围
 		 *
 		 * @param value 待转换字符串

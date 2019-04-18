@@ -16,6 +16,35 @@ namespace tinyToolkit
 {
 	/**
 	 *
+	 * 转换范围
+	 *
+	 * @param value 待转换字符串
+	 * @param head 转换后范围首部
+	 * @param tail 转换后范围尾部
+	 *
+	 * @return 是否转换成功
+	 *
+	 */
+	bool Net::AsRange(const std::string & value, uint16_t & head, uint16_t & tail)
+	{
+		std::size_t pos = value.find('-');
+
+		if (pos == std::string::npos)
+		{
+			head = strtoul(value.c_str(), nullptr, 10);
+			tail = head;
+		}
+		else  /// a-b
+		{
+			head = strtoul(value.substr(0, pos).c_str(), nullptr, 10);
+			tail = strtoul(value.substr(pos + 1).c_str(), nullptr, 10);
+		}
+
+		return head <= tail;
+	}
+
+	/**
+	 *
 	 * 转换网络字节序范围
 	 *
 	 * @param value 待转换字符串

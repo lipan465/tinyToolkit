@@ -6,7 +6,7 @@
 
 本库需要链接fmt库，编译tinyToolkit前需要自行编译安装3rd/fmt目录下的fmt库。
 
-非windows系统可以直接运行script目录下对应的安装脚本安装完整项目(fmt + tinyToolkit)
+也可以直接运行script目录下对应的安装脚本安装完整项目，会自动编译安装fmt与tinyToolkit，非windows系统会默认安装到/usr/local目录下
 
 
 #  引用来源

@@ -37,7 +37,7 @@ namespace tinyToolkit
 		 * @param tail 时间点
 		 *
 		 */
-		explicit TimeRangeLogFilter(const ClockTimePoint & head, const ClockTimePoint & tail);
+		explicit TimeRangeLogFilter(const SystemClockTimePoint & head, const SystemClockTimePoint & tail);
 
 		/**
 		 *
@@ -57,7 +57,7 @@ namespace tinyToolkit
 		 * @param tail 时间点
 		 *
 		 */
-		void SetTime(const ClockTimePoint & head, const ClockTimePoint & tail);
+		void SetTime(const SystemClockTimePoint & head, const SystemClockTimePoint & tail);
 
 	protected:
 		/**
@@ -72,7 +72,7 @@ namespace tinyToolkit
 		bool Filter(const LogEvent & event) override;
 
 	protected:
-		std::pair<ClockTimePoint, ClockTimePoint> _time{ };
+		std::pair<SystemClockTimePoint, SystemClockTimePoint> _time{ };
 	};
 };
 

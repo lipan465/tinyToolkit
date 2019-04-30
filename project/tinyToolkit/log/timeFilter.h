@@ -35,7 +35,7 @@ namespace tinyToolkit
 		 * @param time 时间点
 		 *
 		 */
-		explicit TimeLogFilter(const ClockTimePoint & time);
+		explicit TimeLogFilter(const SystemClockTimePoint & time);
 
 		/**
 		 *
@@ -53,7 +53,7 @@ namespace tinyToolkit
 		 * @param time 时间点
 		 *
 		 */
-		void SetTime(const ClockTimePoint & time);
+		void SetTime(const SystemClockTimePoint & time);
 
 	protected:
 		/**
@@ -68,7 +68,7 @@ namespace tinyToolkit
 		bool Filter(const LogEvent & event) override;
 
 	protected:
-		ClockTimePoint _time{ };
+		SystemClockTimePoint _time{ };
 	};
 };
 

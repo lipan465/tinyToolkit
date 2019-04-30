@@ -166,7 +166,7 @@ namespace tinyToolkit
 		 *
 		 */
 		template <typename CastTypeT>
-		static CastTypeT Cast(const ClockTimePoint & timesPoint)
+		static CastTypeT Cast(const SystemClockTimePoint & timesPoint)
 		{
 			return Cast<CastTypeT>(timesPoint.time_since_epoch());
 		}
@@ -183,7 +183,7 @@ namespace tinyToolkit
 		 *
 		 */
 		template <typename CastTypeT>
-		static CastTypeT Cast(const ClockDuration & duration)
+		static CastTypeT Cast(const SystemClockDuration & duration)
 		{
 			return std::chrono::duration_cast<std::chrono::duration<CastTypeT>>(duration).count();
 		}
@@ -206,7 +206,7 @@ namespace tinyToolkit
 		 * @return 小时时间戳
 		 *
 		 */
-		static std::time_t Hours(const ClockTimePoint & timesPoint);
+		static std::time_t Hours(const SystemClockTimePoint & timesPoint);
 
 		/**
 		 *
@@ -217,7 +217,7 @@ namespace tinyToolkit
 		 * @return 小时时间戳
 		 *
 		 */
-		static std::time_t Hours(const ClockDuration & duration);
+		static std::time_t Hours(const SystemClockDuration & duration);
 
 		/**
 		 *
@@ -237,7 +237,7 @@ namespace tinyToolkit
 		 * @return 分钟时间戳
 		 *
 		 */
-		static std::time_t Minutes(const ClockTimePoint & timesPoint);
+		static std::time_t Minutes(const SystemClockTimePoint & timesPoint);
 
 		/**
 		 *
@@ -248,7 +248,7 @@ namespace tinyToolkit
 		 * @return 分钟时间戳
 		 *
 		 */
-		static std::time_t Minutes(const ClockDuration & duration);
+		static std::time_t Minutes(const SystemClockDuration & duration);
 
 		/**
 		 *
@@ -268,7 +268,7 @@ namespace tinyToolkit
 		 * @return 秒数时间戳
 		 *
 		 */
-		static std::time_t Seconds(const ClockTimePoint & timesPoint);
+		static std::time_t Seconds(const SystemClockTimePoint & timesPoint);
 
 		/**
 		 *
@@ -279,7 +279,7 @@ namespace tinyToolkit
 		 * @return 秒数时间戳
 		 *
 		 */
-		static std::time_t Seconds(const ClockDuration & duration);
+		static std::time_t Seconds(const SystemClockDuration & duration);
 
 		/**
 		 *
@@ -299,7 +299,7 @@ namespace tinyToolkit
 		 * @return 毫秒时间戳
 		 *
 		 */
-		static std::time_t Milliseconds(const ClockTimePoint & timesPoint);
+		static std::time_t Milliseconds(const SystemClockTimePoint & timesPoint);
 
 		/**
 		 *
@@ -310,7 +310,7 @@ namespace tinyToolkit
 		 * @return 毫秒时间戳
 		 *
 		 */
-		static std::time_t Milliseconds(const ClockDuration & duration);
+		static std::time_t Milliseconds(const SystemClockDuration & duration);
 
 		/**
 		 *
@@ -330,7 +330,7 @@ namespace tinyToolkit
 		 * @return 微秒时间戳
 		 *
 		 */
-		static std::time_t Microseconds(const ClockTimePoint & timesPoint);
+		static std::time_t Microseconds(const SystemClockTimePoint & timesPoint);
 
 		/**
 		 *
@@ -341,7 +341,7 @@ namespace tinyToolkit
 		 * @return 微秒时间戳
 		 *
 		 */
-		static std::time_t Microseconds(const ClockDuration & duration);
+		static std::time_t Microseconds(const SystemClockDuration & duration);
 
 		/**
 		 *
@@ -361,7 +361,7 @@ namespace tinyToolkit
 		 * @return 纳秒时间戳
 		 *
 		 */
-		static std::time_t Nanoseconds(const ClockTimePoint & timesPoint);
+		static std::time_t Nanoseconds(const SystemClockTimePoint & timesPoint);
 
 		/**
 		 *
@@ -372,7 +372,7 @@ namespace tinyToolkit
 		 * @return 纳秒时间戳
 		 *
 		 */
-		static std::time_t Nanoseconds(const ClockDuration & duration);
+		static std::time_t Nanoseconds(const SystemClockDuration & duration);
 
 		/**
 		 *
@@ -498,7 +498,7 @@ namespace tinyToolkit
 		 * @return 时间点
 		 *
 		 */
-		static ClockTimePoint TimePoint();
+		static SystemClockTimePoint TimePoint();
 
 		/**
 		 *
@@ -509,7 +509,7 @@ namespace tinyToolkit
 		 * @return 时间点
 		 *
 		 */
-		static ClockTimePoint TimePoint(std::time_t time);
+		static SystemClockTimePoint TimePoint(std::time_t time);
 
 		/**
 		 *
@@ -520,7 +520,7 @@ namespace tinyToolkit
 		 * @return 时间点
 		 *
 		 */
-		static ClockTimePoint TimePoint(const struct timeval & time);
+		static SystemClockTimePoint TimePoint(const struct timeval & time);
 
 		/**
 		 *
@@ -531,7 +531,7 @@ namespace tinyToolkit
 		 * @return 时间点
 		 *
 		 */
-		static ClockTimePoint TimePoint(const struct timespec & time);
+		static SystemClockTimePoint TimePoint(const struct timespec & time);
 
 		/**
 		 *
@@ -540,7 +540,7 @@ namespace tinyToolkit
 		 * @return 时间段
 		 *
 		 */
-		static ClockDuration TimeDuration();
+		static SystemClockDuration TimeDuration();
 
 		/**
 		 *
@@ -551,7 +551,7 @@ namespace tinyToolkit
 		 * @return 时间段
 		 *
 		 */
-		static ClockDuration TimeDuration(std::time_t time);
+		static SystemClockDuration TimeDuration(std::time_t time);
 
 		/**
 		 *
@@ -562,7 +562,7 @@ namespace tinyToolkit
 		 * @return 时间段
 		 *
 		 */
-		static ClockDuration TimeDuration(const struct timeval & time);
+		static SystemClockDuration TimeDuration(const struct timeval & time);
 
 		/**
 		 *
@@ -573,7 +573,7 @@ namespace tinyToolkit
 		 * @return 时间段
 		 *
 		 */
-		static ClockDuration TimeDuration(const struct timespec & time);
+		static SystemClockDuration TimeDuration(const struct timespec & time);
 	};
 }
 

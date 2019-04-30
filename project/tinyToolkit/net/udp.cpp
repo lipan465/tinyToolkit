@@ -303,13 +303,6 @@ namespace tinyToolkit
 
 		auto currentEvent = reinterpret_cast<const struct epoll_event *>(sysEvent);
 
-		if (currentEvent->events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP))
-		{
-			Close();
-
-			return;
-		}
-
 		if (currentEvent->events & EPOLLIN)
 		{
 			if (_isConnect)
@@ -353,34 +346,25 @@ namespace tinyToolkit
 			{
 				auto & value = _sendQueue.Front();
 
-				auto len = ::send(_socket, value->_data, value->_size, 0);
+				::send(_socket, value->_data, value->_size, 0);
 
-				if (len > 0)
+				_sendQueue.Pop();
+
+				if (_sendQueue.Empty())
 				{
-					_sendQueue.Pop();
+					_isSend = false;
 
-					if (_sendQueue.Empty())
+					struct epoll_event event{ };
+
+					event.events = EPOLLIN;
+					event.data.ptr = &_netEvent;
+
+					if (epoll_ctl(_handle, EPOLL_CTL_MOD, _socket, &event) == -1)
 					{
-						_isSend = false;
+						Close();
 
-						struct epoll_event event{ };
-
-						event.events = EPOLLIN;
-						event.data.ptr = &_netEvent;
-
-						if (epoll_ctl(_handle, EPOLL_CTL_MOD, _socket, &event) == -1)
-						{
-							Close();
-
-							return;
-						}
+						return;
 					}
-				}
-				else if (len <= 0 && errno != EAGAIN)
-				{
-					Close();
-
-					return;
 				}
 			}
 		}

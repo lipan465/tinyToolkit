@@ -130,9 +130,13 @@ namespace tinyToolkit
 	using StringVector = std::vector<std::string>;
 	using StringUnorderedSet = std::unordered_set<std::string>;
 
-	using ClockType = std::chrono::system_clock;
-	using ClockDuration = std::chrono::system_clock::duration;
-	using ClockTimePoint = std::chrono::system_clock::time_point;
+	using SystemClockType = std::chrono::system_clock;
+	using SystemClockDuration = std::chrono::system_clock::duration;
+	using SystemClockTimePoint = std::chrono::system_clock::time_point;
+
+	using SteadyClockType = std::chrono::steady_clock;
+	using SteadyClockDuration = std::chrono::steady_clock::duration;
+	using SteadyClockTimePoint = std::chrono::steady_clock::time_point;
 }
 
 

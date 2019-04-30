@@ -35,7 +35,7 @@ namespace tinyToolkit
 	 * @param tail 时间点
 	 *
 	 */
-	TimeRangeLogFilter::TimeRangeLogFilter(const ClockTimePoint & head, const ClockTimePoint & tail)
+	TimeRangeLogFilter::TimeRangeLogFilter(const SystemClockTimePoint & head, const SystemClockTimePoint & tail)
 	{
 		SetTime(head, tail);
 	}
@@ -62,7 +62,7 @@ namespace tinyToolkit
 	 * @param tail 时间点
 	 *
 	 */
-	void TimeRangeLogFilter::SetTime(const ClockTimePoint & head, const ClockTimePoint & tail)
+	void TimeRangeLogFilter::SetTime(const SystemClockTimePoint & head, const SystemClockTimePoint & tail)
 	{
 		_time.first = head;
 		_time.second = tail;

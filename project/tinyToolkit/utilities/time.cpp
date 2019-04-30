@@ -235,7 +235,7 @@ namespace tinyToolkit
 	 * @return 小时时间戳
 	 *
 	 */
-	std::time_t Time::Hours(const ClockTimePoint & timesPoint)
+	std::time_t Time::Hours(const SystemClockTimePoint & timesPoint)
 	{
 		return Hours(timesPoint.time_since_epoch());
 	}
@@ -249,7 +249,7 @@ namespace tinyToolkit
 	 * @return 小时时间戳
 	 *
 	 */
-	std::time_t Time::Hours(const ClockDuration & duration)
+	std::time_t Time::Hours(const SystemClockDuration & duration)
 	{
 		return std::chrono::duration_cast<std::chrono::hours>(duration).count();
 	}
@@ -275,7 +275,7 @@ namespace tinyToolkit
 	 * @return 分钟时间戳
 	 *
 	 */
-	std::time_t Time::Minutes(const ClockTimePoint & timesPoint)
+	std::time_t Time::Minutes(const SystemClockTimePoint & timesPoint)
 	{
 		return Minutes(timesPoint.time_since_epoch());
 	}
@@ -289,7 +289,7 @@ namespace tinyToolkit
 	 * @return 分钟时间戳
 	 *
 	 */
-	std::time_t Time::Minutes(const ClockDuration & duration)
+	std::time_t Time::Minutes(const SystemClockDuration & duration)
 	{
 		return std::chrono::duration_cast<std::chrono::minutes>(duration).count();
 	}
@@ -315,7 +315,7 @@ namespace tinyToolkit
 	 * @return 秒数时间戳
 	 *
 	 */
-	std::time_t Time::Seconds(const ClockTimePoint & timesPoint)
+	std::time_t Time::Seconds(const SystemClockTimePoint & timesPoint)
 	{
 		return Seconds(timesPoint.time_since_epoch());
 	}
@@ -329,7 +329,7 @@ namespace tinyToolkit
 	 * @return 秒数时间戳
 	 *
 	 */
-	std::time_t Time::Seconds(const ClockDuration & duration)
+	std::time_t Time::Seconds(const SystemClockDuration & duration)
 	{
 		return std::chrono::duration_cast<std::chrono::seconds>(duration).count();
 	}
@@ -355,7 +355,7 @@ namespace tinyToolkit
 	 * @return 毫秒时间戳
 	 *
 	 */
-	std::time_t Time::Milliseconds(const ClockTimePoint & timesPoint)
+	std::time_t Time::Milliseconds(const SystemClockTimePoint & timesPoint)
 	{
 		return Milliseconds(timesPoint.time_since_epoch());
 	}
@@ -369,7 +369,7 @@ namespace tinyToolkit
 	 * @return 毫秒时间戳
 	 *
 	 */
-	std::time_t Time::Milliseconds(const ClockDuration & duration)
+	std::time_t Time::Milliseconds(const SystemClockDuration & duration)
 	{
 		return std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
 	}
@@ -395,7 +395,7 @@ namespace tinyToolkit
 	 * @return 微秒时间戳
 	 *
 	 */
-	std::time_t Time::Microseconds(const ClockTimePoint & timesPoint)
+	std::time_t Time::Microseconds(const SystemClockTimePoint & timesPoint)
 	{
 		return Microseconds(timesPoint.time_since_epoch());
 	}
@@ -409,7 +409,7 @@ namespace tinyToolkit
 	 * @return 微秒时间戳
 	 *
 	 */
-	std::time_t Time::Microseconds(const ClockDuration & duration)
+	std::time_t Time::Microseconds(const SystemClockDuration & duration)
 	{
 		return std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
 	}
@@ -435,7 +435,7 @@ namespace tinyToolkit
 	 * @return 纳秒时间戳
 	 *
 	 */
-	std::time_t Time::Nanoseconds(const ClockTimePoint & timesPoint)
+	std::time_t Time::Nanoseconds(const SystemClockTimePoint & timesPoint)
 	{
 		return Nanoseconds(timesPoint.time_since_epoch());
 	}
@@ -449,7 +449,7 @@ namespace tinyToolkit
 	 * @return 纳秒时间戳
 	 *
 	 */
-	std::time_t Time::Nanoseconds(const ClockDuration & duration)
+	std::time_t Time::Nanoseconds(const SystemClockDuration & duration)
 	{
 		return std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count();
 	}
@@ -655,9 +655,9 @@ namespace tinyToolkit
 	 * @return 时间点
 	 *
 	 */
-	ClockTimePoint Time::TimePoint()
+	SystemClockTimePoint Time::TimePoint()
 	{
-		return ClockType::now();
+		return SystemClockType::now();
 	}
 
 	/**
@@ -669,9 +669,9 @@ namespace tinyToolkit
 	 * @return 时间点
 	 *
 	 */
-	ClockTimePoint Time::TimePoint(std::time_t time)
+	SystemClockTimePoint Time::TimePoint(std::time_t time)
 	{
-		return std::chrono::time_point_cast<ClockDuration>(std::chrono::time_point<ClockType, std::chrono::seconds>(std::chrono::seconds(time)));
+		return std::chrono::time_point_cast<SystemClockDuration>(std::chrono::time_point<SystemClockType, std::chrono::seconds>(std::chrono::seconds(time)));
 	}
 
 	/**
@@ -683,11 +683,11 @@ namespace tinyToolkit
 	 * @return 时间点
 	 *
 	 */
-	ClockTimePoint Time::TimePoint(const struct timeval & time)
+	SystemClockTimePoint Time::TimePoint(const struct timeval & time)
 	{
-		return std::chrono::time_point<ClockType, ClockDuration>
+		return std::chrono::time_point<SystemClockType, SystemClockDuration>
 		(
-			std::chrono::duration_cast<ClockDuration>
+			std::chrono::duration_cast<SystemClockDuration>
 			(
 				std::chrono::seconds(time.tv_sec) + std::chrono::microseconds(time.tv_usec)
 			)
@@ -703,11 +703,11 @@ namespace tinyToolkit
 	 * @return 时间点
 	 *
 	 */
-	ClockTimePoint Time::TimePoint(const struct timespec & time)
+	SystemClockTimePoint Time::TimePoint(const struct timespec & time)
 	{
-		return std::chrono::time_point<ClockType, ClockDuration>
+		return std::chrono::time_point<SystemClockType, SystemClockDuration>
 		(
-			std::chrono::duration_cast<ClockDuration>
+			std::chrono::duration_cast<SystemClockDuration>
 			(
 				std::chrono::seconds(time.tv_sec) + std::chrono::nanoseconds(time.tv_nsec)
 			)
@@ -721,7 +721,7 @@ namespace tinyToolkit
 	 * @return 时间段
 	 *
 	 */
-	ClockDuration Time::TimeDuration()
+	SystemClockDuration Time::TimeDuration()
 	{
 		return TimePoint().time_since_epoch();
 	}
@@ -735,7 +735,7 @@ namespace tinyToolkit
 	 * @return 时间段
 	 *
 	 */
-	ClockDuration Time::TimeDuration(std::time_t time)
+	SystemClockDuration Time::TimeDuration(std::time_t time)
 	{
 		return TimePoint(time).time_since_epoch();
 	}
@@ -749,7 +749,7 @@ namespace tinyToolkit
 	 * @return 时间段
 	 *
 	 */
-	ClockDuration Time::TimeDuration(const struct timeval & time)
+	SystemClockDuration Time::TimeDuration(const struct timeval & time)
 	{
 		return TimePoint(time).time_since_epoch();
 	}
@@ -763,7 +763,7 @@ namespace tinyToolkit
 	 * @return 时间段
 	 *
 	 */
-	ClockDuration Time::TimeDuration(const struct timespec & time)
+	SystemClockDuration Time::TimeDuration(const struct timespec & time)
 	{
 		return TimePoint(time).time_since_epoch();
 	}

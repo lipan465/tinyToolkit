@@ -106,7 +106,7 @@ namespace tinyToolkit
 	TimerManager::TimerManager()
 	{
 		_tickTime.store(0);
-		_lastTime.store(Time::Milliseconds());
+		_lastTime.store(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count());
 
 		_thread = std::thread(&TimerManager::ThreadProcess, this);
 	}
@@ -328,11 +328,12 @@ namespace tinyToolkit
 	 */
 	void TimerManager::Update()
 	{
-		std::time_t now = Time::Milliseconds();
+		/// 这里需要用稳定时间, 防止系统时间变化
+		std::time_t now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
 
 		if (now < _lastTime.load())
 		{
-			throw std::runtime_error("Time go backwards");
+			throw std::runtime_error(String::Format("Time go backwards : [{} | {}]", now, _lastTime.load()));
 		}
 		else
 		{

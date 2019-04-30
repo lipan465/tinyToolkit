@@ -33,7 +33,7 @@ namespace tinyToolkit
 	 * @param time 时间点
 	 *
 	 */
-	TimeLogFilter::TimeLogFilter(const ClockTimePoint & time)
+	TimeLogFilter::TimeLogFilter(const SystemClockTimePoint & time)
 	{
 		SetTime(time);
 	}
@@ -57,7 +57,7 @@ namespace tinyToolkit
 	 * @param time 时间点
 	 *
 	 */
-	void TimeLogFilter::SetTime(const ClockTimePoint & time)
+	void TimeLogFilter::SetTime(const SystemClockTimePoint & time)
 	{
 		_time = time;
 	}

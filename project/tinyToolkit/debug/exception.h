@@ -73,6 +73,7 @@ namespace tinyToolkit
 	INHERITANCE_DECLARE(Exception, IException);
 	INHERITANCE_DECLARE(IOException, IException);
 	INHERITANCE_DECLARE(KeyException, IException);
+	INHERITANCE_DECLARE(TimeException, IException);
 	INHERITANCE_DECLARE(SizeException, IException);
 	INHERITANCE_DECLARE(FileException, IException);
 	INHERITANCE_DECLARE(TypeException, IException);

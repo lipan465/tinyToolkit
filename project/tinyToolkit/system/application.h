@@ -21,23 +21,21 @@ namespace tinyToolkit
 	public:
 		/**
 		 *
-		 * 复制进程
-		 *
-		 * @param isCloseIO 是否关闭输出
-		 *
-		 * @return 复制结果
-		 *
-		 */
-		static bool Fork(bool isCloseIO = true);
-
-		/**
-		 *
 		 * 进程是否存在
 		 *
 		 * @return 进程状态
 		 *
 		 */
 		static bool Exist();
+
+		/**
+		 *
+		 * 开启守护进程
+		 *
+		 * @return 是否开启成功
+		 *
+		 */
+		static bool Deamon();
 
 		/**
 		 *

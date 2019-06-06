@@ -6,7 +6,7 @@
  *
  *  作者: hm
  *
- *  说明: tinyTools
+ *  说明: tinyToolkit
  *
  */
 

@@ -235,14 +235,31 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 设置延时关闭
+	 * 关闭Nagle算法
 	 *
 	 * @param socket 套接字
 	 *
 	 * @return 是否设置成功
 	 *
 	 */
-	bool Net::EnableLinger(TINY_TOOLKIT_SOCKET_TYPE socket, int32_t status, int32_t timeout)
+	bool Net::DisableNagle(TINY_TOOLKIT_SOCKET_TYPE socket)
+	{
+		int32_t val = 1l;
+
+		return setsockopt(socket, IPPROTO_TCP, TCP_NODELAY, reinterpret_cast<const char *>(&val), sizeof(val)) == 0;
+	}
+
+	/**
+	 *
+	 * 设置延时关闭
+	 *
+	 * @param socket 套接字
+	 * @param timeout 超时时长
+	 *
+	 * @return 是否设置成功
+	 *
+	 */
+	bool Net::EnableLinger(TINY_TOOLKIT_SOCKET_TYPE socket, int32_t timeout)
 	{
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
@@ -254,26 +271,10 @@ namespace tinyToolkit
 
 #endif
 
-		val.l_onoff = status;
+		val.l_onoff = 1l;
 		val.l_linger = timeout;
 
 		return setsockopt(socket, SOL_SOCKET, SO_LINGER, reinterpret_cast<const char *>(&val), sizeof(val)) == 0;
-	}
-
-	/**
-	 *
-	 * 启用Nagle算法
-	 *
-	 * @param socket 套接字
-	 *
-	 * @return 是否设置成功
-	 *
-	 */
-	bool Net::EnableNoDelay(TINY_TOOLKIT_SOCKET_TYPE socket)
-	{
-		int32_t val = 1l;
-
-		return setsockopt(socket, IPPROTO_TCP, TCP_NODELAY, reinterpret_cast<const char *>(&val), sizeof(val)) == 0;
 	}
 
 	/**

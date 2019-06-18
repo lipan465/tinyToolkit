@@ -1106,8 +1106,8 @@ namespace tinyToolkit
 			}
 			else
 			{
-				if (!Net::EnableLinger(sock) ||
-					!Net::EnableNoDelay(sock) ||
+				if (!Net::DisableNagle(sock) ||
+					!Net::EnableLinger(sock) ||
 					!Net::EnableNonBlock(sock) ||
 					!Net::EnableReuseAddress(sock))
 				{

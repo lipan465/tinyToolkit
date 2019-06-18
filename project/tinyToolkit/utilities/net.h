@@ -83,25 +83,26 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 设置延时关闭
+		 * 关闭Nagle算法
 		 *
 		 * @param socket 套接字
 		 *
 		 * @return 是否设置成功
 		 *
 		 */
-		static bool EnableLinger(TINY_TOOLKIT_SOCKET_TYPE socket, int32_t status = 1, int32_t timeout = 0);
+		static bool DisableNagle(TINY_TOOLKIT_SOCKET_TYPE socket);
 
 		/**
 		 *
-		 * 启用Nagle算法
+		 * 设置延时关闭
 		 *
 		 * @param socket 套接字
+		 * @param timeout 超时时长
 		 *
 		 * @return 是否设置成功
 		 *
 		 */
-		static bool EnableNoDelay(TINY_TOOLKIT_SOCKET_TYPE socket);
+		static bool EnableLinger(TINY_TOOLKIT_SOCKET_TYPE socket, int32_t timeout = 0);
 
 		/**
 		 *

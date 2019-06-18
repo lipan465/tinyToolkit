@@ -28,6 +28,16 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 发送数据
+		 *
+		 * @param data 待发送数据指针
+		 * @param size 待发送数据长度
+		 *
+		 */
+		virtual void Send(const void * data, std::size_t size) = 0;
+
+		/**
+		 *
 		 * 关闭会话
 		 *
 		 */
@@ -37,16 +47,6 @@ namespace tinyToolkit
 	class TINY_TOOLKIT_API ITCPPipe : public INetPipe
 	{
 	public:
-		/**
-		 *
-		 * 发送数据
-		 *
-		 * @param data 待发送数据指针
-		 * @param size 待发送数据长度
-		 *
-		 */
-		virtual void Send(const void * data, std::size_t size) = 0;
-
 		/**
 		 *
 		 * 异步发送
@@ -80,16 +80,6 @@ namespace tinyToolkit
 	public:
 		/**
 		 *
-		 * 发送数据
-		 *
-		 * @param data 待发送数据指针
-		 * @param size 待发送数据长度
-		 *
-		 */
-		virtual void Send(const void * data, std::size_t size) = 0;
-
-		/**
-		 *
 		 * 异步发送
 		 *
 		 * @return 是否处理成功
@@ -105,20 +95,6 @@ namespace tinyToolkit
 		 *
 		 */
 		virtual bool AsyncReceive() = 0;
-	};
-
-	class TINY_TOOLKIT_API IRUDPPipe : public INetPipe
-	{
-	public:
-		/**
-		 *
-		 * 发送数据
-		 *
-		 * @param data 待发送数据指针
-		 * @param size 待发送数据长度
-		 *
-		 */
-		virtual void Send(const void * data, std::size_t size) = 0;
 	};
 }
 

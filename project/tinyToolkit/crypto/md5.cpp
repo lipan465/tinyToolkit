@@ -299,9 +299,9 @@ namespace tinyToolkit
 		uint64_t index = (context.count[0] >> 3) & 0x3F;
 		uint64_t fill  = 64 - index;
 
-		context.count[0] += length <<  3;
+		context.count[0] += static_cast<uint32_t>(length << 3);
 		context.count[0] &= 0xFFFFFFFF;
-		context.count[1] += length >> 29;
+		context.count[1] += static_cast<uint32_t>(length >> 29);
 		context.count[1] += (context.count[0] < (length << 3)) ? 1 : 0;
 
 		if (length >= fill)

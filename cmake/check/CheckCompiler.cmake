@@ -53,7 +53,7 @@ ELSEIF (CXX_COMPILER_SUPPORTS_CXX11)
 
 ELSE()
 
-	MESSAGE(FATAL_ERROR "The CXX compiler ${CMAKE_CXX_COMPILER} does not support more than C++11 features.")
+	MESSAGE(STATUS "The CXX compiler ${CMAKE_CXX_COMPILER} does not support more than C++11 features.")
 
 ENDIF()
 

@@ -287,16 +287,19 @@ namespace tinyToolkit
 	 *
 	 * 编译时间
 	 *
+	 * @param date 日期
+	 * @param time 时间
+	 *
 	 * @return 编译时间
 	 *
 	 */
-	std::time_t Application::CompileTime()
+	std::time_t Application::CompileTime(const char * date, const char * time)
 	{
 		static std::pair<std::time_t, bool> value(0, true);
 
 		if (value.second)
 		{
-			value.first = Time::FromTimeString(CompileTimeString().c_str());
+			value.first = Time::FromTimeString(CompileTimeString(date, time).c_str());
 
 			value.second = false;
 		}
@@ -432,11 +435,13 @@ namespace tinyToolkit
 	/**
 	 *
 	 * 编译时间字符串
+	 * @param date 日期
+	 * @param time 时间
 	 *
 	 * @return 编译时间字符串
 	 *
 	 */
-	const std::string & Application::CompileTimeString()
+	const std::string & Application::CompileTimeString(const char * date, const char * time)
 	{
 		static std::pair<std::string, bool> value({}, true);
 
@@ -446,22 +451,22 @@ namespace tinyToolkit
 			(
 				"{:04d}-{:02d}-{:02d} {}",
 
-				(((__DATE__[7] - '0') * 10 + (__DATE__[8] - '0')) * 10 + (__DATE__[9] - '0')) * 10 + (__DATE__[10] - '0'),
+				(((date[7] - '0') * 10 + (date[8] - '0')) * 10 + (date[9] - '0')) * 10 + (date[10] - '0'),
 
-				__DATE__[2] == 'n' ? 1 :
-				__DATE__[2] == 'b' ? 2 :
-				__DATE__[2] == 'r' ? (__DATE__[0] == 'M' ? 3 : 4) :
-				__DATE__[2] == 'y' ? 5 :
-				__DATE__[2] == 'n' ? 6 :
-				__DATE__[2] == 'l' ? 7 :
-				__DATE__[2] == 'g' ? 8 :
-				__DATE__[2] == 'p' ? 9 :
-				__DATE__[2] == 't' ? 10 :
-				__DATE__[2] == 'v' ? 11 : 12,
+				date[2] == 'n' ? 1 :
+				date[2] == 'b' ? 2 :
+				date[2] == 'r' ? (date[0] == 'M' ? 3 : 4) :
+				date[2] == 'y' ? 5 :
+				date[2] == 'n' ? 6 :
+				date[2] == 'l' ? 7 :
+				date[2] == 'g' ? 8 :
+				date[2] == 'p' ? 9 :
+				date[2] == 't' ? 10 :
+				date[2] == 'v' ? 11 : 12,
 
-				(__DATE__[4] == ' ' ? 0 : __DATE__[4] - '0') * 10 + (__DATE__[5] - '0'),
+				(date[4] == ' ' ? 0 : date[4] - '0') * 10 + (date[5] - '0'),
 
-				__TIME__
+				time
 			);
 
 			value.second = false;

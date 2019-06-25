@@ -1034,8 +1034,8 @@ namespace tinyToolkit
 			}
 			else
 			{
-				if (!Net::DisableNagle(sock) ||
-					!Net::EnableLinger(sock) ||
+				if (!Net::EnableLinger(sock) ||
+					!Net::EnableNoDelay(sock) ||
 					!Net::EnableNonBlock(sock) ||
 					!Net::EnableReuseAddress(sock))
 				{
@@ -1197,8 +1197,8 @@ namespace tinyToolkit
 			return false;
 		}
 
-		if (!Net::DisableNagle(sock) ||
-			!Net::EnableLinger(sock) ||
+		if (!Net::EnableLinger(sock) ||
+			!Net::EnableNoDelay(sock) ||
 			!Net::EnableNonBlock(sock) ||
 			!Net::EnableReuseAddress(sock))
 		{

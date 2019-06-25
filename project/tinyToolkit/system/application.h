@@ -41,10 +41,13 @@ namespace tinyToolkit
 		 *
 		 * 编译时间
 		 *
+		 * @param date 日期
+		 * @param time 时间
+		 *
 		 * @return 编译时间
 		 *
 		 */
-		static std::time_t CompileTime();
+		static std::time_t CompileTime(const char * date = __DATE__, const char * time = __TIME__);
 
 		/**
 		 *
@@ -95,10 +98,13 @@ namespace tinyToolkit
 		 *
 		 * 编译时间字符串
 		 *
+		 * @param date 日期
+		 * @param time 时间
+		 *
 		 * @return 编译时间字符串
 		 *
 		 */
-		static const std::string & CompileTimeString();
+		static const std::string & CompileTimeString(const char * date = __DATE__, const char * time = __TIME__);
 	};
 }
 

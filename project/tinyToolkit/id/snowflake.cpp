@@ -90,7 +90,8 @@ namespace tinyToolkit
 	 */
 	uint64_t Snowflake::NextID()
 	{
-		auto timeStamp = Time::Milliseconds();
+		/// 这里需要用稳定时间, 防止系统时间变化
+		auto timeStamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
 
 		if (timeStamp < _lastTimeStamp)
 		{
@@ -133,11 +134,13 @@ namespace tinyToolkit
 	 */
 	std::time_t Snowflake::TilNextMillis(std::time_t lastTimestamp)
 	{
-		auto timeStamp = Time::Milliseconds();
+		/// 这里需要用稳定时间, 防止系统时间变化
+		auto timeStamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
 
 		while (timeStamp <= lastTimestamp)
 		{
-			timeStamp = Time::Milliseconds();
+			/// 这里需要用稳定时间, 防止系统时间变化
+			timeStamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
 		}
 
 		return timeStamp;

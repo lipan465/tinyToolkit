@@ -31,13 +31,13 @@ namespace tinyToolkit
 
 		if (pos == std::string::npos)
 		{
-			head = strtoul(value.c_str(), nullptr, 10);
+			head = static_cast<uint16_t>(strtoul(value.c_str(), nullptr, 10));
 			tail = head;
 		}
 		else  /// a-b
 		{
-			head = strtoul(value.substr(0, pos).c_str(), nullptr, 10);
-			tail = strtoul(value.substr(pos + 1).c_str(), nullptr, 10);
+			head = static_cast<uint16_t>(strtoul(value.substr(0, pos).c_str(), nullptr, 10));
+			tail = static_cast<uint16_t>(strtoul(value.substr(pos + 1).c_str(), nullptr, 10));
 		}
 
 		return head <= tail;
@@ -365,7 +365,7 @@ namespace tinyToolkit
 	{
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-		int32_t timeout = second * 1000;
+		std::time_t timeout = second * 1000;
 
 		return setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, reinterpret_cast<const char *>(&timeout), sizeof(timeout)) == 0;
 
@@ -396,7 +396,7 @@ namespace tinyToolkit
 	{
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-		int32_t timeout = second * 1000;
+		std::time_t timeout = second * 1000;
 
 		return setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<const char *>(&timeout), sizeof(timeout)) == 0;
 
@@ -508,7 +508,11 @@ namespace tinyToolkit
 	 */
 	uint32_t Net::AsNetByte(const char * value)
 	{
-		return inet_addr(value);
+		struct in_addr addr{ 0 };
+
+		inet_pton(AF_INET, value, &addr);
+
+		return addr.s_addr;
 	}
 
 	/**

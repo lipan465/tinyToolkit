@@ -140,6 +140,7 @@ namespace tinyToolkit
 				}
 				catch (std::bad_function_call & e)
 				{
+					(void)e;
 					/// 调用函数出错
 				}
 			}

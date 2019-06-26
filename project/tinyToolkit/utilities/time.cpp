@@ -556,7 +556,17 @@ namespace tinyToolkit
 
 		std::tm now{ };
 
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		sscanf_s(value, format, &now.tm_year, &now.tm_mon, &now.tm_mday, &now.tm_hour, &now.tm_min, &now.tm_sec);;
+
+#else
+
 		sscanf(value, format, &now.tm_year, &now.tm_mon, &now.tm_mday, &now.tm_hour, &now.tm_min, &now.tm_sec);
+
+#endif
+
+
 
 		now.tm_year -= 1900;
 		now.tm_mon -= 1;

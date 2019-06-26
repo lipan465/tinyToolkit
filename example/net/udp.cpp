@@ -17,7 +17,7 @@
  */
 UDPClientSession::UDPClientSession()
 {
-	TINY_TOOLKIT_SYNC_LOG_INFO("UDP Client Session Constructor");
+	TINY_TOOLKIT_ASYNC_LOG_INFO("UDP Client Session Constructor");
 }
 
 /**
@@ -27,7 +27,7 @@ UDPClientSession::UDPClientSession()
  */
 UDPClientSession::~UDPClientSession()
 {
-	TINY_TOOLKIT_SYNC_LOG_INFO("UDP Client Session Destructor");
+	TINY_TOOLKIT_ASYNC_LOG_INFO("UDP Client Session Destructor");
 }
 
 /**
@@ -37,7 +37,7 @@ UDPClientSession::~UDPClientSession()
  */
 void UDPClientSession::OnConnect()
 {
-	TINY_TOOLKIT_SYNC_LOG_INFO("UDP Client Session [{}:{}] Connect Success", LocalHost(), LocalPort());
+	TINY_TOOLKIT_ASYNC_LOG_INFO("UDP Client Session [{}:{}] Connect Success", LocalHost(), LocalPort());
 }
 
 /**
@@ -47,7 +47,7 @@ void UDPClientSession::OnConnect()
  */
 void UDPClientSession::OnDisconnect()
 {
-	TINY_TOOLKIT_SYNC_LOG_INFO("UDP Client Session [{}:{}] Disconnect : {}", LocalHost(), LocalPort(), strerror(errno));
+	TINY_TOOLKIT_ASYNC_LOG_INFO("UDP Client Session [{}:{}] Disconnect : {}", LocalHost(), LocalPort(), tinyToolkit::OS::LastErrorMessage());
 }
 
 /**
@@ -57,7 +57,7 @@ void UDPClientSession::OnDisconnect()
  */
 void UDPClientSession::OnConnectFailed()
 {
-	TINY_TOOLKIT_SYNC_LOG_INFO("UDP Client Session [{}:{}] Connect Failed : {}", LocalHost(), LocalPort(), strerror(errno));
+	TINY_TOOLKIT_ASYNC_LOG_INFO("UDP Client Session [{}:{}] Connect Failed : {}", LocalHost(), LocalPort(), tinyToolkit::OS::LastErrorMessage());
 }
 
 /**
@@ -72,7 +72,7 @@ void UDPClientSession::OnConnectFailed()
  */
 std::size_t UDPClientSession::OnReceive(const char * data, std::size_t size)
 {
-	TINY_TOOLKIT_SYNC_LOG_INFO("UDP Client Session [{}:{}] Received Other Session [{}:{}] Length [{}] Message : {}", LocalHost(), LocalPort(), RemoteHost(), RemotePort(), size, data);
+	TINY_TOOLKIT_ASYNC_LOG_INFO("UDP Client Session [{}:{}] Received Other Session [{}:{}] Length [{}] Message : {}", LocalHost(), LocalPort(), RemoteHost(), RemotePort(), size, data);
 
 	return size;
 }

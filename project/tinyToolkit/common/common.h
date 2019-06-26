@@ -70,13 +70,16 @@
 #
 #  include <io.h>
 #  include <direct.h>
-#  include <Ws2tcpip.h>
+#  include <WS2tcpip.h>
 #  include <MSWSock.h>
-#  include <windows.h>
+#  include <Windows.h>
 #  include <WinSock2.h>
-#  include <tlhelp32.h>
+#  include <TlHelp32.h>
 #
 #  define strcasecmp _stricmp
+#
+#  pragma warning(disable:4251)
+#  pragma warning(disable:4275)
 #
 #  pragma comment(lib,"ws2_32.lib")  /// socket编程需用的动态链接库
 #  pragma comment(lib, "kernel32.lib")  /// IOCP需要用到的动态链接库

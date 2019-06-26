@@ -171,4 +171,28 @@ namespace tinyToolkit
 
 #endif
 	}
+
+	/**
+	 *
+	 * 获取最后一个错误信息
+	 *
+	 * @return 最后一个错误信息
+	 *
+	 */
+	std::string OS::LastErrorMessage()
+	{
+		char message[TINY_TOOLKIT_KB]{ 0 };
+
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		strerror_s(message, sizeof(message), errno);
+
+#else
+
+		strerror_r(errno, message, sizeof(message));
+
+#endif
+
+		return message;
+	}
 }

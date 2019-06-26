@@ -10,7 +10,12 @@
 #include "logic.h"
 
 
-#define sOption	tinyToolkit::OptionManager::Instance()
+/**
+ *
+ * 选项管理
+ *
+ */
+#define OptionManager		tinyToolkit::OptionManager::Instance()
 
 
 /**
@@ -20,34 +25,34 @@
  */
 void Logic::Launch()
 {
-	auto type = sOption.Has("type") ? sOption.Get("type") : "udp";
-	auto mode = sOption.Has("mode") ? sOption.Get("mode") : "client";
+	auto type = OptionManager.Has("type") ? OptionManager.Get("type") : "udp";
+	auto mode = OptionManager.Has("mode") ? OptionManager.Get("mode") : "client";
 
-	auto count = sOption.Has("count") ? tinyToolkit::String::Transform<uint32_t>(sOption.Get("count")) : static_cast<uint32_t>(1);
+	auto count = OptionManager.Has("count") ? tinyToolkit::String::Transform<uint32_t>(OptionManager.Get("count")) : static_cast<uint32_t>(1);
 
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-	auto localHost = sOption.Has("localHost") ? sOption.Get("localHost") : "0.0.0.0";
-	auto localPort = sOption.Has("localPort") ? tinyToolkit::String::Transform<uint16_t>(sOption.Get("localPort")) : static_cast<uint16_t>(1234);
+	auto localHost = OptionManager.Has("localHost") ? OptionManager.Get("localHost") : "0.0.0.0";
+	auto localPort = OptionManager.Has("localPort") ? tinyToolkit::String::Transform<uint16_t>(OptionManager.Get("localPort")) : static_cast<uint16_t>(1234);
 
-	auto remoteHost = sOption.Has("remoteHost") ? sOption.Get("remoteHost") : "192.168.2.71";
-	auto remotePort = sOption.Has("remotePort") ? tinyToolkit::String::Transform<uint16_t>(sOption.Get("remotePort")) : static_cast<uint16_t>(1234);
+	auto remoteHost = OptionManager.Has("remoteHost") ? OptionManager.Get("remoteHost") : "192.168.2.71";
+	auto remotePort = OptionManager.Has("remotePort") ? tinyToolkit::String::Transform<uint16_t>(OptionManager.Get("remotePort")) : static_cast<uint16_t>(1234);
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_LINUX
 
-	auto localHost = sOption.Has("localHost") ? sOption.Get("localHost") : "0.0.0.0";
-	auto localPort = sOption.Has("localPort") ? tinyToolkit::String::Transform<uint16_t>(sOption.Get("localPort")) : static_cast<uint16_t>(1234);
+	auto localHost = OptionManager.Has("localHost") ? OptionManager.Get("localHost") : "0.0.0.0";
+	auto localPort = OptionManager.Has("localPort") ? tinyToolkit::String::Transform<uint16_t>(OptionManager.Get("localPort")) : static_cast<uint16_t>(1234);
 
-	auto remoteHost = sOption.Has("remoteHost") ? sOption.Get("remoteHost") : "192.168.2.171";
-	auto remotePort = sOption.Has("remotePort") ? tinyToolkit::String::Transform<uint16_t>(sOption.Get("remotePort")) : static_cast<uint16_t>(1234);
+	auto remoteHost = OptionManager.Has("remoteHost") ? OptionManager.Get("remoteHost") : "192.168.2.171";
+	auto remotePort = OptionManager.Has("remotePort") ? tinyToolkit::String::Transform<uint16_t>(OptionManager.Get("remotePort")) : static_cast<uint16_t>(1234);
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
-	auto localHost = sOption.Has("localHost") ? sOption.Get("localHost") : "0.0.0.0";
-	auto localPort = sOption.Has("localPort") ? tinyToolkit::String::Transform<uint16_t>(sOption.Get("localPort")) : static_cast<uint16_t>(1234);
+	auto localHost = OptionManager.Has("localHost") ? OptionManager.Get("localHost") : "0.0.0.0";
+	auto localPort = OptionManager.Has("localPort") ? tinyToolkit::String::Transform<uint16_t>(OptionManager.Get("localPort")) : static_cast<uint16_t>(1234);
 
-	auto remoteHost = sOption.Has("remoteHost") ? sOption.Get("remoteHost") : "192.168.0.71";
-	auto remotePort = sOption.Has("remotePort") ? tinyToolkit::String::Transform<uint16_t>(sOption.Get("remotePort")) : static_cast<uint16_t>(1234);
+	auto remoteHost = OptionManager.Has("remoteHost") ? OptionManager.Get("remoteHost") : "192.168.0.71";
+	auto remotePort = OptionManager.Has("remotePort") ? tinyToolkit::String::Transform<uint16_t>(OptionManager.Get("remotePort")) : static_cast<uint16_t>(1234);
 
 #endif
 
@@ -87,11 +92,11 @@ void Logic::LaunchTCPClient(const std::string & remoteHost, uint16_t remotePort,
 
 		if (pool.back()->Launch(remoteHost, remotePort, TINY_TOOLKIT_MB))
 		{
-			TINY_TOOLKIT_SYNC_LOG_INFO("Launch TCP Client Success");
+			TINY_TOOLKIT_ASYNC_LOG_INFO("Launch TCP Client Success");
 		}
 		else
 		{
-			TINY_TOOLKIT_SYNC_LOG_INFO("Launch TCP Client Failed");
+			TINY_TOOLKIT_ASYNC_LOG_INFO("Launch TCP Client Failed");
 		}
 	}
 
@@ -134,11 +139,11 @@ void Logic::LaunchTCPServer(const std::string & localHost, uint16_t localPort)
 
 	if (server.Launch(localHost, localPort, TINY_TOOLKIT_MB))
 	{
-		TINY_TOOLKIT_SYNC_LOG_INFO("Launch TCP Server Success");
+		TINY_TOOLKIT_ASYNC_LOG_INFO("Launch TCP Server Success");
 	}
 	else
 	{
-		TINY_TOOLKIT_SYNC_LOG_INFO("Launch TCP Server Failed");
+		TINY_TOOLKIT_ASYNC_LOG_INFO("Launch TCP Server Failed");
 	}
 
 	while (true)
@@ -173,11 +178,11 @@ void Logic::LaunchUDPClient(const std::string & localHost, uint16_t localPort, c
 
 		if (pool.back()->Launch(localHost, localPort, remoteHost, remotePort, TINY_TOOLKIT_MB))
 		{
-			TINY_TOOLKIT_SYNC_LOG_INFO("Launch UDP Client Success");
+			TINY_TOOLKIT_ASYNC_LOG_INFO("Launch UDP Client Success");
 		}
 		else
 		{
-			TINY_TOOLKIT_SYNC_LOG_INFO("Launch UDP Client Failed");
+			TINY_TOOLKIT_ASYNC_LOG_INFO("Launch UDP Client Failed");
 		}
 	}
 

@@ -30,8 +30,9 @@ namespace tinyToolkit
 		_sequenceMask = ~(-1 * (1 << _sequenceBits));
 		_dataCenterIDMax = ~(-1 * (1 << _dataCenterIDBits));
 
-		_baseTimeStamp = Time::Milliseconds();
-		_lastTimeStamp = Time::Milliseconds();
+		/// 这里需要用稳定时间, 防止系统时间变化
+		_baseTimeStamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
+		_lastTimeStamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
 
 		_workerIDShift = _sequenceBits;
 		_dataCenterIDShift = _sequenceBits + _workerIDBits;

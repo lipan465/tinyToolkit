@@ -584,8 +584,10 @@ namespace tinyToolkit
 		{
 			if (_session)
 			{
+				char addr[INET_ADDRSTRLEN] = { 0 };
+
 				_session->_localPort = ntohs(_receiveEvent._address.sin_port);
-				_session->_localHost = inet_ntoa(_receiveEvent._address.sin_addr);
+				_session->_localHost = inet_ntop(AF_INET, &_receiveEvent._address.sin_addr, addr, sizeof(addr));
 			}
 		}
 
@@ -624,8 +626,10 @@ namespace tinyToolkit
 		{
 			if (_session)
 			{
+				char addr[INET_ADDRSTRLEN] = { 0 };
+
 				_session->_localPort = ntohs(_netEvent._address.sin_port);
-				_session->_localHost = inet_ntoa(_netEvent._address.sin_addr);
+				_session->_localHost = inet_ntop(AF_INET, &_netEvent._address.sin_addr, addr, sizeof(addr));
 			}
 		}
 
@@ -694,8 +698,10 @@ namespace tinyToolkit
 		{
 			if (_session)
 			{
+				char addr[INET_ADDRSTRLEN] = { 0 };
+
 				_session->_localPort = ntohs(_netEvent._address.sin_port);
-				_session->_localHost = inet_ntoa(_netEvent._address.sin_addr);
+				_session->_localHost = inet_ntop(AF_INET, &_netEvent._address.sin_addr, addr, sizeof(addr));
 			}
 		}
 
@@ -978,8 +984,10 @@ namespace tinyToolkit
 
 		if (Net::GetRemoteAddress(sock, _netEvent._address))
 		{
+			char addr[INET_ADDRSTRLEN] = { 0 };
+
 			_server->_remotePort = ntohs(_netEvent._address.sin_port);
-			_server->_remoteHost = inet_ntoa(_netEvent._address.sin_addr);
+			_server->_remoteHost = inet_ntop(AF_INET, &_netEvent._address.sin_addr, addr, sizeof(addr));
 		}
 
 		auto session = _server->OnSessionConnect();
@@ -1034,8 +1042,8 @@ namespace tinyToolkit
 			}
 			else
 			{
-				if (!Net::EnableLinger(sock) ||
-					!Net::EnableNoDelay(sock) ||
+				if (!Net::DisableNagle(sock) ||
+					!Net::EnableLinger(sock) ||
 					!Net::EnableNonBlock(sock) ||
 					!Net::EnableReuseAddress(sock))
 				{
@@ -1046,8 +1054,10 @@ namespace tinyToolkit
 					return;
 				}
 
+				char addr[INET_ADDRSTRLEN] = { 0 };
+
 				_server->_remotePort = ntohs(_netEvent._address.sin_port);
-				_server->_remoteHost = inet_ntoa(_netEvent._address.sin_addr);
+				_server->_remoteHost = inet_ntop(AF_INET, &_netEvent._address.sin_addr, addr, sizeof(addr));
 
 				auto session = _server->OnSessionConnect();
 
@@ -1118,8 +1128,10 @@ namespace tinyToolkit
 					return;
 				}
 
+				char addr[INET_ADDRSTRLEN] = { 0 };
+
 				_server->_remotePort = ntohs(_netEvent._address.sin_port);
-				_server->_remoteHost = inet_ntoa(_netEvent._address.sin_addr);
+				_server->_remoteHost = inet_ntop(AF_INET, &_netEvent._address.sin_addr, addr, sizeof(addr));
 
 				auto session = _server->OnSessionConnect();
 
@@ -1188,7 +1200,7 @@ namespace tinyToolkit
 	{
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-		TINY_TOOLKIT_SOCKET_TYPE sock = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, nullptr, 0, WSA_FLAG_OVERLAPPED);
+		TINY_TOOLKIT_SOCKET_TYPE sock = WSASocketW(AF_INET, SOCK_STREAM, IPPROTO_TCP, nullptr, 0, WSA_FLAG_OVERLAPPED);
 
 		if (sock == TINY_TOOLKIT_SOCKET_INVALID)
 		{
@@ -1197,8 +1209,8 @@ namespace tinyToolkit
 			return false;
 		}
 
-		if (!Net::EnableLinger(sock) ||
-			!Net::EnableNoDelay(sock) ||
+		if (!Net::DisableNagle(sock) ||
+			!Net::EnableLinger(sock) ||
 			!Net::EnableNonBlock(sock) ||
 			!Net::EnableReuseAddress(sock))
 		{

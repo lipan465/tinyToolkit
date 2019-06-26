@@ -81,6 +81,15 @@ namespace tinyToolkit
 		 *
 		 */
 		static std::string ComputerName();
+
+		/**
+		 *
+		 * 获取最后一个错误信息
+		 *
+		 * @return 最后一个错误信息
+		 *
+		 */
+		static std::string LastErrorMessage();
 	};
 }
 

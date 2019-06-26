@@ -217,7 +217,7 @@ namespace tinyToolkit
 
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-		TINY_TOOLKIT_SOCKET_TYPE sock = WSASocket(AF_INET, SOCK_DGRAM, IPPROTO_UDP, nullptr, 0, WSA_FLAG_OVERLAPPED);
+		TINY_TOOLKIT_SOCKET_TYPE sock = WSASocketW(AF_INET, SOCK_DGRAM, IPPROTO_UDP, nullptr, 0, WSA_FLAG_OVERLAPPED);
 
 #else
 
@@ -278,8 +278,10 @@ namespace tinyToolkit
 
 		if (Net::GetLocalAddress(sock, pipe->_receiveEvent._address))
 		{
+			char addr[INET_ADDRSTRLEN] = { 0 };
+
 			client->_localPort = ntohs(pipe->_receiveEvent._address.sin_port);
-			client->_localHost = inet_ntoa(pipe->_receiveEvent._address.sin_addr);
+			client->_localHost = inet_ntop(AF_INET, &pipe->_receiveEvent._address.sin_addr, addr, sizeof(addr));
 		}
 
 		BOOL bNewBehavior = FALSE;
@@ -325,8 +327,10 @@ namespace tinyToolkit
 
 		if (Net::GetLocalAddress(sock, pipe->_netEvent._address))
 		{
+			char addr[INET_ADDRSTRLEN] = { 0 };
+
 			client->_localPort = ntohs(pipe->_netEvent._address.sin_port);
-			client->_localHost = inet_ntoa(pipe->_netEvent._address.sin_addr);
+			client->_localHost = inet_ntop(AF_INET, &pipe->_netEvent._address.sin_addr, addr, sizeof(addr));
 		}
 
 		struct kevent event[2]{ };
@@ -355,8 +359,10 @@ namespace tinyToolkit
 
 		if (Net::GetLocalAddress(sock, pipe->_netEvent._address))
 		{
+			char addr[INET_ADDRSTRLEN] = { 0 };
+
 			client->_localPort = ntohs(pipe->_netEvent._address.sin_port);
-			client->_localHost = inet_ntoa(pipe->_netEvent._address.sin_addr);
+			client->_localHost = inet_ntop(AF_INET, &pipe->_netEvent._address.sin_addr, addr, sizeof(addr));
 		}
 
 		struct epoll_event event{ };
@@ -424,7 +430,7 @@ namespace tinyToolkit
 
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-		TINY_TOOLKIT_SOCKET_TYPE sock = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, nullptr, 0, WSA_FLAG_OVERLAPPED);
+		TINY_TOOLKIT_SOCKET_TYPE sock = WSASocketW(AF_INET, SOCK_STREAM, IPPROTO_TCP, nullptr, 0, WSA_FLAG_OVERLAPPED);
 
 #else
 
@@ -513,8 +519,10 @@ namespace tinyToolkit
 
 			if (Net::GetLocalAddress(sock, pipe->_netEvent._address))
 			{
+				char addr[INET_ADDRSTRLEN] = { 0 };
+
 				client->_localPort = ntohs(pipe->_netEvent._address.sin_port);
-				client->_localHost = inet_ntoa(pipe->_netEvent._address.sin_addr);
+				client->_localHost = inet_ntop(AF_INET, &pipe->_netEvent._address.sin_addr, addr, sizeof(addr));
 			}
 
 			struct kevent event[2]{ };
@@ -585,8 +593,10 @@ namespace tinyToolkit
 
 			if (Net::GetLocalAddress(sock, pipe->_netEvent._address))
 			{
+				char addr[INET_ADDRSTRLEN] = { 0 };
+
 				client->_localPort = ntohs(pipe->_netEvent._address.sin_port);
-				client->_localHost = inet_ntoa(pipe->_netEvent._address.sin_addr);
+				client->_localHost = inet_ntop(AF_INET, &pipe->_netEvent._address.sin_addr, addr, sizeof(addr));
 			}
 
 			struct epoll_event event{ };
@@ -690,7 +700,7 @@ namespace tinyToolkit
 
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-		TINY_TOOLKIT_SOCKET_TYPE sock = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, nullptr, 0, WSA_FLAG_OVERLAPPED);
+		TINY_TOOLKIT_SOCKET_TYPE sock = WSASocketW(AF_INET, SOCK_STREAM, IPPROTO_TCP, nullptr, 0, WSA_FLAG_OVERLAPPED);
 
 #else
 
@@ -746,8 +756,10 @@ namespace tinyToolkit
 
 		if (Net::GetLocalAddress(sock, pipe->_netEvent._address))
 		{
+			char addr[INET_ADDRSTRLEN] = { 0 };
+
 			server->_localPort = ntohs(pipe->_netEvent._address.sin_port);
-			server->_localHost = inet_ntoa(pipe->_netEvent._address.sin_addr);
+			server->_localHost = inet_ntop(AF_INET, &pipe->_netEvent._address.sin_addr, addr, sizeof(addr));
 		}
 
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS

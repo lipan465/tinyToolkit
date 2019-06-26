@@ -92,7 +92,7 @@ namespace tinyToolkit
 
 		if (!handle)
 		{
-			TINY_TOOLKIT_EXCEPTION_THROW(NullPointException, String::Format("Load [{}] : {}", path, strerror(errno)));
+			TINY_TOOLKIT_EXCEPTION_THROW(NullPointException, String::Format("Load [{}] : {}", path, OS::LastErrorMessage()));
 
 			return false;
 		}

@@ -295,9 +295,9 @@ namespace tinyToolkit
 	 */
 	void MD5::UpdateDigest(Context & context, const uint8_t * value, std::size_t length)
 	{
-		uint64_t i     = 0;
-		uint64_t index = (context.count[0] >> 3) & 0x3F;
-		uint64_t fill  = 64 - index;
+		std::size_t i     = 0;
+		std::size_t index = (context.count[0] >> 3) & 0x3F;
+		std::size_t fill  = 64 - index;
 
 		context.count[0] += static_cast<uint32_t>(length << 3);
 		context.count[0] &= 0xFFFFFFFF;

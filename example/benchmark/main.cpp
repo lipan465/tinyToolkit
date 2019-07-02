@@ -1024,205 +1024,298 @@ TEST(Crypto, MD5)
 	try
 	{
 		{
-			tinyToolkit::MD5 md5;
-
-			md5.Update("123");
-
-			EXPECT_STR_EQ(md5.Value().c_str(), "123");
-			EXPECT_STR_EQ(md5.Hex16().c_str(), "ac59075b964b0715");
-			EXPECT_STR_EQ(md5.Hex32().c_str(), "202cb962ac59075b964b07152d234b70");
-
-			md5.Update("abc");
-
-			EXPECT_STR_EQ(md5.Value().c_str(), "123abc");
-			EXPECT_STR_EQ(md5.Hex16().c_str(), "5769fa7361d7ecc6");
-			EXPECT_STR_EQ(md5.Hex32().c_str(), "a906449d5769fa7361d7ecc6aa3f6d28");
-
-			md5.Reset();
-			md5.Update("xyz");
-
-			EXPECT_STR_EQ(md5.Value().c_str(), "xyz");
-			EXPECT_STR_EQ(md5.Hex16().c_str(), "0911f878998c1361");
-			EXPECT_STR_EQ(md5.Hex32().c_str(), "d16fb36f0911f878998c136191af705e");
-
-			md5.Reset();
-			md5.Update("4567890");
-
-			EXPECT_STR_EQ(md5.Value().c_str(), "4567890");
-			EXPECT_STR_EQ(md5.Hex16().c_str(), "ad4c127657d9c8d9");
-			EXPECT_STR_EQ(md5.Hex32().c_str(), "a14b1bbaad4c127657d9c8d907fc6a75");
-		}
-
-		{
 			tinyToolkit::MD5 md5("123");
 
-			EXPECT_STR_EQ(md5.Value().c_str(), "123");
-			EXPECT_STR_EQ(md5.Hex16().c_str(), "ac59075b964b0715");
-			EXPECT_STR_EQ(md5.Hex32().c_str(), "202cb962ac59075b964b07152d234b70");
+			EXPECT_STR_EQ(md5.Hex().c_str(), "202cb962ac59075b964b07152d234b70");
 
 			md5.Update("abc");
 
-			EXPECT_STR_EQ(md5.Value().c_str(), "123abc");
-			EXPECT_STR_EQ(md5.Hex16().c_str(), "5769fa7361d7ecc6");
-			EXPECT_STR_EQ(md5.Hex32().c_str(), "a906449d5769fa7361d7ecc6aa3f6d28");
+			EXPECT_STR_EQ(md5.Hex().c_str(), "a906449d5769fa7361d7ecc6aa3f6d28");
 
 			md5.Reset();
 			md5.Update("xyz");
 
-			EXPECT_STR_EQ(md5.Value().c_str(), "xyz");
-			EXPECT_STR_EQ(md5.Hex16().c_str(), "0911f878998c1361");
-			EXPECT_STR_EQ(md5.Hex32().c_str(), "d16fb36f0911f878998c136191af705e");
+			EXPECT_STR_EQ(md5.Hex().c_str(), "d16fb36f0911f878998c136191af705e");
 
 			md5.Reset();
 			md5.Update("4567890");
 
-			EXPECT_STR_EQ(md5.Value().c_str(), "4567890");
-			EXPECT_STR_EQ(md5.Hex16().c_str(), "ad4c127657d9c8d9");
-			EXPECT_STR_EQ(md5.Hex32().c_str(), "a14b1bbaad4c127657d9c8d907fc6a75");
-		}
-
-		{
-			uint8_t str[4] = { '1', '2', '3', '\0' };
-
-			tinyToolkit::MD5 md5(str);
-
-			EXPECT_STR_EQ(md5.Value().c_str(), "123");
-			EXPECT_STR_EQ(md5.Hex16().c_str(), "ac59075b964b0715");
-			EXPECT_STR_EQ(md5.Hex32().c_str(), "202cb962ac59075b964b07152d234b70");
-
-			md5.Update("abc");
-
-			EXPECT_STR_EQ(md5.Value().c_str(), "123abc");
-			EXPECT_STR_EQ(md5.Hex16().c_str(), "5769fa7361d7ecc6");
-			EXPECT_STR_EQ(md5.Hex32().c_str(), "a906449d5769fa7361d7ecc6aa3f6d28");
-
-			md5.Reset();
-			md5.Update("xyz");
-
-			EXPECT_STR_EQ(md5.Value().c_str(), "xyz");
-			EXPECT_STR_EQ(md5.Hex16().c_str(), "0911f878998c1361");
-			EXPECT_STR_EQ(md5.Hex32().c_str(), "d16fb36f0911f878998c136191af705e");
-
-			md5.Reset();
-			md5.Update("4567890");
-
-			EXPECT_STR_EQ(md5.Value().c_str(), "4567890");
-			EXPECT_STR_EQ(md5.Hex16().c_str(), "ad4c127657d9c8d9");
-			EXPECT_STR_EQ(md5.Hex32().c_str(), "a14b1bbaad4c127657d9c8d907fc6a75");
-		}
-
-		{
-			tinyToolkit::MD5 md5(std::string("123"));
-
-			EXPECT_STR_EQ(md5.Value().c_str(), "123");
-			EXPECT_STR_EQ(md5.Hex16().c_str(), "ac59075b964b0715");
-			EXPECT_STR_EQ(md5.Hex32().c_str(), "202cb962ac59075b964b07152d234b70");
-
-			md5.Update("abc");
-
-			EXPECT_STR_EQ(md5.Value().c_str(), "123abc");
-			EXPECT_STR_EQ(md5.Hex16().c_str(), "5769fa7361d7ecc6");
-			EXPECT_STR_EQ(md5.Hex32().c_str(), "a906449d5769fa7361d7ecc6aa3f6d28");
-
-			md5.Reset();
-			md5.Update("xyz");
-
-			EXPECT_STR_EQ(md5.Value().c_str(), "xyz");
-			EXPECT_STR_EQ(md5.Hex16().c_str(), "0911f878998c1361");
-			EXPECT_STR_EQ(md5.Hex32().c_str(), "d16fb36f0911f878998c136191af705e");
-
-			md5.Reset();
-			md5.Update("4567890");
-
-			EXPECT_STR_EQ(md5.Value().c_str(), "4567890");
-			EXPECT_STR_EQ(md5.Hex16().c_str(), "ad4c127657d9c8d9");
-			EXPECT_STR_EQ(md5.Hex32().c_str(), "a14b1bbaad4c127657d9c8d907fc6a75");
+			EXPECT_STR_EQ(md5.Hex().c_str(), "a14b1bbaad4c127657d9c8d907fc6a75");
 		}
 
 		{
 			tinyToolkit::MD5 md5("123456789", 3);
 
-			EXPECT_STR_EQ(md5.Value().c_str(), "123");
-			EXPECT_STR_EQ(md5.Hex16().c_str(), "ac59075b964b0715");
-			EXPECT_STR_EQ(md5.Hex32().c_str(), "202cb962ac59075b964b07152d234b70");
+			EXPECT_STR_EQ(md5.Hex().c_str(), "202cb962ac59075b964b07152d234b70");
 
 			md5.Update("abc");
 
-			EXPECT_STR_EQ(md5.Value().c_str(), "123abc");
-			EXPECT_STR_EQ(md5.Hex16().c_str(), "5769fa7361d7ecc6");
-			EXPECT_STR_EQ(md5.Hex32().c_str(), "a906449d5769fa7361d7ecc6aa3f6d28");
+			EXPECT_STR_EQ(md5.Hex().c_str(), "a906449d5769fa7361d7ecc6aa3f6d28");
 
 			md5.Reset();
 			md5.Update("xyz");
 
-			EXPECT_STR_EQ(md5.Value().c_str(), "xyz");
-			EXPECT_STR_EQ(md5.Hex16().c_str(), "0911f878998c1361");
-			EXPECT_STR_EQ(md5.Hex32().c_str(), "d16fb36f0911f878998c136191af705e");
+			EXPECT_STR_EQ(md5.Hex().c_str(), "d16fb36f0911f878998c136191af705e");
 
 			md5.Reset();
 			md5.Update("4567890");
 
-			EXPECT_STR_EQ(md5.Value().c_str(), "4567890");
-			EXPECT_STR_EQ(md5.Hex16().c_str(), "ad4c127657d9c8d9");
-			EXPECT_STR_EQ(md5.Hex32().c_str(), "a14b1bbaad4c127657d9c8d907fc6a75");
+			EXPECT_STR_EQ(md5.Hex().c_str(), "a14b1bbaad4c127657d9c8d907fc6a75");
+		}
+	}
+	catch (const std::exception & e)
+	{
+		std::cout << e.what() << std::endl;
+	}
+}
+
+
+TEST(Crypto, SHA1)
+{
+	try
+	{
+		{
+			tinyToolkit::SHA1 sha1("123");
+
+			EXPECT_STR_EQ(sha1.Hex().c_str(), "40bd001563085fc35165329ea1ff5c5ecbdbbeef");
+
+			sha1.Update("abc");
+
+			EXPECT_STR_EQ(sha1.Hex().c_str(), "4be30d9814c6d4e9800e0d2ea9ec9fb00efa887b");
+
+			sha1.Reset();
+			sha1.Update("xyz");
+
+			EXPECT_STR_EQ(sha1.Hex().c_str(), "66b27417d37e024c46526c2f6d358a754fc552f3");
+
+			sha1.Reset();
+			sha1.Update("4567890");
+
+			EXPECT_STR_EQ(sha1.Hex().c_str(), "94038465034c7fcea862797087a6a90ee557ff2a");
 		}
 
 		{
-			uint8_t str[7] = { '1', '2', '3', '4', '5', '6', '\0' };
+			tinyToolkit::SHA1 sha1("123456789", 3);
 
-			tinyToolkit::MD5 md5(str, 3);
+			EXPECT_STR_EQ(sha1.Hex().c_str(), "40bd001563085fc35165329ea1ff5c5ecbdbbeef");
 
-			EXPECT_STR_EQ(md5.Value().c_str(), "123");
-			EXPECT_STR_EQ(md5.Hex16().c_str(), "ac59075b964b0715");
-			EXPECT_STR_EQ(md5.Hex32().c_str(), "202cb962ac59075b964b07152d234b70");
+			sha1.Update("abc");
 
-			md5.Update("abc");
+			EXPECT_STR_EQ(sha1.Hex().c_str(), "4be30d9814c6d4e9800e0d2ea9ec9fb00efa887b");
 
-			EXPECT_STR_EQ(md5.Value().c_str(), "123abc");
-			EXPECT_STR_EQ(md5.Hex16().c_str(), "5769fa7361d7ecc6");
-			EXPECT_STR_EQ(md5.Hex32().c_str(), "a906449d5769fa7361d7ecc6aa3f6d28");
+			sha1.Reset();
+			sha1.Update("xyz");
 
-			md5.Reset();
-			md5.Update("xyz");
+			EXPECT_STR_EQ(sha1.Hex().c_str(), "66b27417d37e024c46526c2f6d358a754fc552f3");
 
-			EXPECT_STR_EQ(md5.Value().c_str(), "xyz");
-			EXPECT_STR_EQ(md5.Hex16().c_str(), "0911f878998c1361");
-			EXPECT_STR_EQ(md5.Hex32().c_str(), "d16fb36f0911f878998c136191af705e");
+			sha1.Reset();
+			sha1.Update("4567890");
 
-			md5.Reset();
-			md5.Update("4567890");
+			EXPECT_STR_EQ(sha1.Hex().c_str(), "94038465034c7fcea862797087a6a90ee557ff2a");
+		}
+	}
+	catch (const std::exception & e)
+	{
+		std::cout << e.what() << std::endl;
+	}
+}
 
-			EXPECT_STR_EQ(md5.Value().c_str(), "4567890");
-			EXPECT_STR_EQ(md5.Hex16().c_str(), "ad4c127657d9c8d9");
-			EXPECT_STR_EQ(md5.Hex32().c_str(), "a14b1bbaad4c127657d9c8d907fc6a75");
+
+TEST(Crypto, SHA224)
+{
+	try
+	{
+		{
+			tinyToolkit::SHA224 sha224("123");
+
+			EXPECT_STR_EQ(sha224.Hex().c_str(), "78d8045d684abd2eece923758f3cd781489df3a48e1278982466017f");
+
+			sha224.Update("abc");
+
+			EXPECT_STR_EQ(sha224.Hex().c_str(), "867916c509e025cd1eef93151e82f518fcfdfcacd759965fd99e27af");
+
+			sha224.Reset();
+			sha224.Update("xyz");
+
+			EXPECT_STR_EQ(sha224.Hex().c_str(), "30e90f1cd0ceff8eb3dd6a540a605c0666f841d35de63c57e4dd2877");
+
+			sha224.Reset();
+			sha224.Update("4567890");
+
+			EXPECT_STR_EQ(sha224.Hex().c_str(), "9d04ca6244472b08d350f9064749c397ecd8d2b716b04e0d5226a3e2");
 		}
 
 		{
-			tinyToolkit::MD5 md5(std::string("123456789"), 3);
+			tinyToolkit::SHA224 sha224("123456789", 3);
 
-			EXPECT_STR_EQ(md5.Value().c_str(), "123");
-			EXPECT_STR_EQ(md5.Hex16().c_str(), "ac59075b964b0715");
-			EXPECT_STR_EQ(md5.Hex32().c_str(), "202cb962ac59075b964b07152d234b70");
+			EXPECT_STR_EQ(sha224.Hex().c_str(), "78d8045d684abd2eece923758f3cd781489df3a48e1278982466017f");
 
-			md5.Update("abc");
+			sha224.Update("abc");
 
-			EXPECT_STR_EQ(md5.Value().c_str(), "123abc");
-			EXPECT_STR_EQ(md5.Hex16().c_str(), "5769fa7361d7ecc6");
-			EXPECT_STR_EQ(md5.Hex32().c_str(), "a906449d5769fa7361d7ecc6aa3f6d28");
+			EXPECT_STR_EQ(sha224.Hex().c_str(), "867916c509e025cd1eef93151e82f518fcfdfcacd759965fd99e27af");
 
-			md5.Reset();
-			md5.Update("xyz");
+			sha224.Reset();
+			sha224.Update("xyz");
 
-			EXPECT_STR_EQ(md5.Value().c_str(), "xyz");
-			EXPECT_STR_EQ(md5.Hex16().c_str(), "0911f878998c1361");
-			EXPECT_STR_EQ(md5.Hex32().c_str(), "d16fb36f0911f878998c136191af705e");
+			EXPECT_STR_EQ(sha224.Hex().c_str(), "30e90f1cd0ceff8eb3dd6a540a605c0666f841d35de63c57e4dd2877");
 
-			md5.Reset();
-			md5.Update("4567890");
+			sha224.Reset();
+			sha224.Update("4567890");
 
-			EXPECT_STR_EQ(md5.Value().c_str(), "4567890");
-			EXPECT_STR_EQ(md5.Hex16().c_str(), "ad4c127657d9c8d9");
-			EXPECT_STR_EQ(md5.Hex32().c_str(), "a14b1bbaad4c127657d9c8d907fc6a75");
+			EXPECT_STR_EQ(sha224.Hex().c_str(), "9d04ca6244472b08d350f9064749c397ecd8d2b716b04e0d5226a3e2");
+		}
+	}
+	catch (const std::exception & e)
+	{
+		std::cout << e.what() << std::endl;
+	}
+}
+
+
+TEST(Crypto, SHA256)
+{
+	try
+	{
+		{
+			tinyToolkit::SHA256 sha256("123");
+
+			EXPECT_STR_EQ(sha256.Hex().c_str(), "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3");
+
+			sha256.Update("abc");
+
+			EXPECT_STR_EQ(sha256.Hex().c_str(), "dd130a849d7b29e5541b05d2f7f86a4acd4f1ec598c1c9438783f56bc4f0ff80");
+
+			sha256.Reset();
+			sha256.Update("xyz");
+
+			EXPECT_STR_EQ(sha256.Hex().c_str(), "3608bca1e44ea6c4d268eb6db02260269892c0b42b86bbf1e77a6fa16c3c9282");
+
+			sha256.Reset();
+			sha256.Update("4567890");
+
+			EXPECT_STR_EQ(sha256.Hex().c_str(), "611ff1be579a929782a03a688a198c4eae13b16f2ccf476f52d81b24dddbc780");
+		}
+
+		{
+			tinyToolkit::SHA256 sha256("123456789", 3);
+
+			EXPECT_STR_EQ(sha256.Hex().c_str(), "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3");
+
+			sha256.Update("abc");
+
+			EXPECT_STR_EQ(sha256.Hex().c_str(), "dd130a849d7b29e5541b05d2f7f86a4acd4f1ec598c1c9438783f56bc4f0ff80");
+
+			sha256.Reset();
+			sha256.Update("xyz");
+
+			EXPECT_STR_EQ(sha256.Hex().c_str(), "3608bca1e44ea6c4d268eb6db02260269892c0b42b86bbf1e77a6fa16c3c9282");
+
+			sha256.Reset();
+			sha256.Update("4567890");
+
+			EXPECT_STR_EQ(sha256.Hex().c_str(), "611ff1be579a929782a03a688a198c4eae13b16f2ccf476f52d81b24dddbc780");
+		}
+	}
+	catch (const std::exception & e)
+	{
+		std::cout << e.what() << std::endl;
+	}
+}
+
+
+TEST(Crypto, SHA384)
+{
+	try
+	{
+		{
+			tinyToolkit::SHA384 sha384("123");
+
+			EXPECT_STR_EQ(sha384.Hex().c_str(), "9a0a82f0c0cf31470d7affede3406cc9aa8410671520b727044eda15b4c25532a9b5cd8aaf9cec4919d76255b6bfb00f");
+
+			sha384.Update("abc");
+
+			EXPECT_STR_EQ(sha384.Hex().c_str(), "40889bd7aee5be35f9d713c4f51ff00fe2099fd901d094284d6edc9aa39ec096cebe9547d3cbaf1f35101a6489f033c3");
+
+			sha384.Reset();
+			sha384.Update("xyz");
+
+			EXPECT_STR_EQ(sha384.Hex().c_str(), "edcb0f4721e6578d900e4c24ad4b19e194ab6c87f8243bfc6b11754dd8b0bbde4f30b1d18197932b6376da004dcd97c4");
+
+			sha384.Reset();
+			sha384.Update("4567890");
+
+			EXPECT_STR_EQ(sha384.Hex().c_str(), "a3c5da2c343f870d3d64e90ae17abd7060487caa089d170d941005a72614fe57f398b8a3d4d4e57c90a6f4022529fa47");
+		}
+
+		{
+			tinyToolkit::SHA384 sha384("123456789", 3);
+
+			EXPECT_STR_EQ(sha384.Hex().c_str(), "9a0a82f0c0cf31470d7affede3406cc9aa8410671520b727044eda15b4c25532a9b5cd8aaf9cec4919d76255b6bfb00f");
+
+			sha384.Update("abc");
+
+			EXPECT_STR_EQ(sha384.Hex().c_str(), "40889bd7aee5be35f9d713c4f51ff00fe2099fd901d094284d6edc9aa39ec096cebe9547d3cbaf1f35101a6489f033c3");
+
+			sha384.Reset();
+			sha384.Update("xyz");
+
+			EXPECT_STR_EQ(sha384.Hex().c_str(), "edcb0f4721e6578d900e4c24ad4b19e194ab6c87f8243bfc6b11754dd8b0bbde4f30b1d18197932b6376da004dcd97c4");
+
+			sha384.Reset();
+			sha384.Update("4567890");
+
+			EXPECT_STR_EQ(sha384.Hex().c_str(), "a3c5da2c343f870d3d64e90ae17abd7060487caa089d170d941005a72614fe57f398b8a3d4d4e57c90a6f4022529fa47");
+		}
+	}
+	catch (const std::exception & e)
+	{
+		std::cout << e.what() << std::endl;
+	}
+}
+
+
+TEST(Crypto, SHA512)
+{
+	try
+	{
+		{
+			tinyToolkit::SHA512 sha512("123");
+
+			EXPECT_STR_EQ(sha512.Hex().c_str(), "3c9909afec25354d551dae21590bb26e38d53f2173b8d3dc3eee4c047e7ab1c1eb8b85103e3be7ba613b31bb5c9c36214dc9f14a42fd7a2fdb84856bca5c44c2");
+
+			sha512.Update("abc");
+
+			EXPECT_STR_EQ(sha512.Hex().c_str(), "7b6ad79b346fb6951275343948e13c1b4ebca82a5452a6c5d15684377f096ca927506a23a847e6e046061399631b16fc2820c8b0e02d0ea87aa5a203a77c2a7e");
+
+			sha512.Reset();
+			sha512.Update("xyz");
+
+			EXPECT_STR_EQ(sha512.Hex().c_str(), "4a3ed8147e37876adc8f76328e5abcc1b470e6acfc18efea0135f983604953a58e183c1a6086e91ba3e821d926f5fdeb37761c7ca0328a963f5e92870675b728");
+
+			sha512.Reset();
+			sha512.Update("4567890");
+
+			EXPECT_STR_EQ(sha512.Hex().c_str(), "a642cf14e65b0b2b8dd2084e557b0939dcebb63d46cbf8730e3084f536506da4f0457029c0b0d69d598987956796ee29fbf99d3b37bfbf53153bd3d32a180c8a");
+		}
+
+		{
+			tinyToolkit::SHA512 sha512("123456789", 3);
+
+			EXPECT_STR_EQ(sha512.Hex().c_str(), "3c9909afec25354d551dae21590bb26e38d53f2173b8d3dc3eee4c047e7ab1c1eb8b85103e3be7ba613b31bb5c9c36214dc9f14a42fd7a2fdb84856bca5c44c2");
+
+			sha512.Update("abc");
+
+			EXPECT_STR_EQ(sha512.Hex().c_str(), "7b6ad79b346fb6951275343948e13c1b4ebca82a5452a6c5d15684377f096ca927506a23a847e6e046061399631b16fc2820c8b0e02d0ea87aa5a203a77c2a7e");
+
+			sha512.Reset();
+			sha512.Update("xyz");
+
+			EXPECT_STR_EQ(sha512.Hex().c_str(), "4a3ed8147e37876adc8f76328e5abcc1b470e6acfc18efea0135f983604953a58e183c1a6086e91ba3e821d926f5fdeb37761c7ca0328a963f5e92870675b728");
+
+			sha512.Reset();
+			sha512.Update("4567890");
+
+			EXPECT_STR_EQ(sha512.Hex().c_str(), "a642cf14e65b0b2b8dd2084e557b0939dcebb63d46cbf8730e3084f536506da4f0457029c0b0d69d598987956796ee29fbf99d3b37bfbf53153bd3d32a180c8a");
 		}
 	}
 	catch (const std::exception & e)

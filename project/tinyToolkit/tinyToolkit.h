@@ -95,6 +95,11 @@
 /// crypto
 #include "crypto/url.h"
 #include "crypto/md5.h"
+#include "crypto/sha1.h"
+#include "crypto/sha224.h"
+#include "crypto/sha256.h"
+#include "crypto/sha384.h"
+#include "crypto/sha512.h"
 #include "crypto/base64.h"
 
 /// system

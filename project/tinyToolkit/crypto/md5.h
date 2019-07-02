@@ -20,9 +20,12 @@ namespace tinyToolkit
 	{
 		typedef struct Context
 		{
+			bool isComputed{ false };
+
+			uint8_t buffer[64]{ 0 };
+
 			uint32_t count[2]{ 0 };
 			uint32_t state[4]{ 0 };
-			uint8_t  buffer[64]{ 0 };
 		}Context;
 
 	public:
@@ -156,39 +159,12 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 数据大小
-		 *
-		 * @return 数据大小
-		 *
-		 */
-		std::size_t Size() const;
-
-		/**
-		 *
-		 * 转换后的16位16进制字符串
+		 * 转换后的16进制字符串
 		 *
 		 * @return 16进制字符串
 		 *
 		 */
-		const std::string & Hex16();
-
-		/**
-		 *
-		 * 转换后的32位16进制字符串
-		 *
-		 * @return 16进制字符串
-		 *
-		 */
-		const std::string & Hex32();
-
-		/**
-		 *
-		 * 待转换字符串
-		 *
-		 * @return 字符串
-		 *
-		 */
-		const std::string & Value() const;
+		const std::string & Hex();
 
 	protected:
 		/**
@@ -200,6 +176,24 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 转换加密后的数据
+		 *
+		 */
+		void ContextDigest();
+
+	protected:
+		/**
+		 *
+		 * 结束加密
+		 *
+		 * @param context 内容结构
+		 * @param digest 存储摘要
+		 *
+		 */
+		static void FinalDigest(Context & context, uint8_t * digest);
+
+		/**
+		 *
 		 * 更新加密内容
 		 *
 		 * @param context 内容结构
@@ -207,24 +201,7 @@ namespace tinyToolkit
 		 * @param length 加密数据长度
 		 *
 		 */
-		void UpdateDigest(Context & context, const uint8_t * value, std::size_t length);
-
-		/**
-		 *
-		 * 结束加密
-		 *
-		 * @param context 内容结构
-		 * @param data 存储数据
-		 *
-		 */
-		void FinalDigest(Context & context, uint8_t data[16]);
-
-		/**
-		 *
-		 * 转换加密后的数据
-		 *
-		 */
-		void ContextDigest();
+		static void UpdateDigest(Context & context, const uint8_t * value, std::size_t length);
 
 		/**
 		 *
@@ -234,40 +211,12 @@ namespace tinyToolkit
 		 * @param data 待转换数据
 		 *
 		 */
-		void Transform(Context & context, const uint8_t data[64]);
-
-		/**
-		 *
-		 * 编码
-		 *
-		 * @param input 待编码数据
-		 * @param output 编码结果
-		 * @param len 编码数据长度
-		 *
-		 */
-		void Encode(const uint32_t * input, uint8_t * output, std::size_t len);
-
-		/**
-		 *
-		 * 解码
-		 *
-		 * @param input 待解码数据
-		 * @param output 解码结果
-		 * @param len 解码数据长度
-		 *
-		 */
-		void Decode(const uint8_t * input, uint32_t * output, std::size_t len);
+		static void Transform(Context & context, const uint8_t * data);
 
 	protected:
-		bool _isNew{ false };
-
 		Context _context{ };
 
-		std::size_t _size{ 0 };
-
-		std::string _hex16{ };
-		std::string _hex32{ };
-		std::string _value{ };
+		std::string _hex{ };
 	};
 }
 

@@ -604,7 +604,7 @@ namespace tinyToolkit
 			ESCAPE_STRING           /// 字符串中的转义字符
 		};
 
-		std::string str;
+		std::string str{ };
 
 		State state = State::NORMAL;
 

@@ -69,7 +69,7 @@ namespace tinyToolkit
 	{
 		while (ApplicationThreadStatus())
 		{
-			TINY_TOOLKIT_YIELD()
+			TINY_TOOLKIT_SLEEP_MS(10);
 		}
 	}
 

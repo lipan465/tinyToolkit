@@ -49,7 +49,7 @@ namespace tinyToolkit
 		{
 			std::lock_guard<std::mutex> lock(_mutex);
 
-			_queue.push(std::move(value));
+			_queue.push(std::forward<TypeT>(value));
 
 			_condition.notify_one();
 		}
@@ -65,7 +65,7 @@ namespace tinyToolkit
 		{
 			std::lock_guard<std::mutex> lock(_mutex);
 
-			_queue.push(std::forward<TypeT>(value));
+			_queue.push(value);
 
 			_condition.notify_one();
 		}

@@ -9,7 +9,6 @@
 
 #include "snowflake.h"
 
-#include "../utilities/time.h"
 #include "../utilities/string.h"
 
 
@@ -23,8 +22,8 @@ namespace tinyToolkit
 	Snowflake::Snowflake()
 	{
 		_sequenceBits = 12;
-		_workerIDBits = 5;
-		_dataCenterIDBits = 5;
+		_workerIDBits = 8;
+		_dataCenterIDBits = 8;
 
 		_workerIDMax = ~(-1 * (1 << _workerIDBits));
 		_sequenceMask = ~(-1 * (1 << _sequenceBits));
@@ -146,5 +145,4 @@ namespace tinyToolkit
 
 		return timeStamp;
 	}
-
 }

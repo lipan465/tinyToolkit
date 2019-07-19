@@ -18,6 +18,8 @@ namespace tinyToolkit
 {
 	class TINY_TOOLKIT_API UniqueID
 	{
+		friend Singleton<UniqueID>;
+
 		union ONLY_ID
 		{
 			struct
@@ -28,8 +30,6 @@ namespace tinyToolkit
 
 			uint64_t value{ 0 };
 		};
-
-		friend Singleton<UniqueID>;
 
 	public:
 		/**

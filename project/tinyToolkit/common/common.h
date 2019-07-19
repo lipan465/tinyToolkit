@@ -59,6 +59,7 @@
 #include <exception>
 #include <stdexcept>
 #include <functional>
+#include <type_traits>
 #include <forward_list>
 #include <unordered_set>
 #include <unordered_map>

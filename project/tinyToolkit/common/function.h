@@ -23,7 +23,7 @@ public:											\
 }
 
 
-#define TINY_TOOLKIT_YIELD()						std::this_thread::yield();
+#define TINY_TOOLKIT_YIELD()						std::this_thread::yield()
 
 
 #define TINY_TOOLKIT_SLEEP_H(n)						std::this_thread::sleep_for(std::chrono::hours(n))

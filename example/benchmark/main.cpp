@@ -223,9 +223,11 @@ static void AsyncLogger(const std::shared_ptr<tinyToolkit::ILogSink> & sink, std
 
 	std::atomic<std::size_t> counter{ 0 };
 
-	tinyToolkit::ThreadPool threadPool(threadCount);
+	tinyToolkit::TaskPool taskPool;
 
-	threadPool.Commit
+	taskPool.Launch(threadCount);
+
+	taskPool.Submit
 	(
 		[&]()
 		{
@@ -244,7 +246,8 @@ static void AsyncLogger(const std::shared_ptr<tinyToolkit::ILogSink> & sink, std
 		}
 	);
 
-	threadPool.Wait();
+	taskPool.Wait();
+	taskPool.Terminate();
 
 	logger->Wait();
 
@@ -772,7 +775,7 @@ public:
 };
 
 
-TEST(Pool, Thread)
+TEST(Pool, Task)
 {
 	try
 	{
@@ -780,11 +783,13 @@ TEST(Pool, Thread)
 
 		result.store(0);
 
-		tinyToolkit::ThreadPool pool(8);
+		tinyToolkit::TaskPool pool;
+
+		pool.Launch(8);
 
 		for (int32_t i = 0; i < 10; ++i)
 		{
-			pool.Commit(&ThreadPoolTest::plus, std::ref(result), i + 1);
+			pool.Submit(&ThreadPoolTest::plus, std::ref(result), i + 1);
 		}
 
 		pool.Wait();
@@ -792,15 +797,17 @@ TEST(Pool, Thread)
 		EXPECT_EQ(pool.TaskSize(), static_cast<std::size_t>(0));
 		EXPECT_EQ(pool.ThreadSize(), static_cast<std::size_t>(8));
 
-		EXPECT_FALSE(pool.IsClose());
+		EXPECT_FALSE(pool.IsTerminated());
 
-		pool.Release();
+		pool.Terminate();
+
+		TINY_TOOLKIT_SLEEP_MS(10);
 
 		EXPECT_EQ(result.load(), 45);
 		EXPECT_EQ(pool.TaskSize(), static_cast<std::size_t>(0));
-		EXPECT_EQ(pool.ThreadSize(), static_cast<std::size_t>(0));
+		EXPECT_EQ(pool.ThreadSize(), static_cast<std::size_t>(8));
 
-		EXPECT_TRUE(pool.IsClose());
+		EXPECT_TRUE(pool.IsTerminated());
 	}
 	catch (const std::exception & e)
 	{

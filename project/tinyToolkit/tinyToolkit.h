@@ -64,7 +64,7 @@
 #include "test/environment.h"
 
 /// pool
-#include "pool/thread.h"
+#include "pool/task.h"
 #include "pool/callback.h"
 #include "pool/application.h"
 

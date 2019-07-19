@@ -31,10 +31,10 @@ namespace tinyToolkit
 		 * @return 浮点型随机数
 		 *
 		 */
-		template<typename TypeT>
-		static TypeT FloatUniformDistribution(const TypeT min, const TypeT max)
+		template<typename FLoatTypeT>
+		static FLoatTypeT FloatUniformDistribution(const FLoatTypeT min, const FLoatTypeT max)
 		{
-			static_assert(std::is_floating_point<TypeT>::value, "Template must be a float type");
+			static_assert(std::is_floating_point<FLoatTypeT>::value, "Template must be a float type");
 
 			assert(min <= max);
 
@@ -42,7 +42,7 @@ namespace tinyToolkit
 
 			std::mt19937 mt(rd());
 
-			std::uniform_real_distribution<TypeT> dis(min, max);
+			std::uniform_real_distribution<FLoatTypeT> dis(min, max);
 
 			return dis(mt);
 		}
@@ -51,7 +51,7 @@ namespace tinyToolkit
 		 *
 		 * 生成整数类型随机数
 		 *
-		 * @tparam TypeT [all integral types]
+		 * @tparam TypeT [all integer types]
 		 *
 		 * @param min 最小值
 		 * @param max 最大值
@@ -59,10 +59,10 @@ namespace tinyToolkit
 		 * @return 随机数
 		 *
 		 */
-		template<typename TypeT>
-		static TypeT IntUniformDistribution(const TypeT min, const TypeT max)
+		template<typename IntegerTypeT>
+		static IntegerTypeT IntUniformDistribution(const IntegerTypeT min, const IntegerTypeT max)
 		{
-			static_assert(std::is_integral<TypeT>::value, "Template must be an integral type");
+			static_assert(std::is_integral<IntegerTypeT>::value, "Template must be an integer type");
 
 			assert(min <= max);
 
@@ -70,7 +70,7 @@ namespace tinyToolkit
 
 			std::mt19937 mt(rd());
 
-			std::uniform_int_distribution<TypeT> dis(min, max);
+			std::uniform_int_distribution<IntegerTypeT> dis(min, max);
 
 			return dis(mt);
 		}

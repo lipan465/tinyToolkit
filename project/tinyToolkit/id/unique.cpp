@@ -21,8 +21,9 @@ namespace tinyToolkit
 	 */
 	UniqueID::UniqueID()
 	{
+		/// 这里需要用稳定时间, 防止系统时间变化
 		_id.key.count = 0;
-		_id.key.times = static_cast<uint32_t>(Time::Seconds());
+		_id.key.times = static_cast<uint32_t>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count());
 	}
 
 	/**
@@ -46,7 +47,8 @@ namespace tinyToolkit
 	 */
 	uint64_t UniqueID::Create()
 	{
-		auto timeStamp = static_cast<uint32_t>(Time::Seconds());
+		/// 这里需要用稳定时间, 防止系统时间变化
+		auto timeStamp = static_cast<uint32_t>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count());
 
 		if (timeStamp != _id.key.times)
 		{

@@ -191,7 +191,7 @@ namespace tinyToolkit
 			return;
 		}
 
-		UpdateDigest(_context, value, size);
+		UpdateDigest(_context, value, static_cast<uint32_t>(size));
 
 		_context.isComputed = false;
 	}
@@ -326,7 +326,7 @@ namespace tinyToolkit
 	 * @param length 加密数据长度
 	 *
 	 */
-	void SHA512::UpdateDigest(Context & context, const uint8_t * value, std::size_t length)
+	void SHA512::UpdateDigest(Context & context, const uint8_t * value, uint32_t length)
 	{
 		uint32_t fill = SHA512_BLOCK_SIZE - context.blockLength;
 

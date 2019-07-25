@@ -17,7 +17,7 @@
 namespace tinyToolkit
 {
 	template<typename ReturnTypeT, typename ...Args>
-	class TINY_TOOLKIT_API CallBackPool
+	class TINY_TOOLKIT_API CallbackPool
 	{
 		class TINY_TOOLKIT_API Callback
 		{

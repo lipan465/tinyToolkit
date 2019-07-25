@@ -39,12 +39,12 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 注册堆栈跟踪信号
+		 * 注册堆崩溃信号
 		 *
 		 * @param handler 信号触发时调用的函数
 		 *
 		 */
-		static void RegisterStackTrace(void(* handler)(int32_t));
+		static void RegisterCrash(void(* handler)(int32_t));
 
 		/**
 		 *

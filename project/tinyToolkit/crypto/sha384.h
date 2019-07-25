@@ -203,7 +203,7 @@ namespace tinyToolkit
 		 * @param length 加密数据长度
 		 *
 		 */
-		static void UpdateDigest(Context & context, const uint8_t * value, std::size_t length);
+		static void UpdateDigest(Context & context, const uint8_t * value, uint32_t length);
 
 		/**
 		 *

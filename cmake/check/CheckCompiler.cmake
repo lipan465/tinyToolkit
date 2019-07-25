@@ -63,29 +63,30 @@ ENDIF()
 #
 IF (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 
-	TRAVERSE_SET(CMAKE_CXX_FLAGS	-g										# 将编译时的调试信息保存到本地文件中
-									-Os										# 优选代码空间
-									-ldl									# 支持dlopen, dlsym, dlclose, dlerror显示加载动态库
-									-fPIC									# 告诉编译器产生与位置无关代码, 则产生的代码中, 没有绝对地址, 全部使用相对地址
-									-pthread								# 链接线程库
-									-rdynamic								# 通知链接器将所有符号添加到动态符号表中
-#									-fmem-report							# 显示所有的静态内存分配
-#									-ftime-report							# 统计编译消耗的时间并显示报告
-									-finline-functions						# 把所有简单的函数内联进调用者. 编译器会探索式地决定哪些函数足够简单, 值得做这种内联
-									-Wall									# 会打开一些很有用的警告选项
-									-Werror									# 把警告当作错误
-									-Wextra									# 打印一些额外的警告信息
-									-Wshadow								# 当一个局部变量遮盖住了另一个局部变量, 或者全局变量, 给出警告
-									-Woverflow								# 范围溢出, 给出警告
-									-Wcast-align							# 某个指针类型强制转换导致目标所需的地址对齐增加, 给出警告
-									-Wfatal-errors							# 出现错误的时候停止编译
-									-Wpointer-arith							# 对函数指针或者void *类型的指针进行算术操作, 给出警告
-									-Wredundant-decls						# 如果在同一个可见域内某定义多次声明, 给出警告
-									-Wunreachable-code						# 如果编译器探测到永远不会执行到的代码, 给出警告
-									-Wreturn-local-addr						# 如果返回临时引用, 给出警告
-									-Woverloaded-virtual					# 如果函数的声明隐藏住了基类的虚函数, 给出警告
-									-Wunused-but-set-variable				# 设置了但未使用的变量, 给出警告
-									-Wsizeof-pointer-memaccess)				# 无法保证完整初始化类, 给出警告
+	TRAVERSE_SET(CMAKE_CXX_FLAGS	-g								# 将编译时的调试信息保存到本地文件中
+									-Os								# 优选代码空间
+									-ldl							# 支持dlopen, dlsym, dlclose, dlerror显示加载动态库
+									-fPIC							# 告诉编译器产生与位置无关代码, 则产生的代码中, 没有绝对地址, 全部使用相对地址
+									-pthread						# 链接线程库
+									-rdynamic						# 通知链接器将所有符号添加到动态符号表中
+#									-fmem-report					# 显示所有的静态内存分配
+#									-ftime-report					# 统计编译消耗的时间并显示报告
+									-finline-functions				# 把所有简单的函数内联进调用者. 编译器会探索式地决定哪些函数足够简单, 值得做这种内联
+									-Wall							# 会打开一些很有用的警告选项
+									-Werror							# 把警告当作错误
+									-Wextra							# 打印一些额外的警告信息
+									-Wshadow						# 当一个局部变量遮盖住了另一个局部变量, 或者全局变量, 给出警告
+									-Woverflow						# 范围溢出, 给出警告
+									-Wcast-align					# 某个指针类型强制转换导致目标所需的地址对齐增加, 给出警告
+									-Wfatal-errors					# 出现错误的时候停止编译
+									-Wpointer-arith					# 对函数指针或者void *类型的指针进行算术操作, 给出警告
+									-Wredundant-decls				# 如果在同一个可见域内某定义多次声明, 给出警告
+									-Wunreachable-code				# 如果编译器探测到永远不会执行到的代码, 给出警告
+									-Wreturn-local-addr				# 如果返回临时引用, 给出警告
+									-Woverloaded-virtual			# 如果函数的声明隐藏住了基类的虚函数, 给出警告
+									-fno-omit-frame-pointer			# 产生stack frame
+									-Wunused-but-set-variable		# 设置了但未使用的变量, 给出警告
+									-Wsizeof-pointer-memaccess)		# 无法保证完整初始化类, 给出警告
 
 	IF(NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.6)
 
@@ -97,9 +98,9 @@ IF (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 	IF(NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.0)
 
 		TRAVERSE_SET(CMAKE_CXX_FLAGS	-Wtrampolines
-										-Wdouble-promotion					# 对从float到double的隐式转换, 给出警告
+										-Wdouble-promotion
 										-Wsized-deallocation
-										-Wvector-operation-performance)		# 当在SIMD之外编译向量操作时, 给出警告
+										-Wvector-operation-performance)
 
 	ENDIF()
 
@@ -162,6 +163,7 @@ ELSEIF (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 									-Wredundant-decls				# 如果在同一个可见域内某定义多次声明, 给出警告
 									-Woverloaded-virtual			# 如果函数的声明隐藏住了基类的虚函数, 给出警告
 									-Wreturn-stack-address			# 如果返回临时引用, 给出警告
+									-fno-omit-frame-pointer			# 产生stack frame
 									-Wsizeof-pointer-memaccess)		# 无法保证完整初始化类, 给出警告
 
 	IF(${CMAKE_BUILD_TYPE} MATCHES Debug)

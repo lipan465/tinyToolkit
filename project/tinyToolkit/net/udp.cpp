@@ -289,6 +289,8 @@ namespace tinyToolkit
 							return;
 						}
 					}
+
+					return;
 				}
 				else if (len <= 0 && errno != EAGAIN)
 				{
@@ -302,6 +304,13 @@ namespace tinyToolkit
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_LINUX
 
 		auto currentEvent = reinterpret_cast<const struct epoll_event *>(sysEvent);
+
+		if (currentEvent->events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP))
+		{
+			Close();
+
+			return;
+		}
 
 		if (currentEvent->events & EPOLLIN)
 		{
@@ -346,25 +355,36 @@ namespace tinyToolkit
 			{
 				auto & value = _sendQueue.Front();
 
-				::send(_socket, value->_data, value->_size, 0);
+				auto len = ::send(_socket, value->_data, value->_size, 0);
 
-				_sendQueue.Pop();
-
-				if (_sendQueue.Empty())
+				if (len > 0)
 				{
-					_isSend = false;
+					_sendQueue.Pop();
 
-					struct epoll_event event{ };
-
-					event.events = EPOLLIN;
-					event.data.ptr = &_netEvent;
-
-					if (epoll_ctl(_handle, EPOLL_CTL_MOD, _socket, &event) == -1)
+					if (_sendQueue.Empty())
 					{
-						Close();
+						_isSend = false;
 
-						return;
+						struct epoll_event event{ };
+
+						event.events = EPOLLIN;
+						event.data.ptr = &_netEvent;
+
+						if (epoll_ctl(_handle, EPOLL_CTL_MOD, _socket, &event) == -1)
+						{
+							Close();
+
+							return;
+						}
 					}
+
+					return;
+				}
+				else if (len <= 0 && errno != EAGAIN)
+				{
+					Close();
+
+					return;
 				}
 			}
 		}
@@ -491,7 +511,7 @@ namespace tinyToolkit
 		memset(&_sendEvent._overlap, 0, sizeof(OVERLAPPED));
 
 		_sendEvent._buffer.buf = value->_data;
-		_sendEvent._buffer.len = value->_size;
+		_sendEvent._buffer.len =  static_cast<ULONG>(value->_size);
 
 		if (WSASend(_socket, &_sendEvent._buffer, 1, &bytes, flag, (LPWSAOVERLAPPED)&_sendEvent, nullptr) == TINY_TOOLKIT_SOCKET_ERROR)
 		{

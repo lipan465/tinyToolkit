@@ -118,8 +118,16 @@ cmake	%projectDirectory% ^
 ::
 :: 复制文件
 ::
+copy %buildDirectory%\fmt\release\fmt.lib %buildDirectory%\tinyToolkit\example\container
+copy %buildDirectory%\fmt\release\fmt.lib %buildDirectory%\tinyToolkit\example\crypto
+copy %buildDirectory%\fmt\release\fmt.lib %buildDirectory%\tinyToolkit\example\debug
+copy %buildDirectory%\fmt\release\fmt.lib %buildDirectory%\tinyToolkit\example\id
+copy %buildDirectory%\fmt\release\fmt.lib %buildDirectory%\tinyToolkit\example\log
 copy %buildDirectory%\fmt\release\fmt.lib %buildDirectory%\tinyToolkit\example\net
-copy %buildDirectory%\fmt\release\fmt.lib %buildDirectory%\tinyToolkit\example\benchmark
+copy %buildDirectory%\fmt\release\fmt.lib %buildDirectory%\tinyToolkit\example\pool
+copy %buildDirectory%\fmt\release\fmt.lib %buildDirectory%\tinyToolkit\example\system
+copy %buildDirectory%\fmt\release\fmt.lib %buildDirectory%\tinyToolkit\example\test
+copy %buildDirectory%\fmt\release\fmt.lib %buildDirectory%\tinyToolkit\example\timer
 copy %buildDirectory%\fmt\release\fmt.lib %buildDirectory%\tinyToolkit\project\tinyToolkit
 
 

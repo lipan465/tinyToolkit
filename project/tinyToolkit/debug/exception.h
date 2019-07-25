@@ -57,13 +57,6 @@ namespace tinyToolkit
 		 */
 		const std::string & Message() const;
 
-		/**
-		 *
-		 * 打印堆栈信息
-		 *
-		 */
-		void PrintStackTrace();
-
 	protected:
 		mutable std::string _what{ };
 		mutable std::string _option{ };

@@ -1,7 +1,7 @@
 #
 # 项目名
 #
-SET(PROGRAM_NAME netTest)
+SET(PROGRAM_NAME net)
 
 
 #

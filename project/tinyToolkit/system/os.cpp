@@ -163,6 +163,7 @@ namespace tinyToolkit
 		DWORD size = sizeof(name);
 
 		return GetComputerName(name, &size) ? name : "";
+
 #else
 
 		char name[TINY_TOOLKIT_PATH_MAX]{ 0 };

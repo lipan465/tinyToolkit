@@ -33,7 +33,11 @@ namespace tinyToolkit
 	 */
 	void Signal::RegisterIgnore()
 	{
-#if TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_WINDOWS
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+
+
+#else
 
 		/**
 		 *
@@ -46,7 +50,6 @@ namespace tinyToolkit
 		 * SIGCHLD 产生信号时就不会僵尸进程, 直接把这个信号忽略掉
 		 *
 		 */
-
 		RegisterAction(SIGHUP, SIG_IGN);
 		RegisterAction(SIGPIPE, SIG_IGN);
 		RegisterAction(SIGCHLD, SIG_IGN);
@@ -56,12 +59,12 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 注册堆栈跟踪信号
+	 * 注册堆崩溃信号
 	 *
 	 * @param handler 信号触发时调用的函数
 	 *
 	 */
-	void Signal::RegisterStackTrace(void(* handler)(int32_t))
+	void Signal::RegisterCrash(void(* handler)(int32_t))
 	{
 		/**
 		 *

@@ -70,10 +70,12 @@
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 #
 #  include <io.h>
+#  include <tchar.h>
 #  include <direct.h>
 #  include <WS2tcpip.h>
 #  include <MSWSock.h>
 #  include <Windows.h>
+#  include <DbgHelp.h>
 #  include <WinSock2.h>
 #  include <TlHelp32.h>
 #
@@ -84,6 +86,7 @@
 #
 #  pragma comment(lib,"ws2_32.lib")  /// socket编程需用的动态链接库
 #  pragma comment(lib, "kernel32.lib")  /// IOCP需要用到的动态链接库
+#  pragma comment( lib, "dbghelp.lib")  /// 调试需要用到的动态链接库
 #
 #else
 #

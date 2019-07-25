@@ -102,6 +102,62 @@ namespace tinyToolkit
 		 *
 		 * 设置日志布局
 		 *
+		 * @tparam LayoutTypeT [layout types]
+		 * @tparam Args [all types]
+		 *
+		 * @param args 参数
+		 *
+		 */
+		template<class LayoutTypeT, typename... Args>
+		std::shared_ptr<ILogSink> SetLayout(Args &&... args)
+		{
+			_layout = std::make_shared<LayoutTypeT>(std::forward<Args>(args)...);
+
+			return shared_from_this();
+		}
+
+		/**
+		 *
+		 * 设置日志过滤器
+		 *
+		 * @tparam FilterTypeT [layout types]
+		 * @tparam Args [all types]
+		 *
+		 * @param args 参数
+		 *
+		 */
+		template<class FilterTypeT, typename... Args>
+		std::shared_ptr<ILogSink> SetFilter(Args &&... args)
+		{
+			_filter = std::make_shared<FilterTypeT>(std::forward<Args>(args)...);
+
+			return shared_from_this();
+		}
+
+		/**
+		 *
+		 * 添加设置日志过滤器
+		 *
+		 * @tparam FilterTypeT [layout types]
+		 * @tparam Args [all types]
+		 *
+		 * @param args 参数
+		 *
+		 */
+		template<class FilterTypeT, typename... Args>
+		std::shared_ptr<ILogSink> AddFilter(Args &&... args)
+		{
+			auto filter = std::make_shared<FilterTypeT>(std::forward<Args>(args)...);
+
+			_filter->AddFilter(std::move(filter));
+
+			return shared_from_this();
+		}
+
+		/**
+		 *
+		 * 设置日志布局
+		 *
 		 * @param layout 日志布局
 		 *
 		 */

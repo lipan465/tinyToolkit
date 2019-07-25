@@ -38,7 +38,7 @@ namespace tinyToolkit
 		 * 析构函数
 		 *
 		 */
-		~TCPSessionPipe() override;
+		~TCPSessionPipe() override = default;
 
 		/**
 		 *
@@ -181,7 +181,7 @@ namespace tinyToolkit
 		 * 析构函数
 		 *
 		 */
-		~TCPServerPipe() override;
+		~TCPServerPipe() override = default;
 
 		/**
 		 *

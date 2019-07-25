@@ -16,7 +16,7 @@
 
 namespace tinyToolkit
 {
-	template <typename AppTypeT, std::size_t CHUNK_SIZE = 32>
+	template <typename AppTypeT, std::size_t CHUNK_SIZE = 4>
 	class TINY_TOOLKIT_API ApplicationPool
 	{
 		struct ChunkList;

@@ -7,8 +7,8 @@
  */
 
 
-#include "backtrace.h"
 #include "exception.h"
+#include "stackTrace.h"
 
 #include "../utilities/string.h"
 
@@ -80,15 +80,5 @@ namespace tinyToolkit
 	const std::string & IException::Message() const
 	{
 		return _message;
-	}
-
-	/**
-	 *
-	 * 打印堆栈信息
-	 *
-	 */
-	void IException::PrintStackTrace()
-	{
-		Backtrace::Print();
 	}
 }

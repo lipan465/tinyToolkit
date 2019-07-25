@@ -31,7 +31,7 @@ static void Random()
 			std::cout << tinyToolkit::Random::FloatUniformDistribution(0.0, 65535.0) << std::endl;
 		}
 	}
-	catch (const std::exception & e)
+	catch (std::exception & e)
 	{
 		std::cerr << e.what() << std::endl;
 	}
@@ -59,7 +59,7 @@ static void UniqueID()
 			std::cout << tinyToolkit::UniqueID::Get() << std::endl;
 		}
 	}
-	catch (const std::exception & e)
+	catch (std::exception & e)
 	{
 		std::cerr << e.what() << std::endl;
 	}
@@ -87,7 +87,7 @@ static void Snowflake()
 			std::cout << tinyToolkit::Snowflake::Get(255, 255) << std::endl;
 		}
 	}
-	catch (const std::exception & e)
+	catch (std::exception & e)
 	{
 		std::cout << e.what() << std::endl;
 	}

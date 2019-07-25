@@ -121,16 +121,6 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 析构函数
-	 *
-	 */
-	TCPSessionPipe::~TCPSessionPipe()
-	{
-		Close();
-	}
-
-	/**
-	 *
 	 * 关闭会话
 	 *
 	 */
@@ -370,6 +360,8 @@ namespace tinyToolkit
 							return;
 						}
 					}
+
+					return;
 				}
 				else if (len <= 0 && errno != EAGAIN)
 				{
@@ -464,6 +456,8 @@ namespace tinyToolkit
 									return;
 								}
 							}
+
+							return;
 						}
 					}
 					else if (len <= 0 && errno != EAGAIN)
@@ -779,7 +773,7 @@ namespace tinyToolkit
 		memset(&_sendEvent._overlap, 0, sizeof(OVERLAPPED));
 
 		_sendEvent._buffer.buf = value->_data;
-		_sendEvent._buffer.len = value->_size;
+		_sendEvent._buffer.len = static_cast<ULONG>(value->_size);
 
 		if (WSASend(_socket, &_sendEvent._buffer, 1, &bytes, flag, (LPWSAOVERLAPPED)&_sendEvent, nullptr) == TINY_TOOLKIT_SOCKET_ERROR)
 		{
@@ -858,16 +852,6 @@ namespace tinyToolkit
 		_netEvent._type = NET_EVENT_TYPE::ACCEPT;
 		_netEvent._socket = socket;
 		_netEvent._completer = this;
-	}
-
-	/**
-	 *
-	 * 析构函数
-	 *
-	 */
-	TCPServerPipe::~TCPServerPipe()
-	{
-		Close();
 	}
 
 	/**
@@ -1032,6 +1016,13 @@ namespace tinyToolkit
 
 		auto currentEvent = reinterpret_cast<const struct kevent *>(sysEvent);
 
+		if (currentEventPtr->flags & EV_ERROR)
+		{
+			Close();
+
+			return;
+		}
+
 		if (currentEvent->filter == EVFILT_READ)
 		{
 			TINY_TOOLKIT_SOCKET_TYPE sock = Accept(_socket, _netEvent);
@@ -1105,6 +1096,13 @@ namespace tinyToolkit
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_LINUX
 
 		auto currentEvent = reinterpret_cast<const struct epoll_event *>(sysEvent);
+
+		if (currentEvent->events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP))
+		{
+			Close();
+
+			return;
+		}
 
 		if (currentEvent->events & EPOLLIN)
 		{

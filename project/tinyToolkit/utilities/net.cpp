@@ -181,7 +181,7 @@ namespace tinyToolkit
 			{
 				char address[1024]{ 0 };
 
-				res = getnameinfo(iter->ai_addr, iter->ai_addrlen, address, sizeof(address), nullptr, 0, NI_NUMERICHOST | NI_NUMERICSERV);
+				res = getnameinfo(iter->ai_addr, static_cast<socklen_t>(iter->ai_addrlen), address, sizeof(address), nullptr, 0, NI_NUMERICHOST | NI_NUMERICSERV);
 
 				if (res == 0)
 				{

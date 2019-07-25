@@ -50,7 +50,7 @@ static void Queue()
 		std::cout << "front : " << queue.Front() << std::endl;
 		std::cout << "value : " << value << std::endl;
 	}
-	catch (const std::exception & e)
+	catch (std::exception & e)
 	{
 		std::cerr << e.what() << std::endl;
 	}

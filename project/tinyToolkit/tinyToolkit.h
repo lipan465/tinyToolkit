@@ -75,8 +75,9 @@
 
 /// debug
 #include "debug/trace.h"
+#include "debug/coreDump.h"
 #include "debug/exception.h"
-#include "debug/backtrace.h"
+#include "debug/stackTrace.h"
 
 /// logic
 #include "logic/module.h"

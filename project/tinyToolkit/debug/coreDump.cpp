@@ -136,14 +136,14 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 崩溃处理
+	 * 异常处理
 	 *
 	 * @param exception 异常
 	 *
-	 * @return 崩溃处理结果
+	 * @return 异常处理结果
 	 *
 	 */
-	LONG Crash(PEXCEPTION_POINTERS exception)
+	LONG ExceptionHandler(PEXCEPTION_POINTERS exception)
 	{
 		CreateMiniDump(exception);
 
@@ -154,12 +154,12 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 崩溃处理
+	 * 异常处理
 	 *
 	 * @param signalNo 信号量
 	 *
 	 */
-	static void Crash(int32_t signalNo)
+	static void ExceptionHandler(int32_t signalNo)
 	{
 		std::string file = String::Format
 		(
@@ -223,11 +223,11 @@ namespace tinyToolkit
 	{
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-		sExceptionFilter = ::SetUnhandledExceptionFilter(Crash);
+		sExceptionFilter = ::SetUnhandledExceptionFilter(ExceptionHandler);
 
 #else
 
-		Signal::RegisterCrash(Crash);
+		Signal::RegisterException(ExceptionHandler);
 
 #endif
 	}

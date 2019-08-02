@@ -45,8 +45,8 @@ static void Signal()
 	{
 		tinyToolkit::Signal::RegisterIgnore();
 
-		tinyToolkit::Signal::RegisterCrash([](int signalNo){ std::cout << "Crash : " << signalNo << std::endl; });
 		tinyToolkit::Signal::RegisterTerminate([](int signalNo){ std::cout << "Terminate : " << signalNo << std::endl; });
+		tinyToolkit::Signal::RegisterException([](int signalNo){ std::cout << "Exception : " << signalNo << std::endl; });
 
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 

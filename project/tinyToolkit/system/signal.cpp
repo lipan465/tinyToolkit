@@ -59,32 +59,6 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 注册堆崩溃信号
-	 *
-	 * @param handler 信号触发时调用的函数
-	 *
-	 */
-	void Signal::RegisterCrash(void(* handler)(int32_t))
-	{
-		/**
-		 *
-		 * SIGILL  非法指令
-		 *
-		 * SIGFPE  浮点异常
-		 *
-		 * SIGABRT 调用abort函数生成的信号
-		 *
-		 * SIGSEGV 进程执行了一个无效的内存引用, 或发生段错误时发送给它的信号
-		 *
-		 */
-		RegisterAction(SIGILL, handler);
-		RegisterAction(SIGFPE, handler);
-		RegisterAction(SIGABRT, handler);
-		RegisterAction(SIGSEGV, handler);
-	}
-
-	/**
-	 *
 	 * 注册结束信号
 	 *
 	 * @param handler 信号触发时调用的函数
@@ -133,6 +107,32 @@ namespace tinyToolkit
 		RegisterAction(SIGTSTP, handler);
 
 #endif
+	}
+
+	/**
+	 *
+	 * 注册异常信号
+	 *
+	 * @param handler 信号触发时调用的函数
+	 *
+	 */
+	void Signal::RegisterException(void(* handler)(int32_t))
+	{
+		/**
+		 *
+		 * SIGILL  非法指令
+		 *
+		 * SIGFPE  浮点异常
+		 *
+		 * SIGABRT 调用abort函数生成的信号
+		 *
+		 * SIGSEGV 进程执行了一个无效的内存引用, 或发生段错误时发送给它的信号
+		 *
+		 */
+		RegisterAction(SIGILL, handler);
+		RegisterAction(SIGFPE, handler);
+		RegisterAction(SIGABRT, handler);
+		RegisterAction(SIGSEGV, handler);
 	}
 
 	/**

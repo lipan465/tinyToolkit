@@ -39,21 +39,21 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 注册堆崩溃信号
-		 *
-		 * @param handler 信号触发时调用的函数
-		 *
-		 */
-		static void RegisterCrash(void(* handler)(int32_t));
-
-		/**
-		 *
 		 * 注册结束信号
 		 *
 		 * @param handler 信号触发时调用的函数
 		 *
 		 */
 		static void RegisterTerminate(void(* handler)(int32_t));
+
+		/**
+		 *
+		 * 注册异常信号
+		 *
+		 * @param handler 信号触发时调用的函数
+		 *
+		 */
+		static void RegisterException(void(* handler)(int32_t));
 
 		/**
 		 *

@@ -155,7 +155,17 @@ namespace tinyToolkit
 
 			if (key == '\"')
 			{
-				++tag;
+				if (i - 1 > 0)
+				{
+					if (value[i - 1] != '\\')
+					{
+						++tag;
+					}
+				}
+				else
+				{
+					++tag;
+				}
 			}
 
 			str += key;

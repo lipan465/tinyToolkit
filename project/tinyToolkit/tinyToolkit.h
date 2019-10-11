@@ -102,6 +102,12 @@
 #include "crypto/sha384.h"
 #include "crypto/sha512.h"
 #include "crypto/base64.h"
+#include "crypto/hmac_md5.h"
+#include "crypto/hmac_sha1.h"
+#include "crypto/hmac_sha224.h"
+#include "crypto/hmac_sha256.h"
+#include "crypto/hmac_sha384.h"
+#include "crypto/hmac_sha512.h"
 
 /// system
 #include "system/os.h"

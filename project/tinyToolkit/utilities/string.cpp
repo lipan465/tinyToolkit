@@ -914,7 +914,7 @@ namespace tinyToolkit
 	 *
 	 * 转换字符
 	 *
-	 * @param value 待转换字符串
+	 * @param value 待转换数据
 	 *
 	 * @return 转换后字符
 	 *
@@ -987,16 +987,16 @@ namespace tinyToolkit
 		int64_t init = reverse ? static_cast<int64_t>(size) - 2 : 0;
 		int64_t end  = reverse ? -2 : static_cast<int64_t>(size);
 
-		std::string tempStr;
+		std::string content = { };
 
 		for (int64_t i = init; i != end; i += op)
 		{
 			char buffer[3] = { value[i], value[i + 1], '\0' };
 
-			tempStr.push_back(AsByte(buffer));
+			content.push_back(AsByte(buffer));
 		}
 
-		return tempStr;
+		return content;
 	}
 
 	/**

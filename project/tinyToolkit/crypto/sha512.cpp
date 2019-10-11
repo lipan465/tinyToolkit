@@ -15,13 +15,6 @@
 
 namespace tinyToolkit
 {
-	#define SHA512_BLOCK_SIZE (1024 / 8)
-	#define SHA512_DIGEST_SIZE ( 512 / 8)
-
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
 	/**
 	 *
 	 * 构造函数
@@ -29,88 +22,7 @@ namespace tinyToolkit
 	 */
 	SHA512::SHA512()
 	{
-		Initialization();
-	}
-
-	/**
-	 *
-	 * 构造函数
-	 *
-	 * @param value 待加密数据
-	 *
-	 */
-	SHA512::SHA512(const char * value) : SHA512()
-	{
-		if (value)
-		{
-			Update(value);
-		}
-	}
-
-	/**
-	 *
-	 * 构造函数
-	 *
-	 * @param value 待加密数据
-	 *
-	 */
-	SHA512::SHA512(const uint8_t * value) : SHA512()
-	{
-		if (value)
-		{
-			Update(value);
-		}
-	}
-
-	/**
-	 *
-	 * 构造函数
-	 *
-	 * @param value 待加密数据
-	 *
-	 */
-	SHA512::SHA512(const std::string & value) : SHA512()
-	{
-		Update(value);
-	}
-
-	/**
-	 *
-	 * 构造函数
-	 *
-	 * @param data 待加密数据
-	 * @param size 待加密数据长度
-	 *
-	 */
-	SHA512::SHA512(const char * data, std::size_t size) : SHA512()
-	{
-		Update(data, size);
-	}
-
-	/**
-	 *
-	 * 构造函数
-	 *
-	 * @param data 待加密数据
-	 * @param size 待加密数据长度
-	 *
-	 */
-	SHA512::SHA512(const uint8_t * data, std::size_t size) : SHA512()
-	{
-		Update(data, size);
-	}
-
-	/**
-	 *
-	 * 构造函数
-	 *
-	 * @param data 待加密数据
-	 * @param size 待加密数据长度
-	 *
-	 */
-	SHA512::SHA512(const std::string & data, std::size_t size) : SHA512()
-	{
-		Update(data, size);
+		Initialization(_context);
 	}
 
 	/**
@@ -120,107 +32,139 @@ namespace tinyToolkit
 	 */
 	void SHA512::Reset()
 	{
-		Operator::Clear(_hex);
+		_isComputed = false;
 
-		memset(reinterpret_cast<void *>(&_context), 0, sizeof(Context));
+		memset(_digest, 0, sizeof(_digest));
+		memset(reinterpret_cast<void *>(&_context), 0, sizeof(_context));
 
-		Initialization();
+		Operator::Clear(_result);
+
+		Initialization(_context);
 	}
 
 	/**
 	 *
-	 * 更新内容
+	 * 追加内容
 	 *
-	 * @param value 待更新数据
-	 *
-	 */
-	void SHA512::Update(const char * value)
-	{
-		Update(value, strlen(value));
-	}
-
-	/**
-	 *
-	 * 更新内容
-	 *
-	 * @param value 待更新数据
+	 * @param value 待追加内容
 	 *
 	 */
-	void SHA512::Update(const uint8_t * value)
+	void SHA512::Append(const char * value)
 	{
-		Update(value, strlen(reinterpret_cast<const char *>(value)));
-	}
-
-	/**
-	 *
-	 * 更新内容
-	 *
-	 * @param value 待更新数据
-	 *
-	 */
-	void SHA512::Update(const std::string & value)
-	{
-		Update(value, value.size());
-	}
-
-	/**
-	 *
-	 * 更新内容
-	 *
-	 * @param value 待更新数据
-	 * @param size 待更新数据长度
-	 *
-	 */
-	void SHA512::Update(const char * value, std::size_t size)
-	{
-		Update(reinterpret_cast<const uint8_t *>(value), size);
-	}
-
-	/**
-	 *
-	 * 更新内容
-	 *
-	 * @param value 待更新数据
-	 * @param size 待更新数据长度
-	 *
-	 */
-	void SHA512::Update(const uint8_t * value, std::size_t size)
-	{
-		if (value == nullptr || size == 0)
+		if (value == nullptr)
 		{
 			return;
 		}
 
-		UpdateDigest(_context, value, static_cast<uint32_t>(size));
-
-		_context.isComputed = false;
+		Append(value, strlen(value));
 	}
 
 	/**
 	 *
-	 * 更新内容
+	 * 追加内容
 	 *
-	 * @param value 待更新数据
-	 * @param size 待更新数据长度
+	 * @param value 待追加内容
 	 *
 	 */
-	void SHA512::Update(const std::string & value, std::size_t size)
+	void SHA512::Append(const uint8_t * value)
 	{
-		Update(value.c_str(), size);
+		if (value == nullptr)
+		{
+			return;
+		}
+
+		Append(value, strlen(reinterpret_cast<const char *>(value)));
 	}
 
 	/**
 	 *
-	 * 转换后的16进制字符串
+	 * 追加内容
 	 *
-	 * @return 16进制字符串
+	 * @param value 待追加内容
 	 *
 	 */
-	const std::string & SHA512::Hex()
+	void SHA512::Append(const std::string & value)
 	{
-		ContextDigest();
+		Append(value, value.size());
+	}
 
-		return _hex;
+	/**
+	 *
+	 * 追加内容
+	 *
+	 * @param value 待追加内容
+	 * @param length 待追加内容长度
+	 *
+	 */
+	void SHA512::Append(const char * value, std::size_t length)
+	{
+		if (value == nullptr || length == 0)
+		{
+			return;
+		}
+
+		Append(reinterpret_cast<const uint8_t *>(value), length);
+	}
+
+	/**
+	 *
+	 * 追加内容
+	 *
+	 * @param value 待追加内容
+	 * @param length 待追加内容长度
+	 *
+	 */
+	void SHA512::Append(const uint8_t * value, std::size_t length)
+	{
+		if (value == nullptr || length == 0)
+		{
+			return;
+		}
+
+		Update(_context, value, static_cast<uint32_t>(length));
+
+		_isComputed = false;
+	}
+
+	/**
+	 *
+	 * 追加内容
+	 *
+	 * @param value 待追加内容
+	 * @param length 待追加内容长度
+	 *
+	 */
+	void SHA512::Append(const std::string & value, std::size_t length)
+	{
+		Append(value.c_str(), length);
+	}
+
+	/**
+	 *
+	 * 摘要
+	 *
+	 * @return 摘要
+	 *
+	 */
+	const uint8_t * SHA512::Digest()
+	{
+		Generate();
+
+		return _digest;
+	}
+
+	/**
+	 *
+	 * 摘要
+	 *
+	 * @return 摘要
+	 *
+	 */
+	const std::string & SHA512::Result()
+	{
+		Generate();
+
+		return _result;
 	}
 
 
@@ -229,39 +173,22 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 初始化
+	 * 生成
 	 *
 	 */
-	void SHA512::Initialization()
+	void SHA512::Generate()
 	{
-		_context.hash[0] = 0x6a09e667f3bcc908ULL;
-		_context.hash[1] = 0xbb67ae8584caa73bULL;
-		_context.hash[2] = 0x3c6ef372fe94f82bULL;
-		_context.hash[3] = 0xa54ff53a5f1d36f1ULL;
-		_context.hash[4] = 0x510e527fade682d1ULL;
-		_context.hash[5] = 0x9b05688c2b3e6c1fULL;
-		_context.hash[6] = 0x1f83d9abfb41bd6bULL;
-		_context.hash[7] = 0x5be0cd19137e2179ULL;
-	}
-
-	/**
-	 *
-	 * 转换加密后的数据
-	 *
-	 */
-	void SHA512::ContextDigest()
-	{
-		if (!_context.isComputed)
+		if (!_isComputed)
 		{
-			_context.isComputed = true;
+			_isComputed = true;
 
-			SHA512 temp(*this);
+			Context context{ };
 
-			uint8_t digest[SHA512_DIGEST_SIZE]{ 0 };
+			memcpy(&context, &_context, sizeof(context));
 
-			FinalDigest(temp._context, digest);
+			Final(context, _digest);
 
-			_hex.assign(String::AsHexString(digest, sizeof(digest), false));
+			_result.assign(String::AsHexString(_digest, sizeof(_digest), false));
 		}
 	}
 
@@ -271,13 +198,13 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 结束加密
+	 * 完成
 	 *
 	 * @param context 内容结构
 	 * @param digest 存储摘要
 	 *
 	 */
-	void SHA512::FinalDigest(Context & context, uint8_t * digest)
+	void SHA512::Final(Context & context, uint8_t * digest)
 	{
 		#define UNPACK32(x, str)                      \
 		{                                             \
@@ -319,14 +246,14 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 更新加密内容
+	 * 更新
 	 *
 	 * @param context 内容结构
-	 * @param value 加密数据
-	 * @param length 加密数据长度
+	 * @param value 待更新内容
+	 * @param length 待更新内容长度
 	 *
 	 */
-	void SHA512::UpdateDigest(Context & context, const uint8_t * value, uint32_t length)
+	void SHA512::Update(Context & context, const uint8_t * value, uint32_t length)
 	{
 		uint32_t fill = SHA512_BLOCK_SIZE - context.blockLength;
 
@@ -487,5 +414,24 @@ namespace tinyToolkit
 				context.hash[j] += X[j];
 			}
 		}
+	}
+
+	/**
+	 *
+	 * 初始化
+	 *
+	 * @param context 内容结构
+	 *
+	 */
+	void SHA512::Initialization(Context & context)
+	{
+		context.hash[0] = 0x6a09e667f3bcc908ULL;
+		context.hash[1] = 0xbb67ae8584caa73bULL;
+		context.hash[2] = 0x3c6ef372fe94f82bULL;
+		context.hash[3] = 0xa54ff53a5f1d36f1ULL;
+		context.hash[4] = 0x510e527fade682d1ULL;
+		context.hash[5] = 0x9b05688c2b3e6c1fULL;
+		context.hash[6] = 0x1f83d9abfb41bd6bULL;
+		context.hash[7] = 0x5be0cd19137e2179ULL;
 	}
 }

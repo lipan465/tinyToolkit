@@ -275,7 +275,7 @@ namespace tinyToolkit
 	 *
 	 * 文件内容
 	 *
-	 * @param path 待读取文件路径
+	 * @param path 待读取路径
 	 *
 	 * @return 文件内容
 	 *

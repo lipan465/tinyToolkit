@@ -14,11 +14,11 @@ namespace tinyToolkit
 {
 	/**
 	 *
-	 * 加密
+	 * 编码
 	 *
-	 * @param value 待加密数据
+	 * @param value 待编码内容
 	 *
-	 * @return 加密后数据
+	 * @return 编码后内容
 	 *
 	 */
 	std::string Base64::Encode(const char * value)
@@ -30,11 +30,11 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 加密
+	 * 编码
 	 *
-	 * @param value 待加密数据
+	 * @param value 待编码内容
 	 *
-	 * @return 加密后数据
+	 * @return 编码后内容
 	 *
 	 */
 	std::string Base64::Encode(const uint8_t * value)
@@ -46,11 +46,11 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 加密
+	 * 编码
 	 *
-	 * @param value 待加密数据
+	 * @param value 待编码内容
 	 *
-	 * @return 加密后数据
+	 * @return 编码后内容
 	 *
 	 */
 	std::string Base64::Encode(const std::string & value)
@@ -60,32 +60,32 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 加密
+	 * 编码
 	 *
-	 * @param value 待加密数据
-	 * @param size 待加密数据长度
+	 * @param value 待编码内容
+	 * @param length 待编码内容长度
 	 *
-	 * @return 加密后数据
+	 * @return 编码后内容
 	 *
 	 */
-	std::string Base64::Encode(const char * value, std::size_t size)
+	std::string Base64::Encode(const char * value, std::size_t length)
 	{
 		assert(value);
 
-		return Encode(reinterpret_cast<const uint8_t *>(value), size);
+		return Encode(reinterpret_cast<const uint8_t *>(value), length);
 	}
 
 	/**
 	 *
-	 * 加密
+	 * 编码
 	 *
-	 * @param value 待加密数据
-	 * @param size 待加密数据长度
+	 * @param value 待编码内容
+	 * @param length 待编码内容长度
 	 *
-	 * @return 加密后数据
+	 * @return 编码后内容
 	 *
 	 */
-	std::string Base64::Encode(const uint8_t * value, std::size_t size)
+	std::string Base64::Encode(const uint8_t * value, std::size_t length)
 	{
 		assert(value);
 
@@ -103,27 +103,27 @@ namespace tinyToolkit
 
 		std::string res;
 
-		while (size > 2)
+		while (length > 2)
 		{
 			res += EncodeTable[                            value[0] >> 2 ];
 			res += EncodeTable[((value[0] & 0x03) << 4) + (value[1] >> 4)];
 			res += EncodeTable[((value[1] & 0x0f) << 2) + (value[2] >> 6)];
 			res += EncodeTable[  value[2] & 0x3f];
 
-			size  -= 3;
-			value += 3;
+			value  += 3;
+			length -= 3;
 		}
 
-		if (size > 0)
+		if (length > 0)
 		{
 			res += EncodeTable[value[0] >> 2];
 
-			if (size % 3 == 1)
+			if (length % 3 == 1)
 			{
 				res += EncodeTable[(value[0] & 0x03) << 4];
 				res += "==";
 			}
-			else if (size % 3 == 2)
+			else if (length % 3 == 2)
 			{
 				res += EncodeTable[((value[0] & 0x03) << 4) + (value[1] >> 4)];
 				res += EncodeTable[ (value[1] & 0x0f) << 2];
@@ -136,26 +136,26 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 加密
+	 * 编码
 	 *
-	 * @param value 待加密数据
-	 * @param size 待加密数据长度
+	 * @param value 待编码内容
+	 * @param length 待编码内容长度
 	 *
-	 * @return 加密后数据
+	 * @return 编码后内容
 	 *
 	 */
-	std::string Base64::Encode(const std::string & value, std::size_t size)
+	std::string Base64::Encode(const std::string & value, std::size_t length)
 	{
-		return Encode(value.c_str(), size);
+		return Encode(value.c_str(), length);
 	}
 
 	/**
 	 *
-	 * 解密
+	 * 解码
 	 *
-	 * @param value 待解密数据
+	 * @param value 待解码内容
 	 *
-	 * @return 解密后数据
+	 * @return 解码后内容
 	 *
 	 */
 	std::string Base64::Decode(const char * value)
@@ -167,11 +167,11 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 解密
+	 * 解码
 	 *
-	 * @param value 待解密数据
+	 * @param value 待解码内容
 	 *
-	 * @return 解密后数据
+	 * @return 解码后内容
 	 *
 	 */
 	std::string Base64::Decode(const uint8_t * value)
@@ -183,11 +183,11 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 解密
+	 * 解码
 	 *
-	 * @param value 待解密数据
+	 * @param value 待解码内容
 	 *
-	 * @return 解密后数据
+	 * @return 解码后内容
 	 *
 	 */
 	std::string Base64::Decode(const std::string & value)
@@ -197,32 +197,32 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 解密
+	 * 解码
 	 *
-	 * @param value 待解密数据
-	 * @param size 待解密数据长度
+	 * @param value 待解码内容
+	 * @param length 待解码内容长度
 	 *
-	 * @return 解密后数据
+	 * @return 解码后内容
 	 *
 	 */
-	std::string Base64::Decode(const char * value, std::size_t size)
+	std::string Base64::Decode(const char * value, std::size_t length)
 	{
 		assert(value);
 
-		return Decode(reinterpret_cast<const uint8_t *>(value), size);
+		return Decode(reinterpret_cast<const uint8_t *>(value), length);
 	}
 
 	/**
 	 *
-	 * 解密
+	 * 解码
 	 *
-	 * @param value 待解密数据
-	 * @param size 待解密数据长度
+	 * @param value 待解码内容
+	 * @param length 待解码内容长度
 	 *
-	 * @return 解密后数据
+	 * @return 解码后内容
 	 *
 	 */
-	std::string Base64::Decode(const uint8_t * value, std::size_t size)
+	std::string Base64::Decode(const uint8_t * value, std::size_t length)
 	{
 		assert(value);
 
@@ -255,7 +255,7 @@ namespace tinyToolkit
 
 		std::string res;
 
-		while ((ch = *value++) != '\0' && i <= size)
+		while ((ch = *value++) != '\0' && i <= length)
 		{
 			pos = i % 4;
 
@@ -339,16 +339,16 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 解密
+	 * 解码
 	 *
-	 * @param value 待解密数据
-	 * @param size 待解密数据长度
+	 * @param value 待解码内容
+	 * @param length 待解码内容长度
 	 *
-	 * @return 解密后数据
+	 * @return 解码后内容
 	 *
 	 */
-	std::string Base64::Decode(const std::string & value, std::size_t size)
+	std::string Base64::Decode(const std::string & value, std::size_t length)
 	{
-		return Decode(value.c_str(), size);
+		return Decode(value.c_str(), length);
 	}
 }

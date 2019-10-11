@@ -566,8 +566,6 @@ namespace tinyToolkit
 
 #endif
 
-
-
 		now.tm_year -= 1900;
 		now.tm_mon -= 1;
 

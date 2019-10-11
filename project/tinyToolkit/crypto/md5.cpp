@@ -78,88 +78,7 @@ namespace tinyToolkit
 	 */
 	MD5::MD5()
 	{
-		Initialization();
-	}
-
-	/**
-	 *
-	 * 构造函数
-	 *
-	 * @param value 待加密数据
-	 *
-	 */
-	MD5::MD5(const char * value) : MD5()
-	{
-		if (value)
-		{
-			Update(value);
-		}
-	}
-
-	/**
-	 *
-	 * 构造函数
-	 *
-	 * @param value 待加密数据
-	 *
-	 */
-	MD5::MD5(const uint8_t * value) : MD5()
-	{
-		if (value)
-		{
-			Update(value);
-		}
-	}
-
-	/**
-	 *
-	 * 构造函数
-	 *
-	 * @param value 待加密数据
-	 *
-	 */
-	MD5::MD5(const std::string & value) : MD5()
-	{
-		Update(value);
-	}
-
-	/**
-	 *
-	 * 构造函数
-	 *
-	 * @param data 待加密数据
-	 * @param size 待加密数据长度
-	 *
-	 */
-	MD5::MD5(const char * data, std::size_t size) : MD5()
-	{
-		Update(data, size);
-	}
-
-	/**
-	 *
-	 * 构造函数
-	 *
-	 * @param data 待加密数据
-	 * @param size 待加密数据长度
-	 *
-	 */
-	MD5::MD5(const uint8_t * data, std::size_t size) : MD5()
-	{
-		Update(data, size);
-	}
-
-	/**
-	 *
-	 * 构造函数
-	 *
-	 * @param data 待加密数据
-	 * @param size 待加密数据长度
-	 *
-	 */
-	MD5::MD5(const std::string & data, std::size_t size) : MD5()
-	{
-		Update(data, size);
+		Initialization(_context);
 	}
 
 	/**
@@ -169,107 +88,139 @@ namespace tinyToolkit
 	 */
 	void MD5::Reset()
 	{
-		Operator::Clear(_hex);
+		_isComputed = false;
 
-		memset(reinterpret_cast<void *>(&_context), 0, sizeof(Context));
+		memset(_digest, 0, sizeof(_digest));
+		memset(reinterpret_cast<void *>(&_context), 0, sizeof(_context));
 
-		Initialization();
+		Operator::Clear(_result);
+
+		Initialization(_context);
 	}
 
 	/**
 	 *
-	 * 更新内容
+	 * 追加内容
 	 *
-	 * @param value 待更新数据
-	 *
-	 */
-	void MD5::Update(const char * value)
-	{
-		Update(value, strlen(value));
-	}
-
-	/**
-	 *
-	 * 更新内容
-	 *
-	 * @param value 待更新数据
+	 * @param value 待追加内容
 	 *
 	 */
-	void MD5::Update(const uint8_t * value)
+	void MD5::Append(const char * value)
 	{
-		Update(value, strlen(reinterpret_cast<const char *>(value)));
-	}
-
-	/**
-	 *
-	 * 更新内容
-	 *
-	 * @param value 待更新数据
-	 *
-	 */
-	void MD5::Update(const std::string & value)
-	{
-		Update(value, value.size());
-	}
-
-	/**
-	 *
-	 * 更新内容
-	 *
-	 * @param value 待更新数据
-	 * @param size 待更新数据长度
-	 *
-	 */
-	void MD5::Update(const char * value, std::size_t size)
-	{
-		Update(reinterpret_cast<const uint8_t *>(value), size);
-	}
-
-	/**
-	 *
-	 * 更新内容
-	 *
-	 * @param value 待更新数据
-	 * @param size 待更新数据长度
-	 *
-	 */
-	void MD5::Update(const uint8_t * value, std::size_t size)
-	{
-		if (value == nullptr || size == 0)
+		if (value == nullptr)
 		{
 			return;
 		}
 
-		UpdateDigest(_context, value, size);
-
-		_context.isComputed = false;
+		Append(value, strlen(value));
 	}
 
 	/**
 	 *
-	 * 更新内容
+	 * 追加内容
 	 *
-	 * @param value 待更新数据
-	 * @param size 待更新数据长度
+	 * @param value 待追加内容
 	 *
 	 */
-	void MD5::Update(const std::string & value, std::size_t size)
+	void MD5::Append(const uint8_t * value)
 	{
-		Update(value.c_str(), size);
+		if (value == nullptr)
+		{
+			return;
+		}
+
+		Append(value, strlen(reinterpret_cast<const char *>(value)));
 	}
 
 	/**
 	 *
-	 * 转换后的16进制字符串
+	 * 追加内容
 	 *
-	 * @return 16进制字符串
+	 * @param value 待追加内容
 	 *
 	 */
-	const std::string & MD5::Hex()
+	void MD5::Append(const std::string & value)
 	{
-		ContextDigest();
+		Append(value, value.size());
+	}
 
-		return _hex;
+	/**
+	 *
+	 * 追加内容
+	 *
+	 * @param value 待追加内容
+	 * @param length 待追加内容长度
+	 *
+	 */
+	void MD5::Append(const char * value, std::size_t length)
+	{
+		if (value == nullptr || length == 0)
+		{
+			return;
+		}
+
+		Append(reinterpret_cast<const uint8_t *>(value), length);
+	}
+
+	/**
+	 *
+	 * 追加内容
+	 *
+	 * @param value 待追加内容
+	 * @param length 待追加内容长度
+	 *
+	 */
+	void MD5::Append(const uint8_t * value, std::size_t length)
+	{
+		if (value == nullptr || length == 0)
+		{
+			return;
+		}
+
+		Update(_context, value, length);
+
+		_isComputed = false;
+	}
+
+	/**
+	 *
+	 * 追加内容
+	 *
+	 * @param value 待追加内容
+	 * @param length 待追加内容长度
+	 *
+	 */
+	void MD5::Append(const std::string & value, std::size_t size)
+	{
+		Append(value.c_str(), size);
+	}
+
+	/**
+	 *
+	 * 摘要
+	 *
+	 * @return 摘要
+	 *
+	 */
+	const uint8_t * MD5::Digest()
+	{
+		Generate();
+
+		return _digest;
+	}
+
+	/**
+	 *
+	 * 摘要
+	 *
+	 * @return 摘要
+	 *
+	 */
+	const std::string & MD5::Result()
+	{
+		Generate();
+
+		return _result;
 	}
 
 
@@ -278,35 +229,22 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 初始化
+	 * 生成
 	 *
 	 */
-	void MD5::Initialization()
+	void MD5::Generate()
 	{
-		_context.state[0] = 0x67452301;
-		_context.state[1] = 0xEFCDAB89;
-		_context.state[2] = 0x98BADCFE;
-		_context.state[3] = 0x10325476;
-	}
-
-	/**
-	 *
-	 * 转换加密后的数据
-	 *
-	 */
-	void MD5::ContextDigest()
-	{
-		if (!_context.isComputed)
+		if (!_isComputed)
 		{
-			_context.isComputed = true;
+			_isComputed = true;
 
-			MD5 temp(*this);
+			Context context{ };
 
-			uint8_t digest[16]{ 0 };
+			memcpy(&context, &_context, sizeof(context));
 
-			FinalDigest(temp._context, digest);
+			Final(context, _digest);
 
-			_hex.assign(String::AsHexString(digest, sizeof(digest), false));
+			_result.assign(String::AsHexString(_digest, sizeof(_digest), false));
 		}
 	}
 
@@ -316,13 +254,13 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 结束加密
+	 * 完成
 	 *
 	 * @param context 内容结构
 	 * @param digest 存储摘要
 	 *
 	 */
-	void MD5::FinalDigest(Context & context, uint8_t * digest)
+	void MD5::Final(Context & context, uint8_t * digest)
 	{
 		static uint8_t Padding[64] =
 		{
@@ -338,21 +276,21 @@ namespace tinyToolkit
 		uint32_t fill  = (index < 56) ? (56 - index) : (120 - index);
 
 		Encode(context.count, bits, 8);
-		UpdateDigest(context, Padding, fill);
-		UpdateDigest(context, bits, 8);
+		Update(context, Padding, fill);
+		Update(context, bits, 8);
 		Encode(context.state, digest, 16);
 	}
 
 	/**
 	 *
-	 * 更新加密内容
+	 * 更新
 	 *
 	 * @param context 内容结构
-	 * @param value 加密数据
-	 * @param length 加密数据长度
+	 * @param value 待更新内容
+	 * @param length 待更新内容长度
 	 *
 	 */
-	void MD5::UpdateDigest(Context & context, const uint8_t * value, std::size_t length)
+	void MD5::Update(Context & context, const uint8_t * value, std::size_t length)
 	{
 		std::size_t i     = 0;
 		std::size_t index = (context.count[0] >> 3) & 0x3F;
@@ -503,5 +441,20 @@ namespace tinyToolkit
 		context.state[1] += B;
 		context.state[2] += C;
 		context.state[3] += D;
+	}
+
+	/**
+	 *
+	 * 初始化
+	 *
+	 * @param context 内容结构
+	 *
+	 */
+	void MD5::Initialization(Context & context)
+	{
+		context.state[0] = 0x67452301;
+		context.state[1] = 0xEFCDAB89;
+		context.state[2] = 0x98BADCFE;
+		context.state[3] = 0x10325476;
 	}
 }

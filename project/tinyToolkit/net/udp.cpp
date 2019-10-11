@@ -230,11 +230,7 @@ namespace tinyToolkit
 			{
 				auto len = ::recv(_socket, netEvent->_temp, sizeof(netEvent->_temp), 0);
 
-				if (len <= 0 && errno == EAGAIN)
-				{
-					return;
-				}
-				else if (len > 0)
+				if (len > 0)
 				{
 					netEvent->_bytes = static_cast<std::size_t>(len);
 
@@ -254,9 +250,12 @@ namespace tinyToolkit
 				}
 				else
 				{
-					Close();
+					if (errno != EAGAIN)
+					{
+						Close();
 
-					return;
+						return;
+					}
 				}
 			}
 		}
@@ -267,36 +266,42 @@ namespace tinyToolkit
 			{
 				auto & value = _sendQueue.Front();
 
-				auto len = ::send(_socket, value->_data, value->_size, 0);
-
-				if (len > 0)
+				while (value->_pos < value->_size)
 				{
-					_sendQueue.Pop();
+					auto len = ::send(_socket, value->_data + value->_pos, value->_size - value->_pos, 0);
 
-					if (_sendQueue.Empty())
+					if (len > 0)
 					{
-						_isSend = false;
-
-						struct kevent event[2]{ };
-
-						EV_SET(&event[0], _socket, EVFILT_READ, EV_ENABLE, 0, 0, &_netEvent);
-						EV_SET(&event[1], _socket, EVFILT_WRITE, EV_DISABLE, 0, 0, &_netEvent);
-
-						if (kevent(_handle, event, 2, nullptr, 0, nullptr) == -1)
+						value->_pos += len;
+					}
+					else
+					{
+						if (errno != EAGAIN)
 						{
 							Close();
 
 							return;
 						}
 					}
-
-					return;
 				}
-				else if (len <= 0 && errno != EAGAIN)
-				{
-					Close();
 
-					return;
+				_sendQueue.Pop();
+
+				if (_sendQueue.Empty())
+				{
+					_isSend = false;
+
+					struct kevent event[2]{ };
+
+					EV_SET(&event[0], _socket, EVFILT_READ, EV_ENABLE, 0, 0, &_netEvent);
+					EV_SET(&event[1], _socket, EVFILT_WRITE, EV_DISABLE, 0, 0, &_netEvent);
+
+					if (kevent(_handle, event, 2, nullptr, 0, nullptr) == -1)
+					{
+						Close();
+
+						return;
+					}
 				}
 			}
 		}
@@ -318,11 +323,7 @@ namespace tinyToolkit
 			{
 				auto len = ::recv(_socket, netEvent->_temp, sizeof(netEvent->_temp), 0);
 
-				if (len <= 0 && errno == EAGAIN)
-				{
-					return;
-				}
-				else if (len > 0)
+				if (len > 0)
 				{
 					netEvent->_bytes = static_cast<std::size_t>(len);
 
@@ -342,9 +343,12 @@ namespace tinyToolkit
 				}
 				else
 				{
-					Close();
+					if (errno != EAGAIN)
+					{
+						Close();
 
-					return;
+						return;
+					}
 				}
 			}
 		}
@@ -355,36 +359,42 @@ namespace tinyToolkit
 			{
 				auto & value = _sendQueue.Front();
 
-				auto len = ::send(_socket, value->_data, value->_size, 0);
-
-				if (len > 0)
+				while (value->_pos < value->_size)
 				{
-					_sendQueue.Pop();
+					auto len = ::send(_socket, value->_data + value->_pos, value->_size - value->_pos, 0);
 
-					if (_sendQueue.Empty())
+					if (len > 0)
 					{
-						_isSend = false;
-
-						struct epoll_event event{ };
-
-						event.events = EPOLLIN;
-						event.data.ptr = &_netEvent;
-
-						if (epoll_ctl(_handle, EPOLL_CTL_MOD, _socket, &event) == -1)
+						value->_pos += len;
+					}
+					else
+					{
+						if (errno != EAGAIN)
 						{
 							Close();
 
 							return;
 						}
 					}
-
-					return;
 				}
-				else if (len <= 0 && errno != EAGAIN)
-				{
-					Close();
 
-					return;
+				_sendQueue.Pop();
+
+				if (_sendQueue.Empty())
+				{
+					_isSend = false;
+
+					struct epoll_event event{ };
+
+					event.events = EPOLLIN;
+					event.data.ptr = &_netEvent;
+
+					if (epoll_ctl(_handle, EPOLL_CTL_MOD, _socket, &event) == -1)
+					{
+						Close();
+
+						return;
+					}
 				}
 			}
 		}

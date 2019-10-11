@@ -873,7 +873,7 @@ namespace tinyToolkit
 					}
 					else
 					{
-						TINY_TOOLKIT_ASSERT(false, ::GetLastError());
+						TINY_TOOLKIT_ASSERT(false, strerror(errno));
 
 						return;
 					}

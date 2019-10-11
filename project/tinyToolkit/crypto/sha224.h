@@ -18,11 +18,9 @@ namespace tinyToolkit
 {
 	class TINY_TOOLKIT_API SHA224
 	{
-		typedef struct Context
+		typedef struct
 		{
-			bool isComputed{ false };
-
-			uint8_t block[128]{ 0 };
+			uint8_t block[2 * SHA224_BLOCK_SIZE]{ 0 };
 
 			uint32_t hash[8]{ 0 };
 
@@ -40,63 +38,6 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 构造函数
-		 *
-		 * @param value 待加密数据
-		 *
-		 */
-		explicit SHA224(const char * value);
-
-		/**
-		 *
-		 * 构造函数
-		 *
-		 * @param value 待加密数据
-		 *
-		 */
-		explicit SHA224(const uint8_t * value);
-
-		/**
-		 *
-		 * 构造函数
-		 *
-		 * @param value 待加密数据
-		 *
-		 */
-		explicit SHA224(const std::string & value);
-
-		/**
-		 *
-		 * 构造函数
-		 *
-		 * @param data 待加密数据
-		 * @param size 待加密数据长度
-		 *
-		 */
-		explicit SHA224(const char * data, std::size_t size);
-
-		/**
-		 *
-		 * 构造函数
-		 *
-		 * @param data 待加密数据
-		 * @param size 待加密数据长度
-		 *
-		 */
-		explicit SHA224(const uint8_t * data, std::size_t size);
-
-		/**
-		 *
-		 * 构造函数
-		 *
-		 * @param data 待加密数据
-		 * @param size 待加密数据长度
-		 *
-		 */
-		explicit SHA224(const std::string & data, std::size_t size);
-
-		/**
-		 *
 		 * 重置
 		 *
 		 */
@@ -104,106 +45,108 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 更新内容
+		 * 追加内容
 		 *
-		 * @param value 待更新数据
+		 * @param value 待追加内容
 		 *
 		 */
-		void Update(const char * value);
+		void Append(const char * value);
 
 		/**
 		 *
-		 * 更新内容
+		 * 追加内容
 		 *
-		 * @param value 待更新数据
+		 * @param value 待追加内容
 		 *
 		 */
-		void Update(const uint8_t * value);
+		void Append(const uint8_t * value);
 
 		/**
 		 *
-		 * 更新内容
+		 * 追加内容
 		 *
-		 * @param value 待更新数据
+		 * @param value 待追加内容
 		 *
 		 */
-		void Update(const std::string & value);
+		void Append(const std::string & value);
 
 		/**
 		 *
-		 * 更新内容
+		 * 追加内容
 		 *
-		 * @param value 待更新数据
-		 * @param size 待更新数据长度
+		 * @param value 待追加内容
+		 * @param length 待追加内容长度
 		 *
 		 */
-		void Update(const char * value, std::size_t size);
+		void Append(const char * value, std::size_t length);
 
 		/**
 		 *
-		 * 更新内容
+		 * 追加内容
 		 *
-		 * @param value 待更新数据
-		 * @param size 待更新数据长度
+		 * @param value 待追加内容
+		 * @param length 待追加内容长度
 		 *
 		 */
-		void Update(const uint8_t * value, std::size_t size);
+		void Append(const uint8_t * value, std::size_t length);
 
 		/**
 		 *
-		 * 更新内容
+		 * 追加内容
 		 *
-		 * @param value 待更新数据
-		 * @param size 待更新数据长度
+		 * @param value 待追加内容
+		 * @param length 待追加内容长度
 		 *
 		 */
-		void Update(const std::string & value, std::size_t size);
+		void Append(const std::string & value, std::size_t length);
 
 		/**
 		 *
-		 * 转换后的16进制字符串
+		 * 摘要
 		 *
-		 * @return 16进制字符串
-		 *
-		 */
-		const std::string & Hex();
-
-	protected:
-		/**
-		 *
-		 * 初始化
+		 * @return 摘要
 		 *
 		 */
-		void Initialization();
+		const uint8_t * Digest();
 
 		/**
 		 *
-		 * 转换加密后的数据
+		 * 摘要
+		 *
+		 * @return 摘要
 		 *
 		 */
-		void ContextDigest();
+		const std::string & Result();
 
 	protected:
 		/**
 		 *
-		 * 结束加密
+		 * 生成
+		 *
+		 */
+		void Generate();
+
+	protected:
+		/**
+		 *
+		 * 完成
 		 *
 		 * @param context 内容结构
 		 * @param digest 存储摘要
 		 *
 		 */
-		static void FinalDigest(Context & context, uint8_t * digest);
+		static void Final(Context & context, uint8_t * digest);
 
 		/**
 		 *
-		 * 更新加密内容
+		 * 更新
 		 *
 		 * @param context 内容结构
-		 * @param value 加密数据
-		 * @param length 加密数据长度
+		 * @param value 待更新内容
+		 * @param length 待更新内容长度
 		 *
 		 */
-		static void UpdateDigest(Context & context, const uint8_t * value, uint32_t length);
+		static void Update(Context & context, const uint8_t * value, uint32_t length);
 
 		/**
 		 *
@@ -216,10 +159,23 @@ namespace tinyToolkit
 		 */
 		static void Transform(Context & context, const uint8_t * block, uint32_t number);
 
+		/**
+		 *
+		 * 初始化
+		 *
+		 * @param context 内容结构
+		 *
+		 */
+		static void Initialization(Context & context);
+
 	protected:
+		bool _isComputed{ false };
+
+		uint8_t _digest[SHA224_DIGEST_SIZE]{ 0 };
+
 		Context _context{ };
 
-		std::string _hex{ };
+		std::string _result{ };
 	};
 }
 

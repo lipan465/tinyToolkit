@@ -48,6 +48,7 @@ namespace tinyToolkit
 	public:
 		char * _data{ nullptr };
 
+		std::size_t _pos{ 0 };
 		std::size_t _size{ 0 };
 	};
 }

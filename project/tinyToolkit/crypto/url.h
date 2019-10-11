@@ -21,141 +21,141 @@ namespace tinyToolkit
 	public:
 		/**
 		 *
-		 * 加密
+		 * 编码
 		 *
-		 * @param value 待加密数据
+		 * @param value 待编码内容
 		 *
-		 * @return 加密后数据
+		 * @return 编码后内容
 		 *
 		 */
 		static std::string Encode(const char * value);
 
 		/**
 		 *
-		 * 加密
+		 * 编码
 		 *
-		 * @param value 待加密数据
+		 * @param value 待编码内容
 		 *
-		 * @return 加密后数据
+		 * @return 编码后内容
 		 *
 		 */
 		static std::string Encode(const uint8_t * value);
 
 		/**
 		 *
-		 * 加密
+		 * 编码
 		 *
-		 * @param value 待加密数据
+		 * @param value 待编码内容
 		 *
-		 * @return 加密后数据
+		 * @return 编码后内容
 		 *
 		 */
 		static std::string Encode(const std::string & value);
 
 		/**
 		 *
-		 * 加密
+		 * 编码
 		 *
-		 * @param value 待加密数据
-		 * @param size 待加密数据长度
+		 * @param value 待编码内容
+		 * @param length 待编码内容长度
 		 *
-		 * @return 加密后数据
+		 * @return 编码后内容
 		 *
 		 */
-		static std::string Encode(const char * value, std::size_t size);
+		static std::string Encode(const char * value, std::size_t length);
 
 		/**
 		 *
-		 * 加密
+		 * 编码
 		 *
-		 * @param value 待加密数据
-		 * @param size 待加密数据长度
+		 * @param value 待编码内容
+		 * @param length 待编码内容长度
 		 *
-		 * @return 加密后数据
+		 * @return 编码后内容
 		 *
 		 */
-		static std::string Encode(const uint8_t * value, std::size_t size);
+		static std::string Encode(const uint8_t * value, std::size_t length);
 
 		/**
 		 *
-		 * 加密
+		 * 编码
 		 *
-		 * @param value 待加密数据
-		 * @param size 待加密数据长度
+		 * @param value 待编码内容
+		 * @param length 待编码内容长度
 		 *
-		 * @return 加密后数据
+		 * @return 编码后内容
 		 *
 		 */
-		static std::string Encode(const std::string & value, std::size_t size);
+		static std::string Encode(const std::string & value, std::size_t length);
 
 		/**
 		 *
-		 * 解密
+		 * 解码
 		 *
-		 * @param value 待解密数据
+		 * @param value 待解码内容
 		 *
-		 * @return 解密后数据
+		 * @return 解码后内容
 		 *
 		 */
 		static std::string Decode(const char * value);
 
 		/**
 		 *
-		 * 解密
+		 * 解码
 		 *
-		 * @param value 待解密数据
+		 * @param value 待解码内容
 		 *
-		 * @return 解密后数据
+		 * @return 解码后内容
 		 *
 		 */
 		static std::string Decode(const uint8_t * value);
 
 		/**
 		 *
-		 * 解密
+		 * 解码
 		 *
-		 * @param value 待解密数据
+		 * @param value 待解码内容
 		 *
-		 * @return 解密后数据
+		 * @return 解码后内容
 		 *
 		 */
 		static std::string Decode(const std::string & value);
 
 		/**
 		 *
-		 * 解密
+		 * 解码
 		 *
-		 * @param value 待解密数据
-		 * @param size 待解密数据长度
+		 * @param value 待解码内容
+		 * @param length 待解码内容长度
 		 *
-		 * @return 解密后数据
+		 * @return 解码后内容
 		 *
 		 */
-		static std::string Decode(const char * value, std::size_t size);
+		static std::string Decode(const char * value, std::size_t length);
 
 		/**
 		 *
-		 * 解密
+		 * 解码
 		 *
-		 * @param value 待解密数据
-		 * @param size 待解密数据长度
+		 * @param value 待解码内容
+		 * @param length 待解码内容长度
 		 *
-		 * @return 解密后数据
+		 * @return 解码后内容
 		 *
 		 */
-		static std::string Decode(const uint8_t * value, std::size_t size);
+		static std::string Decode(const uint8_t * value, std::size_t length);
 
 		/**
 		 *
-		 * 解密
+		 * 解码
 		 *
-		 * @param value 待解密数据
-		 * @param size 待解密数据长度
+		 * @param value 待解码内容
+		 * @param length 待解码内容长度
 		 *
-		 * @return 解密后数据
+		 * @return 解码后内容
 		 *
 		 */
-		static std::string Decode(const std::string & value, std::size_t size);
+		static std::string Decode(const std::string & value, std::size_t length);
 	};
 }
 

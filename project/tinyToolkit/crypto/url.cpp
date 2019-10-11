@@ -46,11 +46,11 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 加密
+	 * 编码
 	 *
-	 * @param value 待加密数据
+	 * @param value 待编码内容
 	 *
-	 * @return 加密后数据
+	 * @return 编码后内容
 	 *
 	 */
 	std::string UrlTransform::Encode(const char * value)
@@ -62,11 +62,11 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 加密
+	 * 编码
 	 *
-	 * @param value 待加密数据
+	 * @param value 待编码内容
 	 *
-	 * @return 加密后数据
+	 * @return 编码后内容
 	 *
 	 */
 	std::string UrlTransform::Encode(const uint8_t * value)
@@ -78,11 +78,11 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 加密
+	 * 编码
 	 *
-	 * @param value 待加密数据
+	 * @param value 待编码内容
 	 *
-	 * @return 加密后数据
+	 * @return 编码后内容
 	 *
 	 */
 	std::string UrlTransform::Encode(const std::string & value)
@@ -92,38 +92,38 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 加密
+	 * 编码
 	 *
-	 * @param value 待加密数据
-	 * @param size 待加密数据长度
+	 * @param value 待编码内容
+	 * @param length 待编码内容长度
 	 *
-	 * @return 加密后数据
+	 * @return 编码后内容
 	 *
 	 */
-	std::string UrlTransform::Encode(const char * value, std::size_t size)
+	std::string UrlTransform::Encode(const char * value, std::size_t length)
 	{
 		assert(value);
 
-		return Encode(reinterpret_cast<const uint8_t *>(value), size);
+		return Encode(reinterpret_cast<const uint8_t *>(value), length);
 	}
 
 	/**
 	 *
-	 * 加密
+	 * 编码
 	 *
-	 * @param value 待加密数据
-	 * @param size 待加密数据长度
+	 * @param value 待编码内容
+	 * @param length 待编码内容长度
 	 *
-	 * @return 加密后数据
+	 * @return 编码后内容
 	 *
 	 */
-	std::string UrlTransform::Encode(const uint8_t * value, std::size_t size)
+	std::string UrlTransform::Encode(const uint8_t * value, std::size_t length)
 	{
 		assert(value);
 
 		std::string tempStr;
 
-		for (size_t i = 0; i < size; ++i)
+		for (size_t i = 0; i < length; ++i)
 		{
 			uint8_t byte = value[i];
 
@@ -153,26 +153,26 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 加密
+	 * 编码
 	 *
-	 * @param value 待加密数据
-	 * @param size 待加密数据长度
+	 * @param value 待编码内容
+	 * @param length 待编码内容长度
 	 *
-	 * @return 加密后数据
+	 * @return 编码后内容
 	 *
 	 */
-	std::string UrlTransform::Encode(const std::string & value, std::size_t size)
+	std::string UrlTransform::Encode(const std::string & value, std::size_t length)
 	{
-		return Encode(value.c_str(), size);
+		return Encode(value.c_str(), length);
 	}
 
 	/**
 	 *
-	 * 解密
+	 * 解码
 	 *
-	 * @param value 待解密数据
+	 * @param value 待解码内容
 	 *
-	 * @return 解密后数据
+	 * @return 解码后内容
 	 *
 	 */
 	std::string UrlTransform::Decode(const char * value)
@@ -184,11 +184,11 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 解密
+	 * 解码
 	 *
-	 * @param value 待解密数据
+	 * @param value 待解码内容
 	 *
-	 * @return 解密后数据
+	 * @return 解码后内容
 	 *
 	 */
 	std::string UrlTransform::Decode(const uint8_t * value)
@@ -200,11 +200,11 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 解密
+	 * 解码
 	 *
-	 * @param value 待解密数据
+	 * @param value 待解码内容
 	 *
-	 * @return 解密后数据
+	 * @return 解码后内容
 	 *
 	 */
 	std::string UrlTransform::Decode(const std::string & value)
@@ -214,38 +214,38 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 解密
+	 * 解码
 	 *
-	 * @param value 待解密数据
-	 * @param size 待解密数据长度
+	 * @param value 待解码内容
+	 * @param length 待解码内容长度
 	 *
-	 * @return 解密后数据
+	 * @return 解码后内容
 	 *
 	 */
-	std::string UrlTransform::Decode(const char * value, std::size_t size)
+	std::string UrlTransform::Decode(const char * value, std::size_t length)
 	{
 		assert(value);
 
-		return Decode(reinterpret_cast<const uint8_t *>(value), size);
+		return Decode(reinterpret_cast<const uint8_t *>(value), length);
 	}
 
 	/**
 	 *
-	 * 解密
+	 * 解码
 	 *
-	 * @param value 待解密数据
-	 * @param size 待解密数据长度
+	 * @param value 待解码内容
+	 * @param length 待解码内容长度
 	 *
-	 * @return 解密后数据
+	 * @return 解码后内容
 	 *
 	 */
-	std::string UrlTransform::Decode(const uint8_t * value, std::size_t size)
+	std::string UrlTransform::Decode(const uint8_t * value, std::size_t length)
 	{
 		assert(value);
 
 		std::string tempStr;
 
-		for (std::size_t i = 0; i < size; ++i)
+		for (std::size_t i = 0; i < length; ++i)
 		{
 			if (value[i] == '+')
 			{
@@ -269,12 +269,12 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 解密
+	 * 解码
 	 *
-	 * @param value 待解密数据
-	 * @param size 待解密数据长度
+	 * @param value 待解码内容
+	 * @param length 待解码内容长度
 	 *
-	 * @return 解密后数据
+	 * @return 解码后内容
 	 *
 	 */
 	std::string UrlTransform::Decode(const std::string & value, std::size_t size)

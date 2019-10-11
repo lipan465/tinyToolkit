@@ -117,7 +117,7 @@ namespace tinyToolkit
 		 *
 		 * @tparam ValueTypeT [all built-in types]
 		 *
-		 * @param path 待写入文件路径
+		 * @param path 待写入路径
 		 * @param value 待写入数据
 		 *
 		 * @return 写入结果
@@ -148,7 +148,7 @@ namespace tinyToolkit
 		 *
 		 * @tparam It [container iterator]
 		 *
-		 * @param path 待写入文件路径
+		 * @param path 待写入路径
 		 * @param begin 待写入数据迭代器头部
 		 * @param end 待写入数据迭代器尾部
 		 *

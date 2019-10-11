@@ -293,8 +293,8 @@ namespace tinyToolkit
 		Define("help",    "display help message",    "Help options");
 		Define("version", "display version message", "Version options");
 
-		std::string opt;
-		std::string val;
+		std::string opt = { };
+		std::string val = { };
 
 		for (int32_t i = 1; i < argc; ++i)
 		{

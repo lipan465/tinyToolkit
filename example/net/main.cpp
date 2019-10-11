@@ -63,7 +63,7 @@ static void UDPClient()
 
 		UDPSession session;
 
-		if (!session.Launch("127.0.0.1", 10086, "127.0.0.1", 20086, 4096))
+		if (!session.Launch("0.0.0.0", 10086, "127.0.0.1", 20086, 4096))
 		{
 			std::cout << "Launch TCP Client Failed" << std::endl;
 
@@ -148,7 +148,7 @@ static void UDPServer()
 
 		UDPSession session;
 
-		if (!session.Launch("127.0.0.1", 20086, "127.0.0.1", 10086, 4096))
+		if (!session.Launch("0.0.0.0", 20086, "127.0.0.1", 10086, 4096))
 		{
 			std::cout << "Launch TCP Client Failed" << std::endl;
 
@@ -382,7 +382,7 @@ static void TCPServer()
 
 		TCPServer server;
 
-		if (!server.Launch("127.0.0.1", 10086, 4096))
+		if (!server.Launch("0.0.0.0", 10086, 4096))
 		{
 			std::cout << "Launch TCP Server Failed" << std::endl;
 		}

@@ -14,222 +14,140 @@
 #include "platform.h"
 
 
-/**
- *
- * pi
- *
- */
 #ifndef TINY_TOOLKIT_PI
-#
-#  define TINY_TOOLKIT_PI								(3.1415926535898f)
-#
+#define TINY_TOOLKIT_PI									(3.1415926535898f)
 #endif
 
-/**
- *
- * second
- *
- */
 #ifndef TINY_TOOLKIT_SECOND
-#
-#  define TINY_TOOLKIT_SECOND							(1)
-#
+#define TINY_TOOLKIT_SECOND								(1)
 #endif
 
-/**
- *
- * minute
- *
- */
 #ifndef TINY_TOOLKIT_MINUTE
-#
-#  define TINY_TOOLKIT_MINUTE							(60 * TINY_TOOLKIT_SECOND)
-#
+#define TINY_TOOLKIT_MINUTE								(60 * TINY_TOOLKIT_SECOND)
 #endif
 
-/**
- *
- * hour
- *
- */
 #ifndef TINY_TOOLKIT_HOUR
-#
-#  define TINY_TOOLKIT_HOUR								(60 * TINY_TOOLKIT_MINUTE)
-#
+#define TINY_TOOLKIT_HOUR								(60 * TINY_TOOLKIT_MINUTE)
 #endif
 
-/**
- *
- * day
- *
- */
 #ifndef TINY_TOOLKIT_DAY
-#
-#  define TINY_TOOLKIT_DAY								(24 * TINY_TOOLKIT_HOUR)
-#
+#define TINY_TOOLKIT_DAY								(24 * TINY_TOOLKIT_HOUR)
 #endif
 
-/**
- *
- * week
- *
- */
 #ifndef TINY_TOOLKIT_WEEK
-#
-#  define TINY_TOOLKIT_WEEK								(7 * TINY_TOOLKIT_DAY)
-#
+#define TINY_TOOLKIT_WEEK								(7 * TINY_TOOLKIT_DAY)
 #endif
 
-/**
- *
- * year
- *
- */
 #ifndef TINY_TOOLKIT_YEAR
-#
-#  define TINY_TOOLKIT_YEAR								(12 * TINY_TOOLKIT_WEEK)
-#
+#define TINY_TOOLKIT_YEAR								(12 * TINY_TOOLKIT_WEEK)
 #endif
 
-/**
- *
- * Byte
- *
- */
 #ifndef TINY_TOOLKIT_BYTE
-#
-#  define TINY_TOOLKIT_BYTE								(1)
-#
+#define TINY_TOOLKIT_BYTE								(1)
 #endif
 
-/**
- *
- * Kilobyte
- *
- */
 #ifndef TINY_TOOLKIT_KB
-#
-#  define TINY_TOOLKIT_KB								(1024 * TINY_TOOLKIT_BYTE)
-#
+#define TINY_TOOLKIT_KB									(1024 * TINY_TOOLKIT_BYTE)
 #endif
 
-/**
- *
- * Mega byte
- *
- */
 #ifndef TINY_TOOLKIT_MB
-#
-#  define TINY_TOOLKIT_MB								(1024 * TINY_TOOLKIT_KB)
-#
+#define TINY_TOOLKIT_MB									(1024 * TINY_TOOLKIT_KB)
 #endif
 
-/**
- *
- * Giga byte
- *
- */
 #ifndef TINY_TOOLKIT_GB
-#
-#  define TINY_TOOLKIT_GB								(1024 * TINY_TOOLKIT_MB)
-#
+#define TINY_TOOLKIT_GB									(1024 * TINY_TOOLKIT_MB)
 #endif
 
-/**
- *
- * Tera byte
- *
- */
 #ifndef TINY_TOOLKIT_TB
-#
-#  define TINY_TOOLKIT_TB								(1024 * TINY_TOOLKIT_GB)
-#
+#define TINY_TOOLKIT_TB									(1024 * TINY_TOOLKIT_GB)
 #endif
 
-/**
- *
- * Peta byte
- *
- */
 #ifndef TINY_TOOLKIT_PB
-#
-#  define TINY_TOOLKIT_PB								(1024 * TINY_TOOLKIT_TB)
-#
+#define TINY_TOOLKIT_PB									(1024 * TINY_TOOLKIT_TB)
 #endif
 
-/**
- *
- * Exa byte
- *
- */
 #ifndef TINY_TOOLKIT_EB
-#
-#  define TINY_TOOLKIT_EB								(1024 * TINY_TOOLKIT_PB)
-#
+#define TINY_TOOLKIT_EB									(1024 * TINY_TOOLKIT_PB)
 #endif
 
-/**
- *
- * Zetta byte
- *
- */
 #ifndef TINY_TOOLKIT_ZB
-#
-#  define TINY_TOOLKIT_ZB								(1024 * TINY_TOOLKIT_EB)
-#
+#define TINY_TOOLKIT_ZB									(1024 * TINY_TOOLKIT_EB)
 #endif
 
-/**
- *
- * Yotta byte
- *
- */
 #ifndef TINY_TOOLKIT_YB
-#
-#  define TINY_TOOLKIT_YB								(1024 * TINY_TOOLKIT_ZB)
-#
+#define TINY_TOOLKIT_YB									(1024 * TINY_TOOLKIT_ZB)
 #endif
 
-/**
- *
- * Bronto byte
- *
- */
 #ifndef TINY_TOOLKIT_BB
-#
-#  define TINY_TOOLKIT_BB								(1024 * TINY_TOOLKIT_YB)
-#
+#define TINY_TOOLKIT_BB									(1024 * TINY_TOOLKIT_YB)
 #endif
 
-/**
- *
- * Nona byte
- *
- */
 #ifndef TINY_TOOLKIT_NB
-#
-#  define TINY_TOOLKIT_NB								(1024 * TINY_TOOLKIT_BB)
-#
+#define TINY_TOOLKIT_NB									(1024 * TINY_TOOLKIT_BB)
 #endif
 
-/**
- *
- * Dogga byte
- *
- */
 #ifndef TINY_TOOLKIT_DB
-#
-#  define TINY_TOOLKIT_DB								(1024 * TINY_TOOLKIT_NB)
-#
+#define TINY_TOOLKIT_DB									(1024 * TINY_TOOLKIT_NB)
 #endif
 
-/**
- *
- * 网络句柄个数
- *
- */
 #ifndef TINY_TOOLKIT_NET_COUNT
 #define TINY_TOOLKIT_NET_COUNT							10240
+#endif
+
+#ifndef HMAC_PAD_64_SIZE
+#define HMAC_PAD_64_SIZE								64
+#endif
+
+#ifndef HMAC_PAD_128_SIZE
+#define HMAC_PAD_128_SIZE								128
+#endif
+
+#ifndef MD5_BLOCK_SIZE
+#define MD5_BLOCK_SIZE									32
+#endif
+
+#ifndef MD5_DIGEST_SIZE
+#define MD5_DIGEST_SIZE									16
+#endif
+
+#ifndef SHA1_BLOCK_SIZE
+#define SHA1_BLOCK_SIZE									32
+#endif
+
+#ifndef SHA1_DIGEST_SIZE
+#define SHA1_DIGEST_SIZE								20
+#endif
+
+#ifndef SHA224_BLOCK_SIZE
+#define SHA224_BLOCK_SIZE								64
+#endif
+
+#ifndef SHA224_DIGEST_SIZE
+#define SHA224_DIGEST_SIZE								28
+#endif
+
+#ifndef SHA256_BLOCK_SIZE
+#define SHA256_BLOCK_SIZE								64
+#endif
+
+#ifndef SHA256_DIGEST_SIZE
+#define SHA256_DIGEST_SIZE								32
+#endif
+
+#ifndef SHA384_BLOCK_SIZE
+#define SHA384_BLOCK_SIZE								128
+#endif
+
+#ifndef SHA384_DIGEST_SIZE
+#define SHA384_DIGEST_SIZE								48
+#endif
+
+#ifndef SHA512_BLOCK_SIZE
+#define SHA512_BLOCK_SIZE								128
+#endif
+
+#ifndef SHA512_DIGEST_SIZE
+#define SHA512_DIGEST_SIZE								64
 #endif
 
 

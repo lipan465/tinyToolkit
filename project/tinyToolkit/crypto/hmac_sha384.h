@@ -1,31 +1,27 @@
-#ifndef __TINY_TOOLKIT__CRYPTO__SHA384__H__
-#define __TINY_TOOLKIT__CRYPTO__SHA384__H__
+#ifndef __TINY_TOOLKIT__CRYPTO__HMAC_SHA384__H__
+#define __TINY_TOOLKIT__CRYPTO__HMAC_SHA384__H__
 
 
 /**
  *
  *  作者: hm
  *
- *  说明: sha384编码
+ *  说明: hmac-sha384编码
  *
  */
 
 
-#include "../common/common.h"
+#include "sha384.h"
 
 
 namespace tinyToolkit
 {
-	class TINY_TOOLKIT_API SHA384
+	class TINY_TOOLKIT_API HMAC_SHA384
 	{
-		typedef struct Context
+		typedef struct
 		{
-			uint8_t block[2 * SHA384_BLOCK_SIZE]{ 0 };
-
-			uint64_t hash[8]{ 0 };
-
-			uint32_t totalLength{ 0 };
-			uint32_t blockLength{ 0 };
+			uint8_t iPad[HMAC_PAD_128_SIZE]{ 0 };
+			uint8_t oPad[HMAC_PAD_128_SIZE]{ 0 };
 		}Context;
 
 	public:
@@ -34,7 +30,7 @@ namespace tinyToolkit
 		 * 构造函数
 		 *
 		 */
-		SHA384();
+		HMAC_SHA384();
 
 		/**
 		 *
@@ -42,6 +38,63 @@ namespace tinyToolkit
 		 *
 		 */
 		void Reset();
+
+		/**
+		 *
+		 * 设置密钥
+		 *
+		 * @param key 待设置密钥
+		 *
+		 */
+		void SetKey(const char * key);
+
+		/**
+		 *
+		 * 设置密钥
+		 *
+		 * @param key 待设置密钥
+		 *
+		 */
+		void SetKey(const uint8_t * key);
+
+		/**
+		 *
+		 * 设置密钥
+		 *
+		 * @param key 待设置密钥
+		 *
+		 */
+		void SetKey(const std::string & key);
+
+		/**
+		 *
+		 * 设置密钥
+		 *
+		 * @param key 待设置密钥
+		 * @param length 待设置密钥长度
+		 *
+		 */
+		void SetKey(const char * key, std::size_t length);
+
+		/**
+		 *
+		 * 设置密钥
+		 *
+		 * @param key 待设置密钥
+		 * @param length 待设置密钥长度
+		 *
+		 */
+		void SetKey(const uint8_t * key, std::size_t length);
+
+		/**
+		 *
+		 * 设置密钥
+		 *
+		 * @param key 待设置密钥
+		 * @param length 待设置密钥长度
+		 *
+		 */
+		void SetKey(const std::string & key, std::size_t length);
 
 		/**
 		 *
@@ -129,38 +182,6 @@ namespace tinyToolkit
 	protected:
 		/**
 		 *
-		 * 完成
-		 *
-		 * @param context 内容结构
-		 * @param digest 存储摘要
-		 *
-		 */
-		static void Final(Context & context, uint8_t * digest);
-
-		/**
-		 *
-		 * 更新
-		 *
-		 * @param context 内容结构
-		 * @param value 待更新内容
-		 * @param length 待更新内容长度
-		 *
-		 */
-		static void Update(Context & context, const uint8_t * value, uint32_t length);
-
-		/**
-		 *
-		 * 转换
-		 *
-		 * @param context 内容结构
-		 * @param block 待转换块
-		 * @param number 待转换块个数
-		 *
-		 */
-		static void Transform(Context & context, const uint8_t * block, uint32_t number);
-
-		/**
-		 *
 		 * 初始化
 		 *
 		 * @param context 内容结构
@@ -173,6 +194,8 @@ namespace tinyToolkit
 
 		uint8_t _digest[SHA384_DIGEST_SIZE]{ 0 };
 
+		SHA384 _sha384;
+
 		Context _context{ };
 
 		std::string _result{ };
@@ -180,4 +203,4 @@ namespace tinyToolkit
 }
 
 
-#endif // __TINY_TOOLKIT__CRYPTO__SHA384__H__
+#endif // __TINY_TOOLKIT__CRYPTO__HMAC_SHA384__H__

@@ -15,13 +15,6 @@
 
 namespace tinyToolkit
 {
-	#define SHA384_BLOCK_SIZE  (1024 / 8)
-	#define SHA384_DIGEST_SIZE (384 / 8)
-
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
 	/**
 	 *
 	 * 构造函数
@@ -29,88 +22,7 @@ namespace tinyToolkit
 	 */
 	SHA384::SHA384()
 	{
-		Initialization();
-	}
-
-	/**
-	 *
-	 * 构造函数
-	 *
-	 * @param value 待加密数据
-	 *
-	 */
-	SHA384::SHA384(const char * value) : SHA384()
-	{
-		if (value)
-		{
-			Update(value);
-		}
-	}
-
-	/**
-	 *
-	 * 构造函数
-	 *
-	 * @param value 待加密数据
-	 *
-	 */
-	SHA384::SHA384(const uint8_t * value) : SHA384()
-	{
-		if (value)
-		{
-			Update(value);
-		}
-	}
-
-	/**
-	 *
-	 * 构造函数
-	 *
-	 * @param value 待加密数据
-	 *
-	 */
-	SHA384::SHA384(const std::string & value) : SHA384()
-	{
-		Update(value);
-	}
-
-	/**
-	 *
-	 * 构造函数
-	 *
-	 * @param data 待加密数据
-	 * @param size 待加密数据长度
-	 *
-	 */
-	SHA384::SHA384(const char * data, std::size_t size) : SHA384()
-	{
-		Update(data, size);
-	}
-
-	/**
-	 *
-	 * 构造函数
-	 *
-	 * @param data 待加密数据
-	 * @param size 待加密数据长度
-	 *
-	 */
-	SHA384::SHA384(const uint8_t * data, std::size_t size) : SHA384()
-	{
-		Update(data, size);
-	}
-
-	/**
-	 *
-	 * 构造函数
-	 *
-	 * @param data 待加密数据
-	 * @param size 待加密数据长度
-	 *
-	 */
-	SHA384::SHA384(const std::string & data, std::size_t size) : SHA384()
-	{
-		Update(data, size);
+		Initialization(_context);
 	}
 
 	/**
@@ -120,107 +32,139 @@ namespace tinyToolkit
 	 */
 	void SHA384::Reset()
 	{
-		Operator::Clear(_hex);
+		_isComputed = false;
 
-		memset(reinterpret_cast<void *>(&_context), 0, sizeof(Context));
+		memset(_digest, 0, sizeof(_digest));
+		memset(reinterpret_cast<void *>(&_context), 0, sizeof(_context));
 
-		Initialization();
+		Operator::Clear(_result);
+
+		Initialization(_context);
 	}
 
 	/**
 	 *
-	 * 更新内容
+	 * 追加内容
 	 *
-	 * @param value 待更新数据
-	 *
-	 */
-	void SHA384::Update(const char * value)
-	{
-		Update(value, strlen(value));
-	}
-
-	/**
-	 *
-	 * 更新内容
-	 *
-	 * @param value 待更新数据
+	 * @param value 待追加内容
 	 *
 	 */
-	void SHA384::Update(const uint8_t * value)
+	void SHA384::Append(const char * value)
 	{
-		Update(value, strlen(reinterpret_cast<const char *>(value)));
-	}
-
-	/**
-	 *
-	 * 更新内容
-	 *
-	 * @param value 待更新数据
-	 *
-	 */
-	void SHA384::Update(const std::string & value)
-	{
-		Update(value, value.size());
-	}
-
-	/**
-	 *
-	 * 更新内容
-	 *
-	 * @param value 待更新数据
-	 * @param size 待更新数据长度
-	 *
-	 */
-	void SHA384::Update(const char * value, std::size_t size)
-	{
-		Update(reinterpret_cast<const uint8_t *>(value), size);
-	}
-
-	/**
-	 *
-	 * 更新内容
-	 *
-	 * @param value 待更新数据
-	 * @param size 待更新数据长度
-	 *
-	 */
-	void SHA384::Update(const uint8_t * value, std::size_t size)
-	{
-		if (value == nullptr || size == 0)
+		if (value == nullptr)
 		{
 			return;
 		}
 
-		UpdateDigest(_context, value, static_cast<uint32_t>(size));
-
-		_context.isComputed = false;
+		Append(value, strlen(value));
 	}
 
 	/**
 	 *
-	 * 更新内容
+	 * 追加内容
 	 *
-	 * @param value 待更新数据
-	 * @param size 待更新数据长度
+	 * @param value 待追加内容
 	 *
 	 */
-	void SHA384::Update(const std::string & value, std::size_t size)
+	void SHA384::Append(const uint8_t * value)
 	{
-		Update(value.c_str(), size);
+		if (value == nullptr)
+		{
+			return;
+		}
+
+		Append(value, strlen(reinterpret_cast<const char *>(value)));
 	}
 
 	/**
 	 *
-	 * 转换后的16进制字符串
+	 * 追加内容
 	 *
-	 * @return 16进制字符串
+	 * @param value 待追加内容
 	 *
 	 */
-	const std::string & SHA384::Hex()
+	void SHA384::Append(const std::string & value)
 	{
-		ContextDigest();
+		Append(value, value.size());
+	}
 
-		return _hex;
+	/**
+	 *
+	 * 追加内容
+	 *
+	 * @param value 待追加内容
+	 * @param length 待追加内容长度
+	 *
+	 */
+	void SHA384::Append(const char * value, std::size_t length)
+	{
+		if (value == nullptr || length == 0)
+		{
+			return;
+		}
+
+		Append(reinterpret_cast<const uint8_t *>(value), length);
+	}
+
+	/**
+	 *
+	 * 追加内容
+	 *
+	 * @param value 待追加内容
+	 * @param length 待追加内容长度
+	 *
+	 */
+	void SHA384::Append(const uint8_t * value, std::size_t length)
+	{
+		if (value == nullptr || length == 0)
+		{
+			return;
+		}
+
+		Update(_context, value, static_cast<uint32_t>(length));
+
+		_isComputed = false;
+	}
+
+	/**
+	 *
+	 * 追加内容
+	 *
+	 * @param value 待追加内容
+	 * @param length 待追加内容长度
+	 *
+	 */
+	void SHA384::Append(const std::string & value, std::size_t size)
+	{
+		Append(value.c_str(), size);
+	}
+
+	/**
+	 *
+	 * 摘要
+	 *
+	 * @return 摘要
+	 *
+	 */
+	const uint8_t * SHA384::Digest()
+	{
+		Generate();
+
+		return _digest;
+	}
+
+	/**
+	 *
+	 * 摘要
+	 *
+	 * @return 摘要
+	 *
+	 */
+	const std::string & SHA384::Result()
+	{
+		Generate();
+
+		return _result;
 	}
 
 
@@ -229,39 +173,22 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 初始化
+	 * 生成
 	 *
 	 */
-	void SHA384::Initialization()
+	void SHA384::Generate()
 	{
-		_context.hash[0] = 0xcbbb9d5dc1059ed8ULL;
-		_context.hash[1] = 0x629a292a367cd507ULL;
-		_context.hash[2] = 0x9159015a3070dd17ULL;
-		_context.hash[3] = 0x152fecd8f70e5939ULL;
-		_context.hash[4] = 0x67332667ffc00b31ULL;
-		_context.hash[5] = 0x8eb44a8768581511ULL;
-		_context.hash[6] = 0xdb0c2e0d64f98fa7ULL;
-		_context.hash[7] = 0x47b5481dbefa4fa4ULL;
-	}
-
-	/**
-	 *
-	 * 转换加密后的数据
-	 *
-	 */
-	void SHA384::ContextDigest()
-	{
-		if (!_context.isComputed)
+		if (!_isComputed)
 		{
-			_context.isComputed = true;
+			_isComputed = true;
 
-			SHA384 temp(*this);
+			Context context{ };
 
-			uint8_t digest[SHA384_DIGEST_SIZE]{ 0 };
+			memcpy(&context, &_context, sizeof(context));
 
-			FinalDigest(temp._context, digest);
+			Final(context, _digest);
 
-			_hex.assign(String::AsHexString(digest, sizeof(digest), false));
+			_result.assign(String::AsHexString(_digest, sizeof(_digest), false));
 		}
 	}
 
@@ -271,13 +198,13 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 结束加密
+	 * 完成
 	 *
 	 * @param context 内容结构
 	 * @param digest 存储摘要
 	 *
 	 */
-	void SHA384::FinalDigest(Context & context, uint8_t * digest)
+	void SHA384::Final(Context & context, uint8_t * digest)
 	{
 		#define UNPACK32(x, str)                      \
 		{                                             \
@@ -319,14 +246,14 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 更新加密内容
+	 * 更新
 	 *
 	 * @param context 内容结构
-	 * @param value 加密数据
-	 * @param length 加密数据长度
+	 * @param value 待更新内容
+	 * @param length 待更新内容长度
 	 *
 	 */
-	void SHA384::UpdateDigest(Context & context, const uint8_t * value, uint32_t length)
+	void SHA384::Update(Context & context, const uint8_t * value, uint32_t length)
 	{
 		uint32_t fill = SHA384_BLOCK_SIZE - context.blockLength;
 
@@ -487,5 +414,24 @@ namespace tinyToolkit
 				context.hash[j] += X[j];
 			}
 		}
+	}
+
+	/**
+	 *
+	 * 初始化
+	 *
+	 * @param context 内容结构
+	 *
+	 */
+	void SHA384::Initialization(Context & context)
+	{
+		context.hash[0] = 0xcbbb9d5dc1059ed8ULL;
+		context.hash[1] = 0x629a292a367cd507ULL;
+		context.hash[2] = 0x9159015a3070dd17ULL;
+		context.hash[3] = 0x152fecd8f70e5939ULL;
+		context.hash[4] = 0x67332667ffc00b31ULL;
+		context.hash[5] = 0x8eb44a8768581511ULL;
+		context.hash[6] = 0xdb0c2e0d64f98fa7ULL;
+		context.hash[7] = 0x47b5481dbefa4fa4ULL;
 	}
 }

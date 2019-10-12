@@ -64,7 +64,7 @@ namespace tinyToolkit
 	{
 		std::lock_guard<std::mutex> lock(_mutex);
 
-		if (_rPos + size > _wPos)
+		if ((_rPos + size) > _wPos)
 		{
 			return false;
 		}
@@ -90,12 +90,12 @@ namespace tinyToolkit
 	{
 		std::lock_guard<std::mutex> lock(_mutex);
 
-		if (_size - Length() < size)
+		if ((_size - Length()) < size)
 		{
 			return false;
 		}
 
-		if (_size - _wPos < size)
+		if ((_size - _wPos) < size)
 		{
 			if (_rPos == _wPos)
 			{
@@ -104,6 +104,8 @@ namespace tinyToolkit
 			}
 			else
 			{
+				_wPos = Length();
+
 				memcpy(_value, _value + _rPos, Length());
 			}
 		}

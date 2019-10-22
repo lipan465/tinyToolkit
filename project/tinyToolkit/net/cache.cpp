@@ -21,7 +21,7 @@ namespace tinyToolkit
 	 */
 	NetCache::NetCache(std::size_t size) : _size(size)
 	{
-		_value = new char[size];
+		_value = new char[size + 1];
 	}
 
 	/**
@@ -80,13 +80,13 @@ namespace tinyToolkit
 	 *
 	 * 压入数据
 	 *
-	 * @param data 待压入数据指针
+	 * @param value 待压入数据
 	 * @param size 待压入数据长度
 	 *
 	 * @return 是否压入成功
 	 *
 	 */
-	bool NetCache::Push(const void * data, std::size_t size)
+	bool NetCache::Push(const void * value, std::size_t size)
 	{
 		std::lock_guard<std::mutex> lock(_mutex);
 
@@ -99,18 +99,19 @@ namespace tinyToolkit
 		{
 			if (_rPos == _wPos)
 			{
-				_rPos = 0;
 				_wPos = 0;
+				_rPos = 0;
 			}
 			else
 			{
-				_wPos = Length();
-
 				memcpy(_value, _value + _rPos, Length());
+
+				_wPos = Length();
+				_rPos = 0;
 			}
 		}
 
-		memcpy(_value + _wPos, data, size);
+		memmove(_value + _wPos, value, size);
 
 		_wPos += size;
 

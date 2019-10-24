@@ -12,7 +12,6 @@
 
 #include "../debug/trace.h"
 #include "../utilities/time.h"
-#include "../utilities/string.h"
 #include "../utilities/filesystem.h"
 
 
@@ -124,7 +123,7 @@ namespace tinyToolkit
 
 					if (fcntl(fd, F_SETLK, &lock) == -1)  /// 尝试在整个文件上设置锁定
 					{
-						close(fd);
+						::close(fd);
 
 						if (errno == EACCES || errno == EAGAIN)
 						{
@@ -320,7 +319,7 @@ namespace tinyToolkit
 
 		if (value.second)
 		{
-			char str[TINY_TOOLKIT_PATH_MAX + 1] = { 0 };
+			char str[TINY_TOOLKIT_PATH_MAX + 1]{ 0 };
 
 		#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
@@ -443,7 +442,7 @@ namespace tinyToolkit
 	 */
 	const std::string & Application::CompileTimeString(const char * date, const char * time)
 	{
-		static std::pair<std::string, bool> value({}, true);
+		static std::pair<std::string, bool> value({ }, true);
 
 		if (value.second)
 		{

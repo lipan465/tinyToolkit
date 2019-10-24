@@ -72,6 +72,18 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 遍历域名对应的地址列表
+		 *
+		 * @param host 待解析域名
+		 * @param list 地址列表
+		 *
+		 * @return 是否解析成功
+		 *
+		 */
+		static bool TraverseAddressFromHost(const std::string & host, std::vector<std::string> & list);
+
+		/**
+		 *
 		 * 关闭套接字
 		 *
 		 * @param socket 套接字
@@ -244,6 +256,17 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 转换网络字节序
+		 *
+		 * @param value 待转换字符串
+		 *
+		 * @return 网络字节序
+		 *
+		 */
+		static uint32_t AsNetByte(const std::string & value);
+
+		/**
+		 *
 		 * 转换主机字节序
 		 *
 		 * @param value 待转换字符串
@@ -252,6 +275,17 @@ namespace tinyToolkit
 		 *
 		 */
 		static uint32_t AsHostByte(const char * value);
+
+		/**
+		 *
+		 * 转换主机字节序
+		 *
+		 * @param value 待转换字符串
+		 *
+		 * @return 主机字节序
+		 *
+		 */
+		static uint32_t AsHostByte(const std::string & value);
 
 		/**
 		 *

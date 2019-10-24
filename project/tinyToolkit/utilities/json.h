@@ -44,6 +44,4 @@ namespace tinyToolkit
 }
 
 
-
-
 #endif // __TINY_TOOLKIT__UTILITIES__JSON__H__

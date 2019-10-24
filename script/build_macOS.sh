@@ -60,6 +60,9 @@ cmake	${projectDirectory}/3rd/fmt \
 		\
 		-G "Unix Makefiles" \
 		\
+		-DFMT_DOC=OFF \
+		-DFMT_TEST=OFF \
+		\
 		-DCMAKE_BUILD_TYPE=Release \
 		-DCMAKE_VERBOSE_MAKEFILE=ON \
 		\

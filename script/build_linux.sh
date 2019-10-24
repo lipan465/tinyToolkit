@@ -19,7 +19,7 @@ projectDirectory=${shellDirectory}/..
 #
 # 编译路径
 #
-buildDirectory=${projectDirectory}/build_linux_64
+buildDirectory=${projectDirectory}/build_linux
 
 
 ####################################################################################################
@@ -29,7 +29,7 @@ buildDirectory=${projectDirectory}/build_linux_64
 # 输出信息
 #
 echo -e ""
-echo -e "\033[1m\033[36m[linux_64] Start build project\033[0m"
+echo -e "\033[1m\033[36m[linux] Start build project\033[0m"
 echo -e ""
 
 
@@ -59,6 +59,9 @@ mkdir -p ${buildDirectory}/fmt && cd ${buildDirectory}/fmt
 cmake	${projectDirectory}/3rd/fmt \
 		\
 		-G "Unix Makefiles" \
+		\
+		-DFMT_DOC=OFF \
+		-DFMT_TEST=OFF \
 		\
 		-DCMAKE_BUILD_TYPE=Release \
 		-DCMAKE_VERBOSE_MAKEFILE=ON \
@@ -129,7 +132,7 @@ cd ${shellDirectory}
 # 输出信息
 #
 echo -e ""
-echo -e "\033[1m\033[36m[linux_64] End build project\033[0m"
+echo -e "\033[1m\033[36m[linux] End build project\033[0m"
 echo -e ""
 
 

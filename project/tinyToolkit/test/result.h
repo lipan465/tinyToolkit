@@ -30,21 +30,21 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 构造函数
+		 * 移动构造函数
 		 *
-		 * @param rhs 实例化对象
+		 * @param rhs 右值对象
 		 *
 		 */
 		TestResult(TestResult && rhs) noexcept;
 
 		/**
 		 *
-		 * 构造函数
+		 * 拷贝构造函数
 		 *
-		 * @param lhs 实例化对象
+		 * @param lhs 左值对象
 		 *
 		 */
-		TestResult(const TestResult & lhs) = default;
+		TestResult(TestResult const & lhs) = default;
 
 		/**
 		 *
@@ -112,7 +112,7 @@ namespace tinyToolkit
 		 *
 		 * 重载=操作
 		 *
-		 * @param rhs 实例化对象
+		 * @param rhs 右值对象
 		 *
 		 */
 		TestResult & operator=(TestResult && rhs) noexcept;
@@ -121,10 +121,10 @@ namespace tinyToolkit
 		 *
 		 * 重载=操作
 		 *
-		 * @param lhs 实例化对象
+		 * @param lhs 左值对象
 		 *
 		 */
-		TestResult & operator=(const TestResult & lhs);
+		TestResult & operator=(TestResult const & lhs);
 
 	protected:
 		bool _status{ true };

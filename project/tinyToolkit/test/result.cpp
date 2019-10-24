@@ -26,9 +26,9 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 构造函数
+	 * 移动构造函数
 	 *
-	 * @param rhs 实例化对象
+	 * @param rhs 右值对象
 	 *
 	 */
 	TestResult::TestResult(TestResult && rhs) noexcept : _status(rhs._status),
@@ -89,7 +89,7 @@ namespace tinyToolkit
 	 *
 	 * 重载=操作
 	 *
-	 * @param rhs 实例化对象
+	 * @param rhs 右值对象
 	 *
 	 */
 	TestResult & TestResult::operator=(TestResult && rhs) noexcept
@@ -104,10 +104,10 @@ namespace tinyToolkit
 	 *
 	 * 重载=操作
 	 *
-	 * @param lhs 实例化对象
+	 * @param lhs 左值对象
 	 *
 	 */
-	TestResult & TestResult::operator=(const TestResult & lhs)
+	TestResult & TestResult::operator=(TestResult const & lhs)
 	{
 		if (this != &lhs)
 		{

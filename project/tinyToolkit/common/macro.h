@@ -15,11 +15,11 @@
 
 
 #ifndef TINY_TOOLKIT_PI
-#define TINY_TOOLKIT_PI									(3.1415926535898f)
+#define TINY_TOOLKIT_PI									3.1415926535898f
 #endif
 
 #ifndef TINY_TOOLKIT_SECOND
-#define TINY_TOOLKIT_SECOND								(1)
+#define TINY_TOOLKIT_SECOND								1
 #endif
 
 #ifndef TINY_TOOLKIT_MINUTE
@@ -43,7 +43,7 @@
 #endif
 
 #ifndef TINY_TOOLKIT_BYTE
-#define TINY_TOOLKIT_BYTE								(1)
+#define TINY_TOOLKIT_BYTE								1
 #endif
 
 #ifndef TINY_TOOLKIT_KB
@@ -218,7 +218,7 @@
 #
 #else
 #
-#  include <limits.h>
+#  include <climits>
 #
 #  ifndef TINY_TOOLKIT_NAME_MAX
 #  define TINY_TOOLKIT_NAME_MAX							NAME_MAX

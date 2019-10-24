@@ -54,7 +54,7 @@ namespace tinyToolkit
 			 * @param args 参数
 			 *
 			 */
-			void operator () (Args &&... args)
+			void operator ()(Args &&... args)
 			{
 				if (_function)
 				{

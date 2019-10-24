@@ -48,7 +48,8 @@ static void UDPClient()
 			{
 				std::cout << "UDP Session ["
 						  << LocalHost() << ":" << LocalPort() << "] Connect ["
-						  << RemoteHost() << ":" << RemotePort() << "] Failed : " << strerror(errno) << std::endl;
+						  << RemoteHost() << ":" << RemotePort() << "] Failed : " 
+						  << tinyToolkit::OS::LastErrorMessage() << std::endl;
 			}
 
 			std::size_t OnReceive(const char * data, std::size_t size) override
@@ -133,7 +134,8 @@ static void UDPServer()
 			{
 				std::cout << "UDP Session ["
 						  << LocalHost() << ":" << LocalPort() << "] Connect ["
-						  << RemoteHost() << ":" << RemotePort() << "] Failed : " << strerror(errno) << std::endl;
+						  << RemoteHost() << ":" << RemotePort() << "] Failed : "
+						  << tinyToolkit::OS::LastErrorMessage() << std::endl;
 			}
 
 			std::size_t OnReceive(const char * data, std::size_t size) override
@@ -214,7 +216,8 @@ static void TCPClient()
 			{
 				std::cout << "TCP Session ["
 						  << LocalHost() << ":" << LocalPort() << "] Connect ["
-						  << RemoteHost() << ":" << RemotePort() << "] Failed : " << strerror(errno) << std::endl;
+						  << RemoteHost() << ":" << RemotePort() << "] Failed : "
+						  << tinyToolkit::OS::LastErrorMessage() << std::endl;
 			}
 
 			std::size_t OnReceive(const char * data, std::size_t size) override
@@ -335,7 +338,8 @@ static void TCPServer()
 
 			void OnError() override
 			{
-				std::cout << "TCP Server [" << LocalHost() << ":" << LocalPort() << "] Error : " << strerror(errno) << std::endl;
+				std::cout << "TCP Server [" << LocalHost() << ":" << LocalPort() << "] Error : " 
+						  << tinyToolkit::OS::LastErrorMessage() << std::endl;
 			}
 
 			void OnRelease() override
@@ -356,7 +360,8 @@ static void TCPServer()
 			{
 				std::cout << "TCP Server ["
 						  << LocalHost() << ":" << LocalPort() << " And Session ["
-						  << RemoteHost() << ":" << RemotePort() << "] Error : " << strerror(errno) << std::endl;
+						  << RemoteHost() << ":" << RemotePort() << "] Error : "
+						  << tinyToolkit::OS::LastErrorMessage() << std::endl;
 
 				if (session == nullptr)
 				{

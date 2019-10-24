@@ -86,9 +86,9 @@ namespace tinyToolkit
 		 *
 		 * @tparam Args [all types]
 		 *
-		 * @param args 生成实例对象参数
+		 * @param args 参数
 		 *
-		 * @return 实例对象
+		 * @return 实例对象指针
 		 *
 		 */
 		template <typename... Args>
@@ -110,7 +110,7 @@ namespace tinyToolkit
 		 *
 		 * 回收实例对象
 		 *
-		 * @param app 待回收实例对象
+		 * @param app 待回收实例对象指针
 		 *
 		 */
 		void Recover(AppTypeT * app)

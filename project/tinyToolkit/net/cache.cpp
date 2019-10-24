@@ -104,14 +104,14 @@ namespace tinyToolkit
 			}
 			else
 			{
-				memcpy(_value, _value + _rPos, Length());
+				memmove(_value, _value + _rPos, Length());
 
 				_wPos = Length();
 				_rPos = 0;
 			}
 		}
 
-		memmove(_value + _wPos, value, size);
+		memcpy(_value + _wPos, value, size);
 
 		_wPos += size;
 

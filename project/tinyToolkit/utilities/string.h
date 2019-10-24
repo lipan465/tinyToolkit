@@ -11,15 +11,9 @@
  */
 
 
-#include <fmt/core.h>
-#include <fmt/posix.h>
 #include <fmt/printf.h>
 #include <fmt/chrono.h>
 #include <fmt/format.h>
-#include <fmt/ranges.h>
-#include <fmt/locale.h>
-#include <fmt/ostream.h>
-#include <fmt/prepare.h>
 
 #include "../common/common.h"
 
@@ -34,7 +28,7 @@ namespace tinyToolkit
 		 * 去除首尾字符
 		 *
 		 * @param value 待处理字符串
-		 * @param group 处理字符集
+		 * @param group 待去除字符集
 		 *
 		 */
 		static void Trim(std::string & value, const char * group = "\r\n\t ");
@@ -44,7 +38,7 @@ namespace tinyToolkit
 		 * 去除首尾字符
 		 *
 		 * @param value 待处理字符串
-		 * @param group 处理字符集
+		 * @param group 待去除字符集
 		 *
 		 * @return 处理后字符串
 		 *
@@ -99,8 +93,8 @@ namespace tinyToolkit
 		 *
 		 * 删除字符串指定字符
 		 *
-		 * @param value 待查找的字符串
-		 * @param key 被查找的字符串
+		 * @param value 待处理字符串
+		 * @param key 待删除字符
 		 * @param index 偏移位置
 		 *
 		 */
@@ -110,8 +104,8 @@ namespace tinyToolkit
 		 *
 		 * 删除字符串指定字符
 		 *
-		 * @param value 待查找的字符串
-		 * @param key 被查找的字符串
+		 * @param value 待处理字符串
+		 * @param key 待删除字符
 		 * @param index 偏移位置
 		 *
 		 * @return 处理后字符串
@@ -123,8 +117,8 @@ namespace tinyToolkit
 		 *
 		 * 删除字符串指定字符
 		 *
-		 * @param value 待查找的字符串
-		 * @param key 被查找的字符串
+		 * @param value 待处理字符串
+		 * @param key 待删除字符串
 		 * @param index 偏移位置
 		 *
 		 */
@@ -134,8 +128,8 @@ namespace tinyToolkit
 		 *
 		 * 删除字符串指定字符
 		 *
-		 * @param value 待查找的字符串
-		 * @param key 被查找的字符串
+		 * @param value 待处理字符串
+		 * @param key 待删除字符串
 		 * @param index 偏移位置
 		 *
 		 * @return 处理后字符串
@@ -195,7 +189,7 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 字符串替换字符
+		 * 字符串循环替换字符
 		 *
 		 * @param value 待处理字符串
 		 * @param src 被替换字符串
@@ -203,7 +197,7 @@ namespace tinyToolkit
 		 * @param index 偏移位置
 		 *
 		 */
-		static void ReplaceAll(std::string & value, const std::string & src, const std::string & dst, std::size_t index = 0);
+		static void ReplaceLoop(std::string & value, const std::string & src, const std::string & dst, std::size_t index = 0);
 
 		/**
 		 *
@@ -217,79 +211,79 @@ namespace tinyToolkit
 		 * @return 处理后字符串
 		 *
 		 */
-		static std::string ReplaceAll(const std::string & value, const std::string & src, const std::string & dst, std::size_t index = 0);
+		static std::string ReplaceLoop(const std::string & value, const std::string & src, const std::string & dst, std::size_t index = 0);
+
+		/**
+		 *
+		 * 是否包含被查找字符
+		 *
+		 * @param value 待处理字符串
+		 * @param key 待查找字符
+		 * @param index 偏移位置
+		 *
+		 * @return 查找结果
+		 *
+		 */
+		static bool With(const char * value, char key, std::size_t index = 0);
+
+		/**
+		 *
+		 * 是否包含被查找字符
+		 *
+		 * @param value 待处理字符串
+		 * @param key 待查找字符串
+		 * @param index 偏移位置
+		 *
+		 * @return 查找结果
+		 *
+		 */
+		static bool With(const char * value, const char * key, std::size_t index = 0);
 
 		/**
 		 *
 		 * 是否包含被查找的字符
 		 *
-		 * @param value 待查找字符串
-		 * @param infix 被查找字符
+		 * @param value 待处理字符串
+		 * @param key 待查找字符
 		 * @param index 偏移位置
 		 *
 		 * @return 查找结果
 		 *
 		 */
-		static bool With(const char * value, char infix, std::size_t index = 0);
+		static bool With(const std::string & value, char key, std::size_t index = 0);
 
 		/**
 		 *
 		 * 是否包含被查找的字符串
 		 *
-		 * @param value 待查找字符串
-		 * @param infix 被查找字符串
+		 * @param value 待处理字符串
+		 * @param key 待查找字符串
 		 * @param index 偏移位置
 		 *
 		 * @return 查找结果
 		 *
 		 */
-		static bool With(const char * value, const char * infix, std::size_t index = 0);
-
-		/**
-		 *
-		 * 是否包含被查找的字符
-		 *
-		 * @param value 待查找字符串
-		 * @param infix 被查找字符
-		 * @param index 偏移位置
-		 *
-		 * @return 查找结果
-		 *
-		 */
-		static bool With(const std::string & value, char infix, std::size_t index = 0);
+		static bool With(const std::string & value, const char * key, std::size_t index = 0);
 
 		/**
 		 *
 		 * 是否包含被查找的字符串
 		 *
-		 * @param value 待查找字符串
-		 * @param infix 被查找字符串
+		 * @param value 待处理字符串
+		 * @param key 待查找字符串
 		 * @param index 偏移位置
 		 *
 		 * @return 查找结果
 		 *
 		 */
-		static bool With(const std::string & value, const char * infix, std::size_t index = 0);
-
-		/**
-		 *
-		 * 是否包含被查找的字符串
-		 *
-		 * @param value 待查找字符串
-		 * @param infix 被查找字符串
-		 * @param index 偏移位置
-		 *
-		 * @return 查找结果
-		 *
-		 */
-		static bool With(const std::string & value, const std::string & infix, std::size_t index = 0);
+		static bool With(const std::string & value, const std::string & key, std::size_t index = 0);
 
 		/**
 		 *
 		 * 是否以字符串结尾
 		 *
-		 * @param value 待查找字符串
-		 * @param prefix 被查找字符串
+		 * @param value 待处理字符串
+		 * @param suffix 待查找字符串
 		 *
 		 * @return 查找结果
 		 *
@@ -298,10 +292,10 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 是否字符串开头
+		 * 是否以字符串开头
 		 *
-		 * @param value 待查找字符串
-		 * @param prefix 被查找字符串
+		 * @param value 待处理字符串
+		 * @param prefix 待查找字符串
 		 *
 		 * @return 查找结果
 		 *
@@ -312,8 +306,8 @@ namespace tinyToolkit
 		 *
 		 * 按字符串拆分
 		 *
-		 * @param value 待查找字符串
-		 * @param key 被查找字符串
+		 * @param value 待处理字符串
+		 * @param key 待查找字符串
 		 * @param container 结果容器
 		 * @param keepEmpty 是否保留空串
 		 *
@@ -326,8 +320,8 @@ namespace tinyToolkit
 		 *
 		 * 按字符串拆分
 		 *
-		 * @param value 待查找字符串
-		 * @param key 被查找字符串
+		 * @param value 待处理字符串
+		 * @param key 待查找字符串
 		 * @param keepEmpty 是否保留空串
 		 *
 		 * @return 结果容器
@@ -339,11 +333,11 @@ namespace tinyToolkit
 		 *
 		 * 按行拆分
 		 *
-		 * @param value 待查找字符串
+		 * @param value 待处理字符串
 		 * @param container 结果容器
 		 * @param keepEnter 是否保留换行符
 		 *
-		 * @return 拆分的个数
+		 * @return 行数
 		 *
 		 */
 		static std::size_t SplitLines(const std::string & value, std::vector<std::string> & container, bool keepEnter = false);
@@ -352,8 +346,8 @@ namespace tinyToolkit
 		 *
 		 * 按行拆分
 		 *
-		 * @param value 待查找字符串
-		 * @param keepEmpty 是否保留换行符
+		 * @param value 待处理字符串
+		 * @param keepEnter 是否保留换行符
 		 *
 		 * @return 结果容器
 		 *
@@ -364,7 +358,7 @@ namespace tinyToolkit
 		 *
 		 * 过滤注释
 		 *
-		 * @param value 待过滤数据
+		 * @param value 待处理字符串
 		 *
 		 * @return 过滤后数据
 		 *
@@ -519,7 +513,7 @@ namespace tinyToolkit
 		 *
 		 * 转换16进制字符串
 		 *
-		 * @param value 待转换字符串
+		 * @param value 待处理字符串
 		 * @param reverse 是否反向转换
 		 *
 		 * @return 转换后字符串
@@ -531,7 +525,7 @@ namespace tinyToolkit
 		 *
 		 * 转换16进制字符串
 		 *
-		 * @param value 待转换字符串
+		 * @param value 待处理字符串
 		 * @param reverse 是否反向转换
 		 *
 		 * @return 转换后字符串
@@ -543,7 +537,7 @@ namespace tinyToolkit
 		 *
 		 * 转换16进制字符串
 		 *
-		 * @param value 待转换字符串
+		 * @param value 待处理字符串
 		 * @param reverse 是否反向转换
 		 *
 		 * @return 转换后字符串
@@ -555,7 +549,7 @@ namespace tinyToolkit
 		 *
 		 * 转换16进制字符串
 		 *
-		 * @param value 待转换字符串
+		 * @param value 待处理字符串
 		 * @param size 转换长度
 		 * @param reverse 是否反向转换
 		 *
@@ -568,7 +562,7 @@ namespace tinyToolkit
 		 *
 		 * 转换16进制字符串
 		 *
-		 * @param value 待转换字符串
+		 * @param value 待处理字符串
 		 * @param size 转换长度
 		 * @param reverse 是否反向转换
 		 *
@@ -581,7 +575,7 @@ namespace tinyToolkit
 		 *
 		 * 转换16进制字符串
 		 *
-		 * @param value 待转换字符串
+		 * @param value 待处理字符串
 		 * @param size 转换的长度
 		 * @param reverse 是否反向转换
 		 *
@@ -596,7 +590,7 @@ namespace tinyToolkit
 		 *
 		 * @tparam TypeT [all types]
 		 *
-		 * @param value 待转换数据
+		 * @param value 待处理字符串
 		 *
 		 * @return 转换后数据
 		 *
@@ -619,7 +613,7 @@ namespace tinyToolkit
 		 *
 		 * @tparam TypeT [all types]
 		 *
-		 * @param value 待转换数据
+		 * @param value 待处理字符串
 		 *
 		 * @return 转换后数据
 		 *
@@ -644,7 +638,7 @@ namespace tinyToolkit
 		 *
 		 * 转换字符
 		 *
-		 * @param value 待转换字符串
+		 * @param value 待处理字符串
 		 *
 		 * @return 转换后字符
 		 *
@@ -655,7 +649,7 @@ namespace tinyToolkit
 		 *
 		 * 转换字符
 		 *
-		 * @param value 待转换字符串
+		 * @param value 待处理字符串
 		 *
 		 * @return 转换后字符
 		 *
@@ -666,7 +660,7 @@ namespace tinyToolkit
 		 *
 		 * 转换字符串
 		 *
-		 * @param value 待转换字符串
+		 * @param value 待处理字符串
 		 * @param reverse 是否反向转换
 		 *
 		 * @return 转换后字符串
@@ -678,7 +672,7 @@ namespace tinyToolkit
 		 *
 		 * 转换字符串
 		 *
-		 * @param value 待转换字符串
+		 * @param value 待处理字符串
 		 * @param reverse 是否反向转换
 		 *
 		 * @return 转换后字符串
@@ -690,7 +684,7 @@ namespace tinyToolkit
 		 *
 		 * 转换字符串
 		 *
-		 * @param value 待转换字符串
+		 * @param value 待处理字符串
 		 * @param size 字符串长度
 		 * @param reverse 是否反向转换
 		 *
@@ -703,7 +697,7 @@ namespace tinyToolkit
 		 *
 		 * 转换字符串
 		 *
-		 * @param value 待转换字符串
+		 * @param value 待处理字符串
 		 * @param size 字符串长度
 		 * @param reverse 是否反向转换
 		 *

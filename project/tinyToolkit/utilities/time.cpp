@@ -14,106 +14,6 @@ namespace tinyToolkit
 {
 	/**
 	 *
-	 * 是否是同一年
-	 *
-	 * @param sSeconds 秒数时间戳
-	 * @param dSeconds 秒数时间戳
-	 *
-	 * @return 状态
-	 *
-	 */
-	bool Time::IsSameYear(std::time_t sSeconds, std::time_t dSeconds)
-	{
-		std::tm src = LocalTm(sSeconds);
-		std::tm dst = LocalTm(dSeconds);
-
-		return (src.tm_year == dst.tm_year);
-	}
-
-	/**
-	 *
-	 * 是否是同一月
-	 *
-	 * @param sSeconds 秒数时间戳
-	 * @param dSeconds 秒数时间戳
-	 *
-	 * @return 状态
-	 *
-	 */
-	bool Time::IsSameMonth(std::time_t sSeconds, std::time_t dSeconds)
-	{
-		std::tm src = LocalTm(sSeconds);
-		std::tm dst = LocalTm(dSeconds);
-
-		return (src.tm_year == dst.tm_year &&
-				src.tm_mon == dst.tm_mon);
-	}
-
-	/**
-	 *
-	 * 是否是同一天
-	 *
-	 * @param sSeconds 秒数时间戳
-	 * @param dSeconds 秒数时间戳
-	 *
-	 * @return 状态
-	 *
-	 */
-	bool Time::IsSameDay(std::time_t sSeconds, std::time_t dSeconds)
-	{
-		std::tm src = LocalTm(sSeconds);
-		std::tm dst = LocalTm(dSeconds);
-
-		return (src.tm_year == dst.tm_year &&
-				src.tm_mon == dst.tm_mon &&
-				src.tm_mday == dst.tm_mday);
-	}
-
-	/**
-	 *
-	 * 是否是同一小时
-	 *
-	 * @param sSeconds 秒数时间戳
-	 * @param dSeconds 秒数时间戳
-	 *
-	 * @return 状态
-	 *
-	 */
-	bool Time::IsSameHour(std::time_t sSeconds, std::time_t dSeconds)
-	{
-		std::tm src = LocalTm(sSeconds);
-		std::tm dst = LocalTm(dSeconds);
-
-		return (src.tm_year == dst.tm_year &&
-				src.tm_mon == dst.tm_mon &&
-				src.tm_mday == dst.tm_mday &&
-				src.tm_hour == dst.tm_hour);
-	}
-
-	/**
-	 *
-	 * 是否是同一分钟
-	 *
-	 * @param sSeconds 秒数时间戳
-	 * @param dSeconds 秒数时间戳
-	 *
-	 * @return 状态
-	 *
-	 */
-	bool Time::IsSameMinute(std::time_t sSeconds, std::time_t dSeconds)
-	{
-		std::tm src = LocalTm(sSeconds);
-		std::tm dst = LocalTm(dSeconds);
-
-		return (src.tm_year == dst.tm_year &&
-				src.tm_mon == dst.tm_mon &&
-				src.tm_mday == dst.tm_mday &&
-				src.tm_hour == dst.tm_hour &&
-				src.tm_min == dst.tm_min);
-	}
-
-	/**
-	 *
 	 * utc时间对应的tm结构体
 	 *
 	 * @return 时间结构体
@@ -135,7 +35,7 @@ namespace tinyToolkit
 	 */
 	std::tm Time::UTCTm(std::time_t seconds)
 	{
-		std::tm tm = { };
+		std::tm tm{ };
 
 		UTCTm(seconds, tm);
 
@@ -186,7 +86,7 @@ namespace tinyToolkit
 	 */
 	std::tm Time::LocalTm(std::time_t seconds)
 	{
-		std::tm tm = { };
+		std::tm tm{ };
 
 		LocalTm(seconds, tm);
 
@@ -679,7 +579,13 @@ namespace tinyToolkit
 	 */
 	SystemClockTimePoint Time::TimePoint(std::time_t time)
 	{
-		return std::chrono::time_point_cast<SystemClockDuration>(std::chrono::time_point<SystemClockType, std::chrono::seconds>(std::chrono::seconds(time)));
+		return std::chrono::time_point_cast<SystemClockDuration>
+		(
+			std::chrono::time_point<SystemClockType, std::chrono::seconds>
+			(
+				std::chrono::seconds(time)
+			)
+		);
 	}
 
 	/**

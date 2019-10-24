@@ -225,7 +225,7 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 田间测试环境
+	 * 添加测试环境
 	 *
 	 * @param environment 测试环境
 	 *

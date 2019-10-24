@@ -174,9 +174,12 @@ ELSEIF (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 
 ELSEIF(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 
-	TRAVERSE_SET(CMAKE_CXX_FLAGS	/MT
+	TRAVERSE_SET(CMAKE_CXX_FLAGS	/MP								# 启用多处理器编译
+									/WX								# 将警告视为错误
+									/MT
 									/MTd
-									/EHa
-									/utf-8)
+									/EHa							# 启用c++异常
+									/sdl							# DSL检查
+									/utf-8)							# utf-8支持
 
 ENDIF()

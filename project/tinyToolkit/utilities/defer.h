@@ -11,12 +11,12 @@
  */
 
 
-#include "../common/common.h"
+#include "copyable.h"
 
 
 namespace tinyToolkit
 {
-	class TINY_TOOLKIT_API DeferHelper
+	class TINY_TOOLKIT_API DeferHelper : public NonCopyable
 	{
 	public:
 		/**
@@ -28,46 +28,10 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 移动构造函数
-		 *
-		 * @param rhs 右值对象
-		 *
-		 */
-		DeferHelper(DeferHelper && rhs) = delete;
-
-		/**
-		 *
-		 * 拷贝构造函数
-		 *
-		 * @param lhs 左值对象
-		 *
-		 */
-		DeferHelper(const DeferHelper & lhs) = delete;
-
-		/**
-		 *
 		 * 析构函数
 		 *
 		 */
-		~DeferHelper();
-
-		/**
-		 *
-		 * =操作符重载
-		 *
-		 * @param rhs 右值对象
-		 *
-		 */
-		void operator=(DeferHelper && rhs) = delete;
-
-		/**
-		 *
-		 * =操作符重载
-		 *
-		 * @param lhs 左值对象
-		 *
-		 */
-		void operator=(const DeferHelper & lhs) = delete;
+		~DeferHelper() override;
 
 	private:
 		std::function<void ()> _func;

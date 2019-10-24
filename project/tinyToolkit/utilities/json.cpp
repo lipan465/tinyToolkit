@@ -111,7 +111,7 @@ namespace tinyToolkit
 				}
 				else if ((key == '[') || (key == '{'))
 				{
-					if ((i - 1 > 0) && (value[i - 1] == ':'))
+					if (((i - 1) > 0) && (value[i - 1] == ':'))
 					{
 						str += TINY_TOOLKIT_EOL;
 
@@ -129,7 +129,7 @@ namespace tinyToolkit
 				}
 				else if (((key == ']') || (key == '}')))
 				{
-					if ((i - 1 > 0) && ((value[i - 1] != ']') && (value[i - 1] != '}')))
+					if (((i - 1) > 0) && ((value[i - 1] != ']') && (value[i - 1] != '}')))
 					{
 						str += TINY_TOOLKIT_EOL;
 					}
@@ -174,5 +174,3 @@ namespace tinyToolkit
 		return str;
 	}
 }
-
-

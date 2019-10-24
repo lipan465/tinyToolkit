@@ -10,7 +10,6 @@
 #include "manager.h"
 
 #include "../debug/trace.h"
-#include "../utilities/time.h"
 #include "../pool/application.h"
 #include "../utilities/operator.h"
 
@@ -124,6 +123,21 @@ namespace tinyToolkit
 		{
 			_thread.join();
 		}
+
+		auto ClearSpokes = [](std::vector<TimerNode *> & spokesList)
+		{
+			for (TimerNode * node : spokesList)
+			{
+				if (node)
+				{
+					delete node;
+
+					node = nullptr;
+				}
+			}
+
+			Operator::Clear(spokesList);
+		};
 
 		for (auto & spokes : _nearList)
 		{
@@ -308,7 +322,7 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 线程函数(更新定时器tick)
+	 * 线程函数
 	 *
 	 */
 	void TimerManager::ThreadProcess()
@@ -323,7 +337,7 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 更新定时器tick
+	 * 更新定时器
 	 *
 	 */
 	void TimerManager::Update()
@@ -487,28 +501,6 @@ namespace tinyToolkit
 		{
 			throw std::runtime_error("The timing interval exceeds the maximum limit");
 		}
-	}
-
-	/**
-	 *
-	 * 清理时间轮
-	 *
-	 * @param spokesList 待清理时间轮
-	 *
-	 */
-	void TimerManager::ClearSpokes(std::vector<TimerNode *> & spokesList)
-	{
-		for (TimerNode * node : spokesList)
-		{
-			if (node)
-			{
-				delete node;
-
-				node = nullptr;
-			}
-		}
-
-		Operator::Clear(spokesList);
 	}
 
 	/**

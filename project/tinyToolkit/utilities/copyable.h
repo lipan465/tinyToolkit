@@ -21,18 +21,18 @@ namespace tinyToolkit
 	public:
 		/**
 		 *
-		 * 构造函数
+		 * 移动构造函数
 		 *
-		 * @param rhs 实例化对象
+		 * @param rhs 右值对象
 		 *
 		 */
 		NonCopyable(NonCopyable && rhs) noexcept = delete;
 
 		/**
 		 *
-		 * 构造函数
+		 * 拷贝构造函数
 		 *
-		 * @param lhs 实例化对象
+		 * @param lhs 左值对象
 		 *
 		 */
 		NonCopyable(NonCopyable const & lhs) = delete;
@@ -41,9 +41,9 @@ namespace tinyToolkit
 		 *
 		 * 重载=操作
 		 *
-		 * @param rhs 实例化对象
+		 * @param rhs 右值对象
 		 *
-		 * @return 实例化对象
+		 * @return 对象
 		 *
 		 */
 		NonCopyable & operator=(NonCopyable && rhs) noexcept = delete;
@@ -52,9 +52,9 @@ namespace tinyToolkit
 		 *
 		 * 重载=操作
 		 *
-		 * @param lhs 实例化对象
+		 * @param lhs 左值对象
 		 *
-		 * @return 实例化对象
+		 * @return 对象
 		 *
 		 */
 		NonCopyable & operator=(NonCopyable const & lhs) = delete;

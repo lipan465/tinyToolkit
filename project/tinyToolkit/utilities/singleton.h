@@ -11,13 +11,13 @@
  */
 
 
-#include "../common/common.h"
+#include "copyable.h"
 
 
 namespace tinyToolkit
 {
 	template <typename TypeT>
-	class TINY_TOOLKIT_API Singleton
+	class TINY_TOOLKIT_API Singleton : public NonCopyable
 	{
 	public:
 		/**
@@ -26,7 +26,7 @@ namespace tinyToolkit
 		 *
 		 * @tparam Args [all built-in types]
 		 *
-		 * @param args 待初始化数据
+		 * @param args 参数
 		 *
 		 * @return 单例对象引用
 		 *
@@ -38,26 +38,6 @@ namespace tinyToolkit
 
 			return *_instance;
 		}
-
-		/**
-		 *
-		 * 构造函数
-		 *
-		 * @param rhs 实例化对象
-		 *
-		 */
-		Singleton(const Singleton &) = delete;
-
-		/**
-		 *
-		 * 函数重载
-		 *
-		 * @param rhs 待赋值实例化
-		 *
-		 * @return 实例化对象
-		 *
-		 */
-		Singleton & operator=(const Singleton &) = delete;
 
 	protected:
 		/**
@@ -72,7 +52,7 @@ namespace tinyToolkit
 		 * 析构函数
 		 *
 		 */
-		virtual ~Singleton() = default;
+		~Singleton() override = default;
 
 	protected:
 		class TINY_TOOLKIT_API GarbageCollector

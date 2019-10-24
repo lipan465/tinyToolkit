@@ -213,6 +213,21 @@ namespace tinyToolkit
 
 	/**
 	 *
+	 * 遍历域名对应的地址列表
+	 *
+	 * @param host 待解析域名
+	 * @param list 域名列表
+	 *
+	 * @return 是否解析成功
+	 *
+	 */
+	bool Net::TraverseAddressFromHost(const std::string & host, std::vector<std::string> & list)
+	{
+		return TraverseAddressFromHost(host.c_str(), list);
+	}
+
+	/**
+	 *
 	 * 关闭套接字
 	 *
 	 * @param socket 套接字
@@ -517,6 +532,20 @@ namespace tinyToolkit
 
 	/**
 	 *
+	 * 转换网络字节序
+	 *
+	 * @param value 待转换字符串
+	 *
+	 * @return 网络字节序
+	 *
+	 */
+	uint32_t Net::AsNetByte(const std::string & value)
+	{
+		return AsNetByte(value.c_str());
+	}
+
+	/**
+	 *
 	 * 转换主机字节序
 	 *
 	 * @param value 待转换字符串
@@ -535,6 +564,20 @@ namespace tinyToolkit
 		return inet_network(value);
 
 #endif
+	}
+
+	/**
+	 *
+	 * 转换主机字节序
+	 *
+	 * @param value 待转换字符串
+	 *
+	 * @return 主机字节序
+	 *
+	 */
+	uint32_t Net::AsHostByte(const std::string & value)
+	{
+		return AsHostByte(value.c_str());
 	}
 
 	/**

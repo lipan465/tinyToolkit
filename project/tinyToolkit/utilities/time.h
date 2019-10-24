@@ -21,66 +21,6 @@ namespace tinyToolkit
 	public:
 		/**
 		 *
-		 * 是否是同一年
-		 *
-		 * @param sSeconds 秒数时间戳
-		 * @param dSeconds 秒数时间戳
-		 *
-		 * @return 状态
-		 *
-		 */
-		static bool IsSameYear(std::time_t sSeconds, std::time_t dSeconds);
-
-		/**
-		 *
-		 * 是否是同一月
-		 *
-		 * @param sSeconds 秒数时间戳
-		 * @param dSeconds 秒数时间戳
-		 *
-		 * @return 状态
-		 *
-		 */
-		static bool IsSameMonth(std::time_t sSeconds, std::time_t dSeconds);
-
-		/**
-		 *
-		 * 是否是同一天
-		 *
-		 * @param sSeconds 秒数时间戳
-		 * @param dSeconds 秒数时间戳
-		 *
-		 * @return 状态
-		 *
-		 */
-		static bool IsSameDay(std::time_t sSeconds, std::time_t dSeconds);
-
-		/**
-		 *
-		 * 是否是同一小时
-		 *
-		 * @param sSeconds 秒数时间戳
-		 * @param dSeconds 秒数时间戳
-		 *
-		 * @return 状态
-		 *
-		 */
-		static bool IsSameHour(std::time_t sSeconds, std::time_t dSeconds);
-
-		/**
-		 *
-		 * 是否是同一分钟
-		 *
-		 * @param sSeconds 秒数时间戳
-		 * @param dSeconds 秒数时间戳
-		 *
-		 * @return 状态
-		 *
-		 */
-		static bool IsSameMinute(std::time_t sSeconds, std::time_t dSeconds);
-
-		/**
-		 *
 		 * utc时间对应的tm结构体
 		 *
 		 * @return 时间结构体
@@ -138,55 +78,6 @@ namespace tinyToolkit
 		 *
 		 */
 		static void LocalTm(std::time_t seconds, std::tm & tm);
-
-		/**
-		 *
-		 * 转换时间戳
-		 *
-		 * @tparam CastTypeT [all build-in type]
-		 *
-		 * @return 转换时间戳
-		 *
-		 */
-		template <typename CastTypeT>
-		static CastTypeT Cast()
-		{
-			return Cast<CastTypeT>(TimePoint());
-		}
-
-		/**
-		 *
-		 * 转换时间戳
-		 *
-		 * @tparam CastTypeT [all build-in type]
-		 *
-		 * @param timesPoint 时间点
-		 *
-		 * @return 转换时间戳
-		 *
-		 */
-		template <typename CastTypeT>
-		static CastTypeT Cast(const SystemClockTimePoint & timesPoint)
-		{
-			return Cast<CastTypeT>(timesPoint.time_since_epoch());
-		}
-
-		/**
-		 *
-		 * 转换时间戳
-		 *
-		 * @tparam CastTypeT [all build-in type]
-		 *
-		 * @param duration 时间段
-		 *
-		 * @return 转换时间戳
-		 *
-		 */
-		template <typename CastTypeT>
-		static CastTypeT Cast(const SystemClockDuration & duration)
-		{
-			return std::chrono::duration_cast<std::chrono::duration<CastTypeT>>(duration).count();
-		}
 
 		/**
 		 *

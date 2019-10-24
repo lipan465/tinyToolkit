@@ -101,6 +101,7 @@ namespace tinyToolkit
 	}
 
 	/**
+	 *
 	 * 添加设置日志过滤器
 	 *
 	 * @param filter 日志过滤器

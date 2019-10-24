@@ -36,7 +36,7 @@ namespace tinyToolkit
 		 *
 		 * @param path 文件路径
 		 *
-		 * @return 文件是否删除
+		 * @return 是否删除成功
 		 *
 		 */
 		static bool Remove(const std::string & path);
@@ -48,7 +48,7 @@ namespace tinyToolkit
 		 * @param src 待更改文件路径
 		 * @param dst 被更改文件路径
 		 *
-		 * @return 文件是否更改
+		 * @return 是否更改成功
 		 *
 		 */
 		static bool Rename(const std::string & src, const std::string & dst);
@@ -94,7 +94,7 @@ namespace tinyToolkit
 		 * @param container 结果容器
 		 * @param keepEmpty 是否保留空行
 		 *
-		 * @return 读取行数
+		 * @return 文件行数
 		 *
 		 */
 		static std::size_t ReadFile(const std::string & path, std::vector<std::string> & container, bool keepEmpty = false);
@@ -120,7 +120,7 @@ namespace tinyToolkit
 		 * @param path 待写入路径
 		 * @param value 待写入数据
 		 *
-		 * @return 写入结果
+		 * @return 是否写入成功
 		 *
 		 */
 		template<typename ValueT>
@@ -152,7 +152,7 @@ namespace tinyToolkit
 		 * @param begin 待写入数据迭代器头部
 		 * @param end 待写入数据迭代器尾部
 		 *
-		 * @return 写入结果
+		 * @return 是否写入成功
 		 *
 		 */
 		template<typename It>
@@ -182,7 +182,7 @@ namespace tinyToolkit
 		 *
 		 * @param path 待创建文件路径
 		 *
-		 * @return 创建结果
+		 * @return 是否创建成功
 		 *
 		 */
 		static bool CreateFile(const std::string & path);
@@ -193,7 +193,7 @@ namespace tinyToolkit
 		 *
 		 * @param path 待创建文件路径
 		 *
-		 * @return 创建结果
+		 * @return 是否创建成功
 		 *
 		 */
 		static bool CreateDirectory(const std::string & path);
@@ -204,7 +204,7 @@ namespace tinyToolkit
 		 *
 		 * @param path 待创建目录路径
 		 *
-		 * @return 创建结果
+		 * @return 是否创建成功
 		 *
 		 */
 		static bool CreateDirectories(const std::string & path);
@@ -244,7 +244,7 @@ namespace tinyToolkit
 		 *
 		 * 绝对路径
 		 *
-		 * @param path 待处理路径
+		 * @param path 待处理文件路径
 		 *
 		 * @return 绝对路径
 		 *
@@ -266,7 +266,7 @@ namespace tinyToolkit
 		 *
 		 * 父级路径
 		 *
-		 * @param path 待处理路径
+		 * @param path 待处理文件路径
 		 *
 		 * @return 父级路径
 		 *
@@ -277,8 +277,8 @@ namespace tinyToolkit
 		 *
 		 * 遍历文件
 		 *
-		 * @param path 待遍历根目录路径
-		 * @param container 文件结果容器
+		 * @param path 待遍历路径
+		 * @param container 结果容器
 		 * @param subdirectory 是否遍历子目录
 		 *
 		 */
@@ -288,8 +288,8 @@ namespace tinyToolkit
 		 *
 		 * 遍历文件
 		 *
-		 * @param path 待遍历根目录路径
-		 * @param container 文件结果容器
+		 * @param path 待遍历路径
+		 * @param container 结果容器
 		 * @param rule 遍历规则
 		 * @param subdirectory 是否遍历子目录
 		 *
@@ -300,10 +300,10 @@ namespace tinyToolkit
 		 *
 		 * 遍历文件
 		 *
-		 * @param path 待遍历根目录路径
+		 * @param path 待遍历路径
 		 * @param subdirectory 是否遍历子目录
 		 *
-		 * @return 文件结果容器
+		 * @return 结果容器
 		 *
 		 */
 		static std::vector<std::string> TraverseFile(const std::string & path, bool subdirectory = false);
@@ -312,11 +312,11 @@ namespace tinyToolkit
 		 *
 		 * 遍历文件
 		 *
-		 * @param path 待遍历根目录路径
+		 * @param path 待遍历路径
 		 * @param rule 遍历规则
 		 * @param subdirectory 是否遍历子目录
 		 *
-		 * @return 文件结果容器
+		 * @return 结果容器
 		 *
 		 */
 		static std::vector<std::string> TraverseFile(const std::string & path, const std::regex & rule, bool subdirectory = false);
@@ -325,8 +325,8 @@ namespace tinyToolkit
 		 *
 		 * 遍历目录
 		 *
-		 * @param path 待遍历根目录路径
-		 * @param container 目录结果容器
+		 * @param path 待遍历路径
+		 * @param container 结果容器
 		 * @param subdirectory 是否遍历子目录
 		 *
 		 */
@@ -336,8 +336,8 @@ namespace tinyToolkit
 		 *
 		 * 遍历目录
 		 *
-		 * @param path 待遍历根目录路径
-		 * @param container 目录结果容器
+		 * @param path 待遍历路径
+		 * @param container 结果容器
 		 * @param rule 遍历规则
 		 * @param subdirectory 是否遍历子目录
 		 *
@@ -348,10 +348,10 @@ namespace tinyToolkit
 		 *
 		 * 遍历目录
 		 *
-		 * @param path 待遍历根目录路径
+		 * @param path 待遍历路径
 		 * @param subdirectory 是否遍历子目录
 		 *
-		 * @return 目录结果容器
+		 * @return 结果容器
 		 *
 		 */
 		static std::vector<std::string> TraverseDirectory(const std::string & path, bool subdirectory = false);
@@ -360,11 +360,11 @@ namespace tinyToolkit
 		 *
 		 * 遍历目录
 		 *
-		 * @param path 待遍历根目录路径
+		 * @param path 待遍历路径
 		 * @param rule 遍历规则
 		 * @param subdirectory 是否遍历子目录
 		 *
-		 * @return 目录结果容器
+		 * @return 结果容器
 		 *
 		 */
 		static std::vector<std::string> TraverseDirectory(const std::string & path, const std::regex & rule, bool subdirectory = false);

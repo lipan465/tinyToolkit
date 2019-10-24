@@ -64,6 +64,9 @@ pushd %buildDirectory%\fmt
 ::
 cmake	%projectDirectory%\3rd\fmt ^
 		^
+		-DFMT_DOC=OFF ^
+		-DFMT_TEST=OFF ^
+		^
 		-DCMAKE_BUILD_TYPE=Release ^
         -DCMAKE_VERBOSE_MAKEFILE=ON
 
@@ -118,17 +121,17 @@ cmake	%projectDirectory% ^
 ::
 :: 复制文件
 ::
-copy %buildDirectory%\fmt\Release\fmt.lib %buildDirectory%\tinyToolkit\example\container
-copy %buildDirectory%\fmt\Release\fmt.lib %buildDirectory%\tinyToolkit\example\crypto
-copy %buildDirectory%\fmt\Release\fmt.lib %buildDirectory%\tinyToolkit\example\debug
-copy %buildDirectory%\fmt\Release\fmt.lib %buildDirectory%\tinyToolkit\example\id
-copy %buildDirectory%\fmt\Release\fmt.lib %buildDirectory%\tinyToolkit\example\log
-copy %buildDirectory%\fmt\Release\fmt.lib %buildDirectory%\tinyToolkit\example\net
-copy %buildDirectory%\fmt\Release\fmt.lib %buildDirectory%\tinyToolkit\example\pool
-copy %buildDirectory%\fmt\Release\fmt.lib %buildDirectory%\tinyToolkit\example\system
-copy %buildDirectory%\fmt\Release\fmt.lib %buildDirectory%\tinyToolkit\example\test
-copy %buildDirectory%\fmt\Release\fmt.lib %buildDirectory%\tinyToolkit\example\timer
-copy %buildDirectory%\fmt\Release\fmt.lib %buildDirectory%\tinyToolkit\project\tinyToolkit
+copy ..\fmt\Release\fmt.lib example\container
+copy ..\fmt\Release\fmt.lib example\crypto
+copy ..\fmt\Release\fmt.lib example\debug
+copy ..\fmt\Release\fmt.lib example\id
+copy ..\fmt\Release\fmt.lib example\log
+copy ..\fmt\Release\fmt.lib example\net
+copy ..\fmt\Release\fmt.lib example\pool
+copy ..\fmt\Release\fmt.lib example\system
+copy ..\fmt\Release\fmt.lib example\test
+copy ..\fmt\Release\fmt.lib example\timer
+copy ..\fmt\Release\fmt.lib project\tinyToolkit
 
 
 ::

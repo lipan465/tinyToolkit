@@ -369,7 +369,7 @@ namespace tinyToolkit
 		}
 
 		return _parse[option]->Value();
-	};
+	}
 
 	/**
 	 *

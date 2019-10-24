@@ -112,14 +112,14 @@ namespace tinyToolkit
 	protected:
 		/**
 		 *
-		 * 线程函数(更新定时器tick)
+		 * 线程函数
 		 *
 		 */
 		void ThreadProcess();
 
 		/**
 		 *
-		 * 更新定时器tick
+		 * 更新定时器
 		 *
 		 */
 		void Update();
@@ -151,15 +151,6 @@ namespace tinyToolkit
 		 *
 		 */
 		bool Cascade(std::size_t wheel, std::size_t index);
-
-		/**
-		 *
-		 * 清理时间轮
-		 *
-		 * @param spokesList 待清理时间轮
-		 *
-		 */
-		void ClearSpokes(std::vector<TimerNode *> & spokesList);
 
 	protected:
 		bool _status{ true };

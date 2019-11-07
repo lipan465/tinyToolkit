@@ -469,7 +469,7 @@ namespace tinyToolkit
 
 		localAddress.sin_port = 0;
 		localAddress.sin_family = AF_INET;
-		localAddress.sin_addr.s_addr = INADDR_ANY;
+		localAddress.sin_addr.s_addr = htonl(INADDR_ANY);
 
 		if (::bind(sock, (struct sockaddr *)&localAddress, sizeof(struct sockaddr_in)) == TINY_TOOLKIT_SOCKET_ERROR)
 		{

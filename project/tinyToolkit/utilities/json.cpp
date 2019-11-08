@@ -80,21 +80,21 @@ namespace tinyToolkit
 	 */
 	std::string Json::Format(const std::string & value)
 	{
-		std::size_t tag = 0;
-		std::size_t count = 0;
-		std::size_t length = value.size();
+		auto tag = static_cast<int32_t>(0);
+		auto count = static_cast<int32_t>(0);
+		auto length = static_cast<int32_t>(value.size());
 
 		std::string str{ };
 
 		auto AppendIndent = [&]()
 		{
-			for (std::size_t i = 0; i < count; ++i)
+			for (int32_t i = 0; i < count; ++i)
 			{
 				str += "\t";
 			}
 		};
 
-		for (std::size_t i = 0; i < length; ++i)
+		for (int32_t i = 0; i < length; ++i)
 		{
 			auto & key = value[i];
 
@@ -111,7 +111,7 @@ namespace tinyToolkit
 				}
 				else if ((key == '[') || (key == '{'))
 				{
-					if (((i - 1) > 0) && (value[i - 1] == ':'))
+					if (((i - 1) >= 0) && (value[i - 1] == ':'))
 					{
 						str += TINY_TOOLKIT_EOL;
 
@@ -129,7 +129,7 @@ namespace tinyToolkit
 				}
 				else if (((key == ']') || (key == '}')))
 				{
-					if (((i - 1) > 0) && ((value[i - 1] != ']') && (value[i - 1] != '}')))
+					if (((i - 1) >= 0) && ((value[i - 1] != ']') && (value[i - 1] != '}')))
 					{
 						str += TINY_TOOLKIT_EOL;
 					}

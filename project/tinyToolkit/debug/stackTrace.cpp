@@ -131,7 +131,7 @@ namespace tinyToolkit
 		{
 			std::cout << iter << std::endl;
 		}
-		
+
 		if (signalNo > 0)
 		{
 			std::raise(SIGTERM);

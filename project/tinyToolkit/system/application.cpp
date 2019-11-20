@@ -68,7 +68,7 @@ namespace tinyToolkit
 #else
 
 				{
-					FILE * fp = popen(String::Format("ps -wf | grep {0} | grep -v grep | grep -v /{0}/ | wc -l", Name()).c_str(), "r");
+					FILE * fp = popen(String::Format("ps -ef | grep {0} | grep -v grep | grep -v /{0}/ | wc -l", Name()).c_str(), "r");
 
 					if (fp == nullptr)
 					{

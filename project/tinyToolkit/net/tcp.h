@@ -6,32 +6,36 @@
  *
  *  作者: hm
  *
- *  说明: tcp服务
+ *  说明: tcp
  *
  */
 
 
+#include "cache.h"
 #include "event.h"
 #include "server.h"
+#include "message.h"
+#include "session.h"
 
 
 namespace tinyToolkit
 {
-	class TINY_TOOLKIT_API TCPSessionPipe : public ITCPPipe, public INetCompleter
+	class TINY_TOOLKIT_API TCPSessionPipe : public INetPipe, public INetCompleter
 	{
 		friend class TCPServerPipe;
+		friend class NetEventMonitor;
 
 	public:
 		/**
 		 *
 		 * 构造函数
 		 *
+		 * @param socket 句柄
 		 * @param session 会话
-		 * @param socket 会话套接字
-		 * @param handle 管理句柄
+		 * @param monitor 监控
 		 *
 		 */
-		TCPSessionPipe(ITCPSession * session, TINY_TOOLKIT_SOCKET_TYPE socket, TINY_TOOLKIT_SOCKET_HANDLE handle);
+		TCPSessionPipe(std::shared_ptr<NetSocket> socket, ITCPSession * session, NetEventMonitor * monitor);
 
 		/**
 		 *
@@ -49,132 +53,158 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 接受连接
+		 *
+		 * @return 是否连接成功
+		 *
+		 */
+		bool Accept() override;
+
+		/**
+		 *
+		 * 接收数据
+		 *
+		 * @return 是否接收成功
+		 *
+		 */
+		bool Receive() override;
+
+		/**
+		 *
 		 * 发送数据
 		 *
-		 * @param data 待发送数据指针
-		 * @param size 待发送数据长度
+		 * @param buffer 待发送数据缓冲区指针
+		 * @param length 待发送数据缓冲区长度
+		 *
+		 * @return 是否发送成功
 		 *
 		 */
-		void Send(const void * data, std::size_t size) override;
+		bool Send(const char * buffer, std::size_t length) override;
 
 		/**
 		 *
-		 * 回调函数
+		 * 追加数据
 		 *
-		 * @param netEvent 网络事件
-		 * @param sysEvent 系统事件
+		 * @param buffer 待追加数据缓冲区指针
+		 * @param length 待追加数据缓冲区长度
+		 *
+		 * @return 是否追加成功
 		 *
 		 */
-		void OnCallback(NetEvent * netEvent, void * sysEvent) override;
+		bool Append(const void * buffer, std::size_t length) override;
 
 		/**
 		 *
-		 * 异步发送
+		 * 逻辑处理
 		 *
-		 * @return 是否处理成功
+		 * @param netContext 网络上下文
+		 * @param sysContext 系统上下文
 		 *
 		 */
-		bool AsyncSend() override;
+		void Logic(NetContext * netContext, void * sysContext) override;
 
 		/**
 		 *
-		 * 异步连接
+		 * 剩余消息个数
 		 *
-		 * @return 是否处理成功
+		 * @return 剩余消息个数
 		 *
 		 */
-		bool AsyncAccept() override;
+		std::size_t RemainMessageCount() override;
 
 		/**
 		 *
-		 * 异步接收
+		 * 句柄
 		 *
-		 * @return 是否处理成功
+		 * @return 句柄
 		 *
 		 */
-		bool AsyncReceive() override;
+		TINY_TOOLKIT_SOCKET_TYPE SocketHandle() override;
 
 	private:
 		/**
 		 *
 		 * 交互处理
 		 *
-		 * @param netEvent 网络事件
-		 * @param sysEvent 系统事件
+		 * @param netContext 网络上下文
+		 * @param sysContext 系统上下文
 		 *
 		 */
-		void DoIO(NetEvent * netEvent, void * sysEvent);
+		void DoIO(NetContext * netContext, void * sysContext);
 
 		/**
 		 *
-		 * 交互处理
+		 * 发送处理
 		 *
-		 * @param netEvent 网络事件
-		 * @param sysEvent 系统事件
+		 * @param netContext 网络上下文
+		 * @param sysContext 系统上下文
 		 *
 		 */
-		void DoSend(NetEvent * netEvent, void * sysEvent);
+		void DoSend(NetContext * netContext, void * sysContext);
 
 		/**
 		 *
-		 * 交互处理
+		 * 接收处理
 		 *
-		 * @param netEvent 网络事件
-		 * @param sysEvent 系统事件
+		 * @param netContext 网络上下文
+		 * @param sysContext 系统上下文
 		 *
 		 */
-		void DoReceive(NetEvent * netEvent, void * sysEvent);
+		void DoReceive(NetContext * netContext, void * sysContext);
 
 		/**
 		 *
 		 * 连接处理
 		 *
-		 * @param netEvent 网络事件
-		 * @param sysEvent 系统事件
+		 * @param netContext 网络上下文
+		 * @param sysContext 系统上下文
 		 *
 		 */
-		void DoConnect(NetEvent * netEvent, void * sysEvent);
+		void DoConnect(NetContext * netContext, void * sysContext);
 
-	public:
+	private:
 		bool _isSend{ false };
 		bool _isConnect{ false };
 
+		std::mutex _mutex{ };
+
+		NetCache _cache;
+
+		std::shared_ptr<NetSocket> _socket{ };
+
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-		NetEvent _sendEvent{ };
-		NetEvent _receiveEvent{ };
+		NetContext _sendContext{ };
+		NetContext _receiveContext{ };
 
 #else
 
-		NetEvent _netEvent{ };
+		NetContext _ioContext{ };
 
 #endif
 
-	private:
-		NetCache _cache;
-
 		ITCPSession * _session{ nullptr };
 
-		LockQueue<std::shared_ptr<NetMessage>> _sendQueue{ };
+		NetEventMonitor * _monitor{ nullptr };
 
-		TINY_TOOLKIT_SOCKET_TYPE _socket{ TINY_TOOLKIT_SOCKET_INVALID };
-
-		TINY_TOOLKIT_SOCKET_HANDLE _handle{ TINY_TOOLKIT_SOCKET_HANDLE_INVALID };
+		std::queue<std::shared_ptr<NetMessage>> _messageQueue{ };
 	};
 
-	class TINY_TOOLKIT_API TCPServerPipe : public ITCPPipe, public INetCompleter
+	class TINY_TOOLKIT_API TCPServerPipe : public INetPipe, public INetCompleter
 	{
+		friend class NetEventMonitor;
+
 	public:
 		/**
 		 *
 		 * 构造函数
 		 *
-		 * @param server 服务器
-		 * @param socket 会话套接字
-		 * @param handle 管理句柄
+		 * @param socket 句柄
+		 * @param server 服务
+		 * @param monitor 监控
 		 *
 		 */
-		TCPServerPipe(ITCPServer * server, TINY_TOOLKIT_SOCKET_TYPE socket, TINY_TOOLKIT_SOCKET_HANDLE handle);
+		TCPServerPipe(std::shared_ptr<NetSocket> socket, ITCPServer * server, NetEventMonitor * monitor);
 
 		/**
 		 *
@@ -192,73 +222,99 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 接受连接
+		 *
+		 * @return 是否连接成功
+		 *
+		 */
+		bool Accept() override;
+
+		/**
+		 *
+		 * 接收数据
+		 *
+		 * @return 是否接收成功
+		 *
+		 */
+		bool Receive() override;
+
+		/**
+		 *
 		 * 发送数据
 		 *
-		 * @param data 待发送数据指针
-		 * @param size 待发送数据长度
+		 * @param buffer 待发送数据缓冲区指针
+		 * @param length 待发送数据缓冲区长度
+		 *
+		 * @return 是否发送成功
 		 *
 		 */
-		void Send(const void * data, std::size_t size) override;
+		bool Send(const char * buffer, std::size_t length) override;
 
 		/**
 		 *
-		 * 回调函数
+		 * 追加数据
 		 *
-		 * @param netEvent 网络事件
-		 * @param sysEvent 系统事件
+		 * @param buffer 待追加数据缓冲区指针
+		 * @param length 待追加数据缓冲区长度
+		 *
+		 * @return 是否追加成功
 		 *
 		 */
-		void OnCallback(NetEvent * netEvent, void * sysEvent) override;
+		bool Append(const void * buffer, std::size_t length) override;
 
 		/**
 		 *
-		 * 异步发送
+		 * 逻辑处理
 		 *
-		 * @return 是否处理成功
+		 * @param netContext 网络上下文
+		 * @param sysContext 系统上下文
 		 *
 		 */
-		bool AsyncSend() override;
+		void Logic(NetContext * netContext, void * sysContext) override;
 
 		/**
 		 *
-		 * 异步连接
+		 * 剩余消息个数
 		 *
-		 * @return 是否处理成功
+		 * @return 剩余消息个数
 		 *
 		 */
-		bool AsyncAccept() override;
+		std::size_t RemainMessageCount() override;
 
 		/**
 		 *
-		 * 异步接收
+		 * 句柄
 		 *
-		 * @return 是否处理成功
+		 * @return 句柄
 		 *
 		 */
-		bool AsyncReceive() override;
+		TINY_TOOLKIT_SOCKET_TYPE SocketHandle() override;
 
 	private:
 		/**
 		 *
 		 * 连接处理
 		 *
-		 * @param netEvent 网络事件
-		 * @param sysEvent 系统事件
+		 * @param netContext 网络上下文
+		 * @param sysContext 系统上下文
 		 *
 		 */
-		void DoAccept(NetEvent * netEvent, void * sysEvent);
-
-	public:
-		NetEvent _netEvent{ };
+		void DoAccept(NetContext * netContext, void * sysContext);
 
 	private:
+		bool _isListen{ true };
+
+		NetContext _acceptContext{ };
+
 		ITCPServer * _server{ nullptr };
 
-		TINY_TOOLKIT_SOCKET_TYPE _socket{ TINY_TOOLKIT_SOCKET_INVALID };
+		NetEventMonitor * _monitor{ nullptr };
 
-		TINY_TOOLKIT_SOCKET_HANDLE _handle{ TINY_TOOLKIT_SOCKET_HANDLE_INVALID };
+		std::shared_ptr<NetSocket> _socket{ };
 	};
 }
+
+
 
 
 #endif // __TINY_TOOLKIT__NET__TCP__H__

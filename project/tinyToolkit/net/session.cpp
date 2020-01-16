@@ -2,14 +2,15 @@
  *
  *  作者: hm
  *
- *  说明: 通讯会话
+ *  说明: 会话
  *
  */
 
 
+#include "event.h"
 #include "session.h"
-#include "manager.h"
 
+#include "../utilities/net.h"
 #include "../utilities/singleton.h"
 
 
@@ -17,10 +18,149 @@ namespace tinyToolkit
 {
 	/**
 	 *
+	 * 缓存堵塞触发回调函数
+	 *
+	 * @return 是否关闭连接
+	 *
+	 */
+	bool INetSession::OnCacheFull()
+	{
+		return true;
+	}
+
+	/**
+	 *
+	 * 事件错误触发回调函数
+	 *
+	 */
+	void INetSession::OnEventError()
+	{
+
+	}
+
+	/**
+	 *
+	 * 断开连接触发回调函数
+	 *
+	 */
+	void INetSession::OnDisconnect()
+	{
+
+	}
+
+	/**
+	 *
+	 * 发送成功触发回调函数
+	 *
+	 */
+	void INetSession::OnSend()
+	{
+
+	}
+
+	/**
+	 *
+	 * 发送失败触发回调函数
+	 *
+	 */
+	void INetSession::OnSendFailed()
+	{
+
+	}
+
+	/**
+	 *
+	 * 监听连接触发回调函数
+	 *
+	 */
+	void INetSession::OnBind()
+	{
+
+	}
+
+	/**
+	 *
+	 * 监听失败触发回调函数
+	 *
+	 */
+	void INetSession::OnBindFailed()
+	{
+
+	}
+
+	/**
+	 *
+	 * 套接字生成触发回调函数
+	 *
+	 */
+	void INetSession::OnSocket()
+	{
+
+	}
+
+	/**
+	 *
+	 * 套接字错误触发回调函数
+	 *
+	 */
+	void INetSession::OnSocketFailed()
+	{
+
+	}
+
+	/**
+	 *
+	 * 连接成功触发回调函数
+	 *
+	 */
+	void INetSession::OnConnect()
+	{
+
+	}
+
+	/**
+	 *
+	 * 连接失败触发回调函数
+	 *
+	 */
+	void INetSession::OnConnectFailed()
+	{
+
+	}
+
+	/**
+	 *
+	 * 接收失败触发回调函数
+	 *
+	 */
+	void INetSession::OnReceiveFailed()
+	{
+
+	}
+
+	/**
+	 *
+	 * 接收数据触发回调函数
+	 *
+	 * @param buffer 数据缓冲区指针
+	 * @param length 数据缓冲区长度
+	 *
+	 * @return 使用的字节数
+	 *
+	 */
+	std::size_t INetSession::OnReceive(const char * buffer, std::size_t length)
+	{
+		(void)buffer;
+
+		return length;
+	}
+
+	/**
+	 *
 	 * 关闭会话
 	 *
 	 */
-	void ITCPSession::Close()
+	void INetSession::Close()
 	{
 		if (_pipe)
 		{
@@ -32,97 +172,87 @@ namespace tinyToolkit
 	 *
 	 * 发送数据
 	 *
-	 * @param data 待发送数据指针
-	 * @param size 待发送数据长度
+	 * @param buffer 待发送数据缓冲区指针
+	 * @param length 待发送数据缓冲区长度
+	 *
+	 * @return 是否发送成功
 	 *
 	 */
-	void ITCPSession::Send(const void * data, std::size_t size)
+	bool INetSession::Send(const void * buffer, std::size_t length)
 	{
 		if (_pipe)
 		{
-			_pipe->Send(data, size);
+			return _pipe->Append(buffer, length);
 		}
+
+		return false;
 	}
 
 	/**
 	 *
-	 * 启动
+	 * 剩余消息个数
 	 *
-	 * @param remoteHost 远端地址
-	 * @param remotePort 远端端口
-	 * @param cacheSize 缓存大小
-	 *
-	 * @return 是否启动成功
+	 * @return 剩余消息个数
 	 *
 	 */
-	bool ITCPSession::Launch(std::string remoteHost, uint16_t remotePort, std::size_t cacheSize)
+	std::size_t INetSession::RemainMessageCount()
 	{
-		_cacheSize = cacheSize;
+		if (_pipe)
+		{
+			return _pipe->RemainMessageCount();
+		}
 
-		_remotePort = remotePort;
-		_remoteHost = std::move(remoteHost);
-
-		return Singleton<NetManager>::Instance().LaunchTCPClient(this);
+		return 0;
 	}
 
 	/**
 	 *
-	 * 主机端口
+	 * 目标地址
 	 *
-	 * @return 主机端口
+	 * @return 目标地址
 	 *
 	 */
-	uint16_t ITCPSession::LocalPort() const
+	const NetAddress & INetSession::PeerAddress()
 	{
-		return _localPort;
+		if (_pipe && !_peerAddress.IsValid())
+		{
+			struct sockaddr_in address{ };
+
+			if (Net::GetPeerAddress(_pipe->SocketHandle(), address))
+			{
+				char addr[INET_ADDRSTRLEN]{ 0 };
+
+				_peerAddress.host = inet_ntop(AF_INET, reinterpret_cast<const char *>(&address.sin_addr), addr, static_cast<socklen_t>(sizeof(addr)));
+				_peerAddress.port = ntohs(address.sin_port);
+			}
+		}
+
+		return _peerAddress;
 	}
 
 	/**
 	 *
-	 * 远端端口
+	 * 本地地址
 	 *
-	 * @return 远端端口
+	 * @return 本地地址
 	 *
 	 */
-	uint16_t ITCPSession::RemotePort() const
+	const NetAddress & INetSession::LocalAddress()
 	{
-		return _remotePort;
-	}
+		if (_pipe && !_localAddress.IsValid())
+		{
+			struct sockaddr_in address{ };
 
-	/**
-	 *
-	 * 缓存大小
-	 *
-	 * @return 缓存大小
-	 *
-	 */
-	std::size_t ITCPSession::CacheSize() const
-	{
-		return _cacheSize;
-	}
+			if (Net::GetLocalAddress(_pipe->SocketHandle(), address))
+			{
+				char addr[INET_ADDRSTRLEN]{ 0 };
 
-	/**
-	 *
-	 * 主机地址
-	 *
-	 * @return 主机地址
-	 *
-	 */
-	const std::string & ITCPSession::LocalHost() const
-	{
-		return _localHost;
-	}
+				_localAddress.host = inet_ntop(AF_INET, reinterpret_cast<const char *>(&address.sin_addr), addr, static_cast<socklen_t>(sizeof(addr)));
+				_localAddress.port = ntohs(address.sin_port);
+			}
+		}
 
-	/**
-	 *
-	 * 远端地址
-	 *
-	 * @return 远端地址
-	 *
-	 */
-	const std::string & ITCPSession::RemoteHost() const
-	{
-		return _remoteHost;
+		return _localAddress;
 	}
 
 
@@ -131,116 +261,30 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 关闭会话
-	 *
-	 */
-	void IUDPSession::Close()
-	{
-		if (_pipe)
-		{
-			_pipe->Close();
-		}
-	}
-
-	/**
-	 *
-	 * 发送数据
-	 *
-	 * @param data 待发送数据指针
-	 * @param size 待发送数据长度
-	 *
-	 */
-	void IUDPSession::Send(const void * data, std::size_t size)
-	{
-		if (_pipe)
-		{
-			_pipe->Send(data, size);
-		}
-	}
-
-	/**
-	 *
 	 * 启动
 	 *
-	 * @param localHost 主机地址
-	 * @param localPort 主机端口
-	 * @param remoteHost 远端地址
-	 * @param remotePort 远端端口
+	 * @param peerHost 目标地址
+	 * @param peerPort 目标端口
 	 * @param cacheSize 缓存大小
+	 * @param eventMonitor 事件监控
 	 *
 	 * @return 是否启动成功
 	 *
 	 */
-	bool IUDPSession::Launch(std::string localHost, uint16_t localPort, std::string remoteHost, uint16_t remotePort, std::size_t cacheSize)
+	bool ITCPSession::Launch(std::string peerHost, uint16_t peerPort, std::size_t cacheSize, NetEventMonitor * eventMonitor)
 	{
 		_cacheSize = cacheSize;
 
-		_localPort = localPort;
-		_localHost = std::move(localHost);
+		_peerAddress.port = peerPort;
+		_peerAddress.host = std::move(peerHost);
 
-		_remotePort = remotePort;
-		_remoteHost = std::move(remoteHost);
-
-		return Singleton<NetManager>::Instance().LaunchUDPClient(this);
-	}
-
-	/**
-	 *
-	 * 主机端口
-	 *
-	 * @return 主机端口
-	 *
-	 */
-	uint16_t IUDPSession::LocalPort() const
-	{
-		return _localPort;
-	}
-
-	/**
-	 *
-	 * 远端端口
-	 *
-	 * @return 远端端口
-	 *
-	 */
-	uint16_t IUDPSession::RemotePort() const
-	{
-		return _remotePort;
-	}
-
-	/**
-	 *
-	 * 缓存大小
-	 *
-	 * @return 缓存大小
-	 *
-	 */
-	std::size_t IUDPSession::CacheSize() const
-	{
-		return _cacheSize;
-	}
-
-	/**
-	 *
-	 * 主机地址
-	 *
-	 * @return 主机地址
-	 *
-	 */
-	const std::string & IUDPSession::LocalHost() const
-	{
-		return _localHost;
-	}
-
-	/**
-	 *
-	 * 远端地址
-	 *
-	 * @return 远端地址
-	 *
-	 */
-	const std::string & IUDPSession::RemoteHost() const
-	{
-		return _remoteHost;
+		if (eventMonitor)
+		{
+			return eventMonitor->LaunchTCPSession(this);
+		}
+		else
+		{
+			return Singleton<NetEventMonitor>::Instance().LaunchTCPSession(this);
+		}
 	}
 }

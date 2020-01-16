@@ -2,119 +2,49 @@
  *
  *  作者: hm
  *
- *  说明: tcp服务
+ *  说明: tcp
  *
  */
 
 
 #include "tcp.h"
 
-#include "../debug/trace.h"
 #include "../utilities/net.h"
+#include "../utilities/time.h"
+#include "../utilities/string.h"
 
 
 namespace tinyToolkit
 {
-#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
-
-	/**
-	 *
-	 * 异步接收处理
-	 *
-	 * @param socket 会话套接字
-	 * @param acceptSocket 监听套接字
-	 * @param buffer 缓冲区
-	 * @param overlapped 结构指针
-	 *
-	 * @return 是否处理成功
-	 *
-	 */
-	static bool AcceptEx(TINY_TOOLKIT_SOCKET_TYPE socket, TINY_TOOLKIT_SOCKET_TYPE acceptSocket, PVOID buffer, LPOVERLAPPED overlapped)
-	{
-		static LPFN_ACCEPTEX function = nullptr;
-
-		if (function == nullptr)
-		{
-			GUID guid = WSAID_ACCEPTEX;
-
-			DWORD byte = 0;
-
-			WSAIoctl(socket, SIO_GET_EXTENSION_FUNCTION_POINTER, &guid, sizeof(guid), &function, sizeof(function), &byte, nullptr, nullptr);
-		}
-
-		if (function)
-		{
-			DWORD byte = 0;
-
-			if (!function(socket, acceptSocket, buffer, 0, sizeof(struct sockaddr_in) + 16, sizeof(struct sockaddr_in) + 16, &byte, overlapped))
-			{
-				if (WSAGetLastError() != WSA_IO_PENDING)
-				{
-					return false;
-				}
-			}
-
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
-
-#else
-
-	/**
-	 *
-	 * 会话处理
-	 *
-	 * @param socket 会话套接字
-	 * @param event 事件
-	 *
-	 * @return 监听套接字
-	 *
-	 */
-	static TINY_TOOLKIT_SOCKET_TYPE Accept(TINY_TOOLKIT_SOCKET_TYPE socket, NetEvent & event)
-	{
-		auto addressLen = sizeof(struct sockaddr_in);
-
-		memset(&event._address, 0, sizeof(struct sockaddr_in));
-
-		return ::accept(socket, (struct sockaddr *)&event._address, (socklen_t *)&addressLen);
-	}
-
-#endif
-
 	/**
 	 *
 	 * 构造函数
 	 *
+	 * @param socket 句柄
 	 * @param session 会话
-	 * @param socket 会话套接字
-	 * @param handle 管理句柄
+	 * @param monitor 监控
 	 *
 	 */
-	TCPSessionPipe::TCPSessionPipe(ITCPSession * session, TINY_TOOLKIT_SOCKET_TYPE socket, TINY_TOOLKIT_SOCKET_HANDLE handle) : _cache(session->_cacheSize),
-																																_session(session),
-																																_socket(socket),
-																																_handle(handle)
-
+	TCPSessionPipe::TCPSessionPipe(std::shared_ptr<NetSocket> socket, ITCPSession * session, NetEventMonitor * monitor) : _cache(session->_cacheSize),
+	                                                                                                                      _socket(std::move(socket)),
+	                                                                                                                      _session(session),
+	                                                                                                                      _monitor(monitor)
 	{
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-		_sendEvent._type = NET_EVENT_TYPE::SEND;
-		_sendEvent._socket = socket;
-		_sendEvent._completer = this;
+		_sendContext.type = NetContext::TYPE::SEND;
+		_sendContext.socket = _socket->Handle();
+		_sendContext.completer = this;
 
-		_receiveEvent._type = NET_EVENT_TYPE::RECEIVE;
-		_receiveEvent._socket = socket;
-		_receiveEvent._completer = this;
+		_receiveContext.type = NetContext::TYPE::RECEIVE;
+		_receiveContext.socket = _socket->Handle();
+		_receiveContext.completer = this;
 
 #else
 
-		_netEvent._type = NET_EVENT_TYPE::IO;
-		_netEvent._socket = socket;
-		_netEvent._completer = this;
+		_ioContext.type = NetContext::TYPE::IO;
+		_ioContext.socket = _socket->Handle();
+		_ioContext.completer = this;
 
 #endif
 	}
@@ -126,57 +56,147 @@ namespace tinyToolkit
 	 */
 	void TCPSessionPipe::Close()
 	{
-		if (_socket != TINY_TOOLKIT_SOCKET_INVALID)
+		if (!_socket->IsValid())
 		{
-			_isConnect = false;
+			return;
+		}
 
-#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
+		_isConnect = false;
 
-			struct kevent event[2]{ };
+		if (!_monitor->RemoveEvent(SocketHandle(), nullptr))
+		{
+			_session->OnEventError();
+		}
 
-			EV_SET(&event[0], _socket, EVFILT_READ,  EV_DELETE, 0, 0, nullptr);
-			EV_SET(&event[1], _socket, EVFILT_WRITE, EV_DELETE, 0, 0, nullptr);
+		_socket->Close();
 
-			kevent(_handle, event, 2, nullptr, 0, nullptr);
+		_session->OnDisconnect();
+	}
 
-#elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_LINUX
+	/**
+	 *
+	 * 接受连接
+	 *
+	 * @return 是否连接成功
+	 *
+	 */
+	bool TCPSessionPipe::Accept()
+	{
+		return true;
+	}
 
-			epoll_ctl(_handle, EPOLL_CTL_DEL, _socket, nullptr);
+	/**
+	 *
+	 * 接收数据
+	 *
+	 * @return 是否接收成功
+	 *
+	 */
+	bool TCPSessionPipe::Receive()
+	{
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		if (_socket->Receive(_receiveContext.cache, sizeof(_receiveContext.cache), &_receiveContext) == TINY_TOOLKIT_SOCKET_ERROR)
+		{
+			if (WSAGetLastError() != ERROR_IO_PENDING)
+			{
+				return false;
+			}
+		}
+
+#else
+
+		int32_t len = _socket->Receive(_ioContext.cache, sizeof(_ioContext.cache), nullptr);
+
+		if (len > 0)
+		{
+			_ioContext.bytes = static_cast<std::size_t>(len);
+		}
+		else
+		{
+			_ioContext.bytes = 0;
+
+			if (errno != EAGAIN)
+			{
+				return false;
+			}
+		}
 
 #endif
 
-			Net::CloseSocket(_socket);
-
-			_socket = TINY_TOOLKIT_SOCKET_INVALID;
-
-			if (_session)
-			{
-				_session->OnDisconnect();
-			}
-		}
+		return true;
 	}
 
 	/**
 	 *
 	 * 发送数据
 	 *
-	 * @param data 待发送数据指针
-	 * @param size 待发送数据长度
+	 * @param buffer 待发送数据缓冲区指针
+	 * @param length 待发送数据缓冲区长度
+	 *
+	 * @return 是否发送成功
 	 *
 	 */
-	void TCPSessionPipe::Send(const void * data, std::size_t size)
+	bool TCPSessionPipe::Send(const char * buffer, std::size_t length)
+	{
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		if (_socket->Send(buffer, length, &_sendContext) == TINY_TOOLKIT_SOCKET_ERROR)
+		{
+			if (WSAGetLastError() != ERROR_IO_PENDING)
+			{
+				return false;
+			}
+		}
+
+#else
+
+		int32_t len = _socket->Send(buffer, length, nullptr);
+
+		if (len > 0)
+		{
+			_ioContext.bytes = static_cast<std::size_t>(len);
+		}
+		else
+		{
+			_ioContext.bytes = 0;
+
+			if (errno != EAGAIN)
+			{
+				return false;
+			}
+		}
+
+#endif
+
+		return true;
+	}
+
+	/**
+	 *
+	 * 追加数据
+	 *
+	 * @param buffer 待追加数据缓冲区指针
+	 * @param length 待追加数据缓冲区长度
+	 *
+	 * @return 是否追加成功
+	 *
+	 */
+	bool TCPSessionPipe::Append(const void * buffer, std::size_t length)
 	{
 		if (!_isConnect)
 		{
-			return;
+			return false;
 		}
 
-		if (data == nullptr || size == 0)
+		if (buffer == nullptr || length == 0)
 		{
-			return;
+			return false;
 		}
 
-		_sendQueue.Push(std::make_shared<NetMessage>(data, size));
+		std::lock_guard<std::mutex> lock(_mutex);
+
+		_messageQueue.push(std::make_shared<NetMessage>(buffer, length));
 
 		if (!_isSend)
 		{
@@ -184,100 +204,117 @@ namespace tinyToolkit
 
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-			if (!AsyncSend())
+			auto & message = _messageQueue.front();
+
+			if (!Send(message->buffer, message->length))
 			{
+				_session->OnSendFailed();
+
 				Close();
+
+				return false;
 			}
 
-#elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
+#else
 
-			struct kevent event[2]{ };
-
-			EV_SET(&event[0], _socket, EVFILT_READ,  EV_ENABLE, 0, 0, &_netEvent);
-			EV_SET(&event[1], _socket, EVFILT_WRITE, EV_ENABLE, 0, 0, &_netEvent);
-
-			if (kevent(_handle, event, 2, nullptr, 0, nullptr) == -1)
+			if (_socket->IsValid() && !_monitor->ModifyEvent(SocketHandle(), &_ioContext, true, true))
 			{
+				_session->OnEventError();
+
 				Close();
-			}
 
-#elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_LINUX
-
-			struct epoll_event event{ };
-
-			event.events = EPOLLIN | EPOLLOUT;
-			event.data.ptr = &_netEvent;
-
-			if (epoll_ctl(_handle, EPOLL_CTL_MOD, _socket, &event) == -1)
-			{
-				Close();
+				return false;
 			}
 
 #endif
 		}
+
+		return true;
 	}
 
 	/**
 	 *
-	 * 回调函数
+	 * 逻辑处理
 	 *
-	 * @param netEvent 网络事件
-	 * @param sysEvent 系统事件
+	 * @param netContext 网络上下文
+	 * @param sysContext 系统上下文
 	 *
 	 */
-	void TCPSessionPipe::OnCallback(NetEvent * netEvent, void * sysEvent)
+	void TCPSessionPipe::Logic(NetContext * netContext, void * sysContext)
 	{
-		switch (netEvent->_type)
+		switch (netContext->type)
 		{
-			case NET_EVENT_TYPE::IO:
+			case NetContext::TYPE::IO:
 			{
-				DoIO(netEvent, sysEvent);
+				DoIO(netContext, sysContext);
 
 				break;
 			}
 
-			case NET_EVENT_TYPE::SEND:
+			case NetContext::TYPE::SEND:
 			{
-				DoSend(netEvent, sysEvent);
+				DoSend(netContext, sysContext);
 
 				break;
 			}
 
-			case NET_EVENT_TYPE::CONNECT:
+			case NetContext::TYPE::CONNECT:
 			{
-				DoConnect(netEvent, sysEvent);
+				DoConnect(netContext, sysContext);
 
 				break;
 			}
 
-			case NET_EVENT_TYPE::RECEIVE:
+			case NetContext::TYPE::RECEIVE:
 			{
-				DoReceive(netEvent, sysEvent);
+				DoReceive(netContext, sysContext);
 
 				break;
 			}
 
 			default:
 			{
-				TINY_TOOLKIT_ASSERT(false, "TCPSessionPipe type error : {}", netEvent->_socket);
-
-				break;
+				throw std::logic_error("TCPSessionPipe type error");
 			}
 		}
 	}
 
 	/**
 	 *
-	 * 交互处理
+	 * 剩余消息个数
 	 *
-	 * @param netEvent 网络事件
-	 * @param sysEvent 系统事件
+	 * @return 剩余消息个数
 	 *
 	 */
-	void TCPSessionPipe::DoIO(NetEvent * netEvent, void * sysEvent)
+	std::size_t TCPSessionPipe::RemainMessageCount()
 	{
-		(void)netEvent;
-		(void)sysEvent;
+		return _messageQueue.size();
+	}
+
+	/**
+	 *
+	 * 句柄
+	 *
+	 * @return 句柄
+	 *
+	 */
+	TINY_TOOLKIT_SOCKET_TYPE TCPSessionPipe::SocketHandle()
+	{
+		return _socket->Handle();
+	}
+
+	/**
+	 *
+	 * 交互处理
+	 *
+	 * @param netContext 网络上下文
+	 * @param sysContext 系统上下文
+	 *
+	 */
+	void TCPSessionPipe::DoIO(NetContext * netContext, void * sysContext)
+	{
+		(void)netContext;
+		(void)sysContext;
 
 		if (!_isConnect)
 		{
@@ -286,186 +323,198 @@ namespace tinyToolkit
 
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
-		auto * currentEventPtr = reinterpret_cast<const struct kevent *>(sysEvent);
+		auto context = reinterpret_cast<const struct kevent *>(sysContext);
 
-		if (currentEventPtr->flags & EV_ERROR)
+		if (context->flags & EV_ERROR)
 		{
 			Close();
 
 			return;
 		}
 
-		if (currentEventPtr->filter == EVFILT_READ)
+		if (context->filter & EVFILT_READ)
 		{
-			if (_isConnect)
+			auto lastTime = Time::Microseconds();
+
+			do
 			{
-				auto len = ::recv(_socket, netEvent->_temp, sizeof(netEvent->_temp), 0);
-
-				if (len > 0)
+				if (!Receive())
 				{
-					netEvent->_bytes = static_cast<std::size_t>(len);
+					_session->OnReceiveFailed();
 
-					if (_cache.Push(netEvent->_temp, netEvent->_bytes))
-					{
-						if (_session)
-						{
-							_cache.Reduced(_session->OnReceive(_cache.Value(), _cache.Length()));
-						}
-					}
-					else
+					Close();
+
+					return;
+				}
+
+				if (_ioContext.bytes == 0)
+				{
+					break;
+				}
+
+				if (!_cache.Append(_ioContext.cache, _ioContext.bytes))
+				{
+					if (_session->OnCacheFull())
 					{
 						Close();
 
 						return;
 					}
 				}
-				else
-				{
-					if (errno != EAGAIN)
-					{
-						Close();
 
-						return;
-					}
-				}
+				_cache.Displacement(_session->OnReceive(_cache.Value(), _cache.Length()));
 			}
+			while ((Time::Microseconds() - lastTime) <= 1000);
 		}
 
-		if (currentEventPtr->filter == EVFILT_WRITE)
+		if (context->filter & EVFILT_WRITE)
 		{
-			if (_isConnect)
+			auto & message = _messageQueue.front();
+
+			while (message->offset < message->length)
 			{
-				auto & value = _sendQueue.Front();
-
-				while (value->_pos < value->_size)
+				if (!Send(message->buffer + message->offset, message->length - message->offset))
 				{
-					auto len = ::send(_socket, value->_data + value->_pos, value->_size - value->_pos, 0);
+					_session->OnSendFailed();
 
-					if (len > 0)
-					{
-						value->_pos += len;
-					}
-					else
-					{
-						if (errno != EAGAIN)
-						{
-							Close();
+					Close();
 
-							return;
-						}
-					}
+					return;
 				}
 
-				_sendQueue.Pop();
-
-				if (_sendQueue.Empty())
+				if (_ioContext.bytes == 0)
 				{
-					_isSend = false;
+					break;
+				}
 
-					struct kevent event[2]{ };
+				message->offset += _ioContext.bytes;
 
-					EV_SET(&event[0], _socket, EVFILT_READ, EV_ENABLE, 0, 0, &_netEvent);
-					EV_SET(&event[1], _socket, EVFILT_WRITE, EV_DISABLE, 0, 0, &_netEvent);
+				if (message->offset == message->length)
+				{
+					_messageQueue.pop();
 
-					if (kevent(_handle, event, 2, nullptr, 0, nullptr) == -1)
-					{
-						Close();
+					_session->OnSend();
 
-						return;
-					}
+					break;
+				}
+				else if (message->offset > message->length)
+				{
+					throw std::length_error(String::Format("send message error [offset={}, length={}]", message->offset, message->length));
+				}
+			}
+
+			std::lock_guard<std::mutex> lock(_mutex);
+
+			if (_messageQueue.empty())
+			{
+				_isSend = false;
+
+				if (_socket->IsValid() && !_monitor->ModifyEvent(SocketHandle(), &_ioContext, true, false))
+				{
+					_session->OnEventError();
+
+					Close();
+
+					return;
 				}
 			}
 		}
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_LINUX
 
-		auto currentEvent = reinterpret_cast<const struct epoll_event *>(sysEvent);
+		auto context = reinterpret_cast<const struct epoll_event *>(sysContext);
 
-		if (currentEvent->events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP))
+		if (context->events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP))
 		{
 			Close();
 
 			return;
 		}
 
-		if (currentEvent->events & EPOLLIN)
+		if (context->events & EPOLLIN)
 		{
-			if (_isConnect)
+			auto lastTime = Time::Microseconds();
+
+			do
 			{
-				auto len = ::recv(_socket, netEvent->_temp, sizeof(netEvent->_temp), 0);
-
-				if (len > 0)
+				if (!Receive())
 				{
-					netEvent->_bytes = static_cast<std::size_t>(len);
+					_session->OnReceiveFailed();
 
-					if (_cache.Push(netEvent->_temp, netEvent->_bytes))
-					{
-						if (_session)
-						{
-							_cache.Reduced(_session->OnReceive(_cache.Value(), _cache.Length()));
-						}
-					}
-					else
+					Close();
+
+					return;
+				}
+
+				if (_ioContext.bytes == 0)
+				{
+					break;
+				}
+
+				if (!_cache.Append(_ioContext.cache, _ioContext.bytes))
+				{
+					if (_session->OnCacheFull())
 					{
 						Close();
 
 						return;
 					}
 				}
-				else
-				{
-					if (errno != EAGAIN)
-					{
-						Close();
 
-						return;
-					}
-				}
+				_cache.Displacement(_session->OnReceive(_cache.Value(), _cache.Length()));
 			}
+			while ((Time::Microseconds() - lastTime) <= 1000);
 		}
 
-		if (currentEvent->events & EPOLLOUT)
+		if (context->events & EPOLLOUT)
 		{
-			if (_isConnect)
+			auto & message = _messageQueue.front();
+
+			while (message->offset < message->length)
 			{
-				auto & value = _sendQueue.Front();
-
-				while (value->_pos < value->_size)
+				if (!Send(message->buffer + message->offset, message->length - message->offset))
 				{
-					auto len = ::send(_socket, value->_data + value->_pos, value->_size - value->_pos, 0);
+					_session->OnSendFailed();
 
-					if (len > 0)
-					{
-						value->_pos += len;
-					}
-					else
-					{
-						if (errno != EAGAIN)
-						{
-							Close();
+					Close();
 
-							return;
-						}
-					}
+					return;
 				}
 
-				_sendQueue.Pop();
-
-				if (_sendQueue.Empty())
+				if (_ioContext.bytes == 0)
 				{
-					_isSend = false;
+					break;
+				}
 
-					struct epoll_event event{ };
+				message->offset += _ioContext.bytes;
 
-					event.events = EPOLLIN;
-					event.data.ptr = &_netEvent;
+				if (message->offset == message->length)
+				{
+					_messageQueue.pop();
 
-					if (epoll_ctl(_handle, EPOLL_CTL_MOD, _socket, &event) == -1)
-					{
-						Close();
+					_session->OnSend();
 
-						return;
-					}
+					break;
+				}
+				else if (message->offset > message->length)
+				{
+					throw std::length_error(String::Format("send message error [offset={}, length={}]", message->offset, message->length));
+				}
+			}
+
+			std::lock_guard<std::mutex> lock(_mutex);
+
+			if (_messageQueue.empty())
+			{
+				_isSend = false;
+
+				if (_socket->IsValid() && !_monitor->ModifyEvent(SocketHandle(), &_ioContext, true, false))
+				{
+					_session->OnEventError();
+
+					Close();
+
+					return;
 				}
 			}
 		}
@@ -477,14 +526,14 @@ namespace tinyToolkit
 	 *
 	 * 发送处理
 	 *
-	 * @param netEvent 网络事件
-	 * @param sysEvent 系统事件
+	 * @param netContext 网络上下文
+	 * @param sysContext 系统上下文
 	 *
 	 */
-	void TCPSessionPipe::DoSend(NetEvent * netEvent, void * sysEvent)
+	void TCPSessionPipe::DoSend(NetContext * netContext, void * sysContext)
 	{
-		(void)netEvent;
-		(void)sysEvent;
+		(void)netContext;
+		(void)sysContext;
 
 		if (!_isConnect)
 		{
@@ -493,18 +542,39 @@ namespace tinyToolkit
 
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-		_sendQueue.Pop();
-
-		if (_sendQueue.Empty())
+		if (netContext->bytes == 0)
 		{
-			_isSend = false;
+			_session->OnSendFailed();
+
+			Close();
 
 			return;
 		}
 
-		if (!AsyncSend())
+		_messageQueue.pop();
+
+		_session->OnSend();
+
 		{
+			std::lock_guard<std::mutex> lock(_mutex);
+
+			if (_messageQueue.empty())
+			{
+				_isSend = false;
+
+				return;
+			}
+		}
+
+		auto & message = _messageQueue.front();
+
+		if (!Send(message->buffer, message->length))
+		{
+			_session->OnSendFailed();
+
 			Close();
+
+			return;
 		}
 
 #endif
@@ -512,16 +582,16 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 交互处理
+	 * 接收处理
 	 *
-	 * @param netEvent 网络事件
-	 * @param sysEvent 系统事件
+	 * @param netContext 网络上下文
+	 * @param sysContext 系统上下文
 	 *
 	 */
-	void TCPSessionPipe::DoReceive(NetEvent * netEvent, void * sysEvent)
+	void TCPSessionPipe::DoReceive(NetContext * netContext, void * sysContext)
 	{
-		(void)netEvent;
-		(void)sysEvent;
+		(void)netContext;
+		(void)sysContext;
 
 		if (!_isConnect)
 		{
@@ -530,28 +600,34 @@ namespace tinyToolkit
 
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-		if (netEvent->_bytes > 0)
+		if (netContext->bytes == 0)
 		{
-			if (_cache.Push(netEvent->_temp, netEvent->_bytes))
-			{
-				if (_session)
-				{
-					_cache.Reduced(_session->OnReceive(_cache.Value(), _cache.Length()));
-				}
+			_session->OnReceiveFailed();
 
-				if (!AsyncReceive())
-				{
-					Close();
-				}
-			}
-			else
+			Close();
+
+			return;
+		}
+
+		if (!_cache.Append(netContext->cache, netContext->bytes))
+		{
+			if (_session->OnCacheFull())
 			{
 				Close();
+
+				return;
 			}
 		}
-		else
+
+		_cache.Displacement(_session->OnReceive(_cache.Value(), _cache.Length()));
+
+		if (!Receive())
 		{
+			_session->OnReceiveFailed();
+
 			Close();
+
+			return;
 		}
 
 #endif
@@ -561,275 +637,98 @@ namespace tinyToolkit
 	 *
 	 * 连接处理
 	 *
-	 * @param netEvent 网络事件
-	 * @param sysEvent 系统事件
+	 * @param netContext 网络上下文
+	 * @param sysContext 系统上下文
 	 *
 	 */
-	void TCPSessionPipe::DoConnect(NetEvent * netEvent, void * sysEvent)
+	void TCPSessionPipe::DoConnect(NetContext * netContext, void * sysContext)
 	{
-		(void)netEvent;
-		(void)sysEvent;
-
-		delete netEvent;
+		(void)netContext;
+		(void)sysContext;
 
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-		if (Net::GetLocalAddress(_socket, _receiveEvent._address))
+		if (setsockopt(_socket->Handle(), SOL_SOCKET, SO_UPDATE_CONNECT_CONTEXT, nullptr, 0) == -1)
 		{
-			if (_session)
-			{
-				char addr[INET_ADDRSTRLEN] = { 0 };
+			_session->OnConnectFailed();
 
-				_session->_localPort = ntohs(_receiveEvent._address.sin_port);
-				_session->_localHost = inet_ntop(AF_INET, &_receiveEvent._address.sin_addr, addr, sizeof(addr));
-			}
-		}
-
-		if (setsockopt(_socket, SOL_SOCKET, SO_UPDATE_CONNECT_CONTEXT, nullptr, 0) == -1)
-		{
 			Close();
 
-			if (_session)
-			{
-				_session->OnConnectFailed();
-			}
+			return;
 		}
 
-		if (AsyncReceive())
-		{
-			_isConnect = true;
+		netContext->type = NetContext::TYPE::SEND;
 
-			if (_session)
-			{
-				_session->OnConnect();
-			}
-		}
-		else
+		_isConnect = true;
+
+		_session->OnConnect();
+
+		if (!Receive())
 		{
+			_session->OnReceiveFailed();
+
 			Close();
 
-			if (_session)
-			{
-				_session->OnConnectFailed();
-			}
+			return;
 		}
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
-		if (Net::GetLocalAddress(_socket, _netEvent._address))
+		auto context = reinterpret_cast<const struct kevent *>(sysContext);
+
+		if (context->flags & EV_ERROR)
 		{
-			if (_session)
-			{
-				char addr[INET_ADDRSTRLEN] = { 0 };
+			_session->OnConnectFailed();
 
-				_session->_localPort = ntohs(_netEvent._address.sin_port);
-				_session->_localHost = inet_ntop(AF_INET, &_netEvent._address.sin_addr, addr, sizeof(addr));
-			}
-		}
-
-		auto * currentEventPtr = reinterpret_cast<const struct kevent *>(sysEvent);
-
-		{
-			struct kevent event[2]{ };
-
-			EV_SET(&event[0], _socket, EVFILT_READ,  EV_DELETE, 0, 0, nullptr);
-			EV_SET(&event[1], _socket, EVFILT_WRITE, EV_DELETE, 0, 0, nullptr);
-
-			kevent(_handle, event, 2, nullptr, 0, nullptr);
-		}
-
-		if (currentEventPtr->flags & EV_ERROR)
-		{
 			Close();
-
-			if (_session)
-			{
-				_session->OnConnectFailed();
-			}
 
 			return;
 		}
 
-		if (currentEventPtr->filter == EVFILT_WRITE)
+		netContext->type = NetContext::TYPE::IO;
+
+		_isConnect = true;
+
+		_session->OnConnect();
+
+		if (_socket->IsValid() && !_monitor->ModifyEvent(SocketHandle(), netContext, true, false))
 		{
-			struct kevent event[2]{ };
+			_session->OnEventError();
 
-			EV_SET(&event[0], _socket, EVFILT_READ,  EV_ADD | EV_ENABLE,  0, 0, &_netEvent);
-			EV_SET(&event[1], _socket, EVFILT_WRITE, EV_ADD | EV_DISABLE, 0, 0, &_netEvent);
-
-			if (kevent(_handle, event, 2, nullptr, 0, nullptr) == -1)
-			{
-				Close();
-
-				if (_session)
-				{
-					_session->OnConnectFailed();
-				}
-			}
-			else
-			{
-				_isConnect = true;
-
-				if (_session)
-				{
-					_session->OnConnect();
-				}
-			}
-		}
-		else
-		{
 			Close();
 
-			if (_session)
-			{
-				_session->OnConnectFailed();
-			}
+			return;
 		}
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_LINUX
 
-		if (Net::GetLocalAddress(_socket, _netEvent._address))
+		auto context = reinterpret_cast<const struct epoll_event *>(sysContext);
+
+		if (context->events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP))
 		{
-			if (_session)
-			{
-				char addr[INET_ADDRSTRLEN] = { 0 };
+			_session->OnConnectFailed();
 
-				_session->_localPort = ntohs(_netEvent._address.sin_port);
-				_session->_localHost = inet_ntop(AF_INET, &_netEvent._address.sin_addr, addr, sizeof(addr));
-			}
-		}
-
-		auto currentEvent = reinterpret_cast<const struct epoll_event *>(sysEvent);
-
-		epoll_ctl(_handle, EPOLL_CTL_DEL, _socket, nullptr);
-
-		if (currentEvent->events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP))
-		{
 			Close();
-
-			if (_session)
-			{
-				_session->OnConnectFailed();
-			}
 
 			return;
 		}
 
-		if (currentEvent->events & EPOLLOUT)
+		netContext->type = NetContext::TYPE::IO;
+
+		_isConnect = true;
+
+		_session->OnConnect();
+
+		if (_socket->IsValid() && !_monitor->ModifyEvent(SocketHandle(), netContext, true, false))
 		{
-			struct epoll_event event{ };
+			_session->OnEventError();
 
-			event.events = EPOLLIN;
-			event.data.ptr = &_netEvent;
-
-			if (epoll_ctl(_handle, EPOLL_CTL_ADD, _socket, &event) == -1)
-			{
-				Close();
-
-				if (_session)
-				{
-					_session->OnConnectFailed();
-				}
-			}
-			else
-			{
-				_isConnect = true;
-
-				if (_session)
-				{
-					_session->OnConnect();
-				}
-			}
-		}
-		else
-		{
 			Close();
 
-			if (_session)
-			{
-				_session->OnConnectFailed();
-			}
+			return;
 		}
 
 #endif
-	}
-
-	/**
-	 *
-	 * 异步发送
-	 *
-	 * @return 是否处理成功
-	 *
-	 */
-	bool TCPSessionPipe::AsyncSend()
-	{
-#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
-
-		DWORD flag = 0;
-		DWORD bytes = 0;
-
-		auto & value = _sendQueue.Front();
-
-		memset(&_sendEvent._overlap, 0, sizeof(OVERLAPPED));
-
-		_sendEvent._buffer.buf = value->_data;
-		_sendEvent._buffer.len = static_cast<ULONG>(value->_size);
-
-		if (WSASend(_socket, &_sendEvent._buffer, 1, &bytes, flag, (LPWSAOVERLAPPED)&_sendEvent, nullptr) == TINY_TOOLKIT_SOCKET_ERROR)
-		{
-			if (WSAGetLastError() != ERROR_IO_PENDING)
-			{
-				return false;
-			}
-		}
-
-#endif
-
-		return true;
-	}
-
-	/**
-	 *
-	 * 异步连接
-	 *
-	 * @return 是否处理成功
-	 *
-	 */
-	bool TCPSessionPipe::AsyncAccept()
-	{
-		return true;
-	}
-
-	/**
-	 *
-	 * 异步接收
-	 *
-	 * @return 是否处理成功
-	 *
-	 */
-	bool TCPSessionPipe::AsyncReceive()
-	{
-#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
-
-		DWORD flag = 0;
-		DWORD bytes = 0;
-
-		memset(&_receiveEvent._overlap, 0, sizeof(OVERLAPPED));
-
-		_receiveEvent._buffer.buf = _receiveEvent._temp;
-		_receiveEvent._buffer.len = sizeof(_receiveEvent._temp);
-
-		if (WSARecv(_socket, &_receiveEvent._buffer, 1, &bytes, &flag, (LPWSAOVERLAPPED)&_receiveEvent, nullptr) == TINY_TOOLKIT_SOCKET_ERROR)
-		{
-			if (WSAGetLastError() != ERROR_IO_PENDING)
-			{
-				return false;
-			}
-		}
-
-#endif
-
-		return true;
 	}
 
 
@@ -840,18 +739,18 @@ namespace tinyToolkit
 	 *
 	 * 构造函数
 	 *
-	 * @param server 服务器
-	 * @param socket 会话套接字
-	 * @param handle 管理句柄
+	 * @param socket 句柄
+	 * @param server 服务
+	 * @param monitor 监控
 	 *
 	 */
-	TCPServerPipe::TCPServerPipe(ITCPServer * server, TINY_TOOLKIT_SOCKET_TYPE socket, TINY_TOOLKIT_SOCKET_HANDLE handle) : _server(server),
-																															_socket(socket),
-																															_handle(handle)
+	TCPServerPipe::TCPServerPipe(std::shared_ptr<NetSocket> socket, ITCPServer * server, NetEventMonitor * monitor) : _server(server),
+	                                                                                                                  _monitor(monitor),
+	                                                                                                                  _socket(std::move(socket))
 	{
-		_netEvent._type = NET_EVENT_TYPE::ACCEPT;
-		_netEvent._socket = socket;
-		_netEvent._completer = this;
+		_acceptContext.type = NetContext::TYPE::ACCEPT;
+		_acceptContext.socket = _socket->Handle();
+		_acceptContext.completer = this;
 	}
 
 	/**
@@ -861,393 +760,344 @@ namespace tinyToolkit
 	 */
 	void TCPServerPipe::Close()
 	{
-		if (_socket != TINY_TOOLKIT_SOCKET_INVALID)
+		if (!_socket->IsValid())
 		{
-#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
-
-			struct kevent event[2]{ };
-
-			EV_SET(&event[0], _socket, EVFILT_READ,  EV_DELETE, 0, 0, nullptr);
-			EV_SET(&event[1], _socket, EVFILT_WRITE, EV_DELETE, 0, 0, nullptr);
-
-			kevent(_handle, event, 2, nullptr, 0, nullptr);
-
-#elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_LINUX
-
-			epoll_ctl(_handle, EPOLL_CTL_DEL, _socket, nullptr);
-
-#endif
-
-			Net::CloseSocket(_socket);
-
-			_socket = TINY_TOOLKIT_SOCKET_INVALID;
-
-			if (_server)
-			{
-				_server->OnRelease();
-			}
+			return;
 		}
+
+		_isListen = false;
+
+		if (!_monitor->RemoveEvent(SocketHandle(), nullptr))
+		{
+			_server->OnEventError();
+		}
+
+		_socket->Close();
+
+		_server->OnDisconnect();
+	}
+
+	/**
+	 *
+	 * 接受连接
+	 *
+	 * @return 是否连接成功
+	 *
+	 */
+	bool TCPServerPipe::Accept()
+	{
+		if (!_isListen)
+		{
+			return false;
+		}
+
+		return _socket->Accept(&_acceptContext) == 0;
+	}
+
+	/**
+	 *
+	 * 接收数据
+	 *
+	 * @return 是否接收成功
+	 *
+	 */
+	bool TCPServerPipe::Receive()
+	{
+		return false;
 	}
 
 	/**
 	 *
 	 * 发送数据
 	 *
-	 * @param data 待发送数据指针
-	 * @param size 待发送数据长度
+	 * @param buffer 待发送数据缓冲区指针
+	 * @param length 待发送数据缓冲区长度
+	 *
+	 * @return 是否发送成功
 	 *
 	 */
-	void TCPServerPipe::Send(const void * data, std::size_t size)
+	bool TCPServerPipe::Send(const char * buffer, std::size_t length)
 	{
-		(void)size;
-		(void)data;
+		(void)buffer;
+		(void)length;
+
+		return false;
 	}
 
 	/**
 	 *
-	 * 回调函数
+	 * 追加数据
 	 *
-	 * @param netEvent 网络事件
-	 * @param sysEvent 系统事件
+	 * @param buffer 待追加数据缓冲区指针
+	 * @param length 待追加数据缓冲区长度
+	 *
+	 * @return 是否追加成功
 	 *
 	 */
-	void TCPServerPipe::OnCallback(NetEvent * netEvent, void * sysEvent)
+	bool TCPServerPipe::Append(const void * buffer, std::size_t length)
 	{
-		switch (netEvent->_type)
+		(void)buffer;
+		(void)length;
+
+		return false;
+	}
+
+	/**
+	 *
+	 * 逻辑处理
+	 *
+	 * @param netContext 网络上下文
+	 * @param sysContext 系统上下文
+	 *
+	 */
+	void TCPServerPipe::Logic(NetContext * netContext, void * sysContext)
+	{
+		switch (netContext->type)
 		{
-			case NET_EVENT_TYPE::ACCEPT:
+			case NetContext::TYPE::ACCEPT:
 			{
-				DoAccept(netEvent, sysEvent);
+				DoAccept(netContext, sysContext);
 
 				break;
 			}
 
 			default:
 			{
-				TINY_TOOLKIT_ASSERT(false, "TCPServerPipe type error : {}", netEvent->_socket);
-
-				break;
+				throw std::logic_error("TCPServerPipe type error");
 			}
 		}
+	}
+
+	/**
+	 *
+	 * 剩余消息个数
+	 *
+	 * @return 剩余消息个数
+	 *
+	 */
+	std::size_t TCPServerPipe::RemainMessageCount()
+	{
+		return 0;
+	}
+
+	/**
+	 *
+	 * 句柄
+	 *
+	 * @return 句柄
+	 *
+	 */
+	TINY_TOOLKIT_SOCKET_TYPE TCPServerPipe::SocketHandle()
+	{
+		return _socket->Handle();
 	}
 
 	/**
 	 *
 	 * 连接处理
 	 *
-	 * @param netEvent 网络事件
-	 * @param sysEvent 系统事件
+	 * @param netContext 网络上下文
+	 * @param sysContext 系统上下文
 	 *
 	 */
-	void TCPServerPipe::DoAccept(NetEvent * netEvent, void * sysEvent)
+	void TCPServerPipe::DoAccept(NetContext * netContext, void * sysContext)
 	{
-		(void)netEvent;
-		(void)sysEvent;
+		(void)netContext;
+		(void)sysContext;
+
+		if (!_isListen)
+		{
+			return;
+		}
 
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-		TINY_TOOLKIT_SOCKET_TYPE sock = netEvent->_socket;
+		auto listenSocket = SocketHandle();
+		auto acceptSocket = netContext->acceptSocket;
 
-		if (setsockopt(sock, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, (char *)&_socket, sizeof(TINY_TOOLKIT_SOCKET_TYPE)) == -1)
+		if (setsockopt(acceptSocket, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, reinterpret_cast<const char *>(&listenSocket), sizeof(TINY_TOOLKIT_SOCKET_TYPE)) == -1)
 		{
-			Net::CloseSocket(sock);
+			Net::CloseSocket(acceptSocket);
 
-			_server->OnError();
+			_server->OnAcceptFailed();
 
 			return;
 		}
 
-		if (CreateIoCompletionPort((HANDLE)sock, _handle, (ULONG_PTR)sock, 0) != _handle)
+		if (!_monitor->AppendEvent(acceptSocket, netContext, true, false))
 		{
-			Net::CloseSocket(sock);
+			Net::CloseSocket(acceptSocket);
 
-			_server->OnError();
+			_server->OnEventError();
+
+			if (!Accept())
+			{
+				_server->OnAcceptFailed();
+			}
 
 			return;
 		}
 
-		if (Net::GetRemoteAddress(sock, _netEvent._address))
-		{
-			char addr[INET_ADDRSTRLEN] = { 0 };
-
-			_server->_remotePort = ntohs(_netEvent._address.sin_port);
-			_server->_remoteHost = inet_ntop(AF_INET, &_netEvent._address.sin_addr, addr, sizeof(addr));
-		}
-
-		auto session = _server->OnSessionConnect();
+		auto session = _server->OnAccept();
 
 		if (session)
 		{
 			session->_cacheSize = _server->_cacheSize;
+			session->_localAddress = _server->_localAddress;
 
-			session->_localPort = _server->_localPort;
-			session->_localHost = _server->_localHost;
+			auto pipe = std::make_shared<TCPSessionPipe>(std::make_shared<NetSocket>(acceptSocket), session, _monitor);
 
-			session->_remotePort = _server->_remotePort;
-			session->_remoteHost = _server->_remoteHost;
+			pipe->_isConnect = true;
 
-			auto pipe = std::make_shared<TCPSessionPipe>(session, sock, _handle);
+			session->_pipe = pipe;
 
-			if (pipe->AsyncReceive())
+			session->OnConnect();
+
+			if (!pipe->Receive())
 			{
-				pipe->_isConnect = true;
+				session->OnReceiveFailed();
 
-				session->_pipe = pipe;
+				session->Close();
 
-				session->OnConnect();
-			}
-			else
-			{
-				Net::CloseSocket(sock);
-
-				_server->OnSessionError(session);
+				return;
 			}
 		}
 		else
 		{
-			Net::CloseSocket(sock);
-
-			_server->OnSessionError(session);
+			Net::CloseSocket(acceptSocket);
 		}
 
-		AsyncAccept();
+		if (!Accept())
+		{
+			_server->OnAcceptFailed();
+
+			return;
+		}
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
-		auto currentEvent = reinterpret_cast<const struct kevent *>(sysEvent);
+		auto context = reinterpret_cast<const struct kevent *>(sysContext);
 
-		if (currentEventPtr->flags & EV_ERROR)
+		if (context->flags & EV_ERROR)
 		{
+			_server->OnAcceptFailed();
+
 			Close();
 
 			return;
 		}
 
-		if (currentEvent->filter == EVFILT_READ)
+		if (!Accept())
 		{
-			TINY_TOOLKIT_SOCKET_TYPE sock = Accept(_socket, _netEvent);
+			_server->OnAcceptFailed();
 
-			if (sock == TINY_TOOLKIT_SOCKET_INVALID)
+			return;
+		}
+
+		auto acceptSocket = netContext->acceptSocket;
+
+		if (!Net::SetNoDelay(acceptSocket, true) ||
+		    !Net::SetNoBlock(acceptSocket, true) ||
+		    !Net::SetReuseAddress(acceptSocket, true))
+		{
+			Net::CloseSocket(acceptSocket);
+
+			_server->OnAcceptFailed();
+
+			return;
+		}
+
+		auto session = _server->OnAccept();
+
+		if (session)
+		{
+			session->_cacheSize = _server->_cacheSize;
+			session->_localAddress = _server->_localAddress;
+
+			auto pipe = std::make_shared<TCPSessionPipe>(std::make_shared<NetSocket>(acceptSocket), session, _monitor);
+
+			pipe->_isConnect = true;
+
+			session->_pipe = pipe;
+
+			session->OnConnect();
+
+			if (!_monitor->AppendEvent(acceptSocket, &pipe->_ioContext, true, false))
 			{
-				_server->OnError();
+				session->OnEventError();
+
+				session->Close();
+
+				return;
 			}
-			else
-			{
-				if (!Net::DisableNagle(sock) ||
-					!Net::EnableLinger(sock) ||
-					!Net::EnableNonBlock(sock) ||
-					!Net::EnableReuseAddress(sock))
-				{
-					Net::CloseSocket(sock);
-
-					_server->OnError();
-
-					return;
-				}
-
-				char addr[INET_ADDRSTRLEN] = { 0 };
-
-				_server->_remotePort = ntohs(_netEvent._address.sin_port);
-				_server->_remoteHost = inet_ntop(AF_INET, &_netEvent._address.sin_addr, addr, sizeof(addr));
-
-				auto session = _server->OnSessionConnect();
-
-				if (session)
-				{
-					session->_cacheSize = _server->_cacheSize;
-
-					session->_localPort = _server->_localPort;
-					session->_localHost = _server->_localHost;
-
-					session->_remotePort = _server->_remotePort;
-					session->_remoteHost = _server->_remoteHost;
-
-					auto pipe = std::make_shared<TCPSessionPipe>(session, sock, _handle);
-
-					struct kevent event[2]{ };
-
-					EV_SET(&event[0], sock, EVFILT_READ,  EV_ADD | EV_ENABLE,  0, 0, &pipe->_netEvent);
-					EV_SET(&event[1], sock, EVFILT_WRITE, EV_ADD | EV_DISABLE, 0, 0, &pipe->_netEvent);
-
-					if (kevent(_handle, event, 2, nullptr, 0, nullptr) == -1)
-					{
-						Net::CloseSocket(sock);
-
-						_server->OnSessionError(session);
-					}
-					else
-					{
-						pipe->_isConnect = true;
-
-						session->_pipe = pipe;
-
-						session->OnConnect();
-					}
-				}
-				else
-				{
-					Net::CloseSocket(sock);
-
-					_server->OnSessionError(session);
-				}
-			}
+		}
+		else
+		{
+			Net::CloseSocket(acceptSocket);
 		}
 
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_LINUX
 
-		auto currentEvent = reinterpret_cast<const struct epoll_event *>(sysEvent);
+		auto context = reinterpret_cast<const struct epoll_event *>(sysContext);
 
-		if (currentEvent->events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP))
+		if (context->events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP))
 		{
+			_server->OnAcceptFailed();
+
 			Close();
 
 			return;
 		}
 
-		if (currentEvent->events & EPOLLIN)
+		if (!Accept())
 		{
-			TINY_TOOLKIT_SOCKET_TYPE sock = Accept(_socket, _netEvent);
+			_server->OnAcceptFailed();
 
-			if (sock == TINY_TOOLKIT_SOCKET_INVALID)
+			return;
+		}
+
+		auto acceptSocket = netContext->acceptSocket;
+
+		if (!Net::SetNoDelay(acceptSocket, true) ||
+		    !Net::SetNoBlock(acceptSocket, true) ||
+		    !Net::SetReuseAddress(acceptSocket, true))
+		{
+			Net::CloseSocket(acceptSocket);
+
+			_server->OnAcceptFailed();
+
+			return;
+		}
+
+		auto session = _server->OnAccept();
+
+		if (session)
+		{
+			session->_cacheSize = _server->_cacheSize;
+			session->_localAddress = _server->_localAddress;
+
+			auto pipe = std::make_shared<TCPSessionPipe>(std::make_shared<NetSocket>(acceptSocket), session, _monitor);
+
+			pipe->_isConnect = true;
+
+			session->_pipe = pipe;
+
+			session->OnConnect();
+
+			if (!_monitor->AppendEvent(acceptSocket, &pipe->_ioContext, true, false))
 			{
-				_server->OnError();
+				session->OnEventError();
+
+				session->Close();
+
+				return;
 			}
-			else
-			{
-				if (!Net::DisableNagle(sock) ||
-					!Net::EnableLinger(sock) ||
-					!Net::EnableNonBlock(sock) ||
-					!Net::EnableReuseAddress(sock))
-				{
-					Net::CloseSocket(sock);
-
-					_server->OnError();
-
-					return;
-				}
-
-				char addr[INET_ADDRSTRLEN] = { 0 };
-
-				_server->_remotePort = ntohs(_netEvent._address.sin_port);
-				_server->_remoteHost = inet_ntop(AF_INET, &_netEvent._address.sin_addr, addr, sizeof(addr));
-
-				auto session = _server->OnSessionConnect();
-
-				if (session)
-				{
-					session->_cacheSize = _server->_cacheSize;
-
-					session->_localPort = _server->_localPort;
-					session->_localHost = _server->_localHost;
-
-					session->_remotePort = _server->_remotePort;
-					session->_remoteHost = _server->_remoteHost;
-
-					auto pipe = std::make_shared<TCPSessionPipe>(session, sock, _handle);
-
-					struct epoll_event event{ };
-
-					event.events = EPOLLIN;
-					event.data.ptr = &pipe->_netEvent;
-
-					if (epoll_ctl(_handle, EPOLL_CTL_ADD, sock, &event) == -1)
-					{
-						Net::CloseSocket(sock);
-
-						_server->OnSessionError(session);
-					}
-					else
-					{
-						pipe->_isConnect = true;
-
-						session->_pipe = pipe;
-
-						session->OnConnect();
-					}
-				}
-				else
-				{
-					_server->OnSessionError(session);
-				}
-			}
+		}
+		else
+		{
+			Net::CloseSocket(acceptSocket);
 		}
 
 #endif
-	}
-
-	/**
-	 *
-	 * 异步发送
-	 *
-	 * @return 是否处理成功
-	 *
-	 */
-	bool TCPServerPipe::AsyncSend()
-	{
-		return true;
-	}
-
-	/**
-	 *
-	 * 异步连接
-	 *
-	 * @return 是否处理成功
-	 *
-	 */
-	bool TCPServerPipe::AsyncAccept()
-	{
-#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
-
-		TINY_TOOLKIT_SOCKET_TYPE sock = WSASocketW(AF_INET, SOCK_STREAM, IPPROTO_TCP, nullptr, 0, WSA_FLAG_OVERLAPPED);
-
-		if (sock == TINY_TOOLKIT_SOCKET_INVALID)
-		{
-			Net::CloseSocket(sock);
-
-			return false;
-		}
-
-		if (!Net::DisableNagle(sock) ||
-			!Net::EnableLinger(sock) ||
-			!Net::EnableNonBlock(sock) ||
-			!Net::EnableReuseAddress(sock))
-		{
-			Net::CloseSocket(sock);
-
-			return false;
-		}
-
-		_netEvent._socket = sock;
-
-		_netEvent._buffer.buf = _netEvent._temp;
-		_netEvent._buffer.len = sizeof(_netEvent._temp);
-
-		memset(&_netEvent._overlap, 0, sizeof(OVERLAPPED));
-
-		if (!AcceptEx(_socket, sock, _netEvent._temp, (LPOVERLAPPED)&_netEvent))
-		{
-			if (WSAGetLastError() != WSA_IO_PENDING)
-			{
-				Net::CloseSocket(sock);
-
-				return false;
-			}
-		}
-
-#endif
-
-		return true;
-	}
-
-	/**
-	 *
-	 * 异步接收
-	 *
-	 * @return 是否处理成功
-	 *
-	 */
-	bool TCPServerPipe::AsyncReceive()
-	{
-		return true;
 	}
 }

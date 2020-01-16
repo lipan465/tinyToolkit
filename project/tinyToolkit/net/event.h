@@ -3,22 +3,26 @@
 
 
 /**
-*
-*  作者: hm
-*
-*  说明: 通讯事件
-*
-*/
+ *
+ *  作者: hm
+ *
+ *  说明: 事件
+ *
+ */
 
 
-#include "type.h"
-#include "completer.h"
+#include "context.h"
 
 
 namespace tinyToolkit
 {
+	class TINY_TOOLKIT_API ITCPServer;
+	class TINY_TOOLKIT_API ITCPSession;
+
 	class TINY_TOOLKIT_API NetEvent
 	{
+		friend class NetEventMonitor;
+
 	public:
 		/**
 		 *
@@ -29,35 +33,164 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 构造函数
-		 *
-		 * @param type 事件类型
-		 * @param socket 句柄
-		 * @param completer 完成者
+		 * 析构函数
 		 *
 		 */
-		NetEvent(NET_EVENT_TYPE type, TINY_TOOLKIT_SOCKET_TYPE socket, INetCompleter * completer);
+		~NetEvent();
+
+		/**
+		 *
+		 * 是否有效
+		 *
+		 * @return 是否有效
+		 *
+		 */
+		bool IsValid();
+
+		/**
+		 *
+		 * 移除监听事件
+		 *
+		 * @param socket 句柄
+		 * @param context 上下文
+		 *
+		 * @return 是否移除成功
+		 *
+		 */
+		bool Remove(TINY_TOOLKIT_SOCKET_TYPE socket, NetContext * context);
+
+		/**
+		 *
+		 * 修改监听事件
+		 *
+		 * @param socket 句柄
+		 * @param context 上下文
+		 * @param readFlag 读监听
+		 * @param writeFlag 写监听
+		 *
+		 * @return 是否修改成功
+		 *
+		 */
+		bool Modify(TINY_TOOLKIT_SOCKET_TYPE socket, NetContext * context, bool readFlag, bool writeFlag);
+
+		/**
+		 *
+		 * 添加监听事件
+		 *
+		 * @param socket 句柄
+		 * @param context 上下文
+		 * @param readFlag 读监听
+		 * @param writeFlag 写监听
+		 *
+		 * @return 是否添加成功
+		 *
+		 */
+		bool Append(TINY_TOOLKIT_SOCKET_TYPE socket, NetContext * context, bool readFlag, bool writeFlag);
+
+	private:
+		TINY_TOOLKIT_SOCKET_EVENT_TYPE _socket{ TINY_TOOLKIT_SOCKET_EVENT_INVALID };
+	};
+
+	class TINY_TOOLKIT_API NetEventMonitor
+	{
+		friend class TINY_TOOLKIT_API ITCPServer;
+		friend class TINY_TOOLKIT_API ITCPSession;
 
 	public:
-#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+		/**
+		 *
+		 * 构造函数
+		 *
+		 */
+		NetEventMonitor();
 
-		OVERLAPPED _overlap{ 0 };
+		/**
+		 *
+		 * 析构函数
+		 *
+		 */
+		~NetEventMonitor();
 
-		WSABUF _buffer{ 0 };
+		/**
+		 *
+		 * 是否有效
+		 *
+		 * @return 是否有效
+		 *
+		 */
+		bool IsValid();
 
-#endif
+		/**
+		 *
+		 * 移除事件监控
+		 *
+		 * @param socket 句柄
+		 * @param context 上下文
+		 *
+		 * @return 是否移除成功
+		 *
+		 */
+		bool RemoveEvent(TINY_TOOLKIT_SOCKET_TYPE socket, NetContext * context);
 
-		char _temp[TINY_TOOLKIT_SOCKET_TEMP_SIZE]{ 0 };
+		/**
+		 *
+		 * 修改事件监控
+		 *
+		 * @param socket 句柄
+		 * @param context 上下文
+		 * @param readFlag 读监听
+		 * @param writeFlag 写监听
+		 *
+		 * @return 是否修改成功
+		 *
+		 */
+		bool ModifyEvent(TINY_TOOLKIT_SOCKET_TYPE socket, NetContext * context, bool readFlag, bool writeFlag);
 
-		std::size_t _bytes{ 0 };
+		/**
+		 *
+		 * 添加事件监控
+		 *
+		 * @param socket 句柄
+		 * @param context 上下文
+		 * @param readFlag 读监听
+		 * @param writeFlag 写监听
+		 *
+		 * @return 是否添加成功
+		 *
+		 */
+		bool AppendEvent(TINY_TOOLKIT_SOCKET_TYPE socket, NetContext * context, bool readFlag, bool writeFlag);
 
-		INetCompleter * _completer{ nullptr };
+	private:
+		/**
+		 *
+		 * 启动tcp服务
+		 *
+		 * @param server 服务
+		 *
+		 * @return 是否启动成功
+		 *
+		 */
+		bool LaunchTCPServer(ITCPServer * server);
 
-		NET_EVENT_TYPE _type{ NET_EVENT_TYPE::INVALID };
+		/**
+		 *
+		 * 启动tcp会话
+		 *
+		 * @param session 会话
+		 *
+		 * @return 是否启动成功
+		 *
+		 */
+		bool LaunchTCPSession(ITCPSession * session);
 
-		struct sockaddr_in _address{ };
+	private:
+		bool _status{ true };
 
-		TINY_TOOLKIT_SOCKET_TYPE _socket{ TINY_TOOLKIT_SOCKET_INVALID };
+		NetEvent _event{ };
+
+		std::mutex _mutex{ };
+
+		std::thread _thread{ };
 	};
 }
 

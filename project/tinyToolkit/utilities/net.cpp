@@ -250,31 +250,50 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 关闭Nagle算法
+	 * 获取目标地址信息
 	 *
 	 * @param socket 套接字
+	 * @param address 地址信息
 	 *
-	 * @return 是否设置成功
+	 * @return 是否获取成功
 	 *
 	 */
-	bool Net::DisableNagle(TINY_TOOLKIT_SOCKET_TYPE socket)
+	bool Net::GetPeerAddress(TINY_TOOLKIT_SOCKET_TYPE socket, struct sockaddr_in & address)
 	{
-		int32_t val = 1l;
+		socklen_t len = sizeof(struct sockaddr_in);
 
-		return setsockopt(socket, IPPROTO_TCP, TCP_NODELAY, reinterpret_cast<const char *>(&val), sizeof(val)) == 0;
+		return ::getpeername(socket, reinterpret_cast<struct sockaddr *>(&address), &len) == 0;
 	}
 
 	/**
 	 *
-	 * 设置延时关闭
+	 * 获取本地地址信息
 	 *
 	 * @param socket 套接字
+	 * @param address 地址信息
+	 *
+	 * @return 是否获取成功
+	 *
+	 */
+	bool Net::GetLocalAddress(TINY_TOOLKIT_SOCKET_TYPE socket, struct sockaddr_in & address)
+	{
+		socklen_t len = sizeof(struct sockaddr_in);
+
+		return ::getsockname(socket, reinterpret_cast<struct sockaddr *>(&address), &len) == 0;
+	}
+
+	/**
+	 *
+	 * 设置是否延时关闭
+	 *
+	 * @param socket 套接字
+	 * @param on 状态
 	 * @param timeout 超时时长
 	 *
 	 * @return 是否设置成功
 	 *
 	 */
-	bool Net::EnableLinger(TINY_TOOLKIT_SOCKET_TYPE socket, int32_t timeout)
+	bool Net::SetLinger(TINY_TOOLKIT_SOCKET_TYPE socket, bool on, int32_t timeout)
 	{
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
@@ -286,103 +305,120 @@ namespace tinyToolkit
 
 #endif
 
-		val.l_onoff = 1l;
+		val.l_onoff = on ? 1 : 0;
 		val.l_linger = timeout;
 
-		return setsockopt(socket, SOL_SOCKET, SO_LINGER, reinterpret_cast<const char *>(&val), sizeof(val)) == 0;
+		return ::setsockopt(socket, SOL_SOCKET, SO_LINGER, reinterpret_cast<const char *>(&val), static_cast<socklen_t>(sizeof(val))) == 0;
 	}
 
 	/**
 	 *
-	 * 启用非堵塞
+	 * 设置是否非堵塞
 	 *
 	 * @param socket 套接字
+	 * @param on 状态
 	 *
 	 * @return 是否设置成功
 	 *
 	 */
-	bool Net::EnableNonBlock(TINY_TOOLKIT_SOCKET_TYPE socket)
+	bool Net::SetNoBlock(TINY_TOOLKIT_SOCKET_TYPE socket, bool on)
 	{
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-		u_long opt = 1l;
+		u_long opt = on ? 1 : 0;
 
 		return ioctlsocket(socket, FIONBIO, &opt) == 0;
 
 #else
 
-		return fcntl(socket, F_SETFL, fcntl(socket, F_GETFL, 0) | O_NONBLOCK) == 0;
+		if (on)
+		{
+			return fcntl(socket, F_SETFL, fcntl(socket, F_GETFL, 0) |  O_NONBLOCK) == 0;
+		}
+		else
+		{
+			return fcntl(socket, F_SETFL, fcntl(socket, F_GETFL, 0) & ~O_NONBLOCK) == 0;
+		}
 
 #endif
 	}
 
 	/**
 	 *
-	 * 启用地址复用
+	 * 设置是否关闭Nagle算法
 	 *
 	 * @param socket 套接字
+	 * @param on 状态
 	 *
 	 * @return 是否设置成功
 	 *
 	 */
-	bool Net::EnableReuseAddress(TINY_TOOLKIT_SOCKET_TYPE socket)
+	bool Net::SetNoDelay(TINY_TOOLKIT_SOCKET_TYPE socket, bool on)
 	{
-		int32_t val = 1l;
+		int32_t val = on ? 1 : 0;
 
-		return setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char *>(&val), sizeof(val)) == 0;
+		return ::setsockopt(socket, IPPROTO_TCP, TCP_NODELAY, reinterpret_cast<const char *>(&val), static_cast<socklen_t>(sizeof(val))) == 0;
 	}
 
 	/**
 	 *
-	 * 获取本地地址
+	 * 设置是否启用端口复用
 	 *
 	 * @param socket 套接字
-	 * @param address 地址
+	 * @param on 状态
 	 *
-	 * @return 是否获取成功
+	 * @return 是否设置成功
 	 *
 	 */
-	bool Net::GetLocalAddress(TINY_TOOLKIT_SOCKET_TYPE socket, struct sockaddr_in & address)
+	bool  Net::SetReusePort(TINY_TOOLKIT_SOCKET_TYPE socket, bool on)
 	{
-		std::size_t len = sizeof(struct sockaddr_in);
+#ifdef SO_REUSEPORT
 
-		return ::getsockname(socket, reinterpret_cast<struct sockaddr *>(&address), reinterpret_cast<socklen_t *>(&len)) == 0;
+		int32_t val = on ? 1 : 0;
+
+		return ::setsockopt(socket, SOL_SOCKET, SO_REUSEPORT, reinterpret_cast<const char *>(&val), static_cast<socklen_t>(sizeof(val))) == 0;
+
+#else
+
+		return false;
+
+#endif
 	}
 
 	/**
 	 *
-	 * 获取远程地址
+	 * 设置是否启用地址复用
 	 *
 	 * @param socket 套接字
-	 * @param address 地址
+	 * @param on 状态
 	 *
-	 * @return 是否获取成功
+	 * @return 是否设置成功
 	 *
 	 */
-	bool Net::GetRemoteAddress(TINY_TOOLKIT_SOCKET_TYPE socket, struct sockaddr_in & address)
+	bool  Net::SetReuseAddress(TINY_TOOLKIT_SOCKET_TYPE socket, bool on)
 	{
-		std::size_t len = sizeof(struct sockaddr_in);
+		int32_t val = on ? 1 : 0;
 
-		return ::getpeername(socket, reinterpret_cast<struct sockaddr *>(&address), reinterpret_cast<socklen_t *>(&len)) == 0;
+		return ::setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char *>(&val), static_cast<socklen_t>(sizeof(val))) == 0;
 	}
 
 	/**
 	 *
 	 * 设置发送超时时间
 	 *
-	 * @param sock 套接字
+	 * @param socket 套接字
 	 * @param second 超时秒数
 	 *
 	 * @return 是否设置成功
 	 *
 	 */
-	bool Net::SetSendTimeout(TINY_TOOLKIT_SOCKET_TYPE sock, std::time_t second)
+	bool Net::SetSendTimeout(TINY_TOOLKIT_SOCKET_TYPE socket, std::time_t second)
 	{
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
 		std::time_t timeout = second * 1000;
 
-		return setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, reinterpret_cast<const char *>(&timeout), sizeof(timeout)) == 0;
+		return ::setsockopt(socket, SOL_SOCKET, SO_SNDTIMEO, reinterpret_cast<const char *>(&timeout), sizeof(timeout)) == 0;
 
 #else
 
@@ -392,7 +428,7 @@ namespace tinyToolkit
 			.tv_usec = 0
 		};
 
-		return setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, reinterpret_cast<const char *>(&timeout), sizeof(timeout)) == 0;
+		return ::setsockopt(socket, SOL_SOCKET, SO_SNDTIMEO, reinterpret_cast<const char *>(&timeout), static_cast<socklen_t>(sizeof(timeout))) == 0;
 
 #endif
 	}
@@ -401,19 +437,19 @@ namespace tinyToolkit
 	 *
 	 * 设置接收超时时间
 	 *
-	 * @param sock 套接字
+	 * @param socket 套接字
 	 * @param second 超时秒数
 	 *
 	 * @return 是否设置成功
 	 *
 	 */
-	bool Net::SetReceiveTimeout(TINY_TOOLKIT_SOCKET_TYPE sock, std::time_t second)
+	bool Net::SetReceiveTimeout(TINY_TOOLKIT_SOCKET_TYPE socket, std::time_t second)
 	{
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
 		std::time_t timeout = second * 1000;
 
-		return setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<const char *>(&timeout), sizeof(timeout)) == 0;
+		return ::setsockopt(socket, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<const char *>(&timeout), sizeof(timeout)) == 0;
 
 #else
 
@@ -423,7 +459,7 @@ namespace tinyToolkit
 			.tv_usec = 0
 		};
 
-		return setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<const char *>(&timeout), sizeof(timeout)) == 0;
+		return ::setsockopt(socket, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<const char *>(&timeout), static_cast<socklen_t>(sizeof(timeout))) == 0;
 
 #endif
 	}
@@ -432,84 +468,84 @@ namespace tinyToolkit
 	 *
 	 * 设置发送缓冲区大小
 	 *
-	 * @param sock 套接字
+	 * @param socket 套接字
 	 * @param size 缓冲区大小
 	 *
 	 * @return 是否设置成功
 	 *
 	 */
-	bool Net::SetSendBufferSize(TINY_TOOLKIT_SOCKET_TYPE sock, int32_t size)
+	bool Net::SetSendBufferSize(TINY_TOOLKIT_SOCKET_TYPE socket, int32_t size)
 	{
-		return setsockopt(sock, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<const char *>(&size), sizeof(size)) == 0;
+		return ::setsockopt(socket, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<const char *>(&size), static_cast<socklen_t>(sizeof(size))) == 0;
 	}
 
 	/**
 	 *
 	 * 设置接收缓冲区大小
 	 *
-	 * @param sock 套接字
+	 * @param socket 套接字
 	 * @param size 缓冲区大小
 	 *
 	 * @return 是否设置成功
 	 *
 	 */
-	bool Net::SetReceiveBufferSize(TINY_TOOLKIT_SOCKET_TYPE sock, int32_t size)
+	bool Net::SetReceiveBufferSize(TINY_TOOLKIT_SOCKET_TYPE socket, int32_t size)
 	{
-		return setsockopt(sock, SOL_SOCKET, SO_RCVBUF, reinterpret_cast<const char *>(&size), sizeof(size)) == 0;
+		return ::setsockopt(socket, SOL_SOCKET, SO_RCVBUF, reinterpret_cast<const char *>(&size), static_cast<socklen_t>(sizeof(size))) == 0;
 	}
 
 	/**
 	 *
 	 * 获取协议族
 	 *
-	 * @param sock 套接字
+	 * @param socket 套接字
 	 *
 	 * @return 协议族
 	 *
 	 */
-	int32_t Net::GetFamily(TINY_TOOLKIT_SOCKET_TYPE sock)
+	int32_t Net::GetFamily(TINY_TOOLKIT_SOCKET_TYPE socket)
 	{
 		socklen_t len = sizeof(struct sockaddr_storage);
 
 		struct sockaddr_storage storage{ };
 
-		return getsockname(sock, reinterpret_cast<struct sockaddr *>(&storage), &len) == 0 ? storage.ss_family : -1;
+		return ::getsockname(socket, reinterpret_cast<struct sockaddr *>(&storage), &len) == 0 ? storage.ss_family : -1;
 	}
 
 	/**
 	 *
 	 * 获取发送缓冲区大小
 	 *
-	 * @param sock 套接字
+	 * @param socket 套接字
 	 *
 	 * @return 发送缓冲区大小
 	 *
 	 */
-	int32_t Net::GetSendBufferSize(TINY_TOOLKIT_SOCKET_TYPE sock)
+	int32_t Net::GetSendBufferSize(TINY_TOOLKIT_SOCKET_TYPE socket)
 	{
 		int32_t optionValue = -1;
 
 		socklen_t optionLength = sizeof(optionValue);
 
-		return getsockopt(sock, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<char *>(&optionValue), &optionLength) == 0 ? optionValue : -1;
+		return ::getsockopt(socket, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<char *>(&optionValue),  &optionLength) == 0 ? optionValue : -1;
 	}
 
 	/**
 	 *
 	 * 获取接收缓冲区大小
 	 *
-	 * @param sock 套接字
+	 * @param socket 套接字
 	 *
 	 * @return 接收缓冲区大小
 	 *
 	 */
-	int32_t Net::GetReceiveBufferSize(TINY_TOOLKIT_SOCKET_TYPE sock)
+	int32_t Net::GetReceiveBufferSize(TINY_TOOLKIT_SOCKET_TYPE socket)
 	{
 		int32_t optionValue = -1;
 
 		socklen_t optionLength = sizeof(optionValue);
 
-		return getsockopt(sock, SOL_SOCKET, SO_RCVBUF, reinterpret_cast<char *>(&optionValue), &optionLength) == 0 ? optionValue : -1;
+		return ::getsockopt(socket, SOL_SOCKET, SO_RCVBUF, reinterpret_cast<char *>(&optionValue), &optionLength) == 0 ? optionValue : -1;
 	}
 
 	/**

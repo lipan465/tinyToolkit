@@ -2,14 +2,15 @@
  *
  *  作者: hm
  *
- *  说明: 通讯服务器
+ *  说明: 服务
  *
  */
 
 
+#include "event.h"
 #include "server.h"
-#include "manager.h"
 
+#include "../utilities/net.h"
 #include "../utilities/singleton.h"
 
 
@@ -17,10 +18,112 @@ namespace tinyToolkit
 {
 	/**
 	 *
+	 * 事件错误触发回调函数
+	 *
+	 */
+	void INetServer::OnEventError()
+	{
+
+	}
+
+	/**
+	 *
+	 * 断开连接触发回调函数
+	 *
+	 */
+	void INetServer::OnDisconnect()
+	{
+
+	}
+
+	/**
+	 *
+	 * 监听连接触发回调函数
+	 *
+	 */
+	void INetServer::OnBind()
+	{
+
+	}
+
+	/**
+	 *
+	 * 监听失败触发回调函数
+	 *
+	 */
+	void INetServer::OnBindFailed()
+	{
+
+	}
+
+	/**
+	 *
+	 * 套接字生成触发回调函数
+	 *
+	 */
+	void INetServer::OnSocket()
+	{
+
+	}
+
+	/**
+	 *
+	 * 套接字错误触发回调函数
+	 *
+	 */
+	void INetServer::OnSocketFailed()
+	{
+
+	}
+
+	/**
+	 *
+	 * 监听连接触发回调函数
+	 *
+	 */
+	void INetServer::OnListen()
+	{
+
+	}
+
+	/**
+	 *
+	 * 监听失败触发回调函数
+	 *
+	 */
+	void INetServer::OnListenFailed()
+	{
+
+	}
+
+	/**
+	 *
+	 * 连接失败触发回调函数
+	 *
+	 */
+	void INetServer::OnAcceptFailed()
+	{
+
+	}
+
+	/**
+	 *
+	 * 会话连接触发回调函数
+	 *
+	 * @return 会话
+	 *
+	 */
+	tinyToolkit::ITCPSession * INetServer::OnAccept()
+	{
+		return nullptr;
+	}
+
+	/**
+	 *
 	 * 关闭会话
 	 *
 	 */
-	void ITCPServer::Close()
+	void INetServer::Close()
 	{
 		if (_pipe)
 		{
@@ -30,98 +133,84 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 发送数据
+	 * 目标地址
 	 *
-	 * @param data 待发送数据指针
-	 * @param size 待发送数据长度
+	 * @return 目标地址
 	 *
 	 */
-	void ITCPServer::Send(const void * data, std::size_t size)
+	const NetAddress & INetServer::PeerAddress()
 	{
-		if (_pipe)
+		if (_pipe && !_peerAddress.IsValid())
 		{
-			_pipe->Send(data, size);
+			struct sockaddr_in address{ };
+
+			if (Net::GetPeerAddress(_pipe->SocketHandle(), address))
+			{
+				char addr[INET_ADDRSTRLEN]{ 0 };
+
+				_peerAddress.host = inet_ntop(AF_INET, reinterpret_cast<const char *>(&address.sin_addr), addr, static_cast<socklen_t>(sizeof(addr)));
+				_peerAddress.port = ntohs(address.sin_port);
+			}
 		}
+
+		return _peerAddress;
 	}
+
+	/**
+	 *
+	 * 本地地址
+	 *
+	 * @return 本地地址
+	 *
+	 */
+	const NetAddress & INetServer::LocalAddress()
+	{
+		if (_pipe && !_localAddress.IsValid())
+		{
+			struct sockaddr_in address{ };
+
+			if (Net::GetLocalAddress(_pipe->SocketHandle(), address))
+			{
+				char addr[INET_ADDRSTRLEN]{ 0 };
+
+				_localAddress.host = inet_ntop(AF_INET, reinterpret_cast<const char *>(&address.sin_addr), addr, static_cast<socklen_t>(sizeof(addr)));
+				_localAddress.port = ntohs(address.sin_port);
+			}
+		}
+
+		return _localAddress;
+	}
+
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 	/**
 	 *
 	 * 启动
 	 *
-	 * @param localHost 主机地址
-	 * @param localPort 主机端口
+	 * @param localHost 本地地址
+	 * @param localPort 本地端口
 	 * @param cacheSize 缓存大小
+	 * @param eventMonitor 事件监控
 	 *
 	 * @return 是否启动成功
 	 *
 	 */
-	bool ITCPServer::Launch(std::string localHost, uint16_t localPort, std::size_t cacheSize)
+	bool ITCPServer::Launch(std::string localHost, uint16_t localPort, std::size_t cacheSize, NetEventMonitor * eventMonitor)
 	{
 		_cacheSize = cacheSize;
 
-		_localPort = localPort;
-		_localHost = std::move(localHost);
+		_localAddress.port = localPort;
+		_localAddress.host = std::move(localHost);
 
-		return Singleton<NetManager>::Instance().LaunchTCPServer(this);
-	}
-
-	/**
-	 *
-	 * 主机端口
-	 *
-	 * @return 主机端口
-	 *
-	 */
-	uint16_t ITCPServer::LocalPort() const
-	{
-		return _localPort;
-	}
-
-	/**
-	 *
-	 * 远端端口
-	 *
-	 * @return 远端端口
-	 *
-	 */
-	uint16_t ITCPServer::RemotePort() const
-	{
-		return _remotePort;
-	}
-
-	/**
-	 *
-	 * 缓存大小
-	 *
-	 * @return 缓存大小
-	 *
-	 */
-	std::size_t ITCPServer::CacheSize() const
-	{
-		return _cacheSize;
-	}
-
-	/**
-	 *
-	 * 主机地址
-	 *
-	 * @return 主机地址
-	 *
-	 */
-	const std::string & ITCPServer::LocalHost() const
-	{
-		return _localHost;
-	}
-
-	/**
-	 *
-	 * 远端地址
-	 *
-	 * @return 远端地址
-	 *
-	 */
-	const std::string & ITCPServer::RemoteHost() const
-	{
-		return _remoteHost;
+		if (eventMonitor)
+		{
+			return eventMonitor->LaunchTCPServer(this);
+		}
+		else
+		{
+			return Singleton<NetEventMonitor>::Instance().LaunchTCPServer(this);
+		}
 	}
 }

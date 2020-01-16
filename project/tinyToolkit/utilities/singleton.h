@@ -34,7 +34,7 @@ namespace tinyToolkit
 		template <typename ... Args>
 		static TypeT & Instance(Args &&... args)
 		{
-			std::call_once(_onceFlag, [&](){ _instance = new TypeT(std::forward<Args>(args)...); });
+			std::call_once(_onceFlag, [&](){ _instance.reset(new TypeT(std::forward<Args>(args)...)); });
 
 			return *_instance;
 		}
@@ -55,41 +55,16 @@ namespace tinyToolkit
 		~Singleton() override = default;
 
 	protected:
-		class TINY_TOOLKIT_API GarbageCollector
-		{
-		public:
-			/**
-			*
-			* 析构函数
-			*
-			*/
-			~GarbageCollector()
-			{
-				if (Singleton<TypeT>::_instance)
-				{
-					delete Singleton<TypeT>::_instance;
-
-					Singleton<TypeT>::_instance = nullptr;
-				}
-			}
-		};
-
-	protected:
-		static TypeT * _instance;
-
 		static std::once_flag _onceFlag;
 
-		static GarbageCollector _garbageCollector;
+		static std::unique_ptr<TypeT> _instance;
 	};
-
-	template <typename TypeT>
-	TypeT * Singleton<TypeT>::_instance = nullptr;
 
 	template <typename TypeT>
 	std::once_flag Singleton<TypeT>::_onceFlag;
 
 	template <typename TypeT>
-	typename Singleton<TypeT>::GarbageCollector Singleton<TypeT>::_garbageCollector;
+	std::unique_ptr<TypeT> Singleton<TypeT>::_instance;
 }
 
 

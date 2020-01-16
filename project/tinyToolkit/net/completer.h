@@ -6,7 +6,7 @@
  *
  *  作者: hm
  *
- *  说明: 通讯完成者
+ *  说明: 完成者
  *
  */
 
@@ -16,7 +16,7 @@
 
 namespace tinyToolkit
 {
-	class TINY_TOOLKIT_API NetEvent;
+	class TINY_TOOLKIT_API NetContext;
 
 	class TINY_TOOLKIT_API INetCompleter
 	{
@@ -30,13 +30,13 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 回调函数
+		 * 逻辑处理
 		 *
-		 * @param netEvent 网络事件
-		 * @param sysEvent 系统事件
+		 * @param netContext 网络上下文
+		 * @param sysContext 系统上下文
 		 *
 		 */
-		virtual void OnCallback(NetEvent * netEvent, void * sysEvent) = 0;
+		virtual void Logic(NetContext * netContext, void * sysContext) = 0;
 	};
 }
 

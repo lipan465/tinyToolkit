@@ -95,55 +95,22 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 关闭Nagle算法
+		 * 获取目标地址信息
 		 *
 		 * @param socket 套接字
+		 * @param address 地址信息
 		 *
-		 * @return 是否设置成功
+		 * @return 是否获取成功
 		 *
 		 */
-		static bool DisableNagle(TINY_TOOLKIT_SOCKET_TYPE socket);
+		static bool GetPeerAddress(TINY_TOOLKIT_SOCKET_TYPE socket, struct sockaddr_in & address);
 
 		/**
 		 *
-		 * 设置延时关闭
+		 * 获取本地地址信息
 		 *
 		 * @param socket 套接字
-		 * @param timeout 超时时长
-		 *
-		 * @return 是否设置成功
-		 *
-		 */
-		static bool EnableLinger(TINY_TOOLKIT_SOCKET_TYPE socket, int32_t timeout = 0);
-
-		/**
-		 *
-		 * 启用非堵塞
-		 *
-		 * @param socket 套接字
-		 *
-		 * @return 是否设置成功
-		 *
-		 */
-		static bool EnableNonBlock(TINY_TOOLKIT_SOCKET_TYPE socket);
-
-		/**
-		 *
-		 * 启用地址复用
-		 *
-		 * @param socket 套接字
-		 *
-		 * @return 是否设置成功
-		 *
-		 */
-		static bool EnableReuseAddress(TINY_TOOLKIT_SOCKET_TYPE socket);
-
-		/**
-		 *
-		 * 获取本地地址
-		 *
-		 * @param socket 套接字
-		 * @param address 地址
+		 * @param address 地址信息
 		 *
 		 * @return 是否获取成功
 		 *
@@ -152,96 +119,145 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 获取远程地址
+		 * 设置是否延时关闭
 		 *
 		 * @param socket 套接字
-		 * @param address 地址
+		 * @param on 状态
+		 * @param timeout 超时时长
 		 *
-		 * @return 是否获取成功
+		 * @return 是否设置成功
 		 *
 		 */
-		static bool GetRemoteAddress(TINY_TOOLKIT_SOCKET_TYPE socket, struct sockaddr_in & address);
+		static bool SetLinger(TINY_TOOLKIT_SOCKET_TYPE socket, bool on, int32_t timeout);
+
+		/**
+		 *
+		 * 设置是否非堵塞
+		 *
+		 * @param socket 套接字
+		 * @param on 状态
+		 *
+		 * @return 是否设置成功
+		 *
+		 */
+		static bool SetNoBlock(TINY_TOOLKIT_SOCKET_TYPE socket, bool on);
+
+		/**
+		 *
+		 * 设置是否关闭Nagle算法
+		 *
+		 * @param socket 套接字
+		 * @param on 状态
+		 *
+		 * @return 是否设置成功
+		 *
+		 */
+		static bool SetNoDelay(TINY_TOOLKIT_SOCKET_TYPE socket, bool on);
+
+		/**
+		 *
+		 * 设置是否启用端口复用
+		 *
+		 * @param socket 套接字
+		 * @param on 状态
+		 *
+		 * @return 是否设置成功
+		 *
+		 */
+		static bool SetReusePort(TINY_TOOLKIT_SOCKET_TYPE socket, bool on);
+
+		/**
+		 *
+		 * 设置是否启用地址复用
+		 *
+		 * @param socket 套接字
+		 * @param on 状态
+		 *
+		 * @return 是否设置成功
+		 *
+		 */
+		static bool SetReuseAddress(TINY_TOOLKIT_SOCKET_TYPE socket, bool on);
 
 		/**
 		 *
 		 * 设置发送超时时间
 		 *
-		 * @param sock 套接字
+		 * @param socket 套接字
 		 * @param second 超时秒数
 		 *
 		 * @return 是否设置成功
 		 *
 		 */
-		static bool SetSendTimeout(TINY_TOOLKIT_SOCKET_TYPE sock, std::time_t second);
+		static bool SetSendTimeout(TINY_TOOLKIT_SOCKET_TYPE socket, std::time_t second);
 
 		/**
 		 *
 		 * 设置接收超时时间
 		 *
-		 * @param sock 套接字
+		 * @param socket 套接字
 		 * @param second 超时秒数
 		 *
 		 * @return 是否设置成功
 		 *
 		 */
-		static bool SetReceiveTimeout(TINY_TOOLKIT_SOCKET_TYPE sock, std::time_t second);
+		static bool SetReceiveTimeout(TINY_TOOLKIT_SOCKET_TYPE socket, std::time_t second);
 
 		/**
 		 *
 		 * 设置发送缓冲区大小
 		 *
-		 * @param sock 套接字
+		 * @param socket 套接字
 		 * @param size 缓冲区大小
 		 *
 		 * @return 是否设置成功
 		 *
 		 */
-		static bool SetSendBufferSize(TINY_TOOLKIT_SOCKET_TYPE sock, int32_t size);
+		static bool SetSendBufferSize(TINY_TOOLKIT_SOCKET_TYPE socket, int32_t size);
 
 		/**
 		 *
 		 * 设置接收缓冲区大小
 		 *
-		 * @param sock 套接字
+		 * @param socket 套接字
 		 * @param size 缓冲区大小
 		 *
 		 * @return 是否设置成功
 		 *
 		 */
-		static bool SetReceiveBufferSize(TINY_TOOLKIT_SOCKET_TYPE sock, int32_t size);
+		static bool SetReceiveBufferSize(TINY_TOOLKIT_SOCKET_TYPE socket, int32_t size);
 
 		/**
 		 *
 		 * 获取协议族
 		 *
-		 * @param sock 套接字
+		 * @param socket 套接字
 		 *
 		 * @return 协议族
 		 *
 		 */
-		static int32_t GetFamily(TINY_TOOLKIT_SOCKET_TYPE sock);
+		static int32_t GetFamily(TINY_TOOLKIT_SOCKET_TYPE socket);
 
 		/**
 		 *
 		 * 获取发送缓冲区大小
 		 *
-		 * @param sock 套接字
+		 * @param socket 套接字
 		 *
 		 * @return 发送缓冲区大小
 		 *
 		 */
-		static int32_t GetSendBufferSize(TINY_TOOLKIT_SOCKET_TYPE sock);
+		static int32_t GetSendBufferSize(TINY_TOOLKIT_SOCKET_TYPE socket);
 
 		/**
 		 *
 		 * 获取接收缓冲区大小
 		 *
-		 * @param sock 套接字
+		 * @param socket 套接字
 		 *
 		 * @return 接收缓冲区大小
 		 *
 		 */
-		static int32_t GetReceiveBufferSize(TINY_TOOLKIT_SOCKET_TYPE sock);
+		static int32_t GetReceiveBufferSize(TINY_TOOLKIT_SOCKET_TYPE socket);
 
 		/**
 		 *

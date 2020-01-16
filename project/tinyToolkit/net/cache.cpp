@@ -2,7 +2,7 @@
  *
  *  作者: hm
  *
- *  说明: 通讯缓存
+ *  说明: 缓存
  *
  */
 
@@ -31,9 +31,12 @@ namespace tinyToolkit
 	 */
 	NetCache::~NetCache()
 	{
-		delete[] _value;
+		if (_value)
+		{
+			delete[] _value;
 
-		_value = nullptr;
+			_value = nullptr;
+		}
 	}
 
 	/**
@@ -43,8 +46,6 @@ namespace tinyToolkit
 	 */
 	void NetCache::Clear()
 	{
-		std::lock_guard<std::mutex> lock(_mutex);
-
 		_rPos = 0;
 		_wPos = 0;
 
@@ -53,49 +54,27 @@ namespace tinyToolkit
 
 	/**
 	 *
-	 * 减少长度
+	 * 添加数据
 	 *
-	 * @param size 待减少长度
+	 * @param buffer 待添加数据缓冲区指针
+	 * @param length 待添加数据缓冲区长度
 	 *
-	 * @return 是否减少成功
-	 *
-	 */
-	bool NetCache::Reduced(std::size_t size)
-	{
-		std::lock_guard<std::mutex> lock(_mutex);
-
-		if ((_rPos + size) > _wPos)
-		{
-			return false;
-		}
-		else
-		{
-			_rPos += size;
-
-			return true;
-		}
-	}
-
-	/**
-	 *
-	 * 压入数据
-	 *
-	 * @param value 待压入数据
-	 * @param size 待压入数据长度
-	 *
-	 * @return 是否压入成功
+	 * @return 是否添加成功
 	 *
 	 */
-	bool NetCache::Push(const void * value, std::size_t size)
+	bool NetCache::Append(const void * buffer, std::size_t length)
 	{
-		std::lock_guard<std::mutex> lock(_mutex);
-
-		if ((_size - Length()) < size)
+		if (length == 0)
 		{
 			return false;
 		}
 
-		if ((_size - _wPos) < size)
+		if ((_size - Length()) < length)
+		{
+			return false;
+		}
+
+		if ((_size - _wPos) < length)
 		{
 			if (_rPos == _wPos)
 			{
@@ -111,13 +90,36 @@ namespace tinyToolkit
 			}
 		}
 
-		memcpy(_value + _wPos, value, size);
+		memcpy(_value + _wPos, buffer, length);
 
-		_wPos += size;
+		_wPos += length;
 
 		_value[_wPos] = '\0';
 
 		return true;
+	}
+
+	/**
+	 *
+	 * 位移数据
+	 *
+	 * @param length 待位移长度
+	 *
+	 * @return 是否位移成功
+	 *
+	 */
+	bool NetCache::Displacement(std::size_t length)
+	{
+		if ((_rPos + length) > _wPos)
+		{
+			return false;
+		}
+		else
+		{
+			_rPos += length;
+
+			return true;
+		}
 	}
 
 	/**
@@ -127,19 +129,19 @@ namespace tinyToolkit
 	 * @return 数据长度
 	 *
 	 */
-	std::size_t NetCache::Length() const
+	std::size_t NetCache::Length()
 	{
 		return _wPos - _rPos;
 	}
 
 	/**
 	 *
-	 * 数据
+	 * 数据内容
 	 *
-	 * @return 数据
+	 * @return 数据内容
 	 *
 	 */
-	const char * NetCache::Value() const
+	const char * NetCache::Value()
 	{
 		return _value + _rPos;
 	}

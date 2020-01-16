@@ -6,12 +6,12 @@
  *
  *  作者: hm
  *
- *  说明: 通讯管道
+ *  说明: 管道
  *
  */
 
 
-#include "../common/common.h"
+#include "socket.h"
 
 
 namespace tinyToolkit
@@ -28,73 +28,70 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 发送数据
-		 *
-		 * @param data 待发送数据指针
-		 * @param size 待发送数据长度
-		 *
-		 */
-		virtual void Send(const void * data, std::size_t size) = 0;
-
-		/**
-		 *
 		 * 关闭会话
 		 *
 		 */
 		virtual void Close() = 0;
-	};
-
-	class TINY_TOOLKIT_API ITCPPipe : public INetPipe
-	{
-	public:
-		/**
-		 *
-		 * 异步发送
-		 *
-		 * @return 是否处理成功
-		 *
-		 */
-		virtual bool AsyncSend() = 0;
 
 		/**
 		 *
-		 * 异步连接
+		 * 接受连接
 		 *
-		 * @return 是否处理成功
+		 * @return 是否连接成功
 		 *
 		 */
-		virtual bool AsyncAccept() = 0;
+		virtual bool Accept() = 0;
 
 		/**
 		 *
-		 * 异步接收
+		 * 接收数据
 		 *
-		 * @return 是否处理成功
-		 *
-		 */
-		virtual bool AsyncReceive() = 0;
-	};
-
-	class TINY_TOOLKIT_API IUDPPipe : public INetPipe
-	{
-	public:
-		/**
-		 *
-		 * 异步发送
-		 *
-		 * @return 是否处理成功
+		 * @return 是否接收成功
 		 *
 		 */
-		virtual bool AsyncSend() = 0;
+		virtual bool Receive() = 0;
 
 		/**
 		 *
-		 * 异步接收
+		 * 发送数据
 		 *
-		 * @return 是否处理成功
+		 * @param buffer 待发送数据缓冲区指针
+		 * @param length 待发送数据缓冲区长度
+		 *
+		 * @return 是否发送成功
 		 *
 		 */
-		virtual bool AsyncReceive() = 0;
+		virtual bool Send(const char * buffer, std::size_t length) = 0;
+
+		/**
+		 *
+		 * 追加数据
+		 *
+		 * @param buffer 待追加数据缓冲区指针
+		 * @param length 待追加数据缓冲区长度
+		 *
+		 * @return 是否追加成功
+		 *
+		 */
+		virtual bool Append(const void * buffer, std::size_t length) = 0;
+
+		/**
+		 *
+		 * 剩余消息个数
+		 *
+		 * @return 剩余消息个数
+		 *
+		 */
+		virtual std::size_t RemainMessageCount() = 0;
+
+		/**
+		 *
+		 * 句柄
+		 *
+		 * @return 句柄
+		 *
+		 */
+		virtual TINY_TOOLKIT_SOCKET_TYPE SocketHandle() = 0;
 	};
 }
 

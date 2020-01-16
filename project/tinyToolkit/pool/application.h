@@ -130,7 +130,7 @@ namespace tinyToolkit
 		 * @return 使用的对象块个数
 		 *
 		 */
-		std::size_t UsedSize() const
+		std::size_t UsedSize()
 		{
 			return _usedCount;
 		}
@@ -142,7 +142,7 @@ namespace tinyToolkit
 		 * @return 应用池对象块个数
 		 *
 		 */
-		std::size_t ChunkSize() const
+		std::size_t ChunkSize()
 		{
 			return _chunkCount;
 		}
@@ -154,7 +154,7 @@ namespace tinyToolkit
 		 * @return 应用池对象链表个数
 		 *
 		 */
-		std::size_t ChunkListSize() const
+		std::size_t ChunkListSize()
 		{
 			return _chunkListCount;
 		}

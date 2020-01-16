@@ -1,12 +1,12 @@
-#ifndef __TINY_TOOLKIT__NET__BUFFER__H__
-#define __TINY_TOOLKIT__NET__BUFFER__H__
+#ifndef __TINY_TOOLKIT__NET__CACHE__H__
+#define __TINY_TOOLKIT__NET__CACHE__H__
 
 
 /**
  *
  *  作者: hm
  *
- *  说明: 通讯缓存
+ *  说明: 缓存
  *
  */
 
@@ -44,26 +44,26 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 减少长度
+		 * 添加数据
 		 *
-		 * @param size 待减少长度
+		 * @param buffer 待添加数据缓冲区指针
+		 * @param length 待添加数据缓冲区长度
 		 *
-		 * @return 是否减少成功
+		 * @return 是否添加成功
 		 *
 		 */
-		bool Reduced(std::size_t size);
+		bool Append(const void * buffer, std::size_t length);
 
 		/**
 		 *
-		 * 压入数据
+		 * 位移数据
 		 *
-		 * @param value 待压入数据
-		 * @param size 待压入数据长度
+		 * @param length 待位移长度
 		 *
-		 * @return 是否压入成功
+		 * @return 是否位移成功
 		 *
 		 */
-		bool Push(const void * value, std::size_t size);
+		bool Displacement(std::size_t length);
 
 		/**
 		 *
@@ -72,16 +72,16 @@ namespace tinyToolkit
 		 * @return 数据长度
 		 *
 		 */
-		std::size_t Length() const;
+		std::size_t Length();
 
 		/**
 		 *
-		 * 数据
+		 * 数据内容
 		 *
-		 * @return 数据
+		 * @return 数据内容
 		 *
 		 */
-		const char * Value() const;
+		const char * Value();
 
 	private:
 		char * _value{ nullptr };
@@ -89,10 +89,8 @@ namespace tinyToolkit
 		std::size_t _size{ 0 };
 		std::size_t _wPos{ 0 };
 		std::size_t _rPos{ 0 };
-
-		mutable std::mutex _mutex{ };
 	};
 }
 
 
-#endif // __TINY_TOOLKIT__NET__BUFFER__H__
+#endif // __TINY_TOOLKIT__NET__CACHE__H__

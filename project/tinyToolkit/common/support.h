@@ -29,12 +29,6 @@
 #
 #	endif
 #
-#   ifndef _GLIBCXX_DEBUG
-#
-#       define _GLIBCXX_DEBUG
-#
-#   endif
-#
 #endif
 
 

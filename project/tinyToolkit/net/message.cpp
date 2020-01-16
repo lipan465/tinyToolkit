@@ -2,7 +2,7 @@
  *
  *  作者: hm
  *
- *  说明: 通讯信息
+ *  说明: 消息
  *
  */
 
@@ -16,29 +16,17 @@ namespace tinyToolkit
 	 *
 	 * 构造函数
 	 *
-	 * @param data 待发送数据指针
-	 * @param size 待发送数据长度
+	 * @param buf 待发送数据缓冲区指针
+	 * @param len 待发送数据缓冲区长度
 	 *
 	 */
-	NetMessage::NetMessage(const void * data, std::size_t size) : _size(size)
+	NetMessage::NetMessage(const void * buf, std::size_t len) : length(len)
 	{
-		_data = new char[_size + 1];
+		buffer = new char[length + 1];
 
-		memcpy(_data, data, _size);
+		memcpy(buffer, buf, length);
 
-		_data[_size] = '\0';
-	}
-
-	/**
-	 *
-	 * 拷贝构造函数
-	 *
-	 * @param rhs 右值对象
-	 *
-	 */
-	NetMessage::NetMessage(tinyToolkit::NetMessage && rhs) noexcept : _data(rhs._data), _size(rhs._size)
-	{
-
+		buffer[length] = '\0';
 	}
 
 	/**
@@ -48,8 +36,11 @@ namespace tinyToolkit
 	 */
 	NetMessage::~NetMessage()
 	{
-		delete[] _data;
+		if (buffer)
+		{
+			delete[] buffer;
 
-		_data = nullptr;
+			buffer = nullptr;
+		}
 	}
 }

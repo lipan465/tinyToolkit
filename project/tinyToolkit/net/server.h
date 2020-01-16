@@ -6,7 +6,7 @@
  *
  *  作者: hm
  *
- *  说明: 通讯服务器
+ *  说明: 服务
  *
  */
 
@@ -16,10 +16,10 @@
 
 namespace tinyToolkit
 {
-	class TINY_TOOLKIT_API ITCPServer
+	class TINY_TOOLKIT_API INetServer
 	{
-		friend class NetManager;
 		friend class TCPServerPipe;
+		friend class NetEventMonitor;
 
 	public:
 		/**
@@ -27,28 +27,70 @@ namespace tinyToolkit
 		 * 析构函数
 		 *
 		 */
-		virtual ~ITCPServer() = default;
+		virtual ~INetServer() = default;
 
 		/**
 		 *
-		 * 错误触发回调函数
+		 * 事件错误触发回调函数
 		 *
 		 */
-		virtual void OnError() = 0;
+		virtual void OnEventError();
 
 		/**
 		 *
 		 * 断开连接触发回调函数
 		 *
 		 */
-		virtual void OnRelease() = 0;
+		virtual void OnDisconnect();
 
 		/**
 		 *
-		 * 会话错误触发回调函数
+		 * 监听连接触发回调函数
 		 *
 		 */
-		virtual void OnSessionError(tinyToolkit::ITCPSession * session) = 0;
+		virtual void OnBind();
+
+		/**
+		 *
+		 * 监听失败触发回调函数
+		 *
+		 */
+		virtual void OnBindFailed();
+
+		/**
+		 *
+		 * 套接字生成触发回调函数
+		 *
+		 */
+		virtual void OnSocket();
+
+		/**
+		 *
+		 * 套接字错误触发回调函数
+		 *
+		 */
+		virtual void OnSocketFailed();
+
+		/**
+		 *
+		 * 监听连接触发回调函数
+		 *
+		 */
+		virtual void OnListen();
+
+		/**
+		 *
+		 * 监听失败触发回调函数
+		 *
+		 */
+		virtual void OnListenFailed();
+
+		/**
+		 *
+		 * 连接失败触发回调函数
+		 *
+		 */
+		virtual void OnAcceptFailed();
 
 		/**
 		 *
@@ -57,7 +99,7 @@ namespace tinyToolkit
 		 * @return 会话
 		 *
 		 */
-		virtual tinyToolkit::ITCPSession * OnSessionConnect() = 0;
+		virtual tinyToolkit::ITCPSession * OnAccept();
 
 		/**
 		 *
@@ -68,82 +110,54 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 发送数据
+		 * 目标地址
 		 *
-		 * @param data 待发送数据指针
-		 * @param size 待发送数据长度
+		 * @return 目标地址
 		 *
 		 */
-		void Send(const void * data, std::size_t size);
+		const NetAddress & PeerAddress();
+
+		/**
+		 *
+		 * 本地地址
+		 *
+		 * @return 本地地址
+		 *
+		 */
+		const NetAddress & LocalAddress();
+
+	protected:
+		NetAddress _peerAddress{ };
+		NetAddress _localAddress{ };
+
+		std::size_t _cacheSize{ 0 };
+
+		std::shared_ptr<INetPipe> _pipe{ };
+	};
+
+	class TINY_TOOLKIT_API ITCPServer : public INetServer
+	{
+	public:
+		/**
+		 *
+		 * 析构函数
+		 *
+		 */
+		~ITCPServer() override = default;
 
 		/**
 		 *
 		 * 启动
 		 *
-		 * @param localHost 主机地址
-		 * @param localPort 主机端口
+		 * @param localHost 本地地址
+		 * @param localPort 本地端口
 		 * @param cacheSize 缓存大小
+		 * @param eventMonitor 事件监控
 		 *
 		 * @return 是否启动成功
 		 *
 		 */
-		bool Launch(std::string localHost, uint16_t localPort, std::size_t cacheSize);
-
-		/**
-		 *
-		 * 主机端口
-		 *
-		 * @return 主机端口
-		 *
-		 */
-		uint16_t LocalPort() const;
-
-		/**
-		 *
-		 * 远端端口
-		 *
-		 * @return 远端端口
-		 *
-		 */
-		uint16_t RemotePort() const;
-
-		/**
-		 *
-		 * 缓存大小
-		 *
-		 * @return 缓存大小
-		 *
-		 */
-		std::size_t CacheSize() const;
-
-		/**
-		 *
-		 * 主机地址
-		 *
-		 * @return 主机地址
-		 *
-		 */
-		const std::string & LocalHost() const;
-
-		/**
-		 *
-		 * 远端地址
-		 *
-		 * @return 远端地址
-		 *
-		 */
-		const std::string & RemoteHost() const;
-
-	private:
-		uint16_t _localPort{ 0 };
-		uint16_t _remotePort{ 0 };
-
-		std::string _localHost{ };
-		std::string _remoteHost{ };
-
-		std::size_t _cacheSize{ 0 };
-
-		std::shared_ptr<ITCPPipe> _pipe{ };
+		bool Launch(std::string localHost, uint16_t localPort, std::size_t cacheSize, NetEventMonitor * eventMonitor = nullptr);
 	};
 }
 

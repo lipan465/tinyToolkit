@@ -121,16 +121,18 @@ cmake	%projectDirectory% ^
 ::
 :: 复制文件
 ::
+copy ..\fmt\Release\fmt.lib source
 copy ..\fmt\Release\fmt.lib example\container
 copy ..\fmt\Release\fmt.lib example\crypto
 copy ..\fmt\Release\fmt.lib example\debug
 copy ..\fmt\Release\fmt.lib example\id
+copy ..\fmt\Release\fmt.lib example\ip
 copy ..\fmt\Release\fmt.lib example\log
 copy ..\fmt\Release\fmt.lib example\net
+copy ..\fmt\Release\fmt.lib example\option
 copy ..\fmt\Release\fmt.lib example\pool
-copy ..\fmt\Release\fmt.lib example\system
-copy ..\fmt\Release\fmt.lib example\test
 copy ..\fmt\Release\fmt.lib example\timer
+copy ..\fmt\Release\fmt.lib example\util
 copy ..\fmt\Release\fmt.lib project\tinyToolkit
 
 

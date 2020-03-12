@@ -1,7 +1,7 @@
 #
 # 项目名
 #
-SET(PROGRAM_NAME net)
+SET(PROGRAM_NAME net_example)
 
 
 #

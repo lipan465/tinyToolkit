@@ -1,7 +1,7 @@
 #
 # 项目名
 #
-SET(PROGRAM_NAME log)
+SET(PROGRAM_NAME log_example)
 
 
 #

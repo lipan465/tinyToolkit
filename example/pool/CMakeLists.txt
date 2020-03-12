@@ -1,7 +1,7 @@
 #
 # 项目名
 #
-SET(PROGRAM_NAME pool)
+SET(PROGRAM_NAME pool_example)
 
 
 #

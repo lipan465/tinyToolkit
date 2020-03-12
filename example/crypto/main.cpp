@@ -19,15 +19,15 @@ static void Url()
 
 	try
 	{
-		std::string encode = tinyToolkit::UrlTransform::Encode("https://www.baidu.com/?p1=123&p2=uuid");
-		std::string decode = tinyToolkit::UrlTransform::Decode(encode);
+		std::string encode = crypto::Url::Encode("https://www.baidu.com/?p1=123&p2=uuid");
+		std::string decode = crypto::Url::Decode(encode);
 
 		std::cout << "encode : " << encode << std::endl;
 		std::cout << "decode : " << decode << std::endl;
 	}
 	catch (std::exception & e)
 	{
-		std::cerr << e.what() << std::endl;
+		std::cout << e.what() << std::endl;
 	}
 }
 
@@ -41,37 +41,27 @@ static void MD5()
 
 	try
 	{
-		tinyToolkit::MD5 md5;
+		crypto::MD5 md5;
 
 		md5.Append("123");
-		std::cout << "result : " << md5.Result() << std::endl;
-
 		md5.Append("abc");
-		std::cout << "result : " << md5.Result() << std::endl;
-
 		md5.Append(";'.");
-		std::cout << "result : " << md5.Result() << std::endl;
-
 		md5.Append("#$%");
+
 		std::cout << "result : " << md5.Result() << std::endl;
 
 		md5.Reset();
 
 		md5.Append("666");
-		std::cout << "result : " << md5.Result() << std::endl;
-
 		md5.Append("xyz");
-		std::cout << "result : " << md5.Result() << std::endl;
-
 		md5.Append("[]/");
-		std::cout << "result : " << md5.Result() << std::endl;
-
 		md5.Append("!~@");
+
 		std::cout << "result : " << md5.Result() << std::endl;
 	}
 	catch (std::exception & e)
 	{
-		std::cerr << e.what() << std::endl;
+		std::cout << e.what() << std::endl;
 	}
 }
 
@@ -85,37 +75,27 @@ static void SHA1()
 
 	try
 	{
-		tinyToolkit::SHA1 sha1;
+		crypto::SHA1 sha1;
 
 		sha1.Append("123");
-		std::cout << "result : " << sha1.Result() << std::endl;
-
 		sha1.Append("abc");
-		std::cout << "result : " << sha1.Result() << std::endl;
-
 		sha1.Append(";'.");
-		std::cout << "result : " << sha1.Result() << std::endl;
-
 		sha1.Append("#$%");
+
 		std::cout << "result : " << sha1.Result() << std::endl;
 
 		sha1.Reset();
 
 		sha1.Append("666");
-		std::cout << "result : " << sha1.Result() << std::endl;
-
 		sha1.Append("xyz");
-		std::cout << "result : " << sha1.Result() << std::endl;
-
 		sha1.Append("[]/");
-		std::cout << "result : " << sha1.Result() << std::endl;
-
 		sha1.Append("!~@");
+
 		std::cout << "result : " << sha1.Result() << std::endl;
 	}
 	catch (std::exception & e)
 	{
-		std::cerr << e.what() << std::endl;
+		std::cout << e.what() << std::endl;
 	}
 }
 
@@ -129,32 +109,22 @@ static void SHA224()
 
 	try
 	{
-		tinyToolkit::SHA224 sha224;
+		crypto::SHA224 sha224;
 
 		sha224.Append("123");
-		std::cout << "result : " << sha224.Result() << std::endl;
-
 		sha224.Append("abc");
-		std::cout << "result : " << sha224.Result() << std::endl;
-
 		sha224.Append(";'.");
-		std::cout << "result : " << sha224.Result() << std::endl;
-
 		sha224.Append("#$%");
+
 		std::cout << "result : " << sha224.Result() << std::endl;
 
 		sha224.Reset();
 
 		sha224.Append("666");
-		std::cout << "result : " << sha224.Result() << std::endl;
-
 		sha224.Append("xyz");
-		std::cout << "result : " << sha224.Result() << std::endl;
-
 		sha224.Append("[]/");
-		std::cout << "result : " << sha224.Result() << std::endl;
-
 		sha224.Append("!~@");
+
 		std::cout << "result : " << sha224.Result() << std::endl;
 	}
 	catch (std::exception & e)
@@ -173,32 +143,22 @@ static void SHA256()
 
 	try
 	{
-		tinyToolkit::SHA256 sha256;
+		crypto::SHA256 sha256;
 
 		sha256.Append("123");
-		std::cout << "result : " << sha256.Result() << std::endl;
-
 		sha256.Append("abc");
-		std::cout << "result : " << sha256.Result() << std::endl;
-
 		sha256.Append(";'.");
-		std::cout << "result : " << sha256.Result() << std::endl;
-
 		sha256.Append("#$%");
+
 		std::cout << "result : " << sha256.Result() << std::endl;
 
 		sha256.Reset();
 
 		sha256.Append("666");
-		std::cout << "result : " << sha256.Result() << std::endl;
-
 		sha256.Append("xyz");
-		std::cout << "result : " << sha256.Result() << std::endl;
-
 		sha256.Append("[]/");
-		std::cout << "result : " << sha256.Result() << std::endl;
-
 		sha256.Append("!~@");
+
 		std::cout << "result : " << sha256.Result() << std::endl;
 	}
 	catch (std::exception & e)
@@ -217,32 +177,22 @@ static void SHA384()
 
 	try
 	{
-		tinyToolkit::SHA384 sha384;
+		crypto::SHA384 sha384;
 
 		sha384.Append("123");
-		std::cout << "result : " << sha384.Result() << std::endl;
-
 		sha384.Append("abc");
-		std::cout << "result : " << sha384.Result() << std::endl;
-
 		sha384.Append(";'.");
-		std::cout << "result : " << sha384.Result() << std::endl;
-
 		sha384.Append("#$%");
+
 		std::cout << "result : " << sha384.Result() << std::endl;
 
 		sha384.Reset();
 
 		sha384.Append("666");
-		std::cout << "result : " << sha384.Result() << std::endl;
-
 		sha384.Append("xyz");
-		std::cout << "result : " << sha384.Result() << std::endl;
-
 		sha384.Append("[]/");
-		std::cout << "result : " << sha384.Result() << std::endl;
-
 		sha384.Append("!~@");
+
 		std::cout << "result : " << sha384.Result() << std::endl;
 	}
 	catch (std::exception & e)
@@ -261,32 +211,22 @@ static void SHA512()
 
 	try
 	{
-		tinyToolkit::SHA512 sha512;
+		crypto::SHA512 sha512;
 
 		sha512.Append("123");
-		std::cout << "result : " << sha512.Result() << std::endl;
-
 		sha512.Append("abc");
-		std::cout << "result : " << sha512.Result() << std::endl;
-
 		sha512.Append(";'.");
-		std::cout << "result : " << sha512.Result() << std::endl;
-
 		sha512.Append("#$%");
+
 		std::cout << "result : " << sha512.Result() << std::endl;
 
 		sha512.Reset();
 
 		sha512.Append("666");
-		std::cout << "result : " << sha512.Result() << std::endl;
-
 		sha512.Append("xyz");
-		std::cout << "result : " << sha512.Result() << std::endl;
-
 		sha512.Append("[]/");
-		std::cout << "result : " << sha512.Result() << std::endl;
-
 		sha512.Append("!~@");
+
 		std::cout << "result : " << sha512.Result() << std::endl;
 	}
 	catch (std::exception & e)
@@ -305,15 +245,15 @@ static void Base64()
 
 	try
 	{
-		std::string encode = tinyToolkit::Base64::Encode("https://www.baidu.com/?p1=123&p2=uuid");
-		std::string decode = tinyToolkit::Base64::Decode(encode);
+		std::string encode = crypto::Base64::Encode("https://www.baidu.com/?p1=123&p2=uuid");
+		std::string decode = crypto::Base64::Decode(encode);
 
 		std::cout << "encode : " << encode << std::endl;
 		std::cout << "decode : " << decode << std::endl;
 	}
 	catch (std::exception & e)
 	{
-		std::cerr << e.what() << std::endl;
+		std::cout << e.what() << std::endl;
 	}
 }
 
@@ -327,38 +267,24 @@ static void HMAC_MD5()
 
 	try
 	{
-		tinyToolkit::HMAC_MD5 hmac_md5;
+		crypto::HMAC_MD5 hmac_md5;
 
 		hmac_md5.SetKey("123");
-		std::cout << "result : " << hmac_md5.Result() << std::endl;
-
 		hmac_md5.Append("123");
-		std::cout << "result : " << hmac_md5.Result() << std::endl;
-
 		hmac_md5.Append("abc");
-		std::cout << "result : " << hmac_md5.Result() << std::endl;
-
 		hmac_md5.Append(";'.");
-		std::cout << "result : " << hmac_md5.Result() << std::endl;
-
 		hmac_md5.Append("#$%");
+
 		std::cout << "result : " << hmac_md5.Result() << std::endl;
 
 		hmac_md5.Reset();
 
 		hmac_md5.SetKey("456");
-		std::cout << "result : " << hmac_md5.Result() << std::endl;
-
 		hmac_md5.Append("666");
-		std::cout << "result : " << hmac_md5.Result() << std::endl;
-
 		hmac_md5.Append("xyz");
-		std::cout << "result : " << hmac_md5.Result() << std::endl;
-
 		hmac_md5.Append("[]/");
-		std::cout << "result : " << hmac_md5.Result() << std::endl;
-
 		hmac_md5.Append("!~@");
+
 		std::cout << "result : " << hmac_md5.Result() << std::endl;
 	}
 	catch (std::exception & e)
@@ -377,38 +303,24 @@ static void HMAC_SHA1()
 
 	try
 	{
-		tinyToolkit::HMAC_SHA1 hmac_sha1;
+		crypto::HMAC_SHA1 hmac_sha1;
 
 		hmac_sha1.SetKey("123");
-		std::cout << "result : " << hmac_sha1.Result() << std::endl;
-
 		hmac_sha1.Append("123");
-		std::cout << "result : " << hmac_sha1.Result() << std::endl;
-
 		hmac_sha1.Append("abc");
-		std::cout << "result : " << hmac_sha1.Result() << std::endl;
-
 		hmac_sha1.Append(";'.");
-		std::cout << "result : " << hmac_sha1.Result() << std::endl;
-
 		hmac_sha1.Append("#$%");
+
 		std::cout << "result : " << hmac_sha1.Result() << std::endl;
 
 		hmac_sha1.Reset();
 
 		hmac_sha1.SetKey("456");
-		std::cout << "result : " << hmac_sha1.Result() << std::endl;
-
 		hmac_sha1.Append("666");
-		std::cout << "result : " << hmac_sha1.Result() << std::endl;
-
 		hmac_sha1.Append("xyz");
-		std::cout << "result : " << hmac_sha1.Result() << std::endl;
-
 		hmac_sha1.Append("[]/");
-		std::cout << "result : " << hmac_sha1.Result() << std::endl;
-
 		hmac_sha1.Append("!~@");
+
 		std::cout << "result : " << hmac_sha1.Result() << std::endl;
 	}
 	catch (std::exception & e)
@@ -427,38 +339,24 @@ static void HMAC_SHA224()
 
 	try
 	{
-		tinyToolkit::HMAC_SHA224 hmac_sha224;
+		crypto::HMAC_SHA224 hmac_sha224;
 
 		hmac_sha224.SetKey("123");
-		std::cout << "result : " << hmac_sha224.Result() << std::endl;
-
 		hmac_sha224.Append("123");
-		std::cout << "result : " << hmac_sha224.Result() << std::endl;
-
 		hmac_sha224.Append("abc");
-		std::cout << "result : " << hmac_sha224.Result() << std::endl;
-
 		hmac_sha224.Append(";'.");
-		std::cout << "result : " << hmac_sha224.Result() << std::endl;
-
 		hmac_sha224.Append("#$%");
+
 		std::cout << "result : " << hmac_sha224.Result() << std::endl;
 
 		hmac_sha224.Reset();
 
 		hmac_sha224.SetKey("456");
-		std::cout << "result : " << hmac_sha224.Result() << std::endl;
-
 		hmac_sha224.Append("666");
-		std::cout << "result : " << hmac_sha224.Result() << std::endl;
-
 		hmac_sha224.Append("xyz");
-		std::cout << "result : " << hmac_sha224.Result() << std::endl;
-
 		hmac_sha224.Append("[]/");
-		std::cout << "result : " << hmac_sha224.Result() << std::endl;
-
 		hmac_sha224.Append("!~@");
+
 		std::cout << "result : " << hmac_sha224.Result() << std::endl;
 	}
 	catch (std::exception & e)
@@ -477,38 +375,24 @@ static void HMAC_SHA256()
 
 	try
 	{
-		tinyToolkit::HMAC_SHA256 hmac_sha256;
+		crypto::HMAC_SHA256 hmac_sha256;
 
 		hmac_sha256.SetKey("123");
-		std::cout << "result : " << hmac_sha256.Result() << std::endl;
-
 		hmac_sha256.Append("123");
-		std::cout << "result : " << hmac_sha256.Result() << std::endl;
-
 		hmac_sha256.Append("abc");
-		std::cout << "result : " << hmac_sha256.Result() << std::endl;
-
 		hmac_sha256.Append(";'.");
-		std::cout << "result : " << hmac_sha256.Result() << std::endl;
-
 		hmac_sha256.Append("#$%");
+
 		std::cout << "result : " << hmac_sha256.Result() << std::endl;
 
 		hmac_sha256.Reset();
 
 		hmac_sha256.SetKey("456");
-		std::cout << "result : " << hmac_sha256.Result() << std::endl;
-
 		hmac_sha256.Append("666");
-		std::cout << "result : " << hmac_sha256.Result() << std::endl;
-
 		hmac_sha256.Append("xyz");
-		std::cout << "result : " << hmac_sha256.Result() << std::endl;
-
 		hmac_sha256.Append("[]/");
-		std::cout << "result : " << hmac_sha256.Result() << std::endl;
-
 		hmac_sha256.Append("!~@");
+
 		std::cout << "result : " << hmac_sha256.Result() << std::endl;
 	}
 	catch (std::exception & e)
@@ -527,38 +411,24 @@ static void HMAC_SHA384()
 
 	try
 	{
-		tinyToolkit::HMAC_SHA384 hmac_sha384;
+		crypto::HMAC_SHA384 hmac_sha384;
 
 		hmac_sha384.SetKey("123");
-		std::cout << "result : " << hmac_sha384.Result() << std::endl;
-
 		hmac_sha384.Append("123");
-		std::cout << "result : " << hmac_sha384.Result() << std::endl;
-
 		hmac_sha384.Append("abc");
-		std::cout << "result : " << hmac_sha384.Result() << std::endl;
-
 		hmac_sha384.Append(";'.");
-		std::cout << "result : " << hmac_sha384.Result() << std::endl;
-
 		hmac_sha384.Append("#$%");
+
 		std::cout << "result : " << hmac_sha384.Result() << std::endl;
 
 		hmac_sha384.Reset();
 
 		hmac_sha384.SetKey("456");
-		std::cout << "result : " << hmac_sha384.Result() << std::endl;
-
 		hmac_sha384.Append("666");
-		std::cout << "result : " << hmac_sha384.Result() << std::endl;
-
 		hmac_sha384.Append("xyz");
-		std::cout << "result : " << hmac_sha384.Result() << std::endl;
-
 		hmac_sha384.Append("[]/");
-		std::cout << "result : " << hmac_sha384.Result() << std::endl;
-
 		hmac_sha384.Append("!~@");
+
 		std::cout << "result : " << hmac_sha384.Result() << std::endl;
 	}
 	catch (std::exception & e)
@@ -577,38 +447,24 @@ static void HMAC_SHA512()
 
 	try
 	{
-		tinyToolkit::HMAC_SHA512 hmac_sha512;
+		crypto::HMAC_SHA512 hmac_sha512;
 
 		hmac_sha512.SetKey("123");
-		std::cout << "result : " << hmac_sha512.Result() << std::endl;
-
 		hmac_sha512.Append("123");
-		std::cout << "result : " << hmac_sha512.Result() << std::endl;
-
 		hmac_sha512.Append("abc");
-		std::cout << "result : " << hmac_sha512.Result() << std::endl;
-
 		hmac_sha512.Append(";'.");
-		std::cout << "result : " << hmac_sha512.Result() << std::endl;
-
 		hmac_sha512.Append("#$%");
+
 		std::cout << "result : " << hmac_sha512.Result() << std::endl;
 
 		hmac_sha512.Reset();
 
 		hmac_sha512.SetKey("456");
-		std::cout << "result : " << hmac_sha512.Result() << std::endl;
-
 		hmac_sha512.Append("666");
-		std::cout << "result : " << hmac_sha512.Result() << std::endl;
-
 		hmac_sha512.Append("xyz");
-		std::cout << "result : " << hmac_sha512.Result() << std::endl;
-
 		hmac_sha512.Append("[]/");
-		std::cout << "result : " << hmac_sha512.Result() << std::endl;
-
 		hmac_sha512.Append("!~@");
+
 		std::cout << "result : " << hmac_sha512.Result() << std::endl;
 	}
 	catch (std::exception & e)

@@ -11,7 +11,16 @@
  */
 
 
-#include "tinyToolkit/tinyToolkit.h"
+#include <chrono>
+#include <thread>
+#include <iostream>
+
+#include "timer/task.h"
+#include "timer/event.h"
+#include "timer/timer.h"
+
+
+using namespace tinyToolkit;
 
 
 #endif // __EXAMPLE__TIMER__MAIN__H__

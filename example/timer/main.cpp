@@ -10,7 +10,7 @@
 #include "main.h"
 
 
-static void Event()
+static void Task()
 {
 	std::cout << std::endl;
 	std::cout << "**************************************************" << std::endl;
@@ -19,59 +19,67 @@ static void Event()
 
 	try
 	{
-		class TimerEvent : public tinyToolkit::ITimerEvent
+		class Task : public timer::ITask
 		{
 		public:
-			~TimerEvent() override = default;
+			~Task() override = default;
+
+			void OnKill() override
+			{
+				std::cout << "OnKill" << std::endl;
+			}
 
 			void OnPause() override
 			{
-				std::cout << "Pause" << std::endl;
+				std::cout << "OnPause" << std::endl;
 			}
 
 			void OnResume() override
 			{
-				std::cout << "Resume" << std::endl;
+				std::cout << "OnResume" << std::endl;
+			}
+
+			void OnFinish() override
+			{
+				std::cout << "OnFinish" << std::endl;
 			}
 
 			void OnTrigger() override
 			{
-				std::cout << "Trigger : " << ++_count << std::endl;
+				std::cout << "OnTrigger : "
+				          << "[total="
+				          << TotalCount()
+				          << ",trigger="
+				          << TriggerCount()
+				          << "]"
+				          << std::endl;
 			}
-
-			void OnFinish(bool forced) override
-			{
-				std::cout << "Finish : " << forced << std::endl;
-			}
-
-		public:
-			int32_t _count{ 0 };
 		};
 
-		tinyToolkit::TimerManager manager;
+		Task task{ };
 
-		auto event = std::make_shared<TimerEvent>();
+		timer::Timer timer{ };
 
-		manager.Start(event.get(), -1, 1000);
+		timer.AddTask(task, -1, 1000);
 
-		while (event->_count != 5)
+		while (task.TriggerCount() != 5)
 		{
-			TINY_TOOLKIT_YIELD();
+			std::this_thread::yield();
 		}
 
-		manager.Pause(event.get());
+		timer.Pause(task);
 
-		TINY_TOOLKIT_SLEEP_S(3);
+		std::this_thread::sleep_for(std::chrono::seconds(3));
 
-		manager.Resume(event.get());
+		timer.Resume(task);
 
-		TINY_TOOLKIT_SLEEP_S(3);
+		std::this_thread::sleep_for(std::chrono::seconds(3));
 
-		manager.Kill(event.get());
+		timer.Kill(task);
 	}
 	catch (std::exception & e)
 	{
-		std::cerr << e.what() << std::endl;
+		std::cout << e.what() << std::endl;
 	}
 }
 
@@ -87,27 +95,27 @@ static void Function()
 	{
 		int32_t count = 3;
 
-		tinyToolkit::TimerManager manager;
+		timer::Timer timer;
 
-		manager.Start([&](){ std::cout << "tick : " << --count << std::endl; }, count, 1000);
+		timer.AddTask([&](){ std::cout << "count : " << --count << std::endl; }, count, 1000);
 
 		while (count != 0)
 		{
-			TINY_TOOLKIT_YIELD();
+			std::this_thread::yield();
 		}
 
 		count = -1;
 
-		manager.Start([&](){ std::cout << "tick : " << ++count << std::endl; }, count, 1000);
+		timer.AddTask([&](){ std::cout << "count : " << ++count << std::endl; }, count, 1000);
 
 		while (count != 10)
 		{
-			TINY_TOOLKIT_YIELD();
+			std::this_thread::yield();
 		}
 	}
 	catch (std::exception & e)
 	{
-		std::cerr << e.what() << std::endl;
+		std::cout << e.what() << std::endl;
 	}
 }
 
@@ -120,7 +128,7 @@ int main(int argc, char const * argv[])
 	(void)argc;
 	(void)argv;
 
-	Event();
+	Task();
 	Function();
 
 	return 0;

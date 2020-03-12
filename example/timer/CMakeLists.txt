@@ -1,7 +1,7 @@
 #
 # 项目名
 #
-SET(PROGRAM_NAME timer)
+SET(PROGRAM_NAME timer_example)
 
 
 #

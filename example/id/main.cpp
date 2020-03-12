@@ -10,7 +10,7 @@
 #include "main.h"
 
 
-static void Random()
+static void Unique()
 {
 	std::cout << std::endl;
 	std::cout << "**************************************************" << std::endl;
@@ -19,49 +19,23 @@ static void Random()
 
 	try
 	{
+		id::Unique unique{ };
+
 		for (int i = 0; i < 3; ++i)
 		{
-			std::cout << tinyToolkit::Random::IntUniformDistribution(0, 65535) << std::endl;
+			std::cout << unique.Generate() << std::endl;
 		}
 
-		std::cout << std::endl;
+		std::this_thread::sleep_for(std::chrono::seconds(1));
 
 		for (int i = 0; i < 3; ++i)
 		{
-			std::cout << tinyToolkit::Random::FloatUniformDistribution(0.0, 65535.0) << std::endl;
-		}
-	}
-	catch (std::exception & e)
-	{
-		std::cerr << e.what() << std::endl;
-	}
-}
-
-
-static void UniqueID()
-{
-	std::cout << std::endl;
-	std::cout << "**************************************************" << std::endl;
-	std::cout << "Ready run function [" << TINY_TOOLKIT_FUNC << "]" << std::endl;
-	std::cout << std::endl;
-
-	try
-	{
-		for (int i = 0; i < 3; ++i)
-		{
-			std::cout << tinyToolkit::UniqueID::Get() << std::endl;
-		}
-
-		std::cout << std::endl;
-
-		for (int i = 0; i < 3; ++i)
-		{
-			std::cout << tinyToolkit::UniqueID::Get() << std::endl;
+			std::cout << unique.Generate() << std::endl;
 		}
 	}
 	catch (std::exception & e)
 	{
-		std::cerr << e.what() << std::endl;
+		std::cout << e.what() << std::endl;
 	}
 }
 
@@ -75,16 +49,18 @@ static void Snowflake()
 
 	try
 	{
+		id::Snowflake snowflake(64, 128);
+
 		for (int i = 0; i < 3; ++i)
 		{
-			std::cout << tinyToolkit::Snowflake::Get(0, 0) << std::endl;
+			std::cout << snowflake.Generate() << std::endl;
 		}
 
-		std::cout << std::endl;
+		std::this_thread::sleep_for(std::chrono::seconds(1));
 
 		for (int i = 0; i < 3; ++i)
 		{
-			std::cout << tinyToolkit::Snowflake::Get(255, 255) << std::endl;
+			std::cout << snowflake.Generate() << std::endl;
 		}
 	}
 	catch (std::exception & e)
@@ -102,8 +78,7 @@ int main(int argc, char const * argv[])
 	(void)argc;
 	(void)argv;
 
-	Random();
-	UniqueID();
+	Unique();
 	Snowflake();
 
 	return 0;

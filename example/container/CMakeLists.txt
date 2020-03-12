@@ -1,7 +1,7 @@
 #
 # 项目名
 #
-SET(PROGRAM_NAME container)
+SET(PROGRAM_NAME container_example)
 
 
 #

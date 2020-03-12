@@ -1,5 +1,5 @@
-#ifndef __EXAMPLE__CONTAINER__MAIN__H__
-#define __EXAMPLE__CONTAINER__MAIN__H__
+#ifndef __EXAMPLE__STL__MAIN__H__
+#define __EXAMPLE__STL__MAIN__H__
 
 
 /**
@@ -11,7 +11,15 @@
  */
 
 
-#include "tinyToolkit/tinyToolkit.h"
+#include <string>
+#include <iostream>
+
+#include "container/any.h"
+#include "container/queue.h"
+#include "container/operation.h"
 
 
-#endif // __EXAMPLE__CONTAINER__MAIN__H__
+using namespace tinyToolkit;
+
+
+#endif // __EXAMPLE__STL__MAIN__H__

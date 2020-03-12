@@ -9,6 +9,8 @@
 
 #include "main.h"
 
+#include "util/time.h"
+
 
 static void SyncLog()
 {
@@ -19,61 +21,63 @@ static void SyncLog()
 
 	try
 	{
-		std::shared_ptr<std::stringstream> stream = std::make_shared<std::stringstream>();
+		auto time = util::Time::Seconds();
 
-		std::shared_ptr<tinyToolkit::ILogger> logger = std::make_shared<tinyToolkit::SyncLogger>();
+		auto fileSink = std::make_shared<log::FileSink>("fileSink", "syncFileSink.log", true);
+		auto syslogSink = std::make_shared<log::SyslogSink>("syslogSink");
+		auto consoleSink = std::make_shared<log::ConsoleSink>("consoleFile");
+		auto dailyFileSink = std::make_shared<log::DailyFileSink>("dailyFileSink", "syncDailyFileSink.log");
+		auto rotatingFileLogSink = std::make_shared<log::RotatingFileSink>("rotatingFileSink", "syncRotatingFileSink.log", 1024, 10);
 
-		auto fileSink = std::make_shared<tinyToolkit::FileLogSink>("syncFileSink", "syncFileSink.txt", true);
-		auto dailyFileSink = std::make_shared<tinyToolkit::DailyFileLogSink>("syncDailyFileLogSink", "syncDailyFileLogSink.txt");
-		auto rotatingFileLogSink = std::make_shared<tinyToolkit::RotatingFileLogSink>("syncRotatingFileLogSink", "syncRotatingFileLogSink.txt");
-		auto consoleSink = std::make_shared<tinyToolkit::ConsoleLogSink>("syncConsoleFile");
-		auto stringQueueSink = std::make_shared<tinyToolkit::StringQueueLogSink>("syncStringQueueSink");
-		auto stringStreamSink = std::make_shared<tinyToolkit::OStreamLogSink>("syncOStreamLogSink", stream);
+		auto simpleLayout = std::make_shared<log::SimpleLayout>();
+		auto patternLayout = std::make_shared<log::PatternLayout>("[%c][%J][%L][%i][%K] %v%n");
+
+		auto timeFilter = std::make_shared<log::TimeFilter>(time + 1);
+		auto regexFilter = std::make_shared<log::RegexFilter>(".*Critical.*");
+		auto priorityFilter = std::make_shared<log::PriorityFilter>("DEBUG");
+		auto timeRangeFilter = std::make_shared<log::TimeRangeFilter>(time, time + 3);
+		auto priorityRangeFilter = std::make_shared<log::PriorityRangeFilter>("INFO", "ERROR");
+
+		fileSink->SetLayout(simpleLayout)->AddFilter(regexFilter);
+		syslogSink->SetLayout(simpleLayout)->AddFilter(priorityRangeFilter);
+		consoleSink->SetLayout(patternLayout)->AddFilter(priorityFilter);
+		dailyFileSink->SetLayout(patternLayout)->AddFilter(timeFilter);
+		rotatingFileLogSink->SetLayout(simpleLayout)->AddFilter(timeRangeFilter);
+
+		std::shared_ptr<log::ILogger> logger = std::make_shared<log::SyncLogger>();
 
 		logger->AddSink(fileSink);
+		logger->AddSink(syslogSink);
+		logger->AddSink(consoleSink);
 		logger->AddSink(dailyFileSink);
 		logger->AddSink(rotatingFileLogSink);
-		logger->AddSink(consoleSink);
-		logger->AddSink(stringQueueSink);
-		logger->AddSink(stringStreamSink);
 
-		logger->SetSinkLayout<tinyToolkit::SimpleLogLayout>();
-		logger->EnableSinkAutoFlush();
-
-		logger->Debug("Message {}", "Debug");
-		logger->Info("Message {}", "Info");
-		logger->Notice("Message {}", "Notice");
-		logger->Warning("Message {}", "Warning");
-		logger->Error("Message {}", "Error");
-		logger->Critical("Message {}", "Critical");
-		logger->Alert("Message {}", "Alert");
-		logger->Fatal("Message {}", "Fatal");
-		logger->Emerg("Message {}", "Emerg");
-
-		TINY_TOOLKIT_LOG_DEBUG(logger, "Message {}", "Debug");
-		TINY_TOOLKIT_LOG_INFO(logger, "Message {}", "Info");
-		TINY_TOOLKIT_LOG_NOTICE(logger, "Message {}", "Notice");
-		TINY_TOOLKIT_LOG_WARNING(logger, "Message {}", "Warning");
-		TINY_TOOLKIT_LOG_ERROR(logger, "Message {}", "Error");
-		TINY_TOOLKIT_LOG_CRITICAL(logger, "Message {}", "Critical");
-		TINY_TOOLKIT_LOG_ALERT(logger, "Message {}", "Alert");
-		TINY_TOOLKIT_LOG_FATAL(logger, "Message {}", "Fatal");
-		TINY_TOOLKIT_LOG_EMERG(logger, "Message {}", "Emerg");
-
-		logger->Wait();
-
-		std::cout << stream->str();
-
-		while (!stringQueueSink->Queue().empty())
+		for (int i = 0; i < 10; ++i)
 		{
-			std::cout << stringQueueSink->Queue().front();
+			logger->Debug("Message {}", "Debug");
+			logger->Info("Message {}", "Info");
+			logger->Notice("Message {}", "Notice");
+			logger->Warning("Message {}", "Warning");
+			logger->Error("Message {}", "Error");
+			logger->Critical("Message {}", "Critical");
+			logger->Alert("Message {}", "Alert");
+			logger->Fatal("Message {}", "Fatal");
+			logger->Emerg("Message {}", "Emerg");
 
-			stringQueueSink->Queue().pop();
+			TINY_TOOLKIT_LOG_DEBUG(logger, "Message {}", "Debug");
+			TINY_TOOLKIT_LOG_INFO(logger, "Message {}", "Info");
+			TINY_TOOLKIT_LOG_NOTICE(logger, "Message {}", "Notice");
+			TINY_TOOLKIT_LOG_WARNING(logger, "Message {}", "Warning");
+			TINY_TOOLKIT_LOG_ERROR(logger, "Message {}", "Error");
+			TINY_TOOLKIT_LOG_CRITICAL(logger, "Message {}", "Critical");
+			TINY_TOOLKIT_LOG_ALERT(logger, "Message {}", "Alert");
+			TINY_TOOLKIT_LOG_FATAL(logger, "Message {}", "Fatal");
+			TINY_TOOLKIT_LOG_EMERG(logger, "Message {}", "Emerg");
 		}
 	}
 	catch (std::exception & e)
 	{
-		std::cerr << e.what() << std::endl;
+		std::cout << e.what() << std::endl;
 	}
 }
 
@@ -87,61 +91,63 @@ static void AsyncLog()
 
 	try
 	{
-		std::shared_ptr<std::stringstream> stream = std::make_shared<std::stringstream>();
+		auto time = util::Time::Seconds();
 
-		std::shared_ptr<tinyToolkit::ILogger> logger = std::make_shared<tinyToolkit::AsyncLogger>();
+		auto fileSink = std::make_shared<log::FileSink>("fileSink", "asyncFileSink.log", true);
+		auto syslogSink = std::make_shared<log::SyslogSink>("syslogSink");
+		auto consoleSink = std::make_shared<log::ConsoleSink>("consoleFile");
+		auto dailyFileSink = std::make_shared<log::DailyFileSink>("dailyFileSink", "asyncDailyFileSink.log");
+		auto rotatingFileLogSink = std::make_shared<log::RotatingFileSink>("rotatingFileSink", "asyncRotatingFileSink.log", 1024, 10);
 
-		auto fileSink = std::make_shared<tinyToolkit::FileLogSink>("asyncFileSink", "asyncFileSink.txt", true);
-		auto dailyFileSink = std::make_shared<tinyToolkit::DailyFileLogSink>("asyncDailyFileLogSink", "asyncDailyFileLogSink.txt");
-		auto rotatingFileLogSink = std::make_shared<tinyToolkit::RotatingFileLogSink>("asyncRotatingFileLogSink", "asyncRotatingFileLogSink.txt");
-		auto consoleSink = std::make_shared<tinyToolkit::ConsoleLogSink>("asyncConsoleFile");
-		auto stringQueueSink = std::make_shared<tinyToolkit::StringQueueLogSink>("asyncStringQueueSink");
-		auto stringStreamSink = std::make_shared<tinyToolkit::OStreamLogSink>("asyncOStreamLogSink", stream);
+		auto simpleLayout = std::make_shared<log::SimpleLayout>();
+		auto patternLayout = std::make_shared<log::PatternLayout>("[%c][%J][%L][%i][%K] %v%n");
+
+		auto timeFilter = std::make_shared<log::TimeFilter>(time + 2);
+		auto regexFilter = std::make_shared<log::RegexFilter>(".*Critical.*");
+		auto priorityFilter = std::make_shared<log::PriorityFilter>("DEBUG");
+		auto timeRangeFilter = std::make_shared<log::TimeRangeFilter>(time, time + 3);
+		auto priorityRangeFilter = std::make_shared<log::PriorityRangeFilter>("INFO", "ERROR");
+
+		fileSink->SetLayout(simpleLayout)->AddFilter(regexFilter);
+		syslogSink->SetLayout(simpleLayout)->AddFilter(priorityRangeFilter);
+		consoleSink->SetLayout(patternLayout)->AddFilter(priorityFilter);
+		dailyFileSink->SetLayout(patternLayout)->AddFilter(timeFilter);
+		rotatingFileLogSink->SetLayout(simpleLayout)->AddFilter(timeRangeFilter);
+
+		std::shared_ptr<log::ILogger> logger = std::make_shared<log::AsyncLogger>();
 
 		logger->AddSink(fileSink);
+		logger->AddSink(syslogSink);
+		logger->AddSink(consoleSink);
 		logger->AddSink(dailyFileSink);
 		logger->AddSink(rotatingFileLogSink);
-		logger->AddSink(consoleSink);
-		logger->AddSink(stringQueueSink);
-		logger->AddSink(stringStreamSink);
 
-		logger->SetSinkLayout<tinyToolkit::SimpleLogLayout>();
-		logger->EnableSinkAutoFlush();
-
-		logger->Debug("Message {}", "Debug");
-		logger->Info("Message {}", "Info");
-		logger->Notice("Message {}", "Notice");
-		logger->Warning("Message {}", "Warning");
-		logger->Error("Message {}", "Error");
-		logger->Critical("Message {}", "Critical");
-		logger->Alert("Message {}", "Alert");
-		logger->Fatal("Message {}", "Fatal");
-		logger->Emerg("Message {}", "Emerg");
-
-		TINY_TOOLKIT_LOG_DEBUG(logger, "Message {}", "Debug");
-		TINY_TOOLKIT_LOG_INFO(logger, "Message {}", "Info");
-		TINY_TOOLKIT_LOG_NOTICE(logger, "Message {}", "Notice");
-		TINY_TOOLKIT_LOG_WARNING(logger, "Message {}", "Warning");
-		TINY_TOOLKIT_LOG_ERROR(logger, "Message {}", "Error");
-		TINY_TOOLKIT_LOG_CRITICAL(logger, "Message {}", "Critical");
-		TINY_TOOLKIT_LOG_ALERT(logger, "Message {}", "Alert");
-		TINY_TOOLKIT_LOG_FATAL(logger, "Message {}", "Fatal");
-		TINY_TOOLKIT_LOG_EMERG(logger, "Message {}", "Emerg");
-
-		logger->Wait();
-
-		std::cout << stream->str();
-
-		while (!stringQueueSink->Queue().empty())
+		for (int i = 0; i < 10; ++i)
 		{
-			std::cout << stringQueueSink->Queue().front();
+			logger->Debug("Message {}", "Debug");
+			logger->Info("Message {}", "Info");
+			logger->Notice("Message {}", "Notice");
+			logger->Warning("Message {}", "Warning");
+			logger->Error("Message {}", "Error");
+			logger->Critical("Message {}", "Critical");
+			logger->Alert("Message {}", "Alert");
+			logger->Fatal("Message {}", "Fatal");
+			logger->Emerg("Message {}", "Emerg");
 
-			stringQueueSink->Queue().pop();
+			TINY_TOOLKIT_LOG_DEBUG(logger, "Message {}", "Debug");
+			TINY_TOOLKIT_LOG_INFO(logger, "Message {}", "Info");
+			TINY_TOOLKIT_LOG_NOTICE(logger, "Message {}", "Notice");
+			TINY_TOOLKIT_LOG_WARNING(logger, "Message {}", "Warning");
+			TINY_TOOLKIT_LOG_ERROR(logger, "Message {}", "Error");
+			TINY_TOOLKIT_LOG_CRITICAL(logger, "Message {}", "Critical");
+			TINY_TOOLKIT_LOG_ALERT(logger, "Message {}", "Alert");
+			TINY_TOOLKIT_LOG_FATAL(logger, "Message {}", "Fatal");
+			TINY_TOOLKIT_LOG_EMERG(logger, "Message {}", "Emerg");
 		}
 	}
 	catch (std::exception & e)
 	{
-		std::cerr << e.what() << std::endl;
+		std::cout << e.what() << std::endl;
 	}
 }
 

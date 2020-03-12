@@ -10,6 +10,32 @@
 #include "main.h"
 
 
+static void Any()
+{
+	std::cout << std::endl;
+	std::cout << "**************************************************" << std::endl;
+	std::cout << "Ready run function [" << TINY_TOOLKIT_FUNC << "]" << std::endl;
+	std::cout << std::endl;
+
+	try
+	{
+		container::Any any;
+
+		any = 123;
+
+		std::cout << any.Get<int32_t>() << std::endl;
+
+		any = "456";
+
+		std::cout << any.Get<const char * >() << std::endl;
+	}
+	catch (std::exception & e)
+	{
+		std::cout << e.what() << std::endl;
+	}
+}
+
+
 static void Queue()
 {
 	std::cout << std::endl;
@@ -19,13 +45,13 @@ static void Queue()
 
 	try
 	{
-		int value = 100;
+		std::string value{ };
 
-		tinyToolkit::LockQueue<int> queue;
+		container::LockQueue<std::string> queue;
 
-		queue.Push(1);
-		queue.Push(2);
-		queue.Push(value);
+		queue.Push("123");
+		queue.Push("456");
+		queue.Push("789");
 
 		std::cout << "***** push *****" << std::endl;
 		std::cout << "size  : " << queue.Size() << std::endl;
@@ -52,7 +78,36 @@ static void Queue()
 	}
 	catch (std::exception & e)
 	{
-		std::cerr << e.what() << std::endl;
+		std::cout << e.what() << std::endl;
+	}
+}
+
+
+static void Operation()
+{
+	std::cout << std::endl;
+	std::cout << "**************************************************" << std::endl;
+	std::cout << "Ready run function [" << TINY_TOOLKIT_FUNC << "]" << std::endl;
+	std::cout << std::endl;
+
+	try
+	{
+		std::vector<std::string> vec{ };
+
+		for (int i = 0; i < 10; ++i)
+		{
+			vec.push_back(std::to_string(i));
+		}
+
+		std::cout << "vec count : " << vec.size() << std::endl;
+
+		container::Operation::Swap(vec);
+
+		std::cout << "vec count : " << vec.size() << std::endl;
+	}
+	catch (std::exception & e)
+	{
+		std::cout << e.what() << std::endl;
 	}
 }
 
@@ -65,7 +120,9 @@ int main(int argc, char const * argv[])
 	(void)argc;
 	(void)argv;
 
+	Any();
 	Queue();
+	Operation();
 
 	return 0;
 }

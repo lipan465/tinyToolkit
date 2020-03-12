@@ -19,23 +19,23 @@ static void Task()
 
 	try
 	{
-		tinyToolkit::TaskPool pool;
+		pool::TaskPool pool{ };
 
-		pool.Launch(2);
+		pool.Launch();
 
-		pool.Submit([](){ std::cout << "task1 [" << std::this_thread::get_id() << "]" << std::endl; TINY_TOOLKIT_SLEEP_MS(100); });
-		pool.Submit([](){ std::cout << "task2 [" << std::this_thread::get_id() << "]" << std::endl; TINY_TOOLKIT_SLEEP_MS(200); });
-		pool.Submit([](){ std::cout << "task3 [" << std::this_thread::get_id() << "]" << std::endl; TINY_TOOLKIT_SLEEP_MS(300); });
-		pool.Submit([](){ std::cout << "task4 [" << std::this_thread::get_id() << "]" << std::endl; TINY_TOOLKIT_SLEEP_MS(400); });
-		pool.Submit([](){ std::cout << "task5 [" << std::this_thread::get_id() << "]" << std::endl; TINY_TOOLKIT_SLEEP_MS(500); });
-		pool.Submit([](){ std::cout << "task6 [" << std::this_thread::get_id() << "]" << std::endl; TINY_TOOLKIT_SLEEP_MS(600); });
-		pool.Submit([](){ std::cout << "task7 [" << std::this_thread::get_id() << "]" << std::endl; TINY_TOOLKIT_SLEEP_MS(700); });
-		pool.Submit([](){ std::cout << "task8 [" << std::this_thread::get_id() << "]" << std::endl; TINY_TOOLKIT_SLEEP_MS(800); });
-		pool.Submit([](){ std::cout << "task9 [" << std::this_thread::get_id() << "]" << std::endl; TINY_TOOLKIT_SLEEP_MS(900); });
+		pool.AddTask([](){ std::cout << "task1 [" << std::this_thread::get_id() << "]" << std::endl; std::this_thread::sleep_for(std::chrono::milliseconds(1)); });
+		pool.AddTask([](){ std::cout << "task2 [" << std::this_thread::get_id() << "]" << std::endl; std::this_thread::sleep_for(std::chrono::milliseconds(2)); });
+		pool.AddTask([](){ std::cout << "task3 [" << std::this_thread::get_id() << "]" << std::endl; std::this_thread::sleep_for(std::chrono::milliseconds(3)); });
+		pool.AddTask([](){ std::cout << "task4 [" << std::this_thread::get_id() << "]" << std::endl; std::this_thread::sleep_for(std::chrono::milliseconds(4)); });
+		pool.AddTask([](){ std::cout << "task5 [" << std::this_thread::get_id() << "]" << std::endl; std::this_thread::sleep_for(std::chrono::milliseconds(5)); });
+		pool.AddTask([](){ std::cout << "task6 [" << std::this_thread::get_id() << "]" << std::endl; std::this_thread::sleep_for(std::chrono::milliseconds(6)); });
+		pool.AddTask([](){ std::cout << "task7 [" << std::this_thread::get_id() << "]" << std::endl; std::this_thread::sleep_for(std::chrono::milliseconds(7)); });
+		pool.AddTask([](){ std::cout << "task8 [" << std::this_thread::get_id() << "]" << std::endl; std::this_thread::sleep_for(std::chrono::milliseconds(8)); });
+		pool.AddTask([](){ std::cout << "task9 [" << std::this_thread::get_id() << "]" << std::endl; std::this_thread::sleep_for(std::chrono::milliseconds(9)); });
 
 		pool.Pause();
 
-		TINY_TOOLKIT_SLEEP_S(2);
+		std::this_thread::sleep_for(std::chrono::seconds(2));
 
 		pool.Resume();
 
@@ -43,7 +43,7 @@ static void Task()
 	}
 	catch (std::exception & e)
 	{
-		std::cerr << e.what() << std::endl;
+		std::cout << e.what() << std::endl;
 	}
 }
 
@@ -57,38 +57,37 @@ static void Callback()
 
 	try
 	{
-		tinyToolkit::CallbackPool<void, double_t, double_t> pool;
+		pool::CallbackPool<std::string, void, double, double> pool{ };
 
-		auto t1 = pool.Register([&](double_t x, double_t y){ std::cout << std::setw(2) << "addition       : " << x + y << std::endl; });
-		auto t2 = pool.Register([&](double_t x, double_t y){ std::cout << std::setw(2) << "subtraction    : " << x - y << std::endl; });
-		auto t3 = pool.Register([&](double_t x, double_t y){ std::cout << std::setw(2) << "multiplication : " << x * y << std::endl; });
-		auto t4 = pool.Register([&](double_t x, double_t y){ std::cout << std::setw(2) << "division       : " << x / y << std::endl; });
-		auto t5 = pool.Register([&](double_t x, double_t y){ std::cout << std::endl; (void)x; (void)y; });
+		pool.Register("task1", [&](double x, double y){ std::cout << std::setw(2) << "addition       : " << x + y << std::endl; });
+		pool.Register("task2", [&](double x, double y){ std::cout << std::setw(2) << "subtraction    : " << x - y << std::endl; });
+		pool.Register("task3", [&](double x, double y){ std::cout << std::setw(2) << "multiplication : " << x * y << std::endl; });
+		pool.Register("task4", [&](double x, double y){ std::cout << std::setw(2) << "division       : " << x / y << std::endl; });
 
 		pool.Call(23, 78);
 
-		pool.UnRegister(t1);
-		pool.UnRegister(t2);
+		pool.UnRegister("task1");
+		pool.UnRegister("task2");
 
 		pool.Call(49, 13);
 
-		pool.UnRegister(t3);
-		pool.UnRegister(t4);
+		pool.UnRegister("task3");
+		pool.UnRegister("task4");
 
 		pool.Call(21, 77);
 
-		pool.UnRegister();
+		pool.Release();
 
 		pool.Call(85, 61);
 
-		pool.UnRegister(t4);
-		pool.UnRegister(t5);
+		pool.UnRegister("task5");
+		pool.UnRegister("task6");
 
 		pool.Call(77, 93);
 	}
 	catch (std::exception & e)
 	{
-		std::cerr << e.what() << std::endl;
+		std::cout << e.what() << std::endl;
 	}
 }
 
@@ -124,16 +123,16 @@ static void Application()
 			std::string _name;
 		};
 
-		tinyToolkit::ApplicationPool<A> pool;
+		pool::ObjectPool<A> pool{ };
 
-		auto t1 = pool.Create("t1");
-		auto t2 = pool.Create("t2");
+		auto t1 = pool.Borrow("t1");
+		auto t2 = pool.Borrow("t2");
 
 		t1->Print();
 		t2->Print();
 
-		pool.Recover(t1);
-		pool.Recover(t2);
+		pool.Return(t1);
+		pool.Return(t2);
 	}
 	catch (std::exception & e)
 	{

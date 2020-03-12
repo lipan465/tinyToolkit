@@ -1,7 +1,7 @@
 #
 # 项目名
 #
-SET(PROGRAM_NAME crypto)
+SET(PROGRAM_NAME crypto_example)
 
 
 #

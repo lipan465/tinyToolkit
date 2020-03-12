@@ -1,7 +1,7 @@
 #
 # 项目名
 #
-SET(PROGRAM_NAME id)
+SET(PROGRAM_NAME id_example)
 
 
 #

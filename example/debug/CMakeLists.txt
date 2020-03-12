@@ -1,7 +1,7 @@
 #
 # 项目名
 #
-SET(PROGRAM_NAME debug)
+SET(PROGRAM_NAME debug_example)
 
 
 #

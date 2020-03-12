@@ -11,7 +11,14 @@
  */
 
 
-#include "tinyToolkit/tinyToolkit.h"
+#include <iostream>
+
+#include "debug/dump.h"
+#include "debug/exception.h"
+#include "debug/stackTrace.h"
+
+
+using namespace tinyToolkit;
 
 
 #endif // __EXAMPLE__DEBUG__MAIN__H__

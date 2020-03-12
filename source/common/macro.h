@@ -1,0 +1,270 @@
+#ifndef __TINY_TOOLKIT__COMMON__MACRO__H__
+#define __TINY_TOOLKIT__COMMON__MACRO__H__
+
+
+/**
+ *
+ *  作者: hm
+ *
+ *  说明: 宏定义
+ *
+ */
+
+
+#include "platform.h"
+
+
+#ifndef TINY_TOOLKIT_HMAC_PAD_64_SIZE
+#define TINY_TOOLKIT_HMAC_PAD_64_SIZE				64
+#endif
+
+#ifndef TINY_TOOLKIT_HMAC_PAD_128_SIZE
+#define TINY_TOOLKIT_HMAC_PAD_128_SIZE				128
+#endif
+
+#ifndef TINY_TOOLKIT_MD5_BLOCK_SIZE
+#define TINY_TOOLKIT_MD5_BLOCK_SIZE					32
+#endif
+
+#ifndef TINY_TOOLKIT_MD5_DIGEST_SIZE
+#define TINY_TOOLKIT_MD5_DIGEST_SIZE				16
+#endif
+
+#ifndef TINY_TOOLKIT_SHA1_BLOCK_SIZE
+#define TINY_TOOLKIT_SHA1_BLOCK_SIZE				32
+#endif
+
+#ifndef TINY_TOOLKIT_SHA1_DIGEST_SIZE
+#define TINY_TOOLKIT_SHA1_DIGEST_SIZE				20
+#endif
+
+#ifndef TINY_TOOLKIT_SHA224_BLOCK_SIZE
+#define TINY_TOOLKIT_SHA224_BLOCK_SIZE				64
+#endif
+
+#ifndef TINY_TOOLKIT_SHA224_DIGEST_SIZE
+#define TINY_TOOLKIT_SHA224_DIGEST_SIZE				28
+#endif
+
+#ifndef TINY_TOOLKIT_SHA256_BLOCK_SIZE
+#define TINY_TOOLKIT_SHA256_BLOCK_SIZE				64
+#endif
+
+#ifndef TINY_TOOLKIT_SHA256_DIGEST_SIZE
+#define TINY_TOOLKIT_SHA256_DIGEST_SIZE				32
+#endif
+
+#ifndef TINY_TOOLKIT_SHA384_BLOCK_SIZE
+#define TINY_TOOLKIT_SHA384_BLOCK_SIZE				128
+#endif
+
+#ifndef TINY_TOOLKIT_SHA384_DIGEST_SIZE
+#define TINY_TOOLKIT_SHA384_DIGEST_SIZE				48
+#endif
+
+#ifndef TINY_TOOLKIT_SHA512_BLOCK_SIZE
+#define TINY_TOOLKIT_SHA512_BLOCK_SIZE				128
+#endif
+
+#ifndef TINY_TOOLKIT_SHA512_DIGEST_SIZE
+#define TINY_TOOLKIT_SHA512_DIGEST_SIZE				64
+#endif
+
+
+#ifndef TINY_TOOLKIT_TIMER_WHEEL_NUM
+#define TINY_TOOLKIT_TIMER_WHEEL_NUM				4
+#endif
+
+#ifndef TINY_TOOLKIT_TIMER_NEAR_BITS
+#define TINY_TOOLKIT_TIMER_NEAR_BITS				8
+#endif
+
+#ifndef TINY_TOOLKIT_TIMER_WHEEL_BITS
+#define TINY_TOOLKIT_TIMER_WHEEL_BITS				6
+#endif
+
+#ifndef TINY_TOOLKIT_TIMER_NEAR_SIZE
+#define TINY_TOOLKIT_TIMER_NEAR_SIZE				(1 << TINY_TOOLKIT_TIMER_NEAR_BITS)
+#endif
+
+#ifndef TINY_TOOLKIT_TIMER_WHEEL_SIZE
+#define TINY_TOOLKIT_TIMER_WHEEL_SIZE				(1 << TINY_TOOLKIT_TIMER_WHEEL_BITS)
+#endif
+
+#ifndef TINY_TOOLKIT_TIMER_NEAR_MASK
+#define TINY_TOOLKIT_TIMER_NEAR_MASK 				(TINY_TOOLKIT_TIMER_NEAR_SIZE  - 1)
+#endif
+
+#ifndef TINY_TOOLKIT_TIMER_WHEEL_MASK
+#define TINY_TOOLKIT_TIMER_WHEEL_MASK				(TINY_TOOLKIT_TIMER_WHEEL_SIZE - 1)
+#endif
+
+
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+#
+#  ifndef TINY_TOOLKIT_EOL
+#  define TINY_TOOLKIT_EOL							"\r\n"
+#  endif
+#
+#else
+#
+#  ifndef TINY_TOOLKIT_EOL
+#  define TINY_TOOLKIT_EOL							"\n"
+#  endif
+#
+#endif
+
+
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+#
+#  ifndef TINY_TOOLKIT_FILE
+#  define TINY_TOOLKIT_FILE							__FILE__
+#  endif
+#
+#  ifndef TINY_TOOLKIT_LINE
+#  define TINY_TOOLKIT_LINE							__LINE__
+#  endif
+#
+#  ifndef TINY_TOOLKIT_FUNC
+#  define TINY_TOOLKIT_FUNC							__FUNCTION__
+#  endif
+#
+#else
+#
+#  ifndef TINY_TOOLKIT_FILE
+#  define TINY_TOOLKIT_FILE							__FILE__
+#  endif
+#
+#  ifndef TINY_TOOLKIT_LINE
+#  define TINY_TOOLKIT_LINE							__LINE__
+#  endif
+#
+#  ifndef TINY_TOOLKIT_FUNC
+#  define TINY_TOOLKIT_FUNC							__PRETTY_FUNCTION__
+#  endif
+#
+#endif
+
+
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+#
+#  ifndef TINY_TOOLKIT_NAME_MAX
+#  define TINY_TOOLKIT_NAME_MAX						_MAX_FNAME
+#  endif
+#
+#  ifndef TINY_TOOLKIT_PATH_MAX
+#  define TINY_TOOLKIT_PATH_MAX						_MAX_PATH
+#  endif
+#
+#  ifndef TINY_TOOLKIT_PATH_SEP
+#  define TINY_TOOLKIT_PATH_SEP						"\\"
+#  endif
+#
+#  ifndef TINY_TOOLKIT_PATH_DEF
+#  define TINY_TOOLKIT_PATH_DEF						".\\"
+#  endif
+#
+#else
+#
+#  ifndef TINY_TOOLKIT_NAME_MAX
+#  define TINY_TOOLKIT_NAME_MAX						NAME_MAX
+#  endif
+#
+#  ifndef TINY_TOOLKIT_PATH_MAX
+#  define TINY_TOOLKIT_PATH_MAX						PATH_MAX
+#  endif
+#
+#  ifndef TINY_TOOLKIT_PATH_SEP
+#  define TINY_TOOLKIT_PATH_SEP						"/"
+#  endif
+#
+#  ifndef TINY_TOOLKIT_PATH_DEF
+#  define TINY_TOOLKIT_PATH_DEF						"./"
+#  endif
+#
+#endif
+
+
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+#
+#  include <WinSock2.h>
+#
+#  ifndef TINY_TOOLKIT_SOCKET_TYPE
+#  define TINY_TOOLKIT_SOCKET_TYPE					SOCKET
+#  endif
+#
+#  ifndef TINY_TOOLKIT_SOCKET_ERROR
+#  define TINY_TOOLKIT_SOCKET_ERROR					SOCKET_ERROR
+#  endif
+#
+#  ifndef TINY_TOOLKIT_SOCKET_INVALID
+#  define TINY_TOOLKIT_SOCKET_INVALID				INVALID_SOCKET
+#  endif
+#
+#  ifndef TINY_TOOLKIT_SOCKET_POLL_TYPE
+#  define TINY_TOOLKIT_SOCKET_POLL_TYPE			    HANDLE
+#  endif
+#
+#  ifndef TINY_TOOLKIT_SOCKET_POLL_INVALID
+#  define TINY_TOOLKIT_SOCKET_POLL_INVALID			nullptr
+#  endif
+#
+#  ifndef TINY_TOOLKIT_SOCKET_POLL_TIMEOUT
+#  define TINY_TOOLKIT_SOCKET_POLL_TIMEOUT			10
+#  endif
+#
+#  ifndef TINY_TOOLKIT_SOCKET_CACHE_SIZE
+#  define TINY_TOOLKIT_SOCKET_CACHE_SIZE			1460
+#  endif
+#
+#  ifndef TINY_TOOLKIT_SOCKET_LISTEN_COUNT
+#  define TINY_TOOLKIT_SOCKET_LISTEN_COUNT			2048
+#  endif
+#
+#else
+#
+#  ifndef TINY_TOOLKIT_SOCKET_TYPE
+#  define TINY_TOOLKIT_SOCKET_TYPE					int32_t
+#  endif
+#
+#  ifndef TINY_TOOLKIT_SOCKET_ERROR
+#  define TINY_TOOLKIT_SOCKET_ERROR					-1
+#  endif
+#
+#  ifndef TINY_TOOLKIT_SOCKET_INVALID
+#  define TINY_TOOLKIT_SOCKET_INVALID				-1
+#  endif
+#
+#  ifndef TINY_TOOLKIT_SOCKET_POLL_TYPE
+#  define TINY_TOOLKIT_SOCKET_POLL_TYPE			    int32_t
+#  endif
+#
+#  ifndef TINY_TOOLKIT_SOCKET_POLL_INVALID
+#  define TINY_TOOLKIT_SOCKET_POLL_INVALID			-1
+#  endif
+#
+#  ifndef TINY_TOOLKIT_SOCKET_POLL_TIMEOUT
+#  define TINY_TOOLKIT_SOCKET_POLL_TIMEOUT			10
+#  endif
+#
+#  ifndef TINY_TOOLKIT_SOCKET_CACHE_SIZE
+#  define TINY_TOOLKIT_SOCKET_CACHE_SIZE			1460
+#  endif
+#
+#  ifndef TINY_TOOLKIT_SOCKET_LISTEN_COUNT
+#  define TINY_TOOLKIT_SOCKET_LISTEN_COUNT			2048
+#  endif
+#
+#endif
+
+
+#define INHERITANCE_DECLARE(child, parent)		\
+												\
+class TINY_TOOLKIT_API child : public parent	\
+{												\
+public:											\
+	using parent::parent;						\
+}
+
+
+#endif // __TINY_TOOLKIT__COMMON__MACRO__H__

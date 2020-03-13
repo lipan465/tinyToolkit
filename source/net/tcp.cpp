@@ -396,6 +396,15 @@ namespace tinyToolkit
 
 			if (context->filter & EVFILT_WRITE)
 			{
+				{
+					std::lock_guard<std::mutex> lock(_mutex);
+
+					if (_messageQueue.empty())
+					{
+						return;
+					}
+				}
+
 				auto & message = _messageQueue.front();
 
 				while (message->offset < message->length)

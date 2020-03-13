@@ -154,7 +154,7 @@ namespace tinyToolkit
 			template<typename FunctionTypeT, typename ... Args>
 			std::future<typename std::result_of<FunctionTypeT(Args...)>::type> AddTask(FunctionTypeT && function, Args &&... args)
 			{
-				using ResultType = typename std::result_of_t<FunctionTypeT(Args...)>;
+				using ResultType = typename std::result_of<FunctionTypeT(Args...)>::type;
 
 				auto task = std::make_shared<std::packaged_task<ResultType()>>
 				(

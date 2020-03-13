@@ -224,21 +224,6 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 设置是否触发中断信号
-		 *
-		 * @param socket 套接字
-		 * @param on 状态
-		 *
-		 * @return 是否设置成功
-		 *
-		 */
-		bool Adaptor::SetSignal(bool on)
-		{
-			return ip::Socket::SetSignal(_socket, on);
-		}
-
-		/**
-		 *
 		 * 设置是否启用端口复用
 		 *
 		 * @param on 状态
@@ -324,7 +309,6 @@ namespace tinyToolkit
 
 			ip::Socket::SetDelay(socket, false);
 			ip::Socket::SetBlock(socket, false);
-//			ip::Socket::SetSignal(socket, false);
 			ip::Socket::SetReuseAddress(socket, true);
 
 			memset(&context->overlap, 0, sizeof(OVERLAPPED));
@@ -355,7 +339,6 @@ namespace tinyToolkit
 
 			ip::Socket::SetDelay(context->socket, false);
 			ip::Socket::SetBlock(context->socket, false);
-//			ip::Socket::SetSignal(context->socket, false);
 			ip::Socket::SetReuseAddress(context->socket, true);
 
 		#endif
@@ -442,7 +425,7 @@ namespace tinyToolkit
 
 		#elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
-			return static_cast<int32_t>(::send(_socket, buffer, length, 0));
+			return static_cast<int32_t>(::send(_socket, buffer, length, SO_NOSIGPIPE));
 
 		#else
 
@@ -494,7 +477,7 @@ namespace tinyToolkit
 
 		#elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 
-			return static_cast<int32_t>(::recv(_socket, buffer, length, 0));
+			return static_cast<int32_t>(::recv(_socket, buffer, length, SO_NOSIGPIPE));
 
 		#else
 

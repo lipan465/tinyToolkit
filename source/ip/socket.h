@@ -151,18 +151,6 @@ namespace tinyToolkit
 
 			/**
 			 *
-			 * 设置是否触发中断信号
-			 *
-			 * @param socket 套接字
-			 * @param on 状态
-			 *
-			 * @return 是否设置成功
-			 *
-			 */
-			static bool SetSignal(TINY_TOOLKIT_SOCKET_TYPE socket, bool on);
-
-			/**
-			 *
 			 * 设置是否启用端口复用
 			 *
 			 * @param socket 套接字

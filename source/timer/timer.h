@@ -32,7 +32,9 @@
 #  include <mutex>
 #  include <atomic>
 #  include <thread>
+#  include <vector>
 #  include <functional>
+#  include <unordered_map>
 #
 #endif
 

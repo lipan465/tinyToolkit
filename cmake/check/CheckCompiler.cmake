@@ -64,7 +64,7 @@ ENDIF()
 IF (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 
 	TRAVERSE_SET(CMAKE_CXX_FLAGS	-g								# 将编译时的调试信息保存到本地文件中
-									-Os								# 优选代码空间
+									-O2								# 优选代码空间
 									-ldl							# 支持dlopen, dlsym, dlclose, dlerror显示加载动态库
 									-fPIC							# 告诉编译器产生与位置无关代码, 则产生的代码中, 没有绝对地址, 全部使用相对地址
 									-pthread						# 链接线程库
@@ -73,7 +73,7 @@ IF (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 #									-ftime-report					# 统计编译消耗的时间并显示报告
 									-finline-functions				# 把所有简单的函数内联进调用者. 编译器会探索式地决定哪些函数足够简单, 值得做这种内联
 									-Wall							# 会打开一些很有用的警告选项
-									-Werror							# 把警告当作错误
+#									-Werror							# 把警告当作错误
 									-Wextra							# 打印一些额外的警告信息
 									-Wshadow						# 当一个局部变量遮盖住了另一个局部变量, 或者全局变量, 给出警告
 									-Woverflow						# 范围溢出, 给出警告
@@ -87,30 +87,6 @@ IF (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 									-fno-omit-frame-pointer			# 产生stack frame
 									-Wunused-but-set-variable		# 设置了但未使用的变量, 给出警告
 									-Wsizeof-pointer-memaccess)		# 无法保证完整初始化类, 给出警告
-
-	IF(NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.6)
-
-		TRAVERSE_SET(CMAKE_CXX_FLAGS	-Wno-dangling-else
-										-Wno-unused-local-typedefs)
-
-	ENDIF()
-
-	IF(NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.0)
-
-		TRAVERSE_SET(CMAKE_CXX_FLAGS	-Wtrampolines
-										-Wdouble-promotion
-										-Wsized-deallocation
-										-Wvector-operation-performance)
-
-	ENDIF()
-
-	IF(NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6.0)
-
-		TRAVERSE_SET(CMAKE_CXX_FLAGS	-Wshift-overflow=2
-										-Wduplicated-cond
-										-Wnull-dereference)
-
-	ENDIF()
 
 	IF(${CMAKE_BUILD_TYPE} MATCHES Debug)
 
@@ -148,7 +124,7 @@ IF (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 ELSEIF (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 
 	TRAVERSE_SET(CMAKE_CXX_FLAGS	-g								# 将编译时的调试信息保存到本地文件中
-									-Os								# 优选代码空间
+									-O2								# 优选代码空间
 									-fPIC							# 告诉编译器产生与位置无关代码, 则产生的代码中, 没有绝对地址, 全部使用相对地址
 									-pthread						# 链接线程库
 #									-fmem-report					# 显示所有的静态内存分配

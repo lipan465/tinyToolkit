@@ -40,8 +40,8 @@ namespace tinyToolkit
 			{
 				struct
 				{
-					uint32_t count{ 0 };
-					uint32_t times{ 0 };
+					uint32_t count;
+					uint32_t times;
 				}key;
 
 				uint64_t value{ 0 };

@@ -16,15 +16,15 @@
 #
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 #
-#  include <syslog.h>
+#  include <map>
 #
-#  include <unordered_map>
+#  include <syslog.h>
 #
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_LINUX
 #
-#  include <syslog.h>
+#  include <map>
 #
-#  include <unordered_map>
+#  include <syslog.h>
 #
 #endif
 
@@ -119,7 +119,7 @@ namespace tinyToolkit
 
 		#else
 
-			static std::unordered_map<LOG_PRIORITY_TYPE, int32_t> priorities
+			static std::map<LOG_PRIORITY_TYPE, int32_t> priorities
 			{
 				{ LOG_PRIORITY_TYPE::DEBUGS, LOG_DEBUG },
 				{ LOG_PRIORITY_TYPE::INFO, LOG_INFO },

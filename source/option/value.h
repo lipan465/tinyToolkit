@@ -204,10 +204,10 @@ namespace tinyToolkit
 			 *
 			 */
 			template<typename TypeT>
-			std::enable_if_t
+			typename std::enable_if
 			<
 				std::is_same<TypeT, bool>::value, std::string
-			>
+			>::type
 			ToString(TypeT value)
 			{
 				return value ? "true" : "false";
@@ -223,7 +223,7 @@ namespace tinyToolkit
 			 *
 			 */
 			template<typename TypeT>
-			std::enable_if_t
+			typename std::enable_if
 			<
 				std::is_same<TypeT, float>::value ||
 				std::is_same<TypeT, double>::value ||
@@ -237,7 +237,7 @@ namespace tinyToolkit
 				std::is_same<TypeT, int64_t>::value ||
 				std::is_same<TypeT, uint64_t>::value,
 				std::string
-			>
+			>::type
 			ToString(TypeT value)
 			{
 				return std::to_string(value);
@@ -253,10 +253,10 @@ namespace tinyToolkit
 			 *
 			 */
 			template<typename TypeT>
-			std::enable_if_t
+			typename std::enable_if
 			<
 				std::is_same<TypeT, std::string>::value, std::string
-			>
+			>::type
 			ToString(TypeT value)
 			{
 				return value;

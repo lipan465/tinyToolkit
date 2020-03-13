@@ -23,8 +23,8 @@
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_LINUX
 #
 #  include <cstring>
+#  include <sstream>
 #  include <iomanip>
-#  include <algorithm>
 #
 #endif
 
@@ -141,14 +141,15 @@ namespace tinyToolkit
 		 */
 		void Option::AddDescriptionGroup(const DescriptionGroup & group)
 		{
-			if (std::find(_groups.begin(), _groups.end(), &group) == _groups.end())
+			for (auto &iter : _groups)
 			{
-				_groups.push_back(&group);
+				if (iter == &group)
+				{
+					throw std::runtime_error("Multiple add description group : " + group.Caption());
+				}
 			}
-			else
-			{
-				throw std::runtime_error("Multiple add description group : " + group.Caption());
-			}
+
+			_groups.push_back(&group);
 
 			for (auto &iter : group.Options())
 			{

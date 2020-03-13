@@ -28,6 +28,7 @@
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_LINUX
 #
 #  include <mutex>
+#  include <unordered_map>
 #
 #endif
 

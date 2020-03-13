@@ -99,17 +99,6 @@ namespace tinyToolkit
 
 			/**
 			 *
-			 * 设置是否触发中断信号
-			 *
-			 * @param on 状态
-			 *
-			 * @return 是否设置成功
-			 *
-			 */
-			bool SetSignal(bool on);
-
-			/**
-			 *
 			 * 设置是否启用端口复用
 			 *
 			 * @param on 状态

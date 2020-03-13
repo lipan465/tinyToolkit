@@ -29,6 +29,7 @@
 #
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_LINUX
 #
+#  include <vector>
 #  include <sstream>
 #
 #endif

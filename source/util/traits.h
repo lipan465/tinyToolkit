@@ -41,7 +41,7 @@ namespace tinyToolkit
 		};
 
 		template <typename T, typename U, typename... Args>
-		struct is_with_type<T, U, Args...> : std::conditional_t<std::is_same<T, U>::value, std::true_type, is_with_type<T, Args...>>
+		struct is_with_type<T, U, Args...> : std::conditional<std::is_same<T, U>::value, std::true_type, is_with_type<T, Args...>>::type
 		{
 
 		};

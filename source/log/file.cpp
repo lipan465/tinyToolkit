@@ -10,6 +10,21 @@
 #include "file.h"
 
 
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+#
+#
+#
+#elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
+#
+#
+#
+#elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_LINUX
+#
+#  include <stdexcept>
+#
+#endif
+
+
 namespace tinyToolkit
 {
 	namespace log

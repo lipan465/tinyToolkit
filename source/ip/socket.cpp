@@ -246,49 +246,6 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 设置是否触发中断信号
-		 *
-		 * @param socket 套接字
-		 * @param on 状态
-		 *
-		 * @return 是否设置成功
-		 *
-		 */
-		bool Socket::SetSignal(TINY_TOOLKIT_SOCKET_TYPE socket, bool on)
-		{
-			int32_t opt = on ? 0 : 1;
-
-		#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_LINUX
-
-			return ::setsockopt
-			(
-				socket,
-				IPPROTO_TCP,
-				MSG_NOSIGNAL,
-				reinterpret_cast<const char *>(&opt),
-				static_cast<socklen_t>(sizeof(opt))
-			) == 0;
-
-		#elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
-			
-			return ::setsockopt
-			(
-				socket,
-				SOL_SOCKET,
-				SO_NOSIGPIPE,
-				reinterpret_cast<const char *>(&opt),
-				static_cast<socklen_t>(sizeof(opt))
-			) == 0;
-
-		#else
-
-			return true;
-
-		#endif
-		}
-
-		/**
-		 *
 		 * 设置是否启用端口复用
 		 *
 		 * @param socket 套接字

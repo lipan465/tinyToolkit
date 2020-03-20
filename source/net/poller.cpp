@@ -8,6 +8,7 @@
 
 
 #include "tcp.h"
+#include "udp.h"
 #include "poller.h"
 #include "server.h"
 
@@ -16,7 +17,7 @@
 
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 #
-#
+#  include <MSWSock.h>
 #
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 #
@@ -249,7 +250,7 @@ namespace tinyToolkit
 				return false;
 			}
 
-			if (adaptor->Bind(server->LocalEndpoint()) == TINY_TOOLKIT_SOCKET_ERROR)
+			if (adaptor->BindV4(server->_localEndpoint) == TINY_TOOLKIT_SOCKET_ERROR)
 			{
 				server->OnBindFailed();
 
@@ -288,7 +289,112 @@ namespace tinyToolkit
 			{
 				server->OnAcceptFailed();
 
+				server->Close();
+
+				return false;
+			}
+
+		#endif
+
+			server->_pipe = pipe;
+
+			return true;
+		}
+
+		/**
+		 *
+		 * 启动udp服务
+		 *
+		 * @param server 服务
+		 * @param host 本地地址
+		 * @param port 本地端口
+		 * @param cache 缓存大小
+		 *
+		 * @return 是否启动成功
+		 *
+		 */
+		bool Poller::LaunchUDPServer(IUDPServer * server, std::string host, uint16_t port, std::size_t cache)
+		{
+			if (!IsValid() || server == nullptr)
+			{
+				return false;
+			}
+
+			server->_cacheSize = cache;
+
+			server->_peerEndpoint.host = "0.0.0.0";
+			server->_peerEndpoint.port = 0;
+
+			server->_localEndpoint.host = std::move(host);
+			server->_localEndpoint.port = port;
+
+			auto adaptor = std::make_shared<UDPAdaptor>();
+
+			if (!adaptor->IsValid())
+			{
+				server->OnSocketFailed();
+
+				return false;
+			}
+
+			server->OnSocket();
+
+			if (!adaptor->SetBlock(false) ||
+			    !adaptor->SetReuseAddress(true))
+			{
+				server->OnError();
+
 				adaptor->Close();
+
+				return false;
+			}
+
+		#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+			BOOL bNewBehavior = FALSE;
+
+			DWORD dwBytesReturned = 0;
+
+			if (::WSAIoctl(adaptor->Socket(), SIO_UDP_CONNRESET, &bNewBehavior, sizeof(bNewBehavior), nullptr, 0, &dwBytesReturned, nullptr, nullptr) == TINY_TOOLKIT_SOCKET_ERROR)
+			{
+				server->OnError();
+
+				adaptor->Close();
+
+				return false;
+			}
+
+		#endif
+
+			if (adaptor->BindV4(server->_localEndpoint) == TINY_TOOLKIT_SOCKET_ERROR)
+			{
+				server->OnBindFailed();
+
+				adaptor->Close();
+
+				return false;
+			}
+
+			server->OnBind();
+
+			auto pipe = std::make_shared<UDPServerPipe>(server, this, adaptor);
+
+			if (!AppendEvent(adaptor->Socket(), &pipe->_acceptContext, true, false))
+			{
+				server->OnError();
+
+				adaptor->Close();
+
+				return false;
+			}
+
+		#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+			if (!pipe->Accept())
+			{
+				server->OnAcceptFailed();
+
+				server->Close();
 
 				return false;
 			}
@@ -351,22 +457,7 @@ namespace tinyToolkit
 
 		#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-			if (adaptor->Bind(session->LocalEndpoint()) == TINY_TOOLKIT_SOCKET_ERROR)
-			{
-				session->OnBindFailed();
-
-				adaptor->Close();
-
-				return false;
-			}
-
-			session->OnBind();
-
-			auto pipe = std::make_shared<TCPSessionPipe>(session, this, adaptor);
-
-			pipe->_sendContext.optionType = NET_OPTION_TYPE::CONNECT;
-
-			if (!AppendEvent(adaptor->Socket(), &pipe->_sendContext, true, false))
+			if (adaptor->BindV4(session->_localEndpoint) == TINY_TOOLKIT_SOCKET_ERROR)
 			{
 				session->OnError();
 
@@ -375,13 +466,26 @@ namespace tinyToolkit
 				return false;
 			}
 
-			auto ret = adaptor->Connect(session->PeerEndpoint(), &pipe->_sendContext);
+			auto pipe = std::make_shared<TCPSessionPipe>(session, this, adaptor);
+
+			pipe->_receiveContext.optionType = NET_OPTION_TYPE::CONNECT;
+
+			if (!AppendEvent(adaptor->Socket(), &pipe->_receiveContext, true, false))
+			{
+				session->OnError();
+
+				adaptor->Close();
+
+				return false;
+			}
+
+			auto ret = adaptor->ConnectV4(session->_peerEndpoint, &pipe->_receiveContext);
 
 			if (ret < 0)
 			{
 				session->OnConnectFailed();
 
-				adaptor->Close();
+				session->Close();
 
 				return false;
 			}
@@ -390,7 +494,7 @@ namespace tinyToolkit
 
 		#else
 
-			auto ret = adaptor->Connect(session->PeerEndpoint());
+			auto ret = adaptor->ConnectV4(session->_peerEndpoint, nullptr);
 
 			if (ret == 0)
 			{
@@ -436,6 +540,141 @@ namespace tinyToolkit
 
 				session->_pipe = pipe;
 			}
+
+		#endif
+
+			return true;
+		}
+
+		/**
+		 *
+		 * 启动udp会话
+		 *
+		 * @param session 会话
+		 * @param host 目标地址
+		 * @param port 目标端口
+		 * @param cache 缓存大小
+		 *
+		 * @return 是否启动成功
+		 *
+		 */
+		bool Poller::LaunchUDPSession(IUDPSession * session, std::string host, uint16_t port, std::size_t cache)
+		{
+			if (!IsValid() || session == nullptr)
+			{
+				return false;
+			}
+
+			session->_cacheSize = cache;
+
+			session->_peerEndpoint.host = std::move(host);
+			session->_peerEndpoint.port = port;
+
+			session->_localEndpoint.host = "0.0.0.0";
+			session->_localEndpoint.port = 0;
+
+			auto adaptor = std::make_shared<UDPAdaptor>();
+
+			if (!adaptor->IsValid())
+			{
+				session->OnSocketFailed();
+
+				return false;
+			}
+
+			session->OnSocket();
+
+			if (!adaptor->SetBlock(false) ||
+			    !adaptor->SetReuseAddress(true))
+			{
+				session->OnError();
+
+				adaptor->Close();
+
+				return false;
+			}
+
+		#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+			BOOL bNewBehavior = FALSE;
+
+			DWORD dwBytesReturned = 0;
+
+			if (::WSAIoctl(adaptor->Socket(), SIO_UDP_CONNRESET, &bNewBehavior, sizeof(bNewBehavior), nullptr, 0, &dwBytesReturned, nullptr, nullptr) == TINY_TOOLKIT_SOCKET_ERROR)
+			{
+				session->OnError();
+
+				adaptor->Close();
+
+				return false;
+			}
+
+		#endif
+
+			if (adaptor->BindV4(session->_localEndpoint) == TINY_TOOLKIT_SOCKET_ERROR)
+			{
+				session->OnError();
+
+				adaptor->Close();
+
+				return false;
+			}
+
+			if (adaptor->ConnectV4(session->_peerEndpoint, nullptr) == TINY_TOOLKIT_SOCKET_ERROR)
+			{
+				session->OnConnectFailed();
+
+				adaptor->Close();
+
+				return false;
+			}
+
+		#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+			auto pipe = std::make_shared<UDPSessionPipe>(session, this, adaptor);
+
+			if (!AppendEvent(adaptor->Socket(), &pipe->_receiveContext, true, false))
+			{
+				session->OnError();
+
+				adaptor->Close();
+
+				return false;
+			}
+
+			pipe->_isConnect = true;
+
+			session->_pipe = pipe;
+
+			session->OnConnect();
+
+			if (!pipe->Receive())
+			{
+				session->OnReceiveFailed();
+
+				session->Close();
+
+				return false;
+			}
+
+		#else
+
+			auto pipe = std::make_shared<UDPSessionPipe>(session, this, adaptor);
+
+			if (!AppendEvent(adaptor->Socket(), &pipe->_ioContext, true, false))
+			{
+				session->OnError();
+
+				adaptor->Close();
+
+				return false;
+			}
+
+			pipe->_isConnect = true;
+
+			session->_pipe = pipe;
+
+			session->OnConnect();
 
 		#endif
 
@@ -565,7 +804,13 @@ namespace tinyToolkit
 
 		#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-			return CreateIoCompletionPort((HANDLE)socket, _socket, (ULONG_PTR)socket, 0) == _socket;
+			return CreateIoCompletionPort
+			(
+				reinterpret_cast<HANDLE>(socket),
+				_socket,
+				static_cast<ULONG_PTR>(socket),
+				0
+			) == _socket;
 
 		#elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 

@@ -39,6 +39,13 @@ namespace tinyToolkit
 		public:
 			/**
 			 *
+			 * 清空
+			 *
+			 */
+			void Clear();
+
+			/**
+			 *
 			 * 是否有效
 			 *
 			 * @return 是否有效

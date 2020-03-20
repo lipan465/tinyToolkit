@@ -9,6 +9,7 @@
 
 #include "main.h"
 
+#include "pool/task.h"
 #include "util/string.h"
 
 
@@ -53,28 +54,6 @@ public:
 		);
 	}
 
-	void OnBind() override
-	{
-		util::String::Print
-		(
-			"{} [{}:{}] bind success\r\n",
-			_title,
-			LocalEndpoint().host,
-			LocalEndpoint().port
-		);
-	}
-
-	void OnBindFailed() override
-	{
-		util::String::Print
-		(
-			"{} [{}:{}] bind failed\r\n",
-			_title,
-			LocalEndpoint().host,
-			LocalEndpoint().port
-		);
-	}
-
 	void OnConnect() override
 	{
 		util::String::Print
@@ -91,19 +70,6 @@ public:
 		{
 			Send("request server message", 22);
 		}
-	}
-
-	void OnDisconnect() override
-	{
-		util::String::Print
-		(
-			"{} [{}:{}] disconnect [{}:{}]\r\n",
-			_title,
-			LocalEndpoint().host,
-			LocalEndpoint().port,
-			PeerEndpoint().host,
-			PeerEndpoint().port
-		);
 	}
 
 	void OnConnectFailed() override
@@ -209,12 +175,24 @@ public:
 		);
 	}
 
+	void OnDisconnect() override
+	{
+		util::String::Print
+		(
+			"{} [{}:{}] disconnect [{}:{}]\r\n",
+			_title,
+			LocalEndpoint().host,
+			LocalEndpoint().port,
+			PeerEndpoint().host,
+			PeerEndpoint().port
+		);
+	}
+
 private:
 	bool _isServer{ false };
 
 	std::string _title{ };
 };
-
 
 class TCPServer : public net::ITCPServer
 {
@@ -347,44 +325,402 @@ public:
 		}
 	}
 
-protected:
+private:
 	std::string _title{ "Server" };
 
 	std::vector<TCPSession *> _pool{ };
 };
 
+class UDPSession : public net::IUDPSession
+{
+public:
+	explicit UDPSession(bool isServer = false) : _isServer(isServer)
+	{
+		_title = _isServer ? "Server Session" : "Client Session";
+	}
+
+	void OnError() override
+	{
+		util::String::Print
+		(
+			"{} [{}:{}] error\r\n",
+			_title,
+			LocalEndpoint().host,
+			LocalEndpoint().port
+		);
+	}
+
+	void OnSocket() override
+	{
+		util::String::Print
+		(
+			"{} [{}:{}] socket success\r\n",
+			_title,
+			LocalEndpoint().host,
+			LocalEndpoint().port
+		);
+	}
+
+	void OnSocketFailed() override
+	{
+		util::String::Print
+		(
+			"{} [{}:{}] socket failed\r\n",
+			_title,
+			LocalEndpoint().host,
+			LocalEndpoint().port
+		);
+	}
+
+	void OnConnect() override
+	{
+		util::String::Print
+		(
+			"{} [{}:{}] connect [{}:{}] success\r\n",
+			_title,
+			LocalEndpoint().host,
+			LocalEndpoint().port,
+			PeerEndpoint().host,
+			PeerEndpoint().port
+		);
+
+		if (!_isServer)
+		{
+			Send("request server message", 22);
+		}
+	}
+
+	void OnConnectFailed() override
+	{
+		util::String::Print
+		(
+			"{} [{}:{}] connect [{}:{}] failed\r\n",
+			_title,
+			LocalEndpoint().host,
+			LocalEndpoint().port,
+			PeerEndpoint().host,
+			PeerEndpoint().port
+		);
+	}
+
+	void OnSend() override
+	{
+		util::String::Print
+		(
+			"{} [{}:{}] send [{}:{}] success, remain {} message\r\n",
+			_title,
+			LocalEndpoint().host,
+			LocalEndpoint().port,
+			PeerEndpoint().host,
+			PeerEndpoint().port,
+			RemainMessageCount()
+		);
+
+		if (_isServer)
+		{
+			if (RemainMessageCount() == 0)
+			{
+				Close();
+			}
+		}
+	}
+
+	void OnSendFailed() override
+	{
+		util::String::Print
+		(
+			"{} [{}:{}] send [{}:{}] failed\r\n",
+			_title,
+			LocalEndpoint().host,
+			LocalEndpoint().port,
+			PeerEndpoint().host,
+			PeerEndpoint().port
+		);
+	}
+
+	std::size_t OnReceive(const char * buffer, std::size_t length) override
+	{
+		util::String::Print
+		(
+			"{} [{}:{}] receive [{}:{}] length={} value={}\r\n",
+			_title,
+			LocalEndpoint().host,
+			LocalEndpoint().port,
+			PeerEndpoint().host,
+			PeerEndpoint().port,
+			length,
+			buffer
+		);
+
+		if (_isServer)
+		{
+			Send("UDP Message", 11);
+		}
+
+		return length;
+	}
+
+	void OnReceiveFailed() override
+	{
+		util::String::Print
+		(
+			"{} [{}:{}] receive [{}:{}] failed\r\n",
+			_title,
+			LocalEndpoint().host,
+			LocalEndpoint().port,
+			PeerEndpoint().host,
+			PeerEndpoint().port
+		);
+	}
+
+	void OnDisconnect() override
+	{
+		util::String::Print
+		(
+			"{} [{}:{}] disconnect [{}:{}]\r\n",
+			_title,
+			LocalEndpoint().host,
+			LocalEndpoint().port,
+			PeerEndpoint().host,
+			PeerEndpoint().port
+		);
+	}
+
+private:
+	bool _isServer{ false };
+
+	std::string _title{ };
+};
+
+class UDPServer : public net::IUDPServer
+{
+public:
+	void OnError() override
+	{
+		util::String::Print
+		(
+			"{} [{}:{}] event error\r\n",
+			_title,
+			LocalEndpoint().host,
+			LocalEndpoint().port
+		);
+	}
+
+	void OnSocket() override
+	{
+		util::String::Print
+		(
+			"{} [{}:{}] socket success\r\n",
+			_title,
+			LocalEndpoint().host,
+			LocalEndpoint().port
+		);
+	}
+
+	void OnSocketFailed() override
+	{
+		util::String::Print
+		(
+			"{} [{}:{}] socket failed\r\n",
+			_title,
+			LocalEndpoint().host,
+			LocalEndpoint().port
+		);
+	}
+
+	void OnBind() override
+	{
+		util::String::Print
+		(
+			"{} [{}:{}] bind success\r\n",
+			_title,
+			LocalEndpoint().host,
+			LocalEndpoint().port
+		);
+	}
+
+	void OnBindFailed() override
+	{
+		util::String::Print
+		(
+			"{} [{}:{}] bind failed\r\n",
+			_title,
+			LocalEndpoint().host,
+			LocalEndpoint().port
+		);
+	}
+
+	net::IUDPSession * OnAccept() override
+	{
+		util::String::Print
+		(
+			"{} [{}:{}] accept success\r\n",
+			_title,
+			LocalEndpoint().host,
+			LocalEndpoint().port
+		);
+
+		auto session = new UDPSession(true);
+
+		_pool.push_back(session);
+
+		return session;
+	}
+
+	void OnAcceptFailed() override
+	{
+		util::String::Print
+		(
+			"{} [{}:{}] accept failed\r\n",
+			_title,
+			LocalEndpoint().host,
+			LocalEndpoint().port
+		);
+	}
+
+	void OnDisconnect() override
+	{
+		util::String::Print
+		(
+			"{} [{}:{}] disconnect\r\n",
+			_title,
+			LocalEndpoint().host,
+			LocalEndpoint().port
+		);
+
+		for (auto &iter : _pool)
+		{
+			if (iter == nullptr)
+			{
+				continue;
+			}
+
+			iter->Close();
+
+			delete iter;
+		}
+	}
+
+private:
+	std::string _title{ "Server" };
+
+	std::vector<UDPSession *> _pool{ };
+};
+
 
 static void TCP()
 {
-	TCPServer server;
+	std::cout << std::endl;
+	std::cout << "**************************************************" << std::endl;
+	std::cout << "Ready run function [" << TINY_TOOLKIT_FUNC << "]" << std::endl;
+	std::cout << std::endl;
 
-	if (!server.Launch("127.0.0.1", 10080, 1024))
+	try
 	{
-		util::String::Print
-		(
-			"launch server listen to [{}:{}] failed\r\n",
-			server.LocalEndpoint().host,
-			server.LocalEndpoint().port
-		);
+		TCPServer server{ };
+
+		if (!server.Launch("127.0.0.1", 10080, 1024))
+		{
+			util::String::Print
+			(
+				"launch server listen to [{}:{}] failed\r\n",
+				server.LocalEndpoint().host,
+				server.LocalEndpoint().port
+			);
+		}
+
+		pool::TaskPool pool{ };
+
+		pool.Launch();
+
+		for (int i = 0; i < 8; ++i)
+		{
+			pool.AddTask([]()
+	         {
+		         TCPSession session;
+
+	             if (!session.Launch("127.0.0.1", 10080, 1024))
+	             {
+		             util::String::Print
+		             (
+			             "launch session connect to [{}:{}] failed\r\n",
+			             session.PeerEndpoint().host,
+			             session.PeerEndpoint().port
+		             );
+	             }
+
+	             std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+
+	             session.Close();
+	         });
+		}
+
+		pool.Wait();
+
+		server.Close();
 	}
-
-	TCPSession session;
-
-	if (!session.Launch("127.0.0.1", 10080, 1024))
+	catch (std::exception & e)
 	{
-		util::String::Print
-		(
-			"launch session connect to [{}:{}] failed\r\n",
-			session.PeerEndpoint().host,
-			session.PeerEndpoint().port
-		);
+		std::cout << e.what() << std::endl;
 	}
+}
 
-	std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
-	session.Close();
+static void UDP()
+{
+	std::cout << std::endl;
+	std::cout << "**************************************************" << std::endl;
+	std::cout << "Ready run function [" << TINY_TOOLKIT_FUNC << "]" << std::endl;
+	std::cout << std::endl;
 
-	server.Close();
+	try
+	{
+		UDPServer server{ };
+
+		if (!server.Launch("127.0.0.1", 10080, 1024))
+		{
+			util::String::Print
+			(
+				"launch server listen to [{}:{}] failed\r\n",
+				server.LocalEndpoint().host,
+				server.LocalEndpoint().port
+			);
+		}
+
+		pool::TaskPool pool{ };
+
+		pool.Launch();
+
+		for (int i = 0; i < 8; ++i)
+		{
+			pool.AddTask([]()
+		    {
+				UDPSession session;
+
+				if (!session.Launch("127.0.0.1", 10080, 1024))
+				{
+					util::String::Print
+					(
+						"launch session connect to [{}:{}] failed\r\n",
+						session.PeerEndpoint().host,
+						session.PeerEndpoint().port
+					);
+				}
+
+				std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+
+			    session.Close();
+		    });
+		}
+
+		pool.Wait();
+
+		server.Close();
+	}
+	catch (std::exception & e)
+	{
+		std::cout << e.what() << std::endl;
+	}
 }
 
 
@@ -394,6 +730,7 @@ int main(int argc, char const * argv[])
 	(void)argv;
 
 	TCP();
+	UDP();
 
 	return 0;
 }

@@ -16,6 +16,17 @@ namespace tinyToolkit
 	{
 		/**
 		 *
+		 * 清空
+		 *
+		 */
+		void Endpoint::Clear()
+		{
+			port = 0;
+			host = "0.0.0.0";
+		}
+
+		/**
+		 *
 		 * 是否有效
 		 *
 		 * @return 是否有效

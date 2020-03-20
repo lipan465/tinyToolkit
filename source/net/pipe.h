@@ -96,15 +96,6 @@ namespace tinyToolkit
 
 			/**
 			 *
-			 * 是否缓存已满
-			 *
-			 * @return 是否缓存已满
-			 *
-			 */
-			virtual bool IsCacheFull();
-
-			/**
-			 *
 			 * 缓存大小
 			 *
 			 * @return 缓存大小

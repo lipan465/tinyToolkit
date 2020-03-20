@@ -38,12 +38,16 @@ namespace tinyToolkit
 	namespace net
 	{
 		class TINY_TOOLKIT_API ITCPServer;
+		class TINY_TOOLKIT_API IUDPServer;
 		class TINY_TOOLKIT_API ITCPSession;
+		class TINY_TOOLKIT_API IUDPSession;
 
 		class TINY_TOOLKIT_API Poller
 		{
 			friend class TCPServerPipe;
+			friend class UDPServerPipe;
 			friend class TCPSessionPipe;
+			friend class UDPSessionPipe;
 
 		public:
 			/**
@@ -73,7 +77,7 @@ namespace tinyToolkit
 			 *
 			 * 启动tcp服务
 			 *
-			 * @param server 服务对象
+			 * @param server 服务
 			 * @param host 本地地址
 			 * @param port 本地端口
 			 * @param cache 缓存大小
@@ -82,6 +86,20 @@ namespace tinyToolkit
 			 *
 			 */
 			bool LaunchTCPServer(ITCPServer * server, std::string host, uint16_t port, std::size_t cache);
+
+			/**
+			 *
+			 * 启动udp服务
+			 *
+			 * @param server 服务
+			 * @param host 本地地址
+			 * @param port 本地端口
+			 * @param cache 缓存大小
+			 *
+			 * @return 是否启动成功
+			 *
+			 */
+			bool LaunchUDPServer(IUDPServer * server, std::string host, uint16_t port, std::size_t cache);
 
 			/**
 			 *
@@ -96,6 +114,20 @@ namespace tinyToolkit
 			 *
 			 */
 			bool LaunchTCPSession(ITCPSession * session, std::string host, uint16_t port, std::size_t cache);
+
+			/**
+			 *
+			 * 启动udp会话
+			 *
+			 * @param session 会话
+			 * @param host 目标地址
+			 * @param port 目标端口
+			 * @param cache 缓存大小
+			 *
+			 * @return 是否启动成功
+			 *
+			 */
+			bool LaunchUDPSession(IUDPSession * session, std::string host, uint16_t port, std::size_t cache);
 
 		private:
 			/**

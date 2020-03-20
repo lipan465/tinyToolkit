@@ -13,7 +13,7 @@
 
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 #
-#
+#  include <MSWSock.h>
 #
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 #
@@ -42,6 +42,174 @@ namespace tinyToolkit
 {
 	namespace ip
 	{
+	#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+		/**
+		 *
+		 * 异步发送处理
+		 *
+		 * @param socket 套接字
+		 * @param buffer 缓冲区
+		 * @param count 缓冲区个数
+		 * @param overlapped 结构指针
+		 *
+		 */
+		static int32_t SendEx(TINY_TOOLKIT_SOCKET_TYPE socket, LPWSABUF buffer, DWORD count, LPWSAOVERLAPPED overlapped)
+		{
+			DWORD flag = 0;
+			DWORD bytes = 0;
+
+			if (::WSASend(socket, buffer, count, &bytes, flag, overlapped, nullptr) == TINY_TOOLKIT_SOCKET_ERROR)
+			{
+				if (::WSAGetLastError() != WSA_IO_PENDING)
+				{
+					return TINY_TOOLKIT_SOCKET_ERROR;
+				}
+			}
+
+			return 0;
+		}
+
+		/**
+		 *
+		 * 异步接收处理
+		 *
+		 * @param socket 套接字
+		 * @param buffer 缓冲区
+		 * @param count 缓冲区个数
+		 * @param overlapped 结构指针
+		 *
+		 */
+		static int32_t ReceiveEx(TINY_TOOLKIT_SOCKET_TYPE socket, LPWSABUF buffer, DWORD count, LPWSAOVERLAPPED overlapped)
+		{
+			DWORD flag = 0;
+			DWORD bytes = 0;
+
+			if (::WSARecv(socket, buffer, count, &bytes, &flag, overlapped, nullptr) == TINY_TOOLKIT_SOCKET_ERROR)
+			{
+				if (::WSAGetLastError() != WSA_IO_PENDING)
+				{
+					return TINY_TOOLKIT_SOCKET_ERROR;
+				}
+			}
+
+			return 0;
+		}
+
+		/**
+		 *
+		 * 异步接收处理
+		 *
+		 * @param socket 套接字
+		 * @param buffer 缓冲区
+		 * @param count 缓冲区个数
+		 * @param overlapped 结构指针
+		 *
+		 */
+		static int32_t RecvFromEx(TINY_TOOLKIT_SOCKET_TYPE socket, LPWSABUF buffer, DWORD count, struct sockaddr * addr, socklen_t addrLen, LPWSAOVERLAPPED overlapped)
+		{
+			DWORD flag = 0;
+			DWORD bytes = 0;
+
+			if (::WSARecvFrom(socket, buffer, count, &bytes, &flag, addr, &addrLen, overlapped, nullptr) == TINY_TOOLKIT_SOCKET_ERROR)
+			{
+				if (::WSAGetLastError() != WSA_IO_PENDING)
+				{
+					return TINY_TOOLKIT_SOCKET_ERROR;
+				}
+			}
+
+			return 0;
+		}
+
+		/**
+		 *
+		 * 异步接收处理
+		 *
+		 * @param listenSocket 监听套接字
+		 * @param acceptSocket 连接套接字
+		 * @param buffer 缓冲区
+		 * @param overlapped 结构指针
+		 *
+		 * @return 是否处理成功
+		 *
+		 */
+		static int32_t AcceptEx(TINY_TOOLKIT_SOCKET_TYPE listenSocket, TINY_TOOLKIT_SOCKET_TYPE acceptSocket, PVOID buffer, LPOVERLAPPED overlapped)
+		{
+			static LPFN_ACCEPTEX function = nullptr;
+
+			if (function == nullptr)
+			{
+				GUID guid = WSAID_ACCEPTEX;
+
+				DWORD byte = 0;
+
+				::WSAIoctl(listenSocket, SIO_GET_EXTENSION_FUNCTION_POINTER, &guid, sizeof(guid), &function, sizeof(function), &byte, nullptr, nullptr);
+			}
+
+			if (function == nullptr)
+			{
+				return TINY_TOOLKIT_SOCKET_ERROR;
+			}
+
+			DWORD byte = 0;
+
+			if (function(listenSocket, acceptSocket, buffer, 0, sizeof(struct sockaddr_in) + 16, sizeof(struct sockaddr_in) + 16, &byte, overlapped) == FALSE)
+			{
+				if (::WSAGetLastError() != WSA_IO_PENDING)
+				{
+					return TINY_TOOLKIT_SOCKET_ERROR;
+				}
+			}
+
+			return 0;
+		}
+
+		/**
+		 *
+		 * 异步连接处理
+		 *
+		 * @param socket 套接字
+		 * @param addr 地址
+		 * @param addLen 地址长度
+		 * @param overlapped 结构指针
+		 *
+		 * @return 是否处理成功
+		 *
+		 */
+		static int32_t ConnectEx(TINY_TOOLKIT_SOCKET_TYPE socket, const struct sockaddr * addr, socklen_t addrLen, LPOVERLAPPED overlapped)
+		{
+			static LPFN_CONNECTEX function = nullptr;
+
+			if (function == nullptr)
+			{
+				GUID guid = WSAID_CONNECTEX;
+
+				DWORD byte = 0;
+
+				::WSAIoctl(socket, SIO_GET_EXTENSION_FUNCTION_POINTER, &guid, sizeof(guid), &function, sizeof(function), &byte, nullptr, nullptr);
+			}
+
+			if (function == nullptr)
+			{
+				return TINY_TOOLKIT_SOCKET_ERROR;
+			}
+
+			DWORD byte = 0;
+
+			if (function(socket, addr, addrLen, nullptr, 0, &byte, overlapped) == FALSE)
+			{
+				if (::WSAGetLastError() != WSA_IO_PENDING)
+				{
+					return TINY_TOOLKIT_SOCKET_ERROR;
+				}
+			}
+
+			return 0;
+		}
+
+	#endif
+
 		/**
 		 *
 		 * 是否有效
@@ -441,12 +609,295 @@ namespace tinyToolkit
 			struct sockaddr_storage storage{ };
 
 			return ::getsockname
+	       (
+		       socket,
+		       reinterpret_cast<struct sockaddr *>(&storage),
+		       reinterpret_cast<socklen_t *>(&len)
+	       ) == 0 ? storage.ss_family : -1;
+		}
+
+		/**
+		 *
+		 * 绑定
+		 *
+		 * @param socket 套接字
+		 * @param host 地址
+		 * @param port 端口
+		 *
+		 * @return 绑定结果
+		 *
+		 */
+		int32_t Socket::BindV4(TINY_TOOLKIT_SOCKET_TYPE socket, const char * host, uint16_t port)
+		{
+			struct sockaddr_in address = ip::Address::AsAddressV4(host, port);
+
+			return ::bind
 			(
 				socket,
-				reinterpret_cast<struct sockaddr *>(&storage),
-				&len
-			) == 0 ? storage.ss_family : -1;
+				reinterpret_cast<const struct sockaddr *>(&address),
+				static_cast<socklen_t>(sizeof(struct sockaddr_in))
+			);
 		}
+
+		/**
+		 *
+		 * 绑定
+		 *
+		 * @param socket 套接字
+		 * @param host 地址
+		 * @param port 端口
+		 *
+		 * @return 绑定结果
+		 *
+		 */
+		int32_t Socket::BindV6(TINY_TOOLKIT_SOCKET_TYPE socket, const char * host, uint16_t port)
+		{
+			struct sockaddr_in6 address = ip::Address::AsAddressV6(host, port);
+
+			return ::bind
+			(
+				socket,
+				reinterpret_cast<const struct sockaddr *>(&address),
+				static_cast<socklen_t>(sizeof(struct sockaddr_in6))
+			);
+		}
+
+		/**
+		 *
+		 * 监听
+		 *
+		 * @param socket 套接字
+		 * @param backlog 上限
+		 *
+		 * @return 监听结果
+		 *
+		 */
+		int32_t Socket::Listen(TINY_TOOLKIT_SOCKET_TYPE socket, int32_t backlog)
+		{
+			return ::listen(socket, backlog);
+		}
+
+		/**
+		 *
+		 * 接受
+		 *
+		 * @param socket 套接字
+		 * @param buffer 缓冲区
+		 * @param context 上下文
+		 *
+		 * @return 接受结果
+		 *
+		 */
+		int32_t Socket::Accept(TINY_TOOLKIT_SOCKET_TYPE socket, TINY_TOOLKIT_SOCKET_TYPE acceptSocket, void * buffer, void * context)
+		{
+			(void)acceptSocket;
+
+		#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+			return AcceptEx(socket, acceptSocket, buffer, reinterpret_cast<LPOVERLAPPED>(context));
+
+		#else
+
+			return ::accept(socket, reinterpret_cast<struct sockaddr *>(buffer), reinterpret_cast<socklen_t *>(context));
+
+		#endif
+		}
+
+		/**
+		 *
+		 * 连接
+		 *
+		 * @param socket 套接字
+		 * @param host 地址
+		 * @param port 端口
+		 * @param context 上下文
+		 *
+		 * @return 连接结果
+		 *
+		 */
+		int32_t Socket::ConnectV4(TINY_TOOLKIT_SOCKET_TYPE socket, const char * host, uint16_t port, void * context)
+		{
+			(void)context;
+
+			struct sockaddr_in address = ip::Address::AsAddressV4(host, port);
+
+		#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+			return ConnectEx
+			(
+				socket,
+				reinterpret_cast<const struct sockaddr *>(&address),
+				static_cast<socklen_t>(sizeof(struct sockaddr_in)),
+				reinterpret_cast<LPOVERLAPPED>(context)
+			);
+
+		#else
+
+			return ::connect
+			(
+				socket,
+				reinterpret_cast<const struct sockaddr *>(&address),
+				static_cast<socklen_t>(sizeof(struct sockaddr_in))
+			);
+
+		#endif
+		}
+
+		/**
+		 *
+		 * 连接
+		 *
+		 * @param socket 套接字
+		 * @param host 地址
+		 * @param port 端口
+		 * @param context 上下文
+		 *
+		 * @return 连接结果
+		 *
+		 */
+		int32_t Socket::ConnectV6(TINY_TOOLKIT_SOCKET_TYPE socket, const char * host, uint16_t port, void * context)
+		{
+			(void)context;
+
+			struct sockaddr_in address = ip::Address::AsAddressV4(host, port);
+
+		#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+			return ConnectEx
+			(
+				socket,
+				reinterpret_cast<const struct sockaddr *>(&address),
+				static_cast<socklen_t>(sizeof(struct sockaddr_in6)),
+				reinterpret_cast<LPOVERLAPPED>(context)
+			);
+
+		#else
+
+			return ::connect
+			(
+				socket,
+				reinterpret_cast<const struct sockaddr *>(&address),
+				static_cast<socklen_t>(sizeof(struct sockaddr_in6))
+			);
+
+		#endif
+		}
+
+		/**
+		 *
+		 * 发送
+		 *
+		 * @param socket 套接字
+		 * @param buffer 内容
+		 * @param length 长度
+		 * @param context 上下文
+		 *
+		 * @return 发送结果
+		 *
+		 */
+		int32_t Socket::Send(TINY_TOOLKIT_SOCKET_TYPE socket, void * buffer, std::size_t length, void * context)
+		{
+			(void)context;
+
+		#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+			return SendEx
+			(
+				socket,
+				reinterpret_cast<LPWSABUF>(buffer),
+				static_cast<DWORD>(length),
+				reinterpret_cast<LPWSAOVERLAPPED>(context)
+			);
+
+		#elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
+
+			return static_cast<int32_t>(::send(socket, buffer, length, SO_NOSIGPIPE));
+
+		#else
+
+			return static_cast<int32_t>(::send(socket, buffer, length, MSG_NOSIGNAL));
+
+		#endif
+		}
+
+		/**
+		 *
+		 * 接收
+		 *
+		 * @param socket 套接字
+		 * @param buffer 内容
+		 * @param length 长度
+		 * @param context 上下文
+		 *
+		 * @return 接收结果
+		 *
+		 */
+		int32_t Socket::Receive(TINY_TOOLKIT_SOCKET_TYPE socket, void * buffer, std::size_t length, void * context)
+		{
+			(void)context;
+
+		#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+			return ReceiveEx
+			(
+				socket,
+				reinterpret_cast<LPWSABUF>(buffer),
+				static_cast<DWORD>(length),
+				reinterpret_cast<LPWSAOVERLAPPED>(context)
+			);
+
+		#elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
+
+			return static_cast<int32_t>(::recv(socket, buffer, length, SO_NOSIGPIPE));
+
+		#else
+
+			return static_cast<int32_t>(::recv(socket, buffer, length, MSG_NOSIGNAL));
+
+		#endif
+		}
+
+		/**
+		 *
+		 * 接收
+		 *
+		 * @param socket 套接字
+		 * @param buffer 内容
+		 * @param length 长度
+		 * @param addr 地址
+		 * @param addrLen 地址长度
+		 * @param context 上下文
+		 *
+		 * @return 接收结果
+		 *
+		 */
+		int32_t Socket::RecvFrom(TINY_TOOLKIT_SOCKET_TYPE socket, void * buffer, std::size_t length, struct sockaddr * addr, socklen_t addrLen, void * context)
+		{
+			(void)context;
+
+		#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+			return RecvFromEx
+			(
+				socket,
+				reinterpret_cast<LPWSABUF>(buffer),
+				static_cast<DWORD>(length),
+				addr,
+				addrLen,
+				reinterpret_cast<LPWSAOVERLAPPED>(context)
+			);
+
+		#elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
+
+			return static_cast<int32_t>(::recvfrom(socket, buffer, length, SO_NOSIGPIPE, addr, &addrLen));
+
+		#else
+
+			return static_cast<int32_t>(::recvfrom(socket, buffer, length, MSG_NOSIGNAL, addr, &addrLen));
+
+		#endif
+		}
+
 
 		/**
 		 *

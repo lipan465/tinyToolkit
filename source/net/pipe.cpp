@@ -86,18 +86,6 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 是否缓存已满
-		 *
-		 * @return 是否缓存已满
-		 *
-		 */
-		bool IPipe::IsCacheFull()
-		{
-			return true;
-		}
-
-		/**
-		 *
 		 * 缓存大小
 		 *
 		 * @return 缓存大小

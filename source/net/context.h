@@ -19,13 +19,19 @@
 #
 #  include <cstring>
 #
+#  include <WS2tcpip.h>
+#
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 #
 #  include <cstring>
 #
+#  include <netinet/in.h>
+#
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_LINUX
 #
 #  include <cstring>
+#
+#  include <netinet/in.h>
 #
 #endif
 
@@ -51,9 +57,15 @@ namespace tinyToolkit
 
 			WSABUF buffer{ 0 };
 
-			CHAR output[128]{ 0 };
-
 		#endif
+
+			union
+			{
+				struct sockaddr_in v4;
+				struct sockaddr_in6 v6;
+			}address;
+
+			char temp[1460];
 
 			std::size_t bytes{ 0 };
 

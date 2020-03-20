@@ -1,12 +1,12 @@
-#ifndef __TINY_TOOLKIT__NET__TCP__H__
-#define __TINY_TOOLKIT__NET__TCP__H__
+#ifndef __TINY_TOOLKIT__NET__UDP__H__
+#define __TINY_TOOLKIT__NET__UDP__H__
 
 
 /**
  *
  *  作者: hm
  *
- *  说明: tcp
+ *  说明: udp
  *
  */
 
@@ -37,10 +37,10 @@ namespace tinyToolkit
 {
 	namespace net
 	{
-		class TINY_TOOLKIT_API TCPSessionPipe : public IPipe, public ICompleter
+		class TINY_TOOLKIT_API UDPSessionPipe : public IPipe, public ICompleter
 		{
 			friend class Poller;
-			friend class TCPServerPipe;
+			friend class UDPServerPipe;
 
 		public:
 			/**
@@ -52,14 +52,14 @@ namespace tinyToolkit
 			 * @param adaptor 适配器
 			 *
 			 */
-			TCPSessionPipe(ITCPSession * session, Poller * poller, std::shared_ptr<TCPAdaptor> adaptor);
+			UDPSessionPipe(IUDPSession * session, Poller * poller, std::shared_ptr<UDPAdaptor> adaptor);
 
 			/**
 			 *
 			 * 析构函数
 			 *
 			 */
-			~TCPSessionPipe() override;
+			~UDPSessionPipe() override;
 
 			/**
 			 *
@@ -200,14 +200,14 @@ namespace tinyToolkit
 
 			Poller * _poller{ nullptr };
 
-			ITCPSession * _session{ nullptr };
+			IUDPSession * _session{ nullptr };
 
-			std::shared_ptr<TCPAdaptor> _adaptor{ };
+			std::shared_ptr<UDPAdaptor> _adaptor{ };
 
 			std::queue<std::shared_ptr<Message>> _messageQueue{ };
 		};
 
-		class TINY_TOOLKIT_API TCPServerPipe : public IPipe, public ICompleter
+		class TINY_TOOLKIT_API UDPServerPipe : public IPipe, public ICompleter
 		{
 			friend class Poller;
 
@@ -221,14 +221,14 @@ namespace tinyToolkit
 			 * @param adaptor 适配器
 			 *
 			 */
-			TCPServerPipe(ITCPServer * server, Poller * poller, std::shared_ptr<TCPAdaptor> adaptor);
+			UDPServerPipe(IUDPServer * server, Poller * poller, std::shared_ptr<UDPAdaptor> adaptor);
 
 			/**
 			 *
 			 * 析构函数
 			 *
 			 */
-			~TCPServerPipe() override;
+			~UDPServerPipe() override;
 
 			/**
 			 *
@@ -292,12 +292,12 @@ namespace tinyToolkit
 
 			Context _acceptContext{ };
 
-			ITCPServer * _server{ nullptr };
+			IUDPServer * _server{ nullptr };
 
-			std::shared_ptr<TCPAdaptor> _adaptor{ };
+			std::shared_ptr<UDPAdaptor> _adaptor{ };
 		};
 	}
 }
 
 
-#endif // __TINY_TOOLKIT__NET__TCP__H__
+#endif // __TINY_TOOLKIT__NET__UDP__H__

@@ -20,6 +20,8 @@
 #  include <ctime>
 #  include <string>
 #
+#  include <WS2tcpip.h>
+#
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 #
 #  include <ctime>
@@ -231,6 +233,130 @@ namespace tinyToolkit
 			 *
 			 */
 			static int32_t Family(TINY_TOOLKIT_SOCKET_TYPE socket);
+
+			/**
+			 *
+			 * 绑定
+			 *
+			 * @param socket 套接字
+			 * @param host 地址
+			 * @param port 端口
+			 *
+			 * @return 绑定结果
+			 *
+			 */
+			static int32_t BindV4(TINY_TOOLKIT_SOCKET_TYPE socket, const char * host, uint16_t port);
+
+			/**
+			 *
+			 * 绑定
+			 *
+			 * @param socket 套接字
+			 * @param host 地址
+			 * @param port 端口
+			 *
+			 * @return 绑定结果
+			 *
+			 */
+			static int32_t BindV6(TINY_TOOLKIT_SOCKET_TYPE socket, const char * host, uint16_t port);
+
+			/**
+			 *
+			 * 监听
+			 *
+			 * @param socket 套接字
+			 * @param backlog 上限
+			 *
+			 * @return 监听结果
+			 *
+			 */
+			static int32_t Listen(TINY_TOOLKIT_SOCKET_TYPE socket, int32_t backlog);
+
+			/**
+			 *
+			 * 接受
+			 *
+			 * @param socket 套接字
+			 * @param acceptSocket 套接字
+			 * @param buffer 缓冲区
+			 * @param context 上下文
+			 *
+			 * @return 接受结果
+			 *
+			 */
+			static int32_t Accept(TINY_TOOLKIT_SOCKET_TYPE socket, TINY_TOOLKIT_SOCKET_TYPE acceptSocket, void * buffer, void * context);
+
+			/**
+			 *
+			 * 连接
+			 *
+			 * @param socket 套接字
+			 * @param host 地址
+			 * @param port 端口
+			 * @param context 上下文
+			 *
+			 * @return 连接结果
+			 *
+			 */
+			static int32_t ConnectV4(TINY_TOOLKIT_SOCKET_TYPE socket, const char * host, uint16_t port, void * context);
+
+			/**
+			 *
+			 * 连接
+			 *
+			 * @param socket 套接字
+			 * @param host 地址
+			 * @param port 端口
+			 * @param context 上下文
+			 *
+			 * @return 连接结果
+			 *
+			 */
+			static int32_t ConnectV6(TINY_TOOLKIT_SOCKET_TYPE socket, const char * host, uint16_t port, void * context);
+
+			/**
+			 *
+			 * 发送
+			 *
+			 * @param socket 套接字
+			 * @param buffer 内容
+			 * @param length 长度
+			 * @param context 上下文
+			 *
+			 * @return 发送结果
+			 *
+			 */
+			static int32_t Send(TINY_TOOLKIT_SOCKET_TYPE socket, void * buffer, std::size_t length, void * context);
+
+			/**
+			 *
+			 * 接收
+			 *
+			 * @param socket 套接字
+			 * @param buffer 内容
+			 * @param length 长度
+			 * @param context 上下文
+			 *
+			 * @return 接收结果
+			 *
+			 */
+			static int32_t Receive(TINY_TOOLKIT_SOCKET_TYPE socket, void * buffer, std::size_t length, void * context);
+
+			/**
+			 *
+			 * 接收
+			 *
+			 * @param socket 套接字
+			 * @param buffer 内容
+			 * @param length 长度
+			 * @param addr 地址
+			 * @param addrLen 地址长度
+			 * @param context 上下文
+			 *
+			 * @return 接收结果
+			 *
+			 */
+			static int32_t RecvFrom(TINY_TOOLKIT_SOCKET_TYPE socket, void * buffer, std::size_t length, struct sockaddr * addr, socklen_t addrLen, void * context);
 
 			/**
 			 *

@@ -37,7 +37,9 @@ namespace tinyToolkit
 		class TINY_TOOLKIT_API ISession
 		{
 			friend class Poller;
+			friend class UDPServerPipe;
 			friend class TCPServerPipe;
+			friend class UDPSessionPipe;
 			friend class TCPSessionPipe;
 
 		public:
@@ -47,95 +49,6 @@ namespace tinyToolkit
 			 *
 			 */
 			virtual ~ISession() = default;
-
-			/**
-			 *
-			 * 事件错误
-			 *
-			 */
-			virtual void OnError();
-
-			/**
-			 *
-			 * 套接字生成成功
-			 *
-			 */
-			virtual void OnSocket();
-
-			/**
-			 *
-			 * 套接字生成失败
-			 *
-			 */
-			virtual void OnSocketFailed();
-
-			/**
-			 *
-			 * 绑定成功
-			 *
-			 */
-			virtual void OnBind();
-
-			/**
-			 *
-			 * 绑定失败
-			 *
-			 */
-			virtual void OnBindFailed();
-
-			/**
-			 *
-			 * 连接成功
-			 *
-			 */
-			virtual void OnConnect();
-
-			/**
-			 *
-			 * 断开连接
-			 *
-			 */
-			virtual void OnDisconnect();
-
-			/**
-			 *
-			 * 连接失败
-			 *
-			 */
-			virtual void OnConnectFailed();
-
-			/**
-			 *
-			 * 发送成功
-			 *
-			 */
-			virtual void OnSend();
-
-			/**
-			 *
-			 * 发送失败
-			 *
-			 */
-			virtual void OnSendFailed();
-
-			/**
-			 *
-			 * 接收成功
-			 *
-			 * @param buffer 内容
-			 * @param length 长度
-			 *
-			 * @return 使用的字节数
-			 *
-			 */
-			virtual std::size_t OnReceive(const char * buffer, std::size_t length);
-
-			/**
-			 *
-			 * 接收失败
-			 *
-			 */
-			virtual void OnReceiveFailed();
 
 			/**
 			 *
@@ -158,15 +71,6 @@ namespace tinyToolkit
 
 			/**
 			 *
-			 * 是否缓存已满
-			 *
-			 * @return 是否缓存已满
-			 *
-			 */
-			bool IsCacheFull();
-
-			/**
-			 *
 			 * 缓存大小
 			 *
 			 * @return 缓存大小
@@ -182,6 +86,15 @@ namespace tinyToolkit
 			 *
 			 */
 			std::size_t RemainMessageCount() const;
+
+			/**
+			 *
+			 * 套接字
+			 *
+			 * @return 套接字
+			 *
+			 */
+			TINY_TOOLKIT_SOCKET_TYPE Socket() const;
 
 			/**
 			 *
@@ -233,6 +146,181 @@ namespace tinyToolkit
 			 *
 			 */
 			bool Launch(std::string host, uint16_t port, std::size_t cache, Poller * poller = nullptr);
+
+			/**
+			 *
+			 * 事件错误
+			 *
+			 */
+			virtual void OnError();
+
+			/**
+			 *
+			 * 套接字生成成功
+			 *
+			 */
+			virtual void OnSocket();
+
+			/**
+			 *
+			 * 套接字生成失败
+			 *
+			 */
+			virtual void OnSocketFailed();
+
+			/**
+			 *
+			 * 连接成功
+			 *
+			 */
+			virtual void OnConnect();
+
+			/**
+			 *
+			 * 连接失败
+			 *
+			 */
+			virtual void OnConnectFailed();
+
+			/**
+			 *
+			 * 发送成功
+			 *
+			 */
+			virtual void OnSend();
+
+			/**
+			 *
+			 * 发送失败
+			 *
+			 */
+			virtual void OnSendFailed();
+
+			/**
+			 *
+			 * 接收成功
+			 *
+			 * @param buffer 内容
+			 * @param length 长度
+			 *
+			 * @return 使用的字节数
+			 *
+			 */
+			virtual std::size_t OnReceive(const char * buffer, std::size_t length);
+
+			/**
+			 *
+			 * 接收失败
+			 *
+			 */
+			virtual void OnReceiveFailed();
+
+			/**
+			 *
+			 * 断开连接
+			 *
+			 */
+			virtual void OnDisconnect();
+		};
+
+		class TINY_TOOLKIT_API IUDPSession : public ISession
+		{
+		public:
+			/**
+			 *
+			 * 析构函数
+			 *
+			 */
+			~IUDPSession() override = default;
+
+			/**
+			 *
+			 * 启动
+			 *
+			 * @param host 目标地址
+			 * @param port 目标端口
+			 * @param cache 缓存大小
+			 * @param poller 轮询器
+			 *
+			 * @return 是否启动成功
+			 *
+			 */
+			bool Launch(std::string host, uint16_t port, std::size_t cache, Poller * poller = nullptr);
+
+			/**
+			 *
+			 * 事件错误
+			 *
+			 */
+			virtual void OnError();
+
+			/**
+			 *
+			 * 套接字生成成功
+			 *
+			 */
+			virtual void OnSocket();
+
+			/**
+			 *
+			 * 套接字生成失败
+			 *
+			 */
+			virtual void OnSocketFailed();
+
+			/**
+			 *
+			 * 连接成功
+			 *
+			 */
+			virtual void OnConnect();
+
+			/**
+			 *
+			 * 连接失败
+			 *
+			 */
+			virtual void OnConnectFailed();
+
+			/**
+			 *
+			 * 发送成功
+			 *
+			 */
+			virtual void OnSend();
+
+			/**
+			 *
+			 * 发送失败
+			 *
+			 */
+			virtual void OnSendFailed();
+
+			/**
+			 *
+			 * 接收成功
+			 *
+			 * @param buffer 内容
+			 * @param length 长度
+			 *
+			 * @return 使用的字节数
+			 *
+			 */
+			virtual std::size_t OnReceive(const char * buffer, std::size_t length);
+
+			/**
+			 *
+			 * 接收失败
+			 *
+			 */
+			virtual void OnReceiveFailed();
+
+			/**
+			 *
+			 * 断开连接
+			 *
+			 */
+			virtual void OnDisconnect();
 		};
 	}
 }

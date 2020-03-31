@@ -9,6 +9,8 @@
 
 #include "regexFilter.h"
 
+#include <utility>
+
 
 namespace tinyToolkit
 {
@@ -21,7 +23,7 @@ namespace tinyToolkit
 		 * @param rule 规则
 		 *
 		 */
-		RegexFilter::RegexFilter(const std::regex & rule) : _rule(rule)
+		RegexFilter::RegexFilter(std::regex rule) : _rule(std::move(rule))
 		{
 
 		}

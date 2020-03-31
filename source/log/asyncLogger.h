@@ -119,15 +119,15 @@ namespace tinyToolkit
 }
 
 
-#define TINY_TOOLKIT_ASYNC_LOG_DEBUG(fmt, ...)			TINY_TOOLKIT_LOG_DEBUG(tinyToolkit::log::AsyncLogger::Instance(), fmt, ##__VA_ARGS__)
-#define TINY_TOOLKIT_ASYNC_LOG_INFO(fmt, ...)			TINY_TOOLKIT_LOG_INFO(tinyToolkit::log::AsyncLogger::Instance(), fmt, ##__VA_ARGS__)
-#define TINY_TOOLKIT_ASYNC_LOG_NOTICE(fmt, ...)			TINY_TOOLKIT_LOG_NOTICE(tinyToolkit::log::AsyncLogger::Instance(), fmt, ##__VA_ARGS__)
-#define TINY_TOOLKIT_ASYNC_LOG_WARNING(fmt, ...)		TINY_TOOLKIT_LOG_WARNING(tinyToolkit::log::AsyncLogger::Instance(), fmt, ##__VA_ARGS__)
-#define TINY_TOOLKIT_ASYNC_LOG_ERROR(fmt, ...)			TINY_TOOLKIT_LOG_ERROR(tinyToolkit::log::AsyncLogger::Instance(), fmt, ##__VA_ARGS__)
-#define TINY_TOOLKIT_ASYNC_LOG_CRITICAL(fmt, ...)		TINY_TOOLKIT_LOG_CRITICAL(tinyToolkit::log::AsyncLogger::Instance(), fmt, ##__VA_ARGS__)
-#define TINY_TOOLKIT_ASYNC_LOG_ALERT(fmt, ...)			TINY_TOOLKIT_LOG_ALERT(tinyToolkit::log::AsyncLogger::Instance(), fmt, ##__VA_ARGS__)
-#define TINY_TOOLKIT_ASYNC_LOG_FATAL(fmt, ...)			TINY_TOOLKIT_LOG_FATAL(tinyToolkit::log::AsyncLogger::Instance(), fmt, ##__VA_ARGS__)
-#define TINY_TOOLKIT_ASYNC_LOG_EMERG(fmt, ...)			TINY_TOOLKIT_LOG_EMERG(tinyToolkit::log::AsyncLogger::Instance(), fmt, ##__VA_ARGS__)
+#define TINY_TOOLKIT_ASYNC_LOG_DEBUG(fmt, ...)			tinyToolkit::log::AsyncLogger::Instance().Debug(fmt, ##__VA_ARGS__)
+#define TINY_TOOLKIT_ASYNC_LOG_INFO(fmt, ...)			tinyToolkit::log::AsyncLogger::Instance().Info(fmt, ##__VA_ARGS__)
+#define TINY_TOOLKIT_ASYNC_LOG_NOTICE(fmt, ...)			tinyToolkit::log::AsyncLogger::Instance().Notice(fmt, ##__VA_ARGS__)
+#define TINY_TOOLKIT_ASYNC_LOG_WARNING(fmt, ...)		tinyToolkit::log::AsyncLogger::Instance().Warning(fmt, ##__VA_ARGS__)
+#define TINY_TOOLKIT_ASYNC_LOG_ERROR(fmt, ...)			tinyToolkit::log::AsyncLogger::Instance().Error(fmt, ##__VA_ARGS__)
+#define TINY_TOOLKIT_ASYNC_LOG_CRITICAL(fmt, ...)		tinyToolkit::log::AsyncLogger::Instance().Critical(fmt, ##__VA_ARGS__)
+#define TINY_TOOLKIT_ASYNC_LOG_ALERT(fmt, ...)			tinyToolkit::log::AsyncLogger::Instance().Alert(fmt, ##__VA_ARGS__)
+#define TINY_TOOLKIT_ASYNC_LOG_FATAL(fmt, ...)			tinyToolkit::log::AsyncLogger::Instance().Fatal(fmt, ##__VA_ARGS__)
+#define TINY_TOOLKIT_ASYNC_LOG_EMERG(fmt, ...)			tinyToolkit::log::AsyncLogger::Instance().Emerg(fmt, ##__VA_ARGS__)
 
 
 #endif // __TINY_TOOLKIT__LOG__ASYNC_LOGGER__H__

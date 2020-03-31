@@ -43,7 +43,7 @@ namespace tinyToolkit
 			 * @param rule 规则
 			 *
 			 */
-			explicit RegexFilter(const std::regex & rule);
+			explicit RegexFilter(std::regex rule);
 
 			/**
 			 *

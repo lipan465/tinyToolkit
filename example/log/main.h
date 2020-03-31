@@ -14,17 +14,16 @@
 #include <iostream>
 
 #include "log/fileSink.h"
-#include "log/timeFilter.h"
 #include "log/syslogSink.h"
 #include "log/syncLogger.h"
 #include "log/asyncLogger.h"
 #include "log/consoleSink.h"
 #include "log/regexFilter.h"
+#include "log/configurator.h"
 #include "log/simpleLayout.h"
 #include "log/dailyFileSink.h"
 #include "log/patternLayout.h"
 #include "log/priorityFilter.h"
-#include "log/timeRangeFilter.h"
 #include "log/rotatingFileSink.h"
 #include "log/priorityRangeFilter.h"
 

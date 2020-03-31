@@ -108,15 +108,15 @@ namespace tinyToolkit
 }
 
 
-#define TINY_TOOLKIT_SYNC_LOG_DEBUG(fmt, ...)			TINY_TOOLKIT_LOG_DEBUG(tinyToolkit::log::SyncLogger::Instance(), fmt, ##__VA_ARGS__)
-#define TINY_TOOLKIT_SYNC_LOG_INFO(fmt, ...)			TINY_TOOLKIT_LOG_INFO(tinyToolkit::log::SyncLogger::Instance(), fmt, ##__VA_ARGS__)
-#define TINY_TOOLKIT_SYNC_LOG_NOTICE(fmt, ...)			TINY_TOOLKIT_LOG_NOTICE(tinyToolkit::log::SyncLogger::Instance(), fmt, ##__VA_ARGS__)
-#define TINY_TOOLKIT_SYNC_LOG_WARNING(fmt, ...)			TINY_TOOLKIT_LOG_WARNING(tinyToolkit::log::SyncLogger::Instance(), fmt, ##__VA_ARGS__)
-#define TINY_TOOLKIT_SYNC_LOG_ERROR(fmt, ...)			TINY_TOOLKIT_LOG_ERROR(tinyToolkit::log::SyncLogger::Instance(), fmt, ##__VA_ARGS__)
-#define TINY_TOOLKIT_SYNC_LOG_CRITICAL(fmt, ...)		TINY_TOOLKIT_LOG_CRITICAL(tinyToolkit::log::SyncLogger::Instance(), fmt, ##__VA_ARGS__)
-#define TINY_TOOLKIT_SYNC_LOG_ALERT(fmt, ...)			TINY_TOOLKIT_LOG_ALERT(tinyToolkit::log::SyncLogger::Instance(), fmt, ##__VA_ARGS__)
-#define TINY_TOOLKIT_SYNC_LOG_FATAL(fmt, ...)			TINY_TOOLKIT_LOG_FATAL(tinyToolkit::log::SyncLogger::Instance(), fmt, ##__VA_ARGS__)
-#define TINY_TOOLKIT_SYNC_LOG_EMERG(fmt, ...)			TINY_TOOLKIT_LOG_EMERG(tinyToolkit::log::SyncLogger::Instance(), fmt, ##__VA_ARGS__)
+#define TINY_TOOLKIT_SYNC_LOG_DEBUG(fmt, ...)			tinyToolkit::log::SyncLogger::Instance().Debug(fmt, ##__VA_ARGS__)
+#define TINY_TOOLKIT_SYNC_LOG_INFO(fmt, ...)			tinyToolkit::log::SyncLogger::Instance().Info(fmt, ##__VA_ARGS__)
+#define TINY_TOOLKIT_SYNC_LOG_NOTICE(fmt, ...)			tinyToolkit::log::SyncLogger::Instance().Notice(fmt, ##__VA_ARGS__)
+#define TINY_TOOLKIT_SYNC_LOG_WARNING(fmt, ...)		    tinyToolkit::log::SyncLogger::Instance().Warning(fmt, ##__VA_ARGS__)
+#define TINY_TOOLKIT_SYNC_LOG_ERROR(fmt, ...)			tinyToolkit::log::SyncLogger::Instance().Error(fmt, ##__VA_ARGS__)
+#define TINY_TOOLKIT_SYNC_LOG_CRITICAL(fmt, ...)		tinyToolkit::log::SyncLogger::Instance().Critical(fmt, ##__VA_ARGS__)
+#define TINY_TOOLKIT_SYNC_LOG_ALERT(fmt, ...)			tinyToolkit::log::SyncLogger::Instance().Alert(fmt, ##__VA_ARGS__)
+#define TINY_TOOLKIT_SYNC_LOG_FATAL(fmt, ...)			tinyToolkit::log::SyncLogger::Instance().Fatal(fmt, ##__VA_ARGS__)
+#define TINY_TOOLKIT_SYNC_LOG_EMERG(fmt, ...)			tinyToolkit::log::SyncLogger::Instance().Emerg(fmt, ##__VA_ARGS__)
 
 
 #endif // __TINY_TOOLKIT__LOG__SYNC_LOGGER__H__

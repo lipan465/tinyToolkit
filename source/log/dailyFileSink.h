@@ -44,11 +44,11 @@ namespace tinyToolkit
 			 * @param name 名称
 			 * @param path 路径
 			 * @param hour 小时
-			 * @param minutes 分钟
-			 * @param seconds 秒数
+			 * @param minute 分钟
+			 * @param second 秒数
 			 *
 			 */
-			DailyFileSink(std::string name, std::string path, int32_t hour = 0, int32_t minutes = 0, int32_t seconds = 0);
+			DailyFileSink(std::string name, std::string path, int32_t hour = 0, int32_t minute = 0, int32_t second = 0);
 
 			/**
 			 *
@@ -101,8 +101,8 @@ namespace tinyToolkit
 			File _file{ };
 
 			int32_t _hour{ 0 };
-			int32_t _minutes{ 0 };
-			int32_t _seconds{ 0 };
+			int32_t _minute{ 0 };
+			int32_t _second{ 0 };
 
 			std::time_t _time{ 0 };
 

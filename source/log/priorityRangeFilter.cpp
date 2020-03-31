@@ -37,8 +37,8 @@ namespace tinyToolkit
 		 * @param tail 优先级
 		 *
 		 */
-		PriorityRangeFilter::PriorityRangeFilter(const std::string & head, const std::string & tail) : _head(PriorityCorrespond::Priority(head)),
-		                                                                                               _tail(PriorityCorrespond::Priority(tail))
+		PriorityRangeFilter::PriorityRangeFilter(const std::string & head, const std::string & tail) : PriorityRangeFilter(PriorityCorrespond::Priority(head),
+		                                                                                                                   PriorityCorrespond::Priority(tail))
 		{
 
 		}

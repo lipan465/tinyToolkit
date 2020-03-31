@@ -24,15 +24,15 @@ namespace tinyToolkit
 		 * @param name 名称
 		 * @param path 路径
 		 * @param hour 小时
-		 * @param minutes 分钟
-		 * @param seconds 秒数
+		 * @param minute 分钟
+		 * @param second 秒数
 		 *
 		 */
-		DailyFileSink::DailyFileSink(std::string name, std::string path, int32_t hour, int32_t minutes, int32_t seconds) : ISink(std::move(name)),
-		                                                                                                                   _hour(hour),
-		                                                                                                                   _minutes(minutes),
-		                                                                                                                   _seconds(seconds),
-		                                                                                                                   _path(std::move(path))
+		DailyFileSink::DailyFileSink(std::string name, std::string path, int32_t hour, int32_t minute, int32_t second) : ISink(std::move(name)),
+		                                                                                                                 _hour(hour),
+		                                                                                                                 _minute(minute),
+		                                                                                                                 _second(second),
+		                                                                                                                 _path(std::move(path))
 		{
 			if (!_file.Open(FormatPath()))
 			{
@@ -113,7 +113,7 @@ namespace tinyToolkit
 		 */
 		void DailyFileSink::UpdateTime()
 		{
-			_time = util::Time::DayTime(0, _hour, _minutes, _seconds);
+			_time = util::Time::DayTime(0, _hour, _minute, _second);
 
 			if (_time < util::Time::Seconds())
 			{

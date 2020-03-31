@@ -14,14 +14,17 @@
 #
 #  include <map>
 #  include <stdexcept>
+#  include <unordered_map>
 #
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 #
 #  include <map>
+#  include <unordered_map>
 #
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_LINUX
 #
 #  include <map>
+#  include <unordered_map>
 #
 #endif
 
@@ -41,7 +44,7 @@ namespace tinyToolkit
 		 */
 		int32_t WeekCorrespond::Number(const std::string & name)
 		{
-			static std::map<std::string, int32_t> WeekNumber
+			static std::unordered_map<std::string, int32_t> WeekNumber
 			{
 				{ "Sun", 0 },
 				{ "Sunday", 0 },
@@ -80,7 +83,7 @@ namespace tinyToolkit
 		 */
 		const std::string & WeekCorrespond::LongName(int32_t week)
 		{
-			static std::map<int32_t, std::string> WeekName
+			static std::unordered_map<int32_t, std::string> WeekName
 			{
 				{ 0, "Sunday", },
 				{ 1, "Monday", },
@@ -112,7 +115,7 @@ namespace tinyToolkit
 		 */
 		const std::string & WeekCorrespond::ShortName(int32_t week)
 		{
-			static std::map<int32_t, std::string> WeekName
+			static std::unordered_map<int32_t, std::string> WeekName
 			{
 				{ 0, "Sun", },
 				{ 1, "Mon", },
@@ -148,7 +151,7 @@ namespace tinyToolkit
 		 */
 		int32_t MonthCorrespond::Number(const std::string & name)
 		{
-			static std::map<std::string, int32_t> MonthNumber
+			static std::unordered_map<std::string, int32_t> MonthNumber
 			{
 				{ "Jan", 0 },
 				{ "January", 0 },
@@ -197,7 +200,7 @@ namespace tinyToolkit
 		 */
 		const std::string & MonthCorrespond::LongName(int32_t month)
 		{
-			static std::map<int32_t, std::string> MonthName
+			static std::unordered_map<int32_t, std::string> MonthName
 			{
 				{  0, "January", },
 				{  1, "February", },
@@ -234,7 +237,7 @@ namespace tinyToolkit
 		 */
 		const std::string & MonthCorrespond::ShortName(int32_t month)
 		{
-			static std::map<int32_t, std::string> MonthName
+			static std::unordered_map<int32_t, std::string> MonthName
 			{
 				{  0, "Jan", },
 				{  1, "Feb", },
@@ -275,7 +278,7 @@ namespace tinyToolkit
 		 */
 		LOG_PRIORITY_TYPE PriorityCorrespond::Priority(const std::string & name)
 		{
-			static std::map<std::string, LOG_PRIORITY_TYPE> PriorityNumber
+			static std::unordered_map<std::string, LOG_PRIORITY_TYPE> PriorityNumber
 			{
 				{ "DEBUG", LOG_PRIORITY_TYPE::DEBUGS },
 				{ "INFO", LOG_PRIORITY_TYPE::INFO },

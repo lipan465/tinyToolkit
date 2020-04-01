@@ -31,46 +31,47 @@ namespace tinyToolkit
 		{
 			switch (value)
 			{
-				case 'a':  /// 当前区域星期名简写 (Sun..Sat)
+				case 'a':  /// 当前时区的星期名简写 (Sun..Sat)
 				{
 					storage += WeekCorrespond::ShortName(context.tm.tm_wday);
 
 					break;
 				}
 
-				case 'A':  /// 当前区域星期名全称 (Sunday..Saturday)
+				case 'A':  /// 当前时区的星期名全称 (Sunday..Saturday)
 				{
 					storage += WeekCorrespond::LongName(context.tm.tm_wday);
 
 					break;
 				}
 
-				case 'b':  /// 当前区域月份名简写 (Jan..Dec)
+				case 'b':  /// 当前时区的月份名简写 (Jan..Dec)
 				{
 					storage += MonthCorrespond::ShortName(context.tm.tm_mon);
 
 					break;
 				}
 
-				case 'B':  /// 当前区域月份名全称 (January..December)
+				case 'B':  /// 当前时区的月份名全称 (January..December)
 				{
 					storage += MonthCorrespond::LongName(context.tm.tm_mon);
 
 					break;
 				}
 
-				case 'c':  /// 当前区域的日期和时间 (2018-01-01 00:00:00.000000)
+				case 'c':  /// 当前时区的日期和时间 (Sun 01 Jan 1970 00:00:00 AM)
 				{
 					storage += util::String::Format
 					(
-						"{:04}-{:02}-{:02} {:02}:{:02}:{:02}.{:06}",
-						context.tm.tm_year + 1900,
-						context.tm.tm_mon + 1,
+						"{} {:02} {} {:04} {:02}:{:02}:{:02} {}",
+						WeekCorrespond::ShortName(context.tm.tm_wday),
 						context.tm.tm_mday,
-						context.tm.tm_hour,
+						MonthCorrespond::ShortName(context.tm.tm_mon),
+						context.tm.tm_year + 1900,
+						context.tm.tm_hour > 12 ? context.tm.tm_hour - 12 : context.tm.tm_hour,
 						context.tm.tm_min,
 						context.tm.tm_sec,
-						util::Time::Microseconds(context.time) % 1000000
+						context.tm.tm_hour >= 12 ? "PM" : "AM"
 					);
 
 					break;
@@ -98,7 +99,7 @@ namespace tinyToolkit
 				{
 					storage += util::String::Format
 					(
-						"{:02}{:02}{:02}",
+						"{:02}/{:02}/{:02}",
 						context.tm.tm_mon + 1,
 						context.tm.tm_mday,
 						context.tm.tm_year % 100
@@ -118,7 +119,7 @@ namespace tinyToolkit
 					break;
 				}
 
-				case 'E':  /// 微秒 (000000-999999)
+				case 'E':  /// 微秒 (000000..999999)
 				{
 					storage += util::String::Format
 					(
@@ -129,7 +130,7 @@ namespace tinyToolkit
 					break;
 				}
 
-				case 'f':  /// 毫秒 (000-999)
+				case 'f':  /// 毫秒 (000..999)
 				{
 					storage += util::String::Format
 					(
@@ -153,21 +154,21 @@ namespace tinyToolkit
 					break;
 				}
 
-				case 'g':  /// 格式年份的最后两位
+				case 'g':  /// ISO-8601格式年份的最后两位
 				{
 					storage += std::to_string(context.tm.tm_year % 100);
 
 					break;
 				}
 
-				case 'G':  /// 格式年份
+				case 'G':  /// ISO-8601格式年份
 				{
 					storage += std::to_string(context.tm.tm_year + 1900);
 
 					break;
 				}
 
-				case 'h':  /// 当前区域月份名简写 (Jan..Dec)
+				case 'h':  /// 当前时区的月份名简写 (Jan..Dec)
 				{
 					storage += MonthCorrespond::ShortName(context.tm.tm_mon);
 
@@ -197,8 +198,7 @@ namespace tinyToolkit
 					storage += util::String::Format
 					(
 						"{:02}",
-						context.tm.tm_hour > 12 ? context.tm.tm_hour - 12 :
-						context.tm.tm_hour
+						context.tm.tm_hour > 12 ? context.tm.tm_hour - 12 : context.tm.tm_hour
 					);
 
 					break;
@@ -222,9 +222,13 @@ namespace tinyToolkit
 					break;
 				}
 
-				case 'k':  /// 小时 (0..23)
+				case 'k':  /// 小时 ( 0..23)
 				{
-					storage += std::to_string(context.tm.tm_hour);
+					storage += util::String::Format
+					(
+						"{:2}",
+						context.tm.tm_hour
+					);
 
 					break;
 				}
@@ -236,12 +240,12 @@ namespace tinyToolkit
 					break;
 				}
 
-				case 'l':  /// 小时 (1..12)
+				case 'l':  /// 小时 ( 1..12)
 				{
-					storage += std::to_string
+					storage += util::String::Format
 					(
-						context.tm.tm_hour > 12 ? context.tm.tm_hour - 12 :
-						context.tm.tm_hour
+						"{:2}",
+						context.tm.tm_hour > 12 ? context.tm.tm_hour - 12 : context.tm.tm_hour
 					);
 
 					break;
@@ -283,7 +287,7 @@ namespace tinyToolkit
 					break;
 				}
 
-				case 'N': /// 纳秒 (000000000-999999999)
+				case 'N': /// 纳秒 (000000000..999999999)
 				{
 					storage += util::String::Format
 					(
@@ -294,26 +298,26 @@ namespace tinyToolkit
 					break;
 				}
 
-				case 'p':  /// 当前时间是AM还是PM
+				case 'p':  /// 当前时区下的AM或者PM
 				{
 					storage += context.tm.tm_hour >= 12 ? "PM" : "AM";
 
 					break;
 				}
 
-				case 'P':  /// 当前时间是am还是pm
+				case 'P':  /// 当前时区下的am或者pm
 				{
 					storage += context.tm.tm_hour >= 12 ? "pm" : "am";
 
 					break;
 				}
 
-				case 'r':  /// 12小时时钟时间 (hh:mm:ss [AM/PM])
+				case 'r':  /// 12小时时钟时间 (hh:mm:ss AM/PM)
 				{
 					storage += util::String::Format
 					(
 						"{:02}:{:02}:{:02} {}",
-						context.tm.tm_hour,
+						context.tm.tm_hour > 12 ? context.tm.tm_hour - 12 : context.tm.tm_hour,
 						context.tm.tm_min,
 						context.tm.tm_sec,
 						context.tm.tm_hour >= 12 ? "PM" : "AM"
@@ -334,7 +338,7 @@ namespace tinyToolkit
 					break;
 				}
 
-				case 's':  /// 自UTC时间 1970-01-01 00:00:00 以来所经过的秒数 (GNU扩充)
+				case 's':  /// 自UTC时间 1970-01-01 00:00:00 以来所经过的秒数
 				{
 					storage += std::to_string(util::Time::Seconds(context.time));
 
@@ -372,9 +376,20 @@ namespace tinyToolkit
 					break;
 				}
 
+				case 'u':  /// 星期 (1..7), 1代表周一
+				{
+					storage += std::to_string(context.tm.tm_wday == 0 ? 7 : context.tm.tm_wday);
+
+					break;
+				}
+
 				case 'U':  /// 一年中的第几周, 以周日为每星期第一天 (00-53)
 				{
-					/// todo
+					storage += util::String::Format
+					(
+						"{:02}",
+						(context.tm.tm_yday + (6 - context.tm.tm_wday)) / 7
+					);
 
 					break;
 				}
@@ -393,41 +408,53 @@ namespace tinyToolkit
 					break;
 				}
 
-				case 'w':  /// 一星期中的第几日(0-6), 0代表周一
+				case 'w':  /// 一星期中的第几日(0..6), 0代表周一
 				{
-					storage += std::to_string(context.tm.tm_wday);
+					if (context.tm.tm_wday == 0)
+					{
+						storage += "6";
+					}
+					else
+					{
+						storage += std::to_string(context.tm.tm_wday - 1);
+					}
 
 					break;
 				}
 
-				case 'W':  ///  一年中的第几周, 以周一为每星期第一天 (00-53)
-				{
-					/// todo
-
-					break;
-				}
-
-				case 'x':  /// 日期描述 (mm/dd/yy)
+				case 'W':  /// 一年中的第几周, 以周一为每星期第一天 (00..53)
 				{
 					storage += util::String::Format
 					(
-						"{:02}{:02}{:02}",
-						context.tm.tm_mon + 1,
-						context.tm.tm_mday,
-						context.tm.tm_year % 100
+						"{:02}",
+						(context.tm.tm_yday + (context.tm.tm_wday == 0 ? 0 : (7 - context.tm.tm_wday))) / 7
 					);
 
 					break;
 				}
 
-				case 'X':  /// 时间描述 (hh:mm:ss)
+				case 'x':  /// 当前时区下的日期描述 (mm/dd/yy)
 				{
 					storage += util::String::Format
 					(
-						"{:02}:{:02}:{:02}",
-						context.tm.tm_hour,
+						"{:02}/{:02}/{:04}",
+						context.tm.tm_mon + 1,
+						context.tm.tm_mday,
+						context.tm.tm_year + 1900
+					);
+
+					break;
+				}
+
+				case 'X':  /// 当前时区下的时间描述 (hh:mm:ss AM/PM)
+				{
+					storage += util::String::Format
+					(
+						"{:02}:{:02}:{:02} {}",
+						context.tm.tm_hour > 12 ? context.tm.tm_hour - 12 : context.tm.tm_hour,
 						context.tm.tm_min,
-						context.tm.tm_sec
+						context.tm.tm_sec,
+						context.tm.tm_hour >= 12 ? "PM" : "AM"
 					);
 
 					break;
@@ -443,20 +470,6 @@ namespace tinyToolkit
 				case 'Y':  /// 年份 (1970...)
 				{
 					storage += std::to_string(context.tm.tm_year + 1900);
-
-					break;
-				}
-
-				case 'z':  /// 数字时区
-				{
-					/// todo
-
-					break;
-				}
-
-				case 'Z':  /// 按字母表排序的时区缩写
-				{
-					/// todo
 
 					break;
 				}

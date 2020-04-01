@@ -156,7 +156,16 @@ namespace tinyToolkit
 				std::tm utc   = UTCTm();
 				std::tm local = LocalTm();
 
-				timezone = (FromTm(local) - FromTm(utc)) / 3600;
+				timezone = local.tm_hour - utc.tm_hour;
+
+				if (timezone < -12)
+				{
+					timezone += 24;
+				}
+				else if (timezone > 12)
+				{
+					timezone -= 24;
+				}
 
 				status = true;
 			});

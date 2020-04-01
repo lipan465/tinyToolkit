@@ -48,15 +48,15 @@ static void SyncLog()
 
 		for (int i = 0; i < 10; ++i)
 		{
-			logger->Debug("Message {}", "Debug");
-			logger->Info("Message {}", "Info");
-			logger->Notice("Message {}", "Notice");
-			logger->Warning("Message {}", "Warning");
-			logger->Error("Message {}", "Error");
-			logger->Critical("Message {}", "Critical");
-			logger->Alert("Message {}", "Alert");
-			logger->Fatal("Message {}", "Fatal");
-			logger->Emerg("Message {}", "Emerg");
+			logger->Debug("Sync Message {}", "Debug");
+			logger->Info("Sync Message {}", "Info");
+			logger->Notice("Sync Message {}", "Notice");
+			logger->Warning("Sync Message {}", "Warning");
+			logger->Error("Sync Message {}", "Error");
+			logger->Critical("Sync Message {}", "Critical");
+			logger->Alert("Sync Message {}", "Alert");
+			logger->Fatal("Sync Message {}", "Fatal");
+			logger->Emerg("Sync Message {}", "Emerg");
 		}
 
 		log::SyncLogger::Instance().AddSink(fileSink);
@@ -67,15 +67,15 @@ static void SyncLog()
 
 		for (int i = 0; i < 10; ++i)
 		{
-			TINY_TOOLKIT_SYNC_LOG_DEBUG("Message {}", "Debug");
-			TINY_TOOLKIT_SYNC_LOG_INFO("Message {}", "Info");
-			TINY_TOOLKIT_SYNC_LOG_NOTICE("Message {}", "Notice");
-			TINY_TOOLKIT_SYNC_LOG_WARNING("Message {}", "Warning");
-			TINY_TOOLKIT_SYNC_LOG_ERROR("Message {}", "Error");
-			TINY_TOOLKIT_SYNC_LOG_CRITICAL("Message {}", "Critical");
-			TINY_TOOLKIT_SYNC_LOG_ALERT("Message {}", "Alert");
-			TINY_TOOLKIT_SYNC_LOG_FATAL("Message {}", "Fatal");
-			TINY_TOOLKIT_SYNC_LOG_EMERG("Message {}", "Emerg");
+			TINY_TOOLKIT_SYNC_LOG_DEBUG("Sync Message {}", "Debug");
+			TINY_TOOLKIT_SYNC_LOG_INFO("Sync Message {}", "Info");
+			TINY_TOOLKIT_SYNC_LOG_NOTICE("Sync Message {}", "Notice");
+			TINY_TOOLKIT_SYNC_LOG_WARNING("Sync Message {}", "Warning");
+			TINY_TOOLKIT_SYNC_LOG_ERROR("Sync Message {}", "Error");
+			TINY_TOOLKIT_SYNC_LOG_CRITICAL("Sync Message {}", "Critical");
+			TINY_TOOLKIT_SYNC_LOG_ALERT("Sync Message {}", "Alert");
+			TINY_TOOLKIT_SYNC_LOG_FATAL("Sync Message {}", "Fatal");
+			TINY_TOOLKIT_SYNC_LOG_EMERG("Sync Message {}", "Emerg");
 		}
 	}
 	catch (std::exception & e)
@@ -123,15 +123,15 @@ static void AsyncLog()
 
 		for (int i = 0; i < 10; ++i)
 		{
-			logger->Debug("Message {}", "Debug");
-			logger->Info("Message {}", "Info");
-			logger->Notice("Message {}", "Notice");
-			logger->Warning("Message {}", "Warning");
-			logger->Error("Message {}", "Error");
-			logger->Critical("Message {}", "Critical");
-			logger->Alert("Message {}", "Alert");
-			logger->Fatal("Message {}", "Fatal");
-			logger->Emerg("Message {}", "Emerg");
+			logger->Debug("Async Message {}", "Debug");
+			logger->Info("Async Message {}", "Info");
+			logger->Notice("Async Message {}", "Notice");
+			logger->Warning("Async Message {}", "Warning");
+			logger->Error("Async Message {}", "Error");
+			logger->Critical("Async Message {}", "Critical");
+			logger->Alert("Async Message {}", "Alert");
+			logger->Fatal("Async Message {}", "Fatal");
+			logger->Emerg("Async Message {}", "Emerg");
 		}
 
 		logger->Wait();
@@ -144,135 +144,18 @@ static void AsyncLog()
 
 		for (int i = 0; i < 10; ++i)
 		{
-			TINY_TOOLKIT_ASYNC_LOG_DEBUG("Message {}", "Debug");
-			TINY_TOOLKIT_ASYNC_LOG_INFO("Message {}", "Info");
-			TINY_TOOLKIT_ASYNC_LOG_NOTICE("Message {}", "Notice");
-			TINY_TOOLKIT_ASYNC_LOG_WARNING("Message {}", "Warning");
-			TINY_TOOLKIT_ASYNC_LOG_ERROR("Message {}", "Error");
-			TINY_TOOLKIT_ASYNC_LOG_CRITICAL("Message {}", "Critical");
-			TINY_TOOLKIT_ASYNC_LOG_ALERT("Message {}", "Alert");
-			TINY_TOOLKIT_ASYNC_LOG_FATAL("Message {}", "Fatal");
-			TINY_TOOLKIT_ASYNC_LOG_EMERG("Message {}", "Emerg");
+			TINY_TOOLKIT_ASYNC_LOG_DEBUG("Async Message {}", "Debug");
+			TINY_TOOLKIT_ASYNC_LOG_INFO("Async Message {}", "Info");
+			TINY_TOOLKIT_ASYNC_LOG_NOTICE("Async Message {}", "Notice");
+			TINY_TOOLKIT_ASYNC_LOG_WARNING("Async Message {}", "Warning");
+			TINY_TOOLKIT_ASYNC_LOG_ERROR("Async Message {}", "Error");
+			TINY_TOOLKIT_ASYNC_LOG_CRITICAL("Async Message {}", "Critical");
+			TINY_TOOLKIT_ASYNC_LOG_ALERT("Async Message {}", "Alert");
+			TINY_TOOLKIT_ASYNC_LOG_FATAL("Async Message {}", "Fatal");
+			TINY_TOOLKIT_ASYNC_LOG_EMERG("Async Message {}", "Emerg");
 		}
 
 		log::AsyncLogger::Instance().Wait();
-	}
-	catch (std::exception & e)
-	{
-		std::cout << e.what() << std::endl;
-	}
-}
-
-
-static void Configurator()
-{
-	std::cout << std::endl;
-	std::cout << "**************************************************" << std::endl;
-	std::cout << "Ready run function [" << TINY_TOOLKIT_FUNC << "]" << std::endl;
-	std::cout << std::endl;
-
-	try
-	{
-		std::string content = "#\n"
-		                      "# 文件节点\n"
-		                      "#\n"
-		                      "sink.file.type=FileSink\n"
-		                      "sink.file.path=fileSink.log\n"
-		                      "sink.file.truncate=false\n"
-		                      "sink.file.layout=simple\n"
-		                      "sink.file.filter=regex\n"
-		                      "\n"
-		                      "#\n"
-		                      "# 系统节点\n"
-		                      "#\n"
-		                      "sink.syslog.type=SyslogSink\n"
-		                      "sink.syslog.layout=simple\n"
-		                      "sink.syslog.filter=priorityRange\n"
-		                      "\n"
-		                      "#\n"
-		                      "# 控制台节点\n"
-		                      "#\n"
-		                      "sink.console.type=ConsoleSink\n"
-		                      "sink.console.layout=pattern\n"
-		                      "sink.console.filter=priority\n"
-		                      "\n"
-		                      "#\n"
-		                      "# 时间文件节点\n"
-		                      "#\n"
-		                      "sink.dailyFile.type=DailyFileSink\n"
-		                      "sink.dailyFile.path=dailyFileSink.log\n"
-		                      "sink.dailyFile.hour=0\n"
-		                      "sink.dailyFile.minute=0\n"
-		                      "sink.dailyFile.second=0\n"
-		                      "sink.dailyFile.layout=pattern\n"
-		                      "sink.dailyFile.filter=priority\n"
-		                      "\n"
-		                      "#\n"
-		                      "# 旋转文件节点\n"
-		                      "#\n"
-		                      "sink.rotatingFile.type=RotatingFileSink\n"
-		                      "sink.rotatingFile.path=rotatingFileSink.log\n"
-		                      "sink.rotatingFile.size=1024\n"
-		                      "sink.rotatingFile.count=5\n"
-		                      "sink.rotatingFile.layout=simple\n"
-		                      "sink.rotatingFile.filter=priorityRange\n"
-		                      "\n"
-		                      "#\n"
-		                      "# 简单布局\n"
-		                      "#\n"
-		                      "layout.simple.type=SimpleLayout\n"
-		                      "\n"
-		                      "#\n"
-		                      "# 模式布局\n"
-		                      "#\n"
-		                      "layout.pattern.type=PatternLayout\n"
-		                      "layout.pattern.rule=[%c][%J][%L][%i][%K] %v%n\n"
-		                      "\n"
-		                      "#\n"
-		                      "# 正则过滤器\n"
-		                      "#\n"
-		                      "filter.regex.type=RegexFilter\n"
-		                      "filter.regex.rule=.*Critical.*\n"
-		                      "\n"
-		                      "#\n"
-		                      "# 优先级过滤器\n"
-		                      "#\n"
-		                      "filter.priority.type=PriorityFilter\n"
-		                      "filter.priority.rule=DEBUG\n"
-		                      "\n"
-		                      "#\n"
-		                      "# 优先级范围过滤器\n"
-		                      "#\n"
-		                      "filter.priorityRange.type=PriorityRangeFilter\n"
-		                      "filter.priorityRange.rule=INFO, ERROR\n"
-		                      "\n"
-		                      "#\n"
-		                      "# 日志对象\n"
-		                      "#\n"
-		                      "logger.async.type=AsyncLogger\n"
-		                      "logger.async.sink=file, syslog, console, dailyFile, rotatingFile";
-
-		auto configurator = log::Configurator::Instance();
-
-		configurator.ParseContent(content);
-
-		for (auto &logger : configurator.LoggerGroup())
-		{
-			for (int i = 0; i < 10; ++i)
-			{
-				logger->Debug("Message {}", "Debug");
-				logger->Info("Message {}", "Info");
-				logger->Notice("Message {}", "Notice");
-				logger->Warning("Message {}", "Warning");
-				logger->Error("Message {}", "Error");
-				logger->Critical("Message {}", "Critical");
-				logger->Alert("Message {}", "Alert");
-				logger->Fatal("Message {}", "Fatal");
-				logger->Emerg("Message {}", "Emerg");
-			}
-
-			logger->Wait();
-		}
 	}
 	catch (std::exception & e)
 	{
@@ -291,7 +174,6 @@ int main(int argc, char const * argv[])
 
 	SyncLog();
 	AsyncLog();
-	Configurator();
 
 	return 0;
 }

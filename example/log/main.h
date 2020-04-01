@@ -19,7 +19,6 @@
 #include "log/asyncLogger.h"
 #include "log/consoleSink.h"
 #include "log/regexFilter.h"
-#include "log/configurator.h"
 #include "log/simpleLayout.h"
 #include "log/dailyFileSink.h"
 #include "log/patternLayout.h"

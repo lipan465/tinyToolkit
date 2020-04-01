@@ -29,6 +29,11 @@ namespace tinyToolkit
 		 */
 		void FormatPattern(const Context & context, std::string & storage, char value)
 		{
+			static char buffer[128]{ 0 };
+
+			static std::size_t size = sizeof(buffer);
+			static std::size_t length = 0;
+
 			switch (value)
 			{
 				case 'a':  /// 当前时区的星期名简写 (Sun..Sat)
@@ -403,7 +408,11 @@ namespace tinyToolkit
 
 				case 'V':  /// ISO-8601格式规范下的一年中第几周, 以周一为每星期第一天 (01-53)
 				{
-					/// todo
+					length = strftime(buffer, size, "%V", &context.tm);
+
+					buffer[length] = '\0';
+
+					storage.append(buffer, length);
 
 					break;
 				}
@@ -470,6 +479,28 @@ namespace tinyToolkit
 				case 'Y':  /// 年份 (1970...)
 				{
 					storage += std::to_string(context.tm.tm_year + 1900);
+
+					break;
+				}
+
+				case 'z':  /// 数字时区 (+0800)
+				{
+					length = strftime(buffer, size, "%z", &context.tm);
+
+					buffer[length] = '\0';
+
+					storage.append(buffer, length);
+
+					break;
+				}
+
+				case 'Z':  /// 按字母表排序的时区缩写 (CST)
+				{
+					length = strftime(buffer, size, "%Z", &context.tm);
+
+					buffer[length] = '\0';
+
+					storage.append(buffer, length);
 
 					break;
 				}

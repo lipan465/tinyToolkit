@@ -16,7 +16,6 @@
 #include <iostream>
 
 #include "net/tcp.h"
-#include "net/pipe.h"
 #include "net/type.h"
 #include "net/cache.h"
 #include "net/server.h"
@@ -25,6 +24,7 @@
 #include "net/context.h"
 #include "net/adaptor.h"
 #include "net/session.h"
+#include "net/channel.h"
 #include "net/endpoint.h"
 #include "net/completer.h"
 

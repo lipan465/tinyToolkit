@@ -2,12 +2,12 @@
  *
  *  作者: hm
  *
- *  说明: 管道
+ *  说明: 通道
  *
  */
 
 
-#include "pipe.h"
+#include "channel.h"
 
 
 namespace tinyToolkit
@@ -19,9 +19,9 @@ namespace tinyToolkit
 		 * 关闭会话
 		 *
 		 */
-		void IPipe::Close()
+		void IChannel::Close()
 		{
-			
+
 		}
 
 		/**
@@ -31,7 +31,7 @@ namespace tinyToolkit
 		 * @return 是否连接成功
 		 *
 		 */
-		bool IPipe::Accept()
+		bool IChannel::Accept()
 		{
 			return false;
 		}
@@ -43,7 +43,7 @@ namespace tinyToolkit
 		 * @return 是否接收成功
 		 *
 		 */
-		bool IPipe::Receive()
+		bool IChannel::Receive()
 		{
 			return false;
 		}
@@ -58,7 +58,7 @@ namespace tinyToolkit
 		 * @return 是否发送成功
 		 *
 		 */
-		bool IPipe::Send(const void * buffer, std::size_t length)
+		bool IChannel::Send(const void * buffer, std::size_t length)
 		{
 			(void)buffer;
 			(void)length;
@@ -76,7 +76,7 @@ namespace tinyToolkit
 		 * @return 是否追加成功
 		 *
 		 */
-		bool IPipe::Append(const void * buffer, std::size_t length)
+		bool IChannel::Append(const void * buffer, std::size_t length)
 		{
 			(void)buffer;
 			(void)length;
@@ -91,7 +91,7 @@ namespace tinyToolkit
 		 * @return 缓存大小
 		 *
 		 */
-		std::size_t IPipe::CacheSize() const
+		std::size_t IChannel::CacheSize() const
 		{
 			return 0;
 		}
@@ -103,7 +103,7 @@ namespace tinyToolkit
 		 * @return 剩余消息个数
 		 *
 		 */
-		std::size_t IPipe::RemainMessageCount() const
+		std::size_t IChannel::RemainMessageCount() const
 		{
 			return 0;
 		}
@@ -115,7 +115,7 @@ namespace tinyToolkit
 		 * @return 套接字
 		 *
 		 */
-		TINY_TOOLKIT_SOCKET_TYPE IPipe::Socket() const
+		TINY_TOOLKIT_SOCKET_TYPE IChannel::Socket() const
 		{
 			return TINY_TOOLKIT_SOCKET_INVALID;
 		}

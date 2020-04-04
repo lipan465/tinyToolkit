@@ -59,6 +59,13 @@ namespace tinyToolkit
 			 *
 			 */
 			void Write(const Context & context) override;
+
+		private:
+		#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+
+			HANDLE _handle{ };
+
+		#endif
 		};
 	}
 }

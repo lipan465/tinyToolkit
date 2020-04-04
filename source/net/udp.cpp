@@ -42,10 +42,9 @@ namespace tinyToolkit
 		 * @param adaptor 适配器
 		 *
 		 */
-		UDPSessionPipe::UDPSessionPipe(IUDPSession * session, Poller * poller, std::shared_ptr<UDPAdaptor> adaptor) : _cache(session->_cacheSize),
-		                                                                                                              _poller(poller),
-		                                                                                                              _session(session),
-		                                                                                                              _adaptor(std::move(adaptor))
+		UDPSessionChannel::UDPSessionChannel(UDPSession * session, std::shared_ptr<UDPAdaptor> adaptor) : _cache(session->_cacheSize),
+		                                                                                                  _session(session),
+		                                                                                                  _adaptor(std::move(adaptor))
 		{
 		#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
@@ -68,7 +67,7 @@ namespace tinyToolkit
 		 * 析构函数
 		 *
 		 */
-		UDPSessionPipe::~UDPSessionPipe()
+		UDPSessionChannel::~UDPSessionChannel()
 		{
 			_adaptor->Close();
 		}
@@ -78,20 +77,23 @@ namespace tinyToolkit
 		 * 关闭会话
 		 *
 		 */
-		void UDPSessionPipe::Close()
+		void UDPSessionChannel::Close()
 		{
 			if (!_adaptor->IsValid())
 			{
 				return;
 			}
 
-			_poller->RemoveEvent(_adaptor->Socket(), nullptr);
+			_session->Pollers()->RemoveEvent(_adaptor->Socket(), nullptr);
 
 			if (_isConnect)
 			{
 				_isConnect = false;
 
-				_session->OnDisconnect();
+				if (_session->_onDisconnect)
+				{
+					_session->_onDisconnect();
+				}
 			}
 		}
 
@@ -103,7 +105,7 @@ namespace tinyToolkit
 		 * @param sysContext 系统上下文
 		 *
 		 */
-		void UDPSessionPipe::Process(Context * netContext, void * sysContext)
+		void UDPSessionChannel::Process(Context * netContext, void * sysContext)
 		{
 			switch (netContext->optionType)
 			{
@@ -137,7 +139,7 @@ namespace tinyToolkit
 
 				default:
 				{
-					throw std::logic_error("UDPSessionPipe type error");
+					throw std::logic_error("UDPSessionChannel type error");
 				}
 			}
 		}
@@ -149,7 +151,7 @@ namespace tinyToolkit
 		 * @return 是否接收成功
 		 *
 		 */
-		bool UDPSessionPipe::Receive()
+		bool UDPSessionChannel::Receive()
 		{
 			if (!_isConnect)
 			{
@@ -206,7 +208,7 @@ namespace tinyToolkit
 		 * @return 是否发送成功
 		 *
 		 */
-		bool UDPSessionPipe::Send(const void * buffer, std::size_t length)
+		bool UDPSessionChannel::Send(const void * buffer, std::size_t length)
 		{
 			if (!_isConnect || buffer == nullptr || length == 0)
 			{
@@ -253,7 +255,7 @@ namespace tinyToolkit
 		 * @return 是否追加成功
 		 *
 		 */
-		bool UDPSessionPipe::Append(const void * buffer, std::size_t length)
+		bool UDPSessionChannel::Append(const void * buffer, std::size_t length)
 		{
 			if (!_isConnect || buffer == nullptr || length == 0)
 			{
@@ -274,7 +276,10 @@ namespace tinyToolkit
 
 				if (!Send(message->buffer, message->length))
 				{
-					_session->OnSendFailed();
+					if (_session->_onSend)
+					{
+						_session->_onSend(false);
+					}
 
 					Close();
 
@@ -284,10 +289,13 @@ namespace tinyToolkit
 			#else
 
 				if (_isConnect &&
-					_adaptor->IsValid() &&
-				    !_poller->ModifyEvent(_adaptor->Socket(), &_ioContext, true, true))
+				    _adaptor->IsValid() &&
+				    !_session->Pollers()->ModifyEvent(_adaptor->Socket(), &_ioContext, true, true))
 				{
-					_session->OnError();
+					if (_session->_onError)
+					{
+						_session->_onError();
+					}
 
 					Close();
 
@@ -307,7 +315,7 @@ namespace tinyToolkit
 		 * @return 缓存大小
 		 *
 		 */
-		std::size_t UDPSessionPipe::CacheSize() const
+		std::size_t UDPSessionChannel::CacheSize() const
 		{
 			return _session->_cacheSize;
 		}
@@ -319,7 +327,7 @@ namespace tinyToolkit
 		 * @return 剩余消息个数
 		 *
 		 */
-		std::size_t UDPSessionPipe::RemainMessageCount() const
+		std::size_t UDPSessionChannel::RemainMessageCount() const
 		{
 			return _messageQueue.size();
 		}
@@ -331,7 +339,7 @@ namespace tinyToolkit
 		 * @return 套接字
 		 *
 		 */
-		TINY_TOOLKIT_SOCKET_TYPE UDPSessionPipe::Socket() const
+		TINY_TOOLKIT_SOCKET_TYPE UDPSessionChannel::Socket() const
 		{
 			return _adaptor->Socket();
 		}
@@ -344,7 +352,7 @@ namespace tinyToolkit
 		 * @param sysContext 系统上下文
 		 *
 		 */
-		void UDPSessionPipe::DoIO(Context * netContext, void * sysContext)
+		void UDPSessionChannel::DoIO(Context * netContext, void * sysContext)
 		{
 			(void)netContext;
 			(void)sysContext;
@@ -360,6 +368,11 @@ namespace tinyToolkit
 
 			if (context->flags & EV_ERROR)
 			{
+				if (_session->_onError)
+				{
+					_session->_onError();
+				}
+
 				Close();
 
 				return;
@@ -367,90 +380,12 @@ namespace tinyToolkit
 
 			if (context->filter & EVFILT_READ)
 			{
-				int32_t max = 0;
-
-				do
-				{
-					if (!Receive())
-					{
-						_session->OnReceiveFailed();
-
-						Close();
-
-						return;
-					}
-
-					if (_ioContext.bytes == 0)
-					{
-						break;
-					}
-
-					_cache.DisplacementWrite(_ioContext.bytes);
-					_cache.DisplacementRead(_session->OnReceive(_cache.Buffer(), _cache.ContentLength()));
-				}
-				while (++max <= 3 && _ioContext.bytes);
+				DoReceive(netContext, sysContext);
 			}
 
 			if (context->filter & EVFILT_WRITE)
 			{
-				{
-					std::lock_guard<std::mutex> lock(_mutex);
-
-					if (_messageQueue.empty())
-					{
-						return;
-					}
-				}
-
-				int32_t max = 0;
-
-				auto & message = _messageQueue.front();
-
-				while (++max <= 3 && message->offset < message->length)
-				{
-					if (!Send(message->buffer + message->offset, message->length - message->offset))
-					{
-						_session->OnSendFailed();
-
-						Close();
-
-						return;
-					}
-
-					if (_ioContext.bytes == 0)
-					{
-						break;
-					}
-
-					message->offset += _ioContext.bytes;
-
-					if (message->offset == message->length)
-					{
-						_messageQueue.pop();
-
-						_session->OnSend();
-
-						break;
-					}
-				}
-
-				std::lock_guard<std::mutex> lock(_mutex);
-
-				if (_messageQueue.empty())
-				{
-					_isSend = false;
-
-					if (_isConnect &&
-						_adaptor->IsValid() &&
-						!_poller->ModifyEvent(_adaptor->Socket(), &_ioContext, true, false))
-					{
-						_session->OnError();
-
-						Close();
-
-						return;
-					}
-				}
+				DoSend(netContext, sysContext);
 			}
 
 		#elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_LINUX
@@ -459,6 +394,11 @@ namespace tinyToolkit
 
 			if (context->events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP))
 			{
+				if (_session->_onError)
+				{
+					_session->_onError();
+				}
+
 				Close();
 
 				return;
@@ -466,81 +406,12 @@ namespace tinyToolkit
 
 			if (context->events & EPOLLIN)
 			{
-				int32_t max = 0;
-
-				do
-				{
-					if (!Receive())
-					{
-						_session->OnReceiveFailed();
-
-						Close();
-
-						return;
-					}
-
-					if (_ioContext.bytes == 0)
-					{
-						break;
-					}
-
-					_cache.DisplacementWrite(_ioContext.bytes);
-					_cache.DisplacementRead(_session->OnReceive(_cache.Buffer(), _cache.ContentLength()));
-				}
-				while (++max <= 3 && _ioContext.bytes);
+				DoReceive(netContext, sysContext);
 			}
 
 			if (context->events & EPOLLOUT)
 			{
-				int32_t max = 0;
-
-				auto & message = _messageQueue.front();
-
-				while (++max <= 3 && message->offset < message->length)
-				{
-					if (!Send(message->buffer + message->offset, message->length - message->offset))
-					{
-						_session->OnSendFailed();
-
-						Close();
-
-						return;
-					}
-
-					if (_ioContext.bytes == 0)
-					{
-						break;
-					}
-
-					message->offset += _ioContext.bytes;
-
-					if (message->offset == message->length)
-					{
-						_messageQueue.pop();
-
-						_session->OnSend();
-
-						break;
-					}
-				}
-
-				std::lock_guard<std::mutex> lock(_mutex);
-
-				if (_messageQueue.empty())
-				{
-					_isSend = false;
-
-					if (_isConnect &&
-					    _adaptor->IsValid() &&
-					    !_poller->ModifyEvent(_adaptor->Socket(), &_ioContext, true, false))
-					{
-						_session->OnError();
-
-						Close();
-
-						return;
-					}
-				}
+				DoSend(netContext, sysContext);
 			}
 
 		#endif
@@ -554,7 +425,7 @@ namespace tinyToolkit
 		 * @param sysContext 系统上下文
 		 *
 		 */
-		void UDPSessionPipe::DoSend(Context * netContext, void * sysContext)
+		void UDPSessionChannel::DoSend(Context * netContext, void * sysContext)
 		{
 			(void)netContext;
 			(void)sysContext;
@@ -568,7 +439,10 @@ namespace tinyToolkit
 
 			if (_sendContext.bytes == 0)
 			{
-				_session->OnSendFailed();
+				if (_session->_onSend)
+				{
+					_session->_onSend(false);
+				}
 
 				Close();
 
@@ -577,7 +451,10 @@ namespace tinyToolkit
 
 			_messageQueue.pop();
 
-			_session->OnSend();
+			if (_session->_onSend)
+			{
+				_session->_onSend(true);
+			}
 
 			{
 				std::lock_guard<std::mutex> lock(_mutex);
@@ -594,11 +471,84 @@ namespace tinyToolkit
 
 			if (!Send(message->buffer, message->length))
 			{
-				_session->OnSendFailed();
+				if (_session->_onSend)
+				{
+					_session->_onSend(false);
+				}
 
 				Close();
 
 				return;
+			}
+
+		#else
+
+			{
+				std::lock_guard<std::mutex> lock(_mutex);
+
+				if (_messageQueue.empty())
+				{
+					return;
+				}
+			}
+
+			int32_t max = 0;
+
+			auto & message = _messageQueue.front();
+
+			while (++max <= 3 && message->offset < message->length)
+			{
+				if (!Send(message->buffer + message->offset, message->length - message->offset))
+				{
+					if (_session->_onSend)
+					{
+						_session->_onSend(false);
+					}
+
+					Close();
+
+					return;
+				}
+
+				if (_ioContext.bytes == 0)
+				{
+					break;
+				}
+
+				message->offset += _ioContext.bytes;
+
+				if (message->offset == message->length)
+				{
+					_messageQueue.pop();
+
+					if (_session->_onSend)
+					{
+						_session->_onSend(true);
+					}
+
+					break;
+				}
+			}
+
+			std::lock_guard<std::mutex> lock(_mutex);
+
+			if (_messageQueue.empty())
+			{
+				_isSend = false;
+
+				if (_isConnect &&
+				    _adaptor->IsValid() &&
+				    !_session->Pollers()->ModifyEvent(_adaptor->Socket(), &_ioContext, true, false))
+				{
+					if (_session->_onError)
+					{
+						_session->_onError();
+					}
+
+					Close();
+
+					return;
+				}
 			}
 
 		#endif
@@ -612,7 +562,7 @@ namespace tinyToolkit
 		 * @param sysContext 系统上下文
 		 *
 		 */
-		void UDPSessionPipe::DoReceive(Context * netContext, void * sysContext)
+		void UDPSessionChannel::DoReceive(Context * netContext, void * sysContext)
 		{
 			(void)netContext;
 			(void)sysContext;
@@ -626,7 +576,10 @@ namespace tinyToolkit
 
 			if (_receiveContext.bytes == 0)
 			{
-				_session->OnReceiveFailed();
+				if (_session->_onReceive)
+				{
+					_session->_onReceive(false, nullptr, 0);
+				}
 
 				Close();
 
@@ -634,16 +587,61 @@ namespace tinyToolkit
 			}
 
 			_cache.DisplacementWrite(_receiveContext.bytes);
-			_cache.DisplacementRead(_session->OnReceive(_cache.Buffer(), _cache.ContentLength()));
+
+			if (_session->_onReceive)
+			{
+				_cache.DisplacementRead
+				(
+					_session->_onReceive(true, _cache.Buffer(), _cache.ContentLength())
+				);
+			}
 
 			if (!Receive())
 			{
-				_session->OnReceiveFailed();
+				if (_session->_onReceive)
+				{
+					_session->_onReceive(false, nullptr, 0);
+				}
 
 				Close();
 
 				return;
 			}
+
+		#else
+
+			int32_t max = 0;
+
+			do
+			{
+				if (!Receive())
+				{
+					if (_session->_onReceive)
+					{
+						_session->_onReceive(false, nullptr, 0);
+					}
+
+					Close();
+
+					return;
+				}
+
+				if (_ioContext.bytes == 0)
+				{
+					break;
+				}
+
+				_cache.DisplacementWrite(_ioContext.bytes);
+
+				if (_session->_onReceive)
+				{
+					_cache.DisplacementRead
+					(
+						_session->_onReceive(true, _cache.Buffer(), _cache.ContentLength())
+					);
+				}
+			}
+			while (++max <= 3 && _ioContext.bytes);
 
 		#endif
 		}
@@ -656,7 +654,7 @@ namespace tinyToolkit
 		 * @param sysContext 系统上下文
 		 *
 		 */
-		void UDPSessionPipe::DoConnect(Context * netContext, void * sysContext)
+		void UDPSessionChannel::DoConnect(Context * netContext, void * sysContext)
 		{
 			(void)netContext;
 			(void)sysContext;
@@ -665,22 +663,31 @@ namespace tinyToolkit
 
 			if (setsockopt(_adaptor->Socket(), SOL_SOCKET, SO_UPDATE_CONNECT_CONTEXT, nullptr, 0) == -1)
 			{
-				_session->OnConnectFailed();
+				if (_session->_onConnect)
+				{
+					_session->_onConnect(false);
+				}
 
 				Close();
 
 				return;
 			}
 
-			_sendContext.optionType = NET_OPTION_TYPE::SEND;
+			_receiveContext.optionType = NET_OPTION_TYPE::RECEIVE;
 
 			_isConnect = true;
 
-			_session->OnConnect();
+			if (_session->_onConnect)
+			{
+				_session->_onConnect(true);
+			}
 
 			if (!Receive())
 			{
-				_session->OnReceiveFailed();
+				if (_session->_onReceive)
+				{
+					_session->_onReceive(false, nullptr, 0);
+				}
 
 				Close();
 
@@ -693,36 +700,10 @@ namespace tinyToolkit
 
 			if (context->flags & EV_ERROR)
 			{
-				_session->OnConnectFailed();
-
-				Close();
-
-				return;
-			}
-
-			_ioContext.optionType = NET_OPTION_TYPE::IO;
-
-			_isConnect = true;
-
-			if (_adaptor->IsValid() &&
-				!_poller->ModifyEvent(_adaptor->Socket(), &_ioContext, true, false))
-			{
-				_session->OnError();
-
-				Close();
-
-				return;
-			}
-
-			_session->OnConnect();
-
-		#elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_LINUX
-
-			auto context = reinterpret_cast<const struct epoll_event *>(sysContext);
-
-			if (context->events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP))
-			{
-				_session->OnConnectFailed();
+				if (_session->_onConnect)
+				{
+					_session->_onConnect(false);
+				}
 
 				Close();
 
@@ -735,16 +716,61 @@ namespace tinyToolkit
 
 			if (_isConnect &&
 			    _adaptor->IsValid() &&
-			    !_poller->ModifyEvent(_adaptor->Socket(), &_ioContext, true, false))
+			    !_session->Pollers()->ModifyEvent(_adaptor->Socket(), &_ioContext, true, false))
 			{
-				_session->OnError();
+				if (_session->_onError)
+				{
+					_session->_onError();
+				}
 
 				Close();
 
 				return;
 			}
 
-			_session->OnConnect();
+			if (_session->_onConnect)
+			{
+				_session->_onConnect(true);
+			}
+
+		#elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_LINUX
+
+			auto context = reinterpret_cast<const struct epoll_event *>(sysContext);
+
+			if (context->events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP))
+			{
+				if (_session->_onConnect)
+				{
+					_session->_onConnect(false);
+				}
+
+				Close();
+
+				return;
+			}
+
+			_ioContext.optionType = NET_OPTION_TYPE::IO;
+
+			_isConnect = true;
+
+			if (_isConnect &&
+			    _adaptor->IsValid() &&
+			    !_session->Pollers()->ModifyEvent(_adaptor->Socket(), &_ioContext, true, false))
+			{
+				if (_session->_onError)
+				{
+					_session->_onError();
+				}
+
+				Close();
+
+				return;
+			}
+
+			if (_session->_onConnect)
+			{
+				_session->_onConnect(true);
+			}
 
 		#endif
 		}
@@ -758,13 +784,11 @@ namespace tinyToolkit
 		 * 构造函数
 		 *
 		 * @param server 服务
-		 * @param poller 轮询器
 		 * @param adaptor 适配器
 		 *
 		 */
-		UDPServerPipe::UDPServerPipe(IUDPServer * server, Poller * poller, std::shared_ptr<UDPAdaptor> adaptor) : _poller(poller),
-		                                                                                                          _server(server),
-		                                                                                                          _adaptor(std::move(adaptor))
+		UDPServerChannel::UDPServerChannel(UDPServer * server, std::shared_ptr<UDPAdaptor> adaptor) : _server(server),
+		                                                                                              _adaptor(std::move(adaptor))
 		{
 			_acceptContext.completer = this;
 			_acceptContext.optionType = NET_OPTION_TYPE::ACCEPT;
@@ -775,7 +799,7 @@ namespace tinyToolkit
 		 * 析构函数
 		 *
 		 */
-		UDPServerPipe::~UDPServerPipe()
+		UDPServerChannel::~UDPServerChannel()
 		{
 			_adaptor->Close();
 		}
@@ -785,20 +809,23 @@ namespace tinyToolkit
 		 * 关闭会话
 		 *
 		 */
-		void UDPServerPipe::Close()
+		void UDPServerChannel::Close()
 		{
 			if (!_adaptor->IsValid())
 			{
 				return;
 			}
 
-			_poller->RemoveEvent(_adaptor->Socket(), nullptr);
+			_server->Pollers()->RemoveEvent(_adaptor->Socket(), nullptr);
 
 			if (_isListen)
 			{
 				_isListen = false;
 
-				_server->OnDisconnect();
+				if (_server->_onShutdown)
+				{
+					_server->_onShutdown();
+				}
 			}
 		}
 
@@ -810,7 +837,7 @@ namespace tinyToolkit
 		 * @param sysContext 系统上下文
 		 *
 		 */
-		void UDPServerPipe::Process(Context * netContext, void * sysContext)
+		void UDPServerChannel::Process(Context * netContext, void * sysContext)
 		{
 			switch (netContext->optionType)
 			{
@@ -823,7 +850,7 @@ namespace tinyToolkit
 
 				default:
 				{
-					throw std::logic_error("UDPServerPipe type error");
+					throw std::logic_error("UDPServerChannel type error");
 				}
 			}
 		}
@@ -835,7 +862,7 @@ namespace tinyToolkit
 		 * @return 是否连接成功
 		 *
 		 */
-		bool UDPServerPipe::Accept()
+		bool UDPServerChannel::Accept()
 		{
 			if (!_isListen)
 			{
@@ -852,7 +879,7 @@ namespace tinyToolkit
 		 * @return 缓存大小
 		 *
 		 */
-		std::size_t UDPServerPipe::CacheSize() const
+		std::size_t UDPServerChannel::CacheSize() const
 		{
 			return _server->_cacheSize;
 		}
@@ -864,7 +891,7 @@ namespace tinyToolkit
 		 * @return 套接字
 		 *
 		 */
-		TINY_TOOLKIT_SOCKET_TYPE UDPServerPipe::Socket() const
+		TINY_TOOLKIT_SOCKET_TYPE UDPServerChannel::Socket() const
 		{
 			return _adaptor->Socket();
 		}
@@ -877,12 +904,17 @@ namespace tinyToolkit
 		 * @param sysContext 系统上下文
 		 *
 		 */
-		void UDPServerPipe::DoAccept(Context * netContext, void * sysContext)
+		void UDPServerChannel::DoAccept(Context * netContext, void * sysContext)
 		{
 			(void)netContext;
 			(void)sysContext;
 
 			if (!_isListen)
+			{
+				return;
+			}
+
+			if (!_server->_onAccept)
 			{
 				return;
 			}
@@ -897,7 +929,7 @@ namespace tinyToolkit
 			adaptor->SetBlock(false);
 			adaptor->SetReuseAddress(true);
 
-			auto session = _server->OnAccept();
+			auto session = _server->_onAccept(true);
 
 			if (session)
 			{
@@ -913,7 +945,10 @@ namespace tinyToolkit
 
 					if (::WSAIoctl(adaptor->Socket(), SIO_UDP_CONNRESET, &bNewBehavior, sizeof(bNewBehavior), nullptr, 0, &dwBytesReturned, nullptr, nullptr) == TINY_TOOLKIT_SOCKET_ERROR)
 					{
-						session->OnError();
+						if (session->_onError)
+						{
+							session->_onError();
+						}
 
 						adaptor->Close();
 
@@ -922,47 +957,80 @@ namespace tinyToolkit
 
 					if (adaptor->BindV4(session->_localEndpoint) == TINY_TOOLKIT_SOCKET_ERROR)
 					{
-						session->OnError();
+						if (session->_onBind)
+						{
+							session->_onBind(false);
+						}
 
 						adaptor->Close();
 
 						return;
+					}
+
+					if (session->_onBind)
+					{
+						session->_onBind(true);
 					}
 
 					if (adaptor->ConnectV4(session->_peerEndpoint, nullptr) == TINY_TOOLKIT_SOCKET_ERROR)
 					{
-						session->OnConnectFailed();
+						if (session->_onConnect)
+						{
+							session->_onConnect(false);
+						}
 
 						adaptor->Close();
 
 						return;
 					}
 
-					auto pipe = std::make_shared<UDPSessionPipe>(session, _poller, adaptor);
+					auto channel = std::make_shared<UDPSessionChannel>(session, adaptor);
 
 					if (_isListen &&
-						!_poller->AppendEvent(adaptor->Socket(), &pipe->_receiveContext, true, false))
+					    !session->Pollers()->AppendEvent(adaptor->Socket(), &channel->_receiveContext, true, false))
 					{
-						session->OnError();
+						if (session->_onError)
+						{
+							session->_onError();
+						}
 
 						session->Close();
 
 						return;
 					}
 
-					pipe->_isConnect = true;
+					channel->_isConnect = true;
 
-					session->_pipe = pipe;
+					session->_channel = channel;
 
-					session->OnConnect();
-
-					_acceptContext.temp[_acceptContext.bytes] = '\0';
-
-					session->OnReceive(_acceptContext.temp, _acceptContext.bytes);
-
-					if (!pipe->Receive())
+					if (session->_onConnect)
 					{
-						session->OnReceiveFailed();
+						session->_onConnect(true);
+					}
+
+					if (_acceptContext.bytes > channel->_cache.OverLength())
+					{
+						_acceptContext.bytes = channel->_cache.OverLength();
+					}
+
+					memcpy(channel->_cache.Buffer(), _acceptContext.temp, _acceptContext.bytes);
+
+					channel->_cache.DisplacementWrite(_acceptContext.bytes);
+
+					if (session->_onReceive)
+					{
+						channel->_cache.DisplacementRead
+						(
+							session->_onReceive(true, channel->_cache.Buffer(), channel->_cache.ContentLength())
+						);
+					}
+
+					if (!channel->Receive())
+					{
+						if (session->_onReceive)
+						{
+							session->_onReceive(false, nullptr, 0);
+						}
 
 						session->Close();
 
@@ -977,7 +1045,7 @@ namespace tinyToolkit
 
 			if (!Accept())
 			{
-				_server->OnAcceptFailed();
+				_server->_onAccept(false);
 
 				return;
 			}
@@ -988,7 +1056,10 @@ namespace tinyToolkit
 
 			if (context->flags & EV_ERROR)
 			{
-				_server->OnAcceptFailed();
+				if (_server->_onError)
+				{
+					_server->_onError();
+				}
 
 				Close();
 
@@ -997,7 +1068,7 @@ namespace tinyToolkit
 
 			if (!Accept())
 			{
-				_server->OnAcceptFailed();
+				_server->_onAccept(false);
 
 				return;
 			}
@@ -1008,9 +1079,10 @@ namespace tinyToolkit
 			auto adaptor = std::make_shared<UDPAdaptor>(_acceptContext.socket);
 
 			adaptor->SetBlock(false);
+			adaptor->SetReusePort(true);
 			adaptor->SetReuseAddress(true);
 
-			auto session = _server->OnAccept();
+			auto session = _server->_onAccept(true);
 
 			if (session)
 			{
@@ -1022,51 +1094,72 @@ namespace tinyToolkit
 
 					if (adaptor->BindV4(session->_localEndpoint) == TINY_TOOLKIT_SOCKET_ERROR)
 					{
-						session->OnError();
+						if (session->_onBind)
+						{
+							session->_onBind(false);
+						}
 
 						adaptor->Close();
 
 						return;
+					}
+
+					if (session->_onBind)
+					{
+						session->_onBind(true);
 					}
 
 					if (adaptor->ConnectV4(session->_peerEndpoint, nullptr) == TINY_TOOLKIT_SOCKET_ERROR)
 					{
-						session->OnConnectFailed();
+						if (session->_onConnect)
+						{
+							session->_onConnect(false);
+						}
 
 						adaptor->Close();
 
 						return;
 					}
 
-					auto pipe = std::make_shared<UDPSessionPipe>(session, _poller, adaptor);
+					auto channel = std::make_shared<UDPSessionChannel>(session, adaptor);
 
 					if (_isListen &&
-					    !_poller->AppendEvent(adaptor->Socket(), &pipe->_ioContext, true, false))
+					    !session->Pollers()->AppendEvent(adaptor->Socket(), &channel->_ioContext, true, false))
 					{
-						session->OnError();
+						if (session->_onError)
+						{
+							session->_onError();
+						}
 
 						session->Close();
 
 						return;
 					}
 
-					pipe->_isConnect = true;
+					channel->_isConnect = true;
 
-					session->_pipe = pipe;
+					session->_channel = channel;
 
-					session->OnConnect();
-
-					_acceptContext.temp[_acceptContext.bytes] = '\0';
-
-					session->OnReceive(_acceptContext.temp, _acceptContext.bytes);
-
-					if (!pipe->Receive())
+					if (session->_onConnect)
 					{
-						session->OnReceiveFailed();
+						session->_onConnect(true);
+					}
 
-						session->Close();
+					if (_acceptContext.bytes > channel->_cache.OverLength())
+					{
+						_acceptContext.bytes = channel->_cache.OverLength();
+					}
 
-						return;
+					memcpy(channel->_cache.Buffer(), _acceptContext.temp, _acceptContext.bytes);
+
+					channel->_cache.DisplacementWrite(_acceptContext.bytes);
+
+					if (session->_onReceive)
+					{
+						channel->_cache.DisplacementRead
+						(
+							session->_onReceive(true, channel->_cache.Buffer(), channel->_cache.ContentLength())
+						);
 					}
 				}();
 			}
@@ -1081,7 +1174,10 @@ namespace tinyToolkit
 
 			if (context->events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP))
 			{
-				_server->OnAcceptFailed();
+				if (_server->_onError)
+				{
+					_server->_onError();
+				}
 
 				Close();
 
@@ -1090,7 +1186,7 @@ namespace tinyToolkit
 
 			if (!Accept())
 			{
-				_server->OnAcceptFailed();
+				_server->_onAccept(false);
 
 				return;
 			}
@@ -1101,9 +1197,10 @@ namespace tinyToolkit
 			auto adaptor = std::make_shared<UDPAdaptor>(_acceptContext.socket);
 
 			adaptor->SetBlock(false);
+			adaptor->SetReusePort(true);
 			adaptor->SetReuseAddress(true);
 
-			auto session = _server->OnAccept();
+			auto session = _server->_onAccept(true);
 
 			if (session)
 			{
@@ -1115,51 +1212,72 @@ namespace tinyToolkit
 
 					if (adaptor->BindV4(session->_localEndpoint) == TINY_TOOLKIT_SOCKET_ERROR)
 					{
-						session->OnError();
+						if (session->_onBind)
+						{
+							session->_onBind(false);
+						}
 
 						adaptor->Close();
 
 						return;
+					}
+
+					if (session->_onBind)
+					{
+						session->_onBind(true);
 					}
 
 					if (adaptor->ConnectV4(session->_peerEndpoint, nullptr) == TINY_TOOLKIT_SOCKET_ERROR)
 					{
-						session->OnConnectFailed();
+						if (session->_onConnect)
+						{
+							session->_onConnect(false);
+						}
 
 						adaptor->Close();
 
 						return;
 					}
 
-					auto pipe = std::make_shared<UDPSessionPipe>(session, _poller, adaptor);
+					auto channel = std::make_shared<UDPSessionChannel>(session, adaptor);
 
 					if (_isListen &&
-					    !_poller->AppendEvent(adaptor->Socket(), &pipe->_ioContext, true, false))
+					    !session->Pollers()->AppendEvent(adaptor->Socket(), &channel->_ioContext, true, false))
 					{
-						session->OnError();
+						if (session->_onError)
+						{
+							session->_onError();
+						}
 
 						session->Close();
 
 						return;
 					}
 
-					pipe->_isConnect = true;
+					channel->_isConnect = true;
 
-					session->_pipe = pipe;
+					session->_channel = channel;
 
-					session->OnConnect();
-
-					_acceptContext.temp[_acceptContext.bytes] = '\0';
-
-					session->OnReceive(_acceptContext.temp, _acceptContext.bytes);
-
-					if (!pipe->Receive())
+					if (session->_onConnect)
 					{
-						session->OnReceiveFailed();
+						session->_onConnect(true);
+					}
 
-						session->Close();
+					if (_acceptContext.bytes > channel->_cache.OverLength())
+					{
+						_acceptContext.bytes = channel->_cache.OverLength();
+					}
 
-						return;
+					memcpy(channel->_cache.Buffer(), _acceptContext.temp, _acceptContext.bytes);
+
+					channel->_cache.DisplacementWrite(_acceptContext.bytes);
+
+					if (session->_onReceive)
+					{
+						channel->_cache.DisplacementRead
+						(
+							session->_onReceive(true, channel->_cache.Buffer(), channel->_cache.ContentLength())
+						);
 					}
 				}();
 			}

@@ -13,599 +13,215 @@
 #include "util/string.h"
 
 
-class TCPSession : public net::ITCPSession
+template <typename SessionTypeT>
+static void InitializeSession(SessionTypeT & session)
 {
-public:
-	explicit TCPSession(bool isServer = false) : _isServer(isServer)
-	{
-		_title = _isServer ? "Server Session" : "Client Session";
-	}
-
-	void OnError() override
+	session.OnError([&]()
 	{
 		util::String::Print
 		(
-			"{} [{}:{}] error\r\n",
-			_title,
-			LocalEndpoint().host,
-			LocalEndpoint().port
+			"Session [{}:{}] error\r\n",
+			session.LocalEndpoint().host,
+			session.LocalEndpoint().port
 		);
-	}
+	});
 
-	void OnSocket() override
+	session.OnDisconnect([&]()
+	{
+		 util::String::Print
+		 (
+		 	"Session [{}:{}] disconnect [{}:{}]\r\n",
+		    session.LocalEndpoint().host,
+		    session.LocalEndpoint().port,
+		    session.PeerEndpoint().host,
+		    session.PeerEndpoint().port
+		 );
+	});
+
+	session.OnBind([&](bool status)
 	{
 		util::String::Print
 		(
-			"{} [{}:{}] socket success\r\n",
-			_title,
-			LocalEndpoint().host,
-			LocalEndpoint().port
+			"Session [{}:{}] bind {}\r\n",
+			session.LocalEndpoint().host,
+			session.LocalEndpoint().port,
+			status ? "success" : "failed"
 		);
-	}
+	});
 
-	void OnSocketFailed() override
+	session.OnSend([&](bool status)
 	{
 		util::String::Print
 		(
-			"{} [{}:{}] socket failed\r\n",
-			_title,
-			LocalEndpoint().host,
-			LocalEndpoint().port
+			"Session [{}:{}] send [{}:{}] {}, remain {} message\r\n",
+			session.LocalEndpoint().host,
+			session.LocalEndpoint().port,
+			session.PeerEndpoint().host,
+			session.PeerEndpoint().port,
+			status ? "success" : "failed",
+			session.RemainMessageCount()
 		);
-	}
+	});
 
-	void OnConnect() override
+	session.OnSocket([&](bool status)
 	{
 		util::String::Print
 		(
-			"{} [{}:{}] connect [{}:{}] success\r\n",
-			_title,
-			LocalEndpoint().host,
-			LocalEndpoint().port,
-			PeerEndpoint().host,
-			PeerEndpoint().port
+			"Session [{}:{}] socket {}\r\n",
+			session.LocalEndpoint().host,
+			session.LocalEndpoint().port,
+			status ? "success" : "failed"
+		);
+	});
+
+	session.OnConnect([&](bool status)
+	{
+		util::String::Print
+		(
+			"Session [{}:{}] connect [{}:{}] {}\r\n",
+			session.LocalEndpoint().host,
+			session.LocalEndpoint().port,
+			session.PeerEndpoint().host,
+			session.PeerEndpoint().port,
+			status ? "success" : "failed"
 		);
 
-		if (!_isServer)
+		if (status)
 		{
-			Send("request server message", 22);
+			session.Send("request server message", 22);
 		}
-	}
+	});
 
-	void OnConnectFailed() override
+	session.OnReceive([&](bool status, const char * buffer, std::size_t length) -> std::size_t
 	{
 		util::String::Print
 		(
-			"{} [{}:{}] connect [{}:{}] failed\r\n",
-			_title,
-			LocalEndpoint().host,
-			LocalEndpoint().port,
-			PeerEndpoint().host,
-			PeerEndpoint().port
+			"Session [{}:{}] receive [{}:{}] {}\r\n",
+			session.LocalEndpoint().host,
+			session.LocalEndpoint().port,
+			session.PeerEndpoint().host,
+			session.PeerEndpoint().port,
+			status ? buffer : "failed"
 		);
-	}
-
-	void OnSend() override
-	{
-		util::String::Print
-		(
-			"{} [{}:{}] send [{}:{}] success, remain {} message\r\n",
-			_title,
-			LocalEndpoint().host,
-			LocalEndpoint().port,
-			PeerEndpoint().host,
-			PeerEndpoint().port,
-			RemainMessageCount()
-		);
-
-		if (_isServer)
-		{
-			if (RemainMessageCount() == 0)
-			{
-				Close();
-			}
-		}
-	}
-
-	void OnSendFailed() override
-	{
-		util::String::Print
-		(
-			"{} [{}:{}] send [{}:{}] failed\r\n",
-			_title,
-			LocalEndpoint().host,
-			LocalEndpoint().port,
-			PeerEndpoint().host,
-			PeerEndpoint().port
-		);
-	}
-
-	std::size_t OnReceive(const char * buffer, std::size_t length) override
-	{
-		util::String::Print
-		(
-			"{} [{}:{}] receive [{}:{}] length={} value={}\r\n",
-			_title,
-			LocalEndpoint().host,
-			LocalEndpoint().port,
-			PeerEndpoint().host,
-			PeerEndpoint().port,
-			length,
-			buffer
-		);
-
-		if (_isServer)
-		{
-			static std::string body = util::String::Join
-			(
-				"{\r\n",
-				"\t\"code\": 200,\r\n",
-				"\t\"message\": \"Success\",\r\n",
-				"\t\"data\": null\r\n",
-				"}\r\n"
-			);
-
-			static std::string content = util::String::Join
-			(
-				"HTTP/1.1 200 OK\r\n",
-				"Server: licenseServiceCenter/0.1.0\r\n",
-				"Connection: Close\r\n",
-				"Content-Type: application/json; charset=utf-8\r\n",
-				"Content-Length: " + std::to_string(body.size()) + "\r\n",
-				"\r\n",
-				body
-			);
-
-			Send(content.c_str(), content.size());
-		}
 
 		return length;
-	}
+	});
+}
 
-	void OnReceiveFailed() override
-	{
-		util::String::Print
-		(
-			"{} [{}:{}] receive [{}:{}] failed\r\n",
-			_title,
-			LocalEndpoint().host,
-			LocalEndpoint().port,
-			PeerEndpoint().host,
-			PeerEndpoint().port
-		);
-	}
 
-	void OnDisconnect() override
-	{
-		util::String::Print
-		(
-			"{} [{}:{}] disconnect [{}:{}]\r\n",
-			_title,
-			LocalEndpoint().host,
-			LocalEndpoint().port,
-			PeerEndpoint().host,
-			PeerEndpoint().port
-		);
-	}
-
-private:
-	bool _isServer{ false };
-
-	std::string _title{ };
-};
-
-class TCPServer : public net::ITCPServer
+template <typename ServerTypeT, typename SessionTypeT>
+static void InitializeServer(ServerTypeT & server, std::vector<SessionTypeT *> & sessionPool)
 {
-public:
-	void OnError() override
+	server.OnError([&]()
 	{
 		util::String::Print
 		(
-			"{} [{}:{}] event error\r\n",
-			_title,
-			LocalEndpoint().host,
-			LocalEndpoint().port
+			"Server [{}:{}] error\r\n",
+			server.LocalEndpoint().host,
+			server.LocalEndpoint().port
 		);
-	}
+	});
 
-	void OnSocket() override
+	server.OnShutdown([&]()
 	{
 		util::String::Print
 		(
-			"{} [{}:{}] socket success\r\n",
-			_title,
-			LocalEndpoint().host,
-			LocalEndpoint().port
+			"Server [{}:{}] shutdown\r\n",
+			server.LocalEndpoint().host,
+			server.LocalEndpoint().port
 		);
-	}
 
-	void OnSocketFailed() override
+		for (auto &session : sessionPool)
+		{
+			session->Close();
+
+			delete session;
+		}
+	});
+
+	server.OnBind([&](bool status)
 	{
 		util::String::Print
 		(
-			"{} [{}:{}] socket failed\r\n",
-			_title,
-			LocalEndpoint().host,
-			LocalEndpoint().port
+			"Server [{}:{}] bind {}\r\n",
+			server.LocalEndpoint().host,
+			server.LocalEndpoint().port,
+			status ? "success" : "failed"
 		);
-	}
+	});
 
-	void OnBind() override
+	server.OnSocket([&](bool status)
 	{
 		util::String::Print
 		(
-			"{} [{}:{}] bind success\r\n",
-			_title,
-			LocalEndpoint().host,
-			LocalEndpoint().port
+			"Server [{}:{}] socket {}\r\n",
+			server.LocalEndpoint().host,
+			server.LocalEndpoint().port,
+			status ? "success" : "failed"
 		);
-	}
+	});
 
-	void OnBindFailed() override
+	server.OnListen([&](bool status)
 	{
 		util::String::Print
 		(
-			"{} [{}:{}] bind failed\r\n",
-			_title,
-			LocalEndpoint().host,
-			LocalEndpoint().port
+			"Server [{}:{}] listen {}\r\n",
+			server.LocalEndpoint().host,
+			server.LocalEndpoint().port,
+			status ? "success" : "failed"
 		);
-	}
+	});
 
-	void OnListen() override
+	server.OnAccept([&](bool status) -> SessionTypeT *
 	{
 		util::String::Print
 		(
-			"{} [{}:{}] listen success\r\n",
-			_title,
-			LocalEndpoint().host,
-			LocalEndpoint().port
-		);
-	}
-
-	void OnListenFailed() override
-	{
-		util::String::Print
-		(
-			"{} [{}:{}] listen failed\r\n",
-			_title,
-			LocalEndpoint().host,
-			LocalEndpoint().port
-		);
-	}
-
-	net::ITCPSession * OnAccept() override
-	{
-		util::String::Print
-		(
-			"{} [{}:{}] accept success\r\n",
-			_title,
-			LocalEndpoint().host,
-			LocalEndpoint().port
+			"Server [{}:{}] accept {}\r\n",
+			server.LocalEndpoint().host,
+			server.LocalEndpoint().port,
+			status ? "success" : "failed"
 		);
 
-		auto session = new TCPSession(true);
+		if (!status)
+		{
+			return nullptr;
+		}
 
-		_pool.push_back(session);
+		auto * session = new SessionTypeT;
+
+		session->OnSend([session](bool)
+		{
+			if (session->RemainMessageCount() == 0)
+			{
+				session->Close();
+			}
+		});
+
+		session->OnReceive([session](bool result, const char * buffer, std::size_t length) -> std::size_t
+		{
+			util::String::Print
+			(
+				"ServerSession [{}:{}] receive [{}:{}] {}\r\n",
+				session->LocalEndpoint().host,
+				session->LocalEndpoint().port,
+				session->PeerEndpoint().host,
+				session->PeerEndpoint().port,
+				result ? buffer : "failed"
+			);
+
+			if (result)
+			{
+				session->Send("respond server message", 22);
+			}
+
+			return length;
+		});
+
+		sessionPool.push_back(session);
 
 		return session;
-	}
-
-	void OnAcceptFailed() override
-	{
-		util::String::Print
-		(
-			"{} [{}:{}] accept failed\r\n",
-			_title,
-			LocalEndpoint().host,
-			LocalEndpoint().port
-		);
-	}
-
-	void OnDisconnect() override
-	{
-		util::String::Print
-		(
-			"{} [{}:{}] disconnect\r\n",
-			_title,
-			LocalEndpoint().host,
-			LocalEndpoint().port
-		);
-
-		for (auto &iter : _pool)
-		{
-			if (iter == nullptr)
-			{
-				continue;
-			}
-
-			iter->Close();
-
-			delete iter;
-		}
-	}
-
-private:
-	std::string _title{ "Server" };
-
-	std::vector<TCPSession *> _pool{ };
-};
-
-class UDPSession : public net::IUDPSession
-{
-public:
-	explicit UDPSession(bool isServer = false) : _isServer(isServer)
-	{
-		_title = _isServer ? "Server Session" : "Client Session";
-	}
-
-	void OnError() override
-	{
-		util::String::Print
-		(
-			"{} [{}:{}] error\r\n",
-			_title,
-			LocalEndpoint().host,
-			LocalEndpoint().port
-		);
-	}
-
-	void OnSocket() override
-	{
-		util::String::Print
-		(
-			"{} [{}:{}] socket success\r\n",
-			_title,
-			LocalEndpoint().host,
-			LocalEndpoint().port
-		);
-	}
-
-	void OnSocketFailed() override
-	{
-		util::String::Print
-		(
-			"{} [{}:{}] socket failed\r\n",
-			_title,
-			LocalEndpoint().host,
-			LocalEndpoint().port
-		);
-	}
-
-	void OnConnect() override
-	{
-		util::String::Print
-		(
-			"{} [{}:{}] connect [{}:{}] success\r\n",
-			_title,
-			LocalEndpoint().host,
-			LocalEndpoint().port,
-			PeerEndpoint().host,
-			PeerEndpoint().port
-		);
-
-		if (!_isServer)
-		{
-			Send("request server message", 22);
-		}
-	}
-
-	void OnConnectFailed() override
-	{
-		util::String::Print
-		(
-			"{} [{}:{}] connect [{}:{}] failed\r\n",
-			_title,
-			LocalEndpoint().host,
-			LocalEndpoint().port,
-			PeerEndpoint().host,
-			PeerEndpoint().port
-		);
-	}
-
-	void OnSend() override
-	{
-		util::String::Print
-		(
-			"{} [{}:{}] send [{}:{}] success, remain {} message\r\n",
-			_title,
-			LocalEndpoint().host,
-			LocalEndpoint().port,
-			PeerEndpoint().host,
-			PeerEndpoint().port,
-			RemainMessageCount()
-		);
-
-		if (_isServer)
-		{
-			if (RemainMessageCount() == 0)
-			{
-				Close();
-			}
-		}
-	}
-
-	void OnSendFailed() override
-	{
-		util::String::Print
-		(
-			"{} [{}:{}] send [{}:{}] failed\r\n",
-			_title,
-			LocalEndpoint().host,
-			LocalEndpoint().port,
-			PeerEndpoint().host,
-			PeerEndpoint().port
-		);
-	}
-
-	std::size_t OnReceive(const char * buffer, std::size_t length) override
-	{
-		util::String::Print
-		(
-			"{} [{}:{}] receive [{}:{}] length={} value={}\r\n",
-			_title,
-			LocalEndpoint().host,
-			LocalEndpoint().port,
-			PeerEndpoint().host,
-			PeerEndpoint().port,
-			length,
-			buffer
-		);
-
-		if (_isServer)
-		{
-			Send("UDP Message", 11);
-		}
-
-		return length;
-	}
-
-	void OnReceiveFailed() override
-	{
-		util::String::Print
-		(
-			"{} [{}:{}] receive [{}:{}] failed\r\n",
-			_title,
-			LocalEndpoint().host,
-			LocalEndpoint().port,
-			PeerEndpoint().host,
-			PeerEndpoint().port
-		);
-	}
-
-	void OnDisconnect() override
-	{
-		util::String::Print
-		(
-			"{} [{}:{}] disconnect [{}:{}]\r\n",
-			_title,
-			LocalEndpoint().host,
-			LocalEndpoint().port,
-			PeerEndpoint().host,
-			PeerEndpoint().port
-		);
-	}
-
-private:
-	bool _isServer{ false };
-
-	std::string _title{ };
-};
-
-class UDPServer : public net::IUDPServer
-{
-public:
-	void OnError() override
-	{
-		util::String::Print
-		(
-			"{} [{}:{}] event error\r\n",
-			_title,
-			LocalEndpoint().host,
-			LocalEndpoint().port
-		);
-	}
-
-	void OnSocket() override
-	{
-		util::String::Print
-		(
-			"{} [{}:{}] socket success\r\n",
-			_title,
-			LocalEndpoint().host,
-			LocalEndpoint().port
-		);
-	}
-
-	void OnSocketFailed() override
-	{
-		util::String::Print
-		(
-			"{} [{}:{}] socket failed\r\n",
-			_title,
-			LocalEndpoint().host,
-			LocalEndpoint().port
-		);
-	}
-
-	void OnBind() override
-	{
-		util::String::Print
-		(
-			"{} [{}:{}] bind success\r\n",
-			_title,
-			LocalEndpoint().host,
-			LocalEndpoint().port
-		);
-	}
-
-	void OnBindFailed() override
-	{
-		util::String::Print
-		(
-			"{} [{}:{}] bind failed\r\n",
-			_title,
-			LocalEndpoint().host,
-			LocalEndpoint().port
-		);
-	}
-
-	net::IUDPSession * OnAccept() override
-	{
-		util::String::Print
-		(
-			"{} [{}:{}] accept success\r\n",
-			_title,
-			LocalEndpoint().host,
-			LocalEndpoint().port
-		);
-
-		auto session = new UDPSession(true);
-
-		_pool.push_back(session);
-
-		return session;
-	}
-
-	void OnAcceptFailed() override
-	{
-		util::String::Print
-		(
-			"{} [{}:{}] accept failed\r\n",
-			_title,
-			LocalEndpoint().host,
-			LocalEndpoint().port
-		);
-	}
-
-	void OnDisconnect() override
-	{
-		util::String::Print
-		(
-			"{} [{}:{}] disconnect\r\n",
-			_title,
-			LocalEndpoint().host,
-			LocalEndpoint().port
-		);
-
-		for (auto &iter : _pool)
-		{
-			if (iter == nullptr)
-			{
-				continue;
-			}
-
-			iter->Close();
-
-			delete iter;
-		}
-	}
-
-private:
-	std::string _title{ "Server" };
-
-	std::vector<UDPSession *> _pool{ };
-};
+	});
+}
 
 
 static void TCP()
@@ -617,9 +233,13 @@ static void TCP()
 
 	try
 	{
-		TCPServer server{ };
+		net::TCPServer server{ };
 
-		if (!server.Launch("127.0.0.1", 10080, 1024))
+		std::vector<net::TCPSession *> sessionPool{ };
+
+		InitializeServer(server, sessionPool);
+
+		if (!server.Launch("0.0.0.0", 10080, 1024))
 		{
 			util::String::Print
 			(
@@ -637,7 +257,9 @@ static void TCP()
 		{
 			pool.AddTask([]()
 	         {
-		         TCPSession session;
+		         net::TCPSession session;
+
+		         InitializeSession(session);
 
 	             if (!session.Launch("127.0.0.1", 10080, 1024))
 	             {
@@ -649,7 +271,7 @@ static void TCP()
 		             );
 	             }
 
-	             std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+	             std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
 	             session.Close();
 	         });
@@ -675,9 +297,13 @@ static void UDP()
 
 	try
 	{
-		UDPServer server{ };
+		net::UDPServer server{ };
 
-		if (!server.Launch("127.0.0.1", 10080, 1024))
+		std::vector<net::UDPSession *> sessionPool{ };
+
+		InitializeServer(server, sessionPool);
+
+		if (!server.Launch("0.0.0.0", 10080, 1024))
 		{
 			util::String::Print
 			(
@@ -695,7 +321,9 @@ static void UDP()
 		{
 			pool.AddTask([]()
 		    {
-				UDPSession session;
+				net::UDPSession session;
+
+			    InitializeSession(session);
 
 				if (!session.Launch("127.0.0.1", 10080, 1024))
 				{
@@ -707,7 +335,7 @@ static void UDP()
 					);
 				}
 
-				std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+				std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
 			    session.Close();
 		    });

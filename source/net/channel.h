@@ -1,12 +1,12 @@
-#ifndef __TINY_TOOLKIT__NET__PIPE__H__
-#define __TINY_TOOLKIT__NET__PIPE__H__
+#ifndef __TINY_TOOLKIT__NET__CHANNEL__H__
+#define __TINY_TOOLKIT__NET__CHANNEL__H__
 
 
 /**
  *
  *  作者: hm
  *
- *  说明: 管道
+ *  说明: 通道
  *
  */
 
@@ -35,7 +35,7 @@ namespace tinyToolkit
 {
 	namespace net
 	{
-		class TINY_TOOLKIT_API IPipe
+		class TINY_TOOLKIT_API IChannel
 		{
 		public:
 			/**
@@ -43,7 +43,7 @@ namespace tinyToolkit
 			 * 析构函数
 			 *
 			 */
-			virtual ~IPipe() = default;
+			virtual ~IChannel() = default;
 
 			/**
 			 *
@@ -125,4 +125,4 @@ namespace tinyToolkit
 }
 
 
-#endif // __TINY_TOOLKIT__NET__PIPE__H__
+#endif // __TINY_TOOLKIT__NET__CHANNEL__H__

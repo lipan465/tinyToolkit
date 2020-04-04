@@ -11,9 +11,9 @@
  */
 
 
-#include "pipe.h"
 #include "cache.h"
 #include "poller.h"
+#include "channel.h"
 #include "message.h"
 #include "adaptor.h"
 
@@ -37,10 +37,10 @@ namespace tinyToolkit
 {
 	namespace net
 	{
-		class TINY_TOOLKIT_API TCPSessionPipe : public IPipe, public ICompleter
+		class TINY_TOOLKIT_API TCPSessionChannel : public IChannel, public ICompleter
 		{
 			friend class Poller;
-			friend class TCPServerPipe;
+			friend class TCPServerChannel;
 
 		public:
 			/**
@@ -48,18 +48,17 @@ namespace tinyToolkit
 			 * 构造函数
 			 *
 			 * @param session 会话
-			 * @param poller 轮询器
 			 * @param adaptor 适配器
 			 *
 			 */
-			TCPSessionPipe(ITCPSession * session, Poller * poller, std::shared_ptr<TCPAdaptor> adaptor);
+			TCPSessionChannel(TCPSession * session, std::shared_ptr<TCPAdaptor> adaptor);
 
 			/**
 			 *
 			 * 析构函数
 			 *
 			 */
-			~TCPSessionPipe() override;
+			~TCPSessionChannel() override;
 
 			/**
 			 *
@@ -198,16 +197,14 @@ namespace tinyToolkit
 
 		#endif
 
-			Poller * _poller{ nullptr };
-
-			ITCPSession * _session{ nullptr };
+			TCPSession * _session{ nullptr };
 
 			std::shared_ptr<TCPAdaptor> _adaptor{ };
 
 			std::queue<std::shared_ptr<Message>> _messageQueue{ };
 		};
 
-		class TINY_TOOLKIT_API TCPServerPipe : public IPipe, public ICompleter
+		class TINY_TOOLKIT_API TCPServerChannel : public IChannel, public ICompleter
 		{
 			friend class Poller;
 
@@ -217,18 +214,17 @@ namespace tinyToolkit
 			 * 构造函数
 			 *
 			 * @param server 服务
-			 * @param poller 轮询器
 			 * @param adaptor 适配器
 			 *
 			 */
-			TCPServerPipe(ITCPServer * server, Poller * poller, std::shared_ptr<TCPAdaptor> adaptor);
+			TCPServerChannel(TCPServer * server, std::shared_ptr<TCPAdaptor> adaptor);
 
 			/**
 			 *
 			 * 析构函数
 			 *
 			 */
-			~TCPServerPipe() override;
+			~TCPServerChannel() override;
 
 			/**
 			 *
@@ -288,11 +284,9 @@ namespace tinyToolkit
 		private:
 			bool _isListen{ true };
 
-			Poller * _poller{ nullptr };
-
 			Context _acceptContext{ };
 
-			ITCPServer * _server{ nullptr };
+			TCPServer * _server{ nullptr };
 
 			std::shared_ptr<TCPAdaptor> _adaptor{ };
 		};

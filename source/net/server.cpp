@@ -21,17 +21,41 @@ namespace tinyToolkit
 	{
 		/**
 		 *
+		 * 构造函数
+		 *
+		 * @param poller 轮询器
+		 *
+		 */
+		IServer::IServer(Poller * poller) : _poller(poller ? poller : &util::Singleton<Poller>::Instance())
+		{
+
+		}
+
+		/**
+		 *
 		 * 关闭会话
 		 *
 		 */
 		void IServer::Close()
 		{
-			if (_pipe == nullptr)
+			if (_channel == nullptr)
 			{
 				return;
 			}
 
-			_pipe->Close();
+			_channel->Close();
+		}
+
+		/**
+		 *
+		 * 轮询器
+		 *
+		 * @return 轮询器
+		 *
+		 */
+		Poller * IServer::Pollers()
+		{
+			return _poller;
 		}
 
 		/**
@@ -43,12 +67,12 @@ namespace tinyToolkit
 		 */
 		std::size_t IServer::CacheSize() const
 		{
-			if (_pipe == nullptr)
+			if (_channel == nullptr)
 			{
 				return 0;
 			}
 
-			return _pipe->CacheSize();
+			return _channel->CacheSize();
 		}
 
 		/**
@@ -60,12 +84,12 @@ namespace tinyToolkit
 		 */
 		TINY_TOOLKIT_SOCKET_TYPE IServer::Socket() const
 		{
-			if (_pipe == nullptr)
+			if (_channel == nullptr)
 			{
 				return TINY_TOOLKIT_SOCKET_INVALID;
 			}
 
-			return _pipe->Socket();
+			return _channel->Socket();
 		}
 
 		/**
@@ -77,9 +101,9 @@ namespace tinyToolkit
 		 */
 		const Endpoint & IServer::PeerEndpoint() const
 		{
-			if (_pipe && !_peerEndpoint.IsValid())
+			if (_channel && !_peerEndpoint.IsValid())
 			{
-				auto endpoint = ip::Socket::PeerEndpointV4(_pipe->Socket());
+				auto endpoint = ip::Socket::PeerEndpointV4(_channel->Socket());
 
 				_peerEndpoint.host = endpoint.first;
 				_peerEndpoint.port = endpoint.second;
@@ -97,9 +121,9 @@ namespace tinyToolkit
 		 */
 		const Endpoint & IServer::LocalEndpoint() const
 		{
-			if (_pipe && !_localEndpoint.IsValid())
+			if (_channel && !_localEndpoint.IsValid())
 			{
-				auto endpoint = ip::Socket::LocalEndpointV4(_pipe->Socket());
+				auto endpoint = ip::Socket::LocalEndpointV4(_channel->Socket());
 
 				_localEndpoint.host = endpoint.first;
 				_localEndpoint.port = endpoint.second;
@@ -114,6 +138,78 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 事件错误
+		 *
+		 * @param callback 回调函数
+		 *
+		 */
+		void TCPServer::OnError(std::function<void()> callback)
+		{
+			_onError = std::move(callback);
+		}
+
+		/**
+		 *
+		 * 关闭连接
+		 *
+		 * @param callback 回调函数
+		 *
+		 */
+		void TCPServer::OnShutdown(std::function<void()> callback)
+		{
+			_onShutdown = std::move(callback);
+		}
+
+		/**
+		 *
+		 * 绑定地址
+		 *
+		 * @param callback 回调函数
+		 *
+		 */
+		void TCPServer::OnBind(std::function<void(bool)> callback)
+		{
+			_onBind = std::move(callback);
+		}
+
+		/**
+		 *
+		 * 套接字生成
+		 *
+		 * @param callback 回调函数
+		 *
+		 */
+		void TCPServer::OnSocket(std::function<void(bool)> callback)
+		{
+			_onSocket = std::move(callback);
+		}
+
+		/**
+		 *
+		 * 监听地址
+		 *
+		 * @param callback 回调函数
+		 *
+		 */
+		void TCPServer::OnListen(std::function<void(bool)> callback)
+		{
+			_onListen = std::move(callback);
+		}
+
+		/**
+		 *
+		 * 接收会话
+		 *
+		 * @param callback 回调函数
+		 *
+		 */
+		void TCPServer::OnAccept(std::function<tinyToolkit::net::TCPSession *(bool)> callback)
+		{
+			_onAccept = std::move(callback);
+		}
+
+		/**
+		 *
 		 * 启动
 		 *
 		 * @param host 本地地址
@@ -124,118 +220,9 @@ namespace tinyToolkit
 		 * @return 是否启动成功
 		 *
 		 */
-		bool ITCPServer::Launch(std::string host, uint16_t port, std::size_t cache, Poller * poller)
+		bool TCPServer::Launch(std::string host, uint16_t port, std::size_t cache)
 		{
-			if (poller)
-			{
-				return poller->LaunchTCPServer(this, std::move(host), port, cache);
-			}
-			else
-			{
-				return util::Singleton<Poller>::Instance().LaunchTCPServer(this, std::move(host), port, cache);
-			}
-		}
-
-		/**
-		 *
-		 * 事件错误
-		 *
-		 */
-		void ITCPServer::OnError()
-		{
-
-		}
-
-		/**
-		 *
-		 * 套接字生成成功
-		 *
-		 */
-		void ITCPServer::OnSocket()
-		{
-
-		}
-
-		/**
-		 *
-		 * 套接字生成失败
-		 *
-		 */
-		void ITCPServer::OnSocketFailed()
-		{
-
-		}
-
-		/**
-		 *
-		 * 绑定成功
-		 *
-		 */
-		void ITCPServer::OnBind()
-		{
-
-		}
-
-		/**
-		 *
-		 * 绑定失败
-		 *
-		 */
-		void ITCPServer::OnBindFailed()
-		{
-
-		}
-
-		/**
-		 *
-		 * 监听成功
-		 *
-		 */
-		void ITCPServer::OnListen()
-		{
-
-		}
-
-		/**
-		 *
-		 * 监听失败
-		 *
-		 */
-		void ITCPServer::OnListenFailed()
-		{
-
-		}
-
-		/**
-		 *
-		 * 接受连接成功
-		 *
-		 * @return 会话
-		 *
-		 */
-		tinyToolkit::net::ITCPSession * ITCPServer::OnAccept()
-		{
-			return nullptr;
-		}
-
-		/**
-		 *
-		 * 接受连接失败
-		 *
-		 */
-		void ITCPServer::OnAcceptFailed()
-		{
-
-		}
-
-		/**
-		 *
-		 * 断开连接
-		 *
-		 */
-		void ITCPServer::OnDisconnect()
-		{
-
+			return Pollers()->LaunchTCPServer(this, std::move(host), port, cache);
 		}
 
 
@@ -244,108 +231,90 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 事件错误
+		 *
+		 * @param callback 回调函数
+		 *
+		 */
+		void UDPServer::OnError(std::function<void()> callback)
+		{
+			_onError = std::move(callback);
+		}
+
+		/**
+		 *
+		 * 关闭连接
+		 *
+		 * @param callback 回调函数
+		 *
+		 */
+		void UDPServer::OnShutdown(std::function<void()> callback)
+		{
+			_onShutdown = std::move(callback);
+		}
+
+		/**
+		 *
+		 * 绑定地址
+		 *
+		 * @param callback 回调函数
+		 *
+		 */
+		void UDPServer::OnBind(std::function<void(bool)> callback)
+		{
+			_onBind = std::move(callback);
+		}
+
+		/**
+		 *
+		 * 套接字生成
+		 *
+		 * @param callback 回调函数
+		 *
+		 */
+		void UDPServer::OnSocket(std::function<void(bool)> callback)
+		{
+			_onSocket = std::move(callback);
+		}
+
+		/**
+		 *
+		 * 监听地址
+		 *
+		 * @param callback 回调函数
+		 *
+		 */
+		void UDPServer::OnListen(std::function<void(bool)> callback)
+		{
+			_onListen = std::move(callback);
+		}
+
+		/**
+		 *
+		 * 接收会话
+		 *
+		 * @param callback 回调函数
+		 *
+		 */
+		void UDPServer::OnAccept(std::function<tinyToolkit::net::UDPSession *(bool)> callback)
+		{
+			_onAccept = std::move(callback);
+		}
+
+		/**
+		 *
 		 * 启动
 		 *
 		 * @param host 本地地址
 		 * @param port 本地端口
 		 * @param cache 缓存大小
-		 * @param poller 轮询器
 		 *
 		 * @return 是否启动成功
 		 *
 		 */
-		bool IUDPServer::Launch(std::string host, uint16_t port, std::size_t cache, Poller * poller)
+		bool UDPServer::Launch(std::string host, uint16_t port, std::size_t cache)
 		{
-			if (poller)
-			{
-				return poller->LaunchUDPServer(this, std::move(host), port, cache);
-			}
-			else
-			{
-				return util::Singleton<Poller>::Instance().LaunchUDPServer(this, std::move(host), port, cache);
-			}
-		}
-
-		/**
-		 *
-		 * 事件错误
-		 *
-		 */
-		void IUDPServer::OnError()
-		{
-
-		}
-
-		/**
-		 *
-		 * 套接字生成成功
-		 *
-		 */
-		void IUDPServer::OnSocket()
-		{
-
-		}
-
-		/**
-		 *
-		 * 套接字生成失败
-		 *
-		 */
-		void IUDPServer::OnSocketFailed()
-		{
-
-		}
-
-		/**
-		 *
-		 * 绑定成功
-		 *
-		 */
-		void IUDPServer::OnBind()
-		{
-
-		}
-
-		/**
-		 *
-		 * 绑定失败
-		 *
-		 */
-		void IUDPServer::OnBindFailed()
-		{
-
-		}
-
-		/**
-		 *
-		 * 接受连接成功
-		 *
-		 * @return 会话
-		 *
-		 */
-		tinyToolkit::net::IUDPSession * IUDPServer::OnAccept()
-		{
-			return nullptr;
-		}
-
-		/**
-		 *
-		 * 接受连接失败
-		 *
-		 */
-		void IUDPServer::OnAcceptFailed()
-		{
-
-		}
-
-		/**
-		 *
-		 * 断开连接
-		 *
-		 */
-		void IUDPServer::OnDisconnect()
-		{
-
+			return Pollers()->LaunchUDPServer(this, std::move(host), port, cache);
 		}
 	}
 }

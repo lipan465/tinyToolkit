@@ -11,9 +11,9 @@
  */
 
 
-#include "pipe.h"
 #include "cache.h"
 #include "poller.h"
+#include "channel.h"
 #include "message.h"
 #include "adaptor.h"
 
@@ -37,10 +37,10 @@ namespace tinyToolkit
 {
 	namespace net
 	{
-		class TINY_TOOLKIT_API UDPSessionPipe : public IPipe, public ICompleter
+		class TINY_TOOLKIT_API UDPSessionChannel : public IChannel, public ICompleter
 		{
 			friend class Poller;
-			friend class UDPServerPipe;
+			friend class UDPServerChannel;
 
 		public:
 			/**
@@ -48,18 +48,17 @@ namespace tinyToolkit
 			 * 构造函数
 			 *
 			 * @param session 会话
-			 * @param poller 轮询器
 			 * @param adaptor 适配器
 			 *
 			 */
-			UDPSessionPipe(IUDPSession * session, Poller * poller, std::shared_ptr<UDPAdaptor> adaptor);
+			UDPSessionChannel(UDPSession * session, std::shared_ptr<UDPAdaptor> adaptor);
 
 			/**
 			 *
 			 * 析构函数
 			 *
 			 */
-			~UDPSessionPipe() override;
+			~UDPSessionChannel() override;
 
 			/**
 			 *
@@ -198,16 +197,14 @@ namespace tinyToolkit
 
 		#endif
 
-			Poller * _poller{ nullptr };
-
-			IUDPSession * _session{ nullptr };
+			UDPSession * _session{ nullptr };
 
 			std::shared_ptr<UDPAdaptor> _adaptor{ };
 
 			std::queue<std::shared_ptr<Message>> _messageQueue{ };
 		};
 
-		class TINY_TOOLKIT_API UDPServerPipe : public IPipe, public ICompleter
+		class TINY_TOOLKIT_API UDPServerChannel : public IChannel, public ICompleter
 		{
 			friend class Poller;
 
@@ -217,18 +214,17 @@ namespace tinyToolkit
 			 * 构造函数
 			 *
 			 * @param server 服务
-			 * @param poller 轮询器
 			 * @param adaptor 适配器
 			 *
 			 */
-			UDPServerPipe(IUDPServer * server, Poller * poller, std::shared_ptr<UDPAdaptor> adaptor);
+			UDPServerChannel(UDPServer * server, std::shared_ptr<UDPAdaptor> adaptor);
 
 			/**
 			 *
 			 * 析构函数
 			 *
 			 */
-			~UDPServerPipe() override;
+			~UDPServerChannel() override;
 
 			/**
 			 *
@@ -288,11 +284,9 @@ namespace tinyToolkit
 		private:
 			bool _isListen{ true };
 
-			Poller * _poller{ nullptr };
-
 			Context _acceptContext{ };
 
-			IUDPServer * _server{ nullptr };
+			UDPServer * _server{ nullptr };
 
 			std::shared_ptr<UDPAdaptor> _adaptor{ };
 		};

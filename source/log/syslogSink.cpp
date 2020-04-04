@@ -12,7 +12,10 @@
 
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 #
+#  include <map>
 #
+#  include "../util/string.h"
+#  include "../util/application.h"
 #
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
 #
@@ -44,7 +47,7 @@ namespace tinyToolkit
 		{
 		#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-
+			_handle = ::RegisterEventSource(nullptr, util::Application::Name().c_str());
 
 		#else
 
@@ -62,7 +65,10 @@ namespace tinyToolkit
 		{
 		#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-
+			if (_handle)
+			{
+				::DeregisterEventSource(_handle);
+			}
 
 		#else
 
@@ -80,7 +86,10 @@ namespace tinyToolkit
 		{
 		#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
-
+			if (_handle)
+			{
+				::DeregisterEventSource(_handle);
+			}
 
 		#else
 
@@ -115,7 +124,35 @@ namespace tinyToolkit
 
 		#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 
+			static std::map<LOG_PRIORITY_TYPE, int32_t> priorities
+			{
+				{ LOG_PRIORITY_TYPE::DEBUGS, EVENTLOG_INFORMATION_TYPE },
+				{ LOG_PRIORITY_TYPE::INFO, EVENTLOG_INFORMATION_TYPE },
+				{ LOG_PRIORITY_TYPE::NOTICE, EVENTLOG_INFORMATION_TYPE },
+				{ LOG_PRIORITY_TYPE::WARNING, EVENTLOG_WARNING_TYPE },
+				{ LOG_PRIORITY_TYPE::ERRORS, EVENTLOG_ERROR_TYPE },
+				{ LOG_PRIORITY_TYPE::CRITICAL, EVENTLOG_ERROR_TYPE },
+				{ LOG_PRIORITY_TYPE::ALERT, EVENTLOG_ERROR_TYPE },
+				{ LOG_PRIORITY_TYPE::FATAL, EVENTLOG_ERROR_TYPE },
+				{ LOG_PRIORITY_TYPE::EMERG, EVENTLOG_ERROR_TYPE },
+			};
 
+			const char * ps[1]{ 0 };
+
+			ps[0] = Layout() ? Layout()->Format(context).c_str() : context.content.c_str();
+
+			::ReportEvent
+			(
+				_handle,
+				priorities[context.priority],
+				0,
+				static_cast<DWORD>(context.processID),
+				nullptr,
+				1,
+				0,
+				ps,
+				nullptr
+			);
 
 		#else
 

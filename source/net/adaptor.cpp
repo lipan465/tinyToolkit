@@ -242,7 +242,13 @@ namespace tinyToolkit
 
 		#else
 
-			context->socket = ip::Socket::Accept(_socket, TINY_TOOLKIT_SOCKET_INVALID, nullptr, nullptr);
+			context->socket = ip::Socket::Accept
+			(
+				_socket,
+				TINY_TOOLKIT_SOCKET_INVALID,
+				nullptr,
+				nullptr
+			);
 
 			if (context->socket == TINY_TOOLKIT_SOCKET_INVALID)
 			{
@@ -525,7 +531,6 @@ namespace tinyToolkit
 		int32_t UDPAdaptor::ConnectV4(const Endpoint & endpoint, Context * context)
 		{
 			(void)context;
-			(void)endpoint;
 
 			struct sockaddr_in address = ip::Address::AsAddressV4(endpoint.host.c_str(), endpoint.port);
 
@@ -550,7 +555,6 @@ namespace tinyToolkit
 		int32_t UDPAdaptor::ConnectV6(const Endpoint & endpoint, Context * context)
 		{
 			(void)context;
-			(void)endpoint;
 
 			struct sockaddr_in6 address = ip::Address::AsAddressV6(endpoint.host.c_str(), endpoint.port);
 

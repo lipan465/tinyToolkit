@@ -65,7 +65,7 @@ namespace tinyToolkit
 				struct sockaddr_in6 v6;
 			}address;
 
-			char temp[1460];
+			char temp[1460]{ 0 };
 
 			std::size_t bytes{ 0 };
 

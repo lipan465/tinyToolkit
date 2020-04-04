@@ -37,17 +37,17 @@ namespace tinyToolkit
 {
 	namespace net
 	{
-		class TINY_TOOLKIT_API ITCPServer;
-		class TINY_TOOLKIT_API IUDPServer;
-		class TINY_TOOLKIT_API ITCPSession;
-		class TINY_TOOLKIT_API IUDPSession;
+		class TINY_TOOLKIT_API TCPServer;
+		class TINY_TOOLKIT_API UDPServer;
+		class TINY_TOOLKIT_API TCPSession;
+		class TINY_TOOLKIT_API UDPSession;
 
 		class TINY_TOOLKIT_API Poller
 		{
-			friend class TCPServerPipe;
-			friend class UDPServerPipe;
-			friend class TCPSessionPipe;
-			friend class UDPSessionPipe;
+			friend class TCPServerChannel;
+			friend class UDPServerChannel;
+			friend class TCPSessionChannel;
+			friend class UDPSessionChannel;
 
 		public:
 			/**
@@ -85,7 +85,7 @@ namespace tinyToolkit
 			 * @return 是否启动成功
 			 *
 			 */
-			bool LaunchTCPServer(ITCPServer * server, std::string host, uint16_t port, std::size_t cache);
+			bool LaunchTCPServer(TCPServer * server, std::string host, uint16_t port, std::size_t cache);
 
 			/**
 			 *
@@ -99,7 +99,7 @@ namespace tinyToolkit
 			 * @return 是否启动成功
 			 *
 			 */
-			bool LaunchUDPServer(IUDPServer * server, std::string host, uint16_t port, std::size_t cache);
+			bool LaunchUDPServer(UDPServer * server, std::string host, uint16_t port, std::size_t cache);
 
 			/**
 			 *
@@ -113,7 +113,7 @@ namespace tinyToolkit
 			 * @return 是否启动成功
 			 *
 			 */
-			bool LaunchTCPSession(ITCPSession * session, std::string host, uint16_t port, std::size_t cache);
+			bool LaunchTCPSession(TCPSession * session, std::string host, uint16_t port, std::size_t cache);
 
 			/**
 			 *
@@ -127,7 +127,7 @@ namespace tinyToolkit
 			 * @return 是否启动成功
 			 *
 			 */
-			bool LaunchUDPSession(IUDPSession * session, std::string host, uint16_t port, std::size_t cache);
+			bool LaunchUDPSession(UDPSession * session, std::string host, uint16_t port, std::size_t cache);
 
 		private:
 			/**

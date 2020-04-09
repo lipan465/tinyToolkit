@@ -89,15 +89,6 @@ namespace tinyToolkit
 			 */
 			void Write(Context & context) override;
 
-			/**
-			 *
-			 * 单例对象
-			 *
-			 * @return 单例对象
-			 *
-			 */
-			static SyncLogger & Instance();
-
 		private:
 			std::tm _tm{ };
 
@@ -106,17 +97,6 @@ namespace tinyToolkit
 		};
 	}
 }
-
-
-#define TINY_TOOLKIT_SYNC_LOG_DEBUG(fmt, ...)			tinyToolkit::log::SyncLogger::Instance().Debug(fmt, ##__VA_ARGS__)
-#define TINY_TOOLKIT_SYNC_LOG_INFO(fmt, ...)			tinyToolkit::log::SyncLogger::Instance().Info(fmt, ##__VA_ARGS__)
-#define TINY_TOOLKIT_SYNC_LOG_NOTICE(fmt, ...)			tinyToolkit::log::SyncLogger::Instance().Notice(fmt, ##__VA_ARGS__)
-#define TINY_TOOLKIT_SYNC_LOG_WARNING(fmt, ...)		    tinyToolkit::log::SyncLogger::Instance().Warning(fmt, ##__VA_ARGS__)
-#define TINY_TOOLKIT_SYNC_LOG_ERROR(fmt, ...)			tinyToolkit::log::SyncLogger::Instance().Error(fmt, ##__VA_ARGS__)
-#define TINY_TOOLKIT_SYNC_LOG_CRITICAL(fmt, ...)		tinyToolkit::log::SyncLogger::Instance().Critical(fmt, ##__VA_ARGS__)
-#define TINY_TOOLKIT_SYNC_LOG_ALERT(fmt, ...)			tinyToolkit::log::SyncLogger::Instance().Alert(fmt, ##__VA_ARGS__)
-#define TINY_TOOLKIT_SYNC_LOG_FATAL(fmt, ...)			tinyToolkit::log::SyncLogger::Instance().Fatal(fmt, ##__VA_ARGS__)
-#define TINY_TOOLKIT_SYNC_LOG_EMERG(fmt, ...)			tinyToolkit::log::SyncLogger::Instance().Emerg(fmt, ##__VA_ARGS__)
 
 
 #endif // __TINY_TOOLKIT__LOG__SYNC_LOGGER__H__

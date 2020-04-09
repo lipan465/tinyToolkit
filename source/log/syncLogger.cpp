@@ -10,7 +10,6 @@
 #include "syncLogger.h"
 
 #include "../util/time.h"
-#include "../util/singleton.h"
 #include "../util/application.h"
 
 
@@ -118,18 +117,6 @@ namespace tinyToolkit
 			{
 				iter.second->Write(context);
 			}
-		}
-
-		/**
-		 *
-		 * 单例对象
-		 *
-		 * @return 单例对象
-		 *
-		 */
-		SyncLogger & SyncLogger::Instance()
-		{
-			return util::Singleton<SyncLogger>::Instance();
 		}
 	}
 }

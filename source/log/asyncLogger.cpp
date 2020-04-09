@@ -11,7 +11,6 @@
 #include "asyncLogger.h"
 
 #include "../util/time.h"
-#include "../util/singleton.h"
 #include "../util/application.h"
 
 
@@ -181,18 +180,6 @@ namespace tinyToolkit
 			}
 
 			_condition.notify_one();
-		}
-
-		/**
-		 *
-		 * 单例对象
-		 *
-		 * @return 单例对象
-		 *
-		 */
-		AsyncLogger & AsyncLogger::Instance()
-		{
-			return util::Singleton<AsyncLogger>::Instance();
 		}
 	}
 }

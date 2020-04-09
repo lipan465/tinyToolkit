@@ -19,6 +19,8 @@ static void SyncLog()
 
 	try
 	{
+		auto logger = std::make_shared<log::SyncLogger>();
+
 		auto fileSink = std::make_shared<log::FileSink>("fileSink", "syncFileSink.log", true);
 		auto syslogSink = std::make_shared<log::SyslogSink>("syslogSink");
 		auto consoleSink = std::make_shared<log::ConsoleSink>("consoleFile");
@@ -38,8 +40,6 @@ static void SyncLog()
 		dailyFileSink->SetLayout(patternLayout)->AddFilter(priorityFilter);
 		rotatingFileLogSink->SetLayout(simpleLayout)->AddFilter(priorityRangeFilter);
 
-		std::shared_ptr<log::ILogger> logger = std::make_shared<log::SyncLogger>();
-
 		logger->AddSink(fileSink);
 		logger->AddSink(syslogSink);
 		logger->AddSink(consoleSink);
@@ -58,25 +58,6 @@ static void SyncLog()
 			logger->Fatal("Sync Message {}", "Fatal");
 			logger->Emerg("Sync Message {}", "Emerg");
 		}
-
-		log::SyncLogger::Instance().AddSink(fileSink);
-		log::SyncLogger::Instance().AddSink(syslogSink);
-		log::SyncLogger::Instance().AddSink(consoleSink);
-		log::SyncLogger::Instance().AddSink(dailyFileSink);
-		log::SyncLogger::Instance().AddSink(rotatingFileLogSink);
-
-		for (int i = 0; i < 10; ++i)
-		{
-			TINY_TOOLKIT_SYNC_LOG_DEBUG("Sync Message {}", "Debug");
-			TINY_TOOLKIT_SYNC_LOG_INFO("Sync Message {}", "Info");
-			TINY_TOOLKIT_SYNC_LOG_NOTICE("Sync Message {}", "Notice");
-			TINY_TOOLKIT_SYNC_LOG_WARNING("Sync Message {}", "Warning");
-			TINY_TOOLKIT_SYNC_LOG_ERROR("Sync Message {}", "Error");
-			TINY_TOOLKIT_SYNC_LOG_CRITICAL("Sync Message {}", "Critical");
-			TINY_TOOLKIT_SYNC_LOG_ALERT("Sync Message {}", "Alert");
-			TINY_TOOLKIT_SYNC_LOG_FATAL("Sync Message {}", "Fatal");
-			TINY_TOOLKIT_SYNC_LOG_EMERG("Sync Message {}", "Emerg");
-		}
 	}
 	catch (std::exception & e)
 	{
@@ -94,6 +75,8 @@ static void AsyncLog()
 
 	try
 	{
+		auto logger = std::make_shared<log::AsyncLogger>();
+
 		auto fileSink = std::make_shared<log::FileSink>("fileSink", "asyncFileSink.log", true);
 		auto syslogSink = std::make_shared<log::SyslogSink>("syslogSink");
 		auto consoleSink = std::make_shared<log::ConsoleSink>("consoleFile");
@@ -112,8 +95,6 @@ static void AsyncLog()
 		consoleSink->SetLayout(patternLayout)->AddFilter(priorityFilter);
 		dailyFileSink->SetLayout(patternLayout)->AddFilter(priorityFilter);
 		rotatingFileLogSink->SetLayout(simpleLayout)->AddFilter(priorityRangeFilter);
-
-		std::shared_ptr<log::ILogger> logger = std::make_shared<log::AsyncLogger>();
 
 		logger->AddSink(fileSink);
 		logger->AddSink(syslogSink);
@@ -135,27 +116,6 @@ static void AsyncLog()
 		}
 
 		logger->Wait();
-
-		log::AsyncLogger::Instance().AddSink(fileSink);
-		log::AsyncLogger::Instance().AddSink(syslogSink);
-		log::AsyncLogger::Instance().AddSink(consoleSink);
-		log::AsyncLogger::Instance().AddSink(dailyFileSink);
-		log::AsyncLogger::Instance().AddSink(rotatingFileLogSink);
-
-		for (int i = 0; i < 10; ++i)
-		{
-			TINY_TOOLKIT_ASYNC_LOG_DEBUG("Async Message {}", "Debug");
-			TINY_TOOLKIT_ASYNC_LOG_INFO("Async Message {}", "Info");
-			TINY_TOOLKIT_ASYNC_LOG_NOTICE("Async Message {}", "Notice");
-			TINY_TOOLKIT_ASYNC_LOG_WARNING("Async Message {}", "Warning");
-			TINY_TOOLKIT_ASYNC_LOG_ERROR("Async Message {}", "Error");
-			TINY_TOOLKIT_ASYNC_LOG_CRITICAL("Async Message {}", "Critical");
-			TINY_TOOLKIT_ASYNC_LOG_ALERT("Async Message {}", "Alert");
-			TINY_TOOLKIT_ASYNC_LOG_FATAL("Async Message {}", "Fatal");
-			TINY_TOOLKIT_ASYNC_LOG_EMERG("Async Message {}", "Emerg");
-		}
-
-		log::AsyncLogger::Instance().Wait();
 	}
 	catch (std::exception & e)
 	{

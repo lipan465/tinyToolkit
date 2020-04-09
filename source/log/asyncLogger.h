@@ -94,15 +94,6 @@ namespace tinyToolkit
 			 */
 			void Write(Context & context) override;
 
-			/**
-			 *
-			 * 单例对象
-			 *
-			 * @return 单例对象
-			 *
-			 */
-			static AsyncLogger & Instance();
-
 		private:
 			std::tm _tm{ };
 
@@ -117,17 +108,6 @@ namespace tinyToolkit
 		};
 	}
 }
-
-
-#define TINY_TOOLKIT_ASYNC_LOG_DEBUG(fmt, ...)			tinyToolkit::log::AsyncLogger::Instance().Debug(fmt, ##__VA_ARGS__)
-#define TINY_TOOLKIT_ASYNC_LOG_INFO(fmt, ...)			tinyToolkit::log::AsyncLogger::Instance().Info(fmt, ##__VA_ARGS__)
-#define TINY_TOOLKIT_ASYNC_LOG_NOTICE(fmt, ...)			tinyToolkit::log::AsyncLogger::Instance().Notice(fmt, ##__VA_ARGS__)
-#define TINY_TOOLKIT_ASYNC_LOG_WARNING(fmt, ...)		tinyToolkit::log::AsyncLogger::Instance().Warning(fmt, ##__VA_ARGS__)
-#define TINY_TOOLKIT_ASYNC_LOG_ERROR(fmt, ...)			tinyToolkit::log::AsyncLogger::Instance().Error(fmt, ##__VA_ARGS__)
-#define TINY_TOOLKIT_ASYNC_LOG_CRITICAL(fmt, ...)		tinyToolkit::log::AsyncLogger::Instance().Critical(fmt, ##__VA_ARGS__)
-#define TINY_TOOLKIT_ASYNC_LOG_ALERT(fmt, ...)			tinyToolkit::log::AsyncLogger::Instance().Alert(fmt, ##__VA_ARGS__)
-#define TINY_TOOLKIT_ASYNC_LOG_FATAL(fmt, ...)			tinyToolkit::log::AsyncLogger::Instance().Fatal(fmt, ##__VA_ARGS__)
-#define TINY_TOOLKIT_ASYNC_LOG_EMERG(fmt, ...)			tinyToolkit::log::AsyncLogger::Instance().Emerg(fmt, ##__VA_ARGS__)
 
 
 #endif // __TINY_TOOLKIT__LOG__ASYNC_LOGGER__H__

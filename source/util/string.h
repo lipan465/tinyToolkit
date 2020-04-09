@@ -118,16 +118,6 @@ namespace tinyToolkit
 
 			/**
 			 *
-			 * 去除首尾内容
-			 *
-			 * @param content 处理内容
-			 * @param pattern 匹配规则
-			 *
-			 */
-			static void Trim(std::string & content, const char * pattern = "\r\n\t ");
-
-			/**
-			 *
 			 * 转换小写
 			 *
 			 * @param content 处理内容
@@ -390,6 +380,18 @@ namespace tinyToolkit
 			{
 				return fmt::format(format, std::forward<Args>(args)...);
 			}
+
+			/**
+			 *
+			 * 去除首尾内容
+			 *
+			 * @param content 处理内容
+			 * @param pattern 匹配规则
+			 *
+			 * @return 去除后内容
+			 *
+			 */
+			static std::string Trim(const std::string & content, const char * pattern = "\r\n\t ");
 
 			/**
 			 *

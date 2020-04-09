@@ -31,27 +31,6 @@ namespace tinyToolkit
 	{
 		/**
 		 *
-		 * 去除首尾内容
-		 *
-		 * @param content 处理内容
-		 * @param pattern 匹配规则
-		 *
-		 */
-		void String::Trim(std::string & content, const char * pattern)
-		{
-			if (pattern == nullptr)
-			{
-				return;
-			}
-
-			auto end   = content.find_last_not_of(pattern);
-			auto start = content.find_first_not_of(pattern);
-
-			content = (start == std::string::npos) ? "" : content.substr(start, 1 + end - start);
-		}
-
-		/**
-		 *
 		 * 转换小写
 		 *
 		 * @param content 处理内容
@@ -425,6 +404,29 @@ namespace tinyToolkit
 		bool String::StartWith(const std::string & content, const std::string & prefix)
 		{
 			return content.size() >= prefix.size() && std::equal(prefix.begin(), prefix.end(), content.begin());
+		}
+
+		/**
+		 *
+		 * 去除首尾内容
+		 *
+		 * @param content 处理内容
+		 * @param pattern 匹配规则
+		 *
+		 * @return 去除后内容
+		 *
+		 */
+		std::string String::Trim(const std::string & content, const char * pattern)
+		{
+			if (pattern == nullptr)
+			{
+				return content;
+			}
+
+			auto end   = content.find_last_not_of(pattern);
+			auto start = content.find_first_not_of(pattern);
+
+			return (start == std::string::npos) ? "" : content.substr(start, 1 + end - start);
 		}
 
 		/**

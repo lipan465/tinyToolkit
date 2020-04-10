@@ -181,6 +181,10 @@ namespace tinyToolkit
 			{
 				_ioContext.bytes = static_cast<std::size_t>(len);
 			}
+			else if (len == 0)
+			{
+				return false;
+			}
 			else
 			{
 				_ioContext.bytes = 0;
@@ -227,6 +231,10 @@ namespace tinyToolkit
 			if (len > 0)
 			{
 				_ioContext.bytes = static_cast<std::size_t>(len);
+			}
+			else if (len == 0)
+			{
+				return false;
 			}
 			else
 			{

@@ -139,19 +139,19 @@ namespace tinyToolkit
 		 * @param group 描述组
 		 *
 		 */
-		void Option::AddDescriptionGroup(const DescriptionGroup & group)
+		void Option::AddDescriptionGroup(const std::shared_ptr<DescriptionGroup> & group)
 		{
 			for (auto &iter : _groups)
 			{
-				if (iter == &group)
+				if (iter == group)
 				{
-					throw std::runtime_error("Multiple add description group : " + group.Caption());
+					throw std::runtime_error("Multiple add description group : " + group->Caption());
 				}
 			}
 
-			_groups.push_back(&group);
+			_groups.push_back(group);
 
-			for (auto &iter : group.Options())
+			for (auto &iter : group->Options())
 			{
 				if (!iter->LongName().empty())
 				{

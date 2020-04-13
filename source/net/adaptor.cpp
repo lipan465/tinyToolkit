@@ -13,6 +13,21 @@
 #include "../ip/address.h"
 
 
+#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
+#
+#
+#
+#elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
+#
+#  include <sys/errno.h>
+#
+#elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_LINUX
+#
+#
+#
+#endif
+
+
 namespace tinyToolkit
 {
 	namespace net

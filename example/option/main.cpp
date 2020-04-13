@@ -21,30 +21,30 @@ static void Options()
 	{
 		option::Option option;
 
-		option::DescriptionGroup group_1("group_1");
-		option::DescriptionGroup group_2("group_2");
-		option::DescriptionGroup group_3("group_3");
-		option::DescriptionGroup group_4("group_4");
+		auto group_1 = std::make_shared<option::DescriptionGroup>("group_1");
+		auto group_2 = std::make_shared<option::DescriptionGroup>("group_2");
+		auto group_3 = std::make_shared<option::DescriptionGroup>("group_3");
+		auto group_4 = std::make_shared<option::DescriptionGroup>("group_4");
 
-		group_1.AddOption()
-				("help,h", "help message");
+		group_1->AddOption()
+		("help,h", "help message");
 
-		group_2.AddOption()
-				("float,f", "float message", option::Value<float>())
-				("double,d", "double message", option::Value<double>());
+		group_2->AddOption()
+		("float,f", "float message", option::Value<float>())
+		("double,d", "double message", option::Value<double>());
 
-		group_3.AddOption()
-				("int8_t,i8", "int8_t message", option::Value<int8_t>())
-				("uint8_t,u8", "uint8_t message", option::Value<uint8_t>())
-				("int16_t,i16", "int16_t message", option::Value<int16_t>())
-				("uint16_t,u16", "uint16_t message", option::Value<uint16_t>())
-				("int32_t,i32", "int32_t message", option::Value<int32_t>())
-				("uint32_t,u32", "uint32_t message", option::Value<uint32_t>())
-				("int64_t,i64", "int64_t message", option::Value<int64_t>())
-				("uint64_t,u64", "uint64_t message", option::Value<uint64_t>());
+		group_3->AddOption()
+		("int8_t,i8", "int8_t message", option::Value<int8_t>())
+		("uint8_t,u8", "uint8_t message", option::Value<uint8_t>())
+		("int16_t,i16", "int16_t message", option::Value<int16_t>())
+		("uint16_t,u16", "uint16_t message", option::Value<uint16_t>())
+		("int32_t,i32", "int32_t message", option::Value<int32_t>())
+		("uint32_t,u32", "uint32_t message", option::Value<uint32_t>())
+		("int64_t,i64", "int64_t message", option::Value<int64_t>())
+		("uint64_t,u64", "uint64_t message", option::Value<uint64_t>());
 
-		group_4.AddOption()
-				("string,s", "string message", option::Value<std::string>());
+		group_4->AddOption()
+		("string,s", "string message", option::Value<std::string>());
 
 		option.AddDescriptionGroup(group_1);
 		option.AddDescriptionGroup(group_2);

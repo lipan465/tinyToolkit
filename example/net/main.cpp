@@ -217,6 +217,18 @@ static void InitializeServer(ServerTypeT & server, std::vector<SessionTypeT *> &
 			return length;
 		});
 
+		session->OnDisconnect([session]()
+		{
+			util::String::Print
+			(
+				"ServerSession [{}:{}] disconnect [{}:{}]\r\n",
+				session->LocalEndpoint().host,
+				session->LocalEndpoint().port,
+				session->PeerEndpoint().host,
+				session->PeerEndpoint().port
+			);
+		});
+
 		sessionPool.push_back(session);
 
 		return session;
@@ -256,7 +268,7 @@ static void TCP()
 		for (int i = 0; i < 8; ++i)
 		{
 			pool.AddTask([]()
-	         {
+	        {
 		         net::TCPSession session;
 
 		         InitializeSession(session);
@@ -274,7 +286,7 @@ static void TCP()
 	             std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
 	             session.Close();
-	         });
+	        });
 		}
 
 		pool.Wait();

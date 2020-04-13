@@ -53,7 +53,7 @@ namespace tinyToolkit
 			 * @param group 描述组
 			 *
 			 */
-			void AddDescriptionGroup(const DescriptionGroup & group);
+			void AddDescriptionGroup(const std::shared_ptr<DescriptionGroup> & group);
 
 			/**
 			 *
@@ -118,7 +118,7 @@ namespace tinyToolkit
 			std::size_t _valueWidth{ 0 };
 			std::size_t _optionWidth{ 0 };
 
-			std::vector<const DescriptionGroup *> _groups{ };
+			std::vector<std::shared_ptr<DescriptionGroup>> _groups{ };
 
 			std::unordered_map<std::string, DescriptionInfo *> _options{ };
 			std::unordered_map<std::string, DescriptionInfo *> _longOptions{ };

@@ -33,18 +33,16 @@ namespace tinyToolkit
 		 *
 		 * 构造函数
 		 *
-		 * @param owner 拥有
 		 * @param task 事件
 		 * @param count 次数
 		 * @param expire 到期时间
 		 * @param interval 间隔(毫秒)
 		 *
 		 */
-		Event::Event(bool owner, ITask * task, int64_t count, std::time_t expire, std::time_t interval) : _isOwner(owner),
-		                                                                                                  _task(task),
-		                                                                                                  _count(count),
-		                                                                                                  _expire(expire),
-		                                                                                                  _interval(interval)
+		Event::Event(std::shared_ptr<ITask> task, int64_t count, std::time_t expire, std::time_t interval) : _count(count),
+		                                                                                                     _expire(expire),
+		                                                                                                     _interval(interval),
+		                                                                                                     _task(std::move(task))
 		{
 			if (_task)
 			{
@@ -60,13 +58,6 @@ namespace tinyToolkit
 		Event::~Event()
 		{
 			Kill();
-
-			if (_isOwner)
-			{
-				delete _task;
-
-				_task = nullptr;
-			}
 		}
 
 		/**
@@ -76,14 +67,16 @@ namespace tinyToolkit
 		 */
 		void Event::Kill()
 		{
-			if (_isValid)
+			if (!_isValid)
 			{
-				_isValid = false;
+				return;
+			}
 
-				if (_task)
-				{
-					_task->OnKill();
-				}
+			_isValid = false;
+
+			if (_task)
+			{
+				_task->OnKill();
 			}
 		}
 
@@ -94,27 +87,29 @@ namespace tinyToolkit
 		 */
 		void Event::Trigger()
 		{
-			if (_isValid)
+			if (!_isValid)
 			{
-				_expire += _interval;
+				return;
+			}
 
-				if (_count != 0)
+			_expire += _interval;
+
+			if (_count != 0)
+			{
+				if (_task)
 				{
-					if (_task)
-					{
-						++_task->_triggerCount;
+					++_task->_triggerCount;
 
-						_task->OnTrigger();
-					}
-				}
-
-				if (_count > 0)
-				{
-					--_count;
+					_task->OnTrigger();
 				}
 			}
 
-			if (_isValid && _count == 0)
+			if (_count > 0)
+			{
+				--_count;
+			}
+
+			if (_count == 0)
 			{
 				_isValid = false;
 
@@ -134,16 +129,18 @@ namespace tinyToolkit
 		 */
 		void Event::Pause(std::time_t tick)
 		{
-			if (_isValid && !_isPause)
+			if (!_isValid || _isPause)
 			{
-				_isPause = true;
+				return;
+			}
 
-				_pauseTick = tick;
+			_isPause = true;
 
-				if (_task)
-				{
-					_task->OnPause();
-				}
+			_pauseTick = tick;
+
+			if (_task)
+			{
+				_task->OnPause();
 			}
 		}
 
@@ -156,16 +153,18 @@ namespace tinyToolkit
 		 */
 		void Event::Resume(std::time_t tick)
 		{
-			if (_isValid && _isPause)
+			if (!_isValid || !_isPause)
 			{
-				_expire = tick + _expire - _pauseTick;
+				return;
+			}
 
-				_isPause = false;
+			_expire = tick + _expire - _pauseTick;
 
-				if (_task)
-				{
-					_task->OnResume();
-				}
+			_isPause = false;
+
+			if (_task)
+			{
+				_task->OnResume();
 			}
 		}
 
@@ -212,18 +211,6 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 任务
-		 *
-		 * @return 任务
-		 *
-		 */
-		ITask * Event::Task()
-		{
-			return _task;
-		}
-
-		/**
-		 *
 		 * 过期时间
 		 *
 		 * @return 过期时间
@@ -232,6 +219,18 @@ namespace tinyToolkit
 		std::time_t Event::Expire()
 		{
 			return _expire;
+		}
+
+		/**
+		 *
+		 * 任务
+		 *
+		 * @return 任务
+		 *
+		 */
+		std::shared_ptr<ITask> Event::Task()
+		{
+			return _task;
 		}
 	}
 }

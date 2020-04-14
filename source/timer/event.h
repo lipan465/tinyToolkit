@@ -25,6 +25,7 @@
 #elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_LINUX
 #
 #  include <ctime>
+#  include <memory>
 #
 #endif
 
@@ -40,14 +41,13 @@ namespace tinyToolkit
 			 *
 			 * 构造函数
 			 *
-			 * @param owner 归属
 			 * @param task 任务
 			 * @param count 次数
 			 * @param expire 到期时间
 			 * @param interval 间隔(毫秒)
 			 *
 			 */
-			Event(bool owner, ITask * task, int64_t count, std::time_t expire, std::time_t interval);
+			Event(std::shared_ptr<ITask>  task, int64_t count, std::time_t expire, std::time_t interval);
 
 			/**
 			 *
@@ -117,15 +117,6 @@ namespace tinyToolkit
 
 			/**
 			 *
-			 * 任务
-			 *
-			 * @return 任务
-			 *
-			 */
-			ITask * Task();
-
-			/**
-			 *
 			 * 过期时间
 			 *
 			 * @return 过期时间
@@ -133,18 +124,26 @@ namespace tinyToolkit
 			 */
 			std::time_t Expire();
 
+			/**
+			 *
+			 * 任务
+			 *
+			 * @return 任务
+			 *
+			 */
+			std::shared_ptr<ITask> Task();
+
 		private:
 			bool _isValid{ true };
 			bool _isPause{ false };
-			bool _isOwner{ false };
-
-			ITask * _task{ nullptr };
 
 			int64_t _count{ 0 };
 
 			std::time_t _expire{ 0 };
 			std::time_t _interval{ 0 };
 			std::time_t _pauseTick{ 0 };
+
+			std::shared_ptr<ITask> _task{ };
 		};
 	}
 }

@@ -154,11 +154,11 @@ namespace tinyToolkit
 		 * @return 是否关闭成功
 		 *
 		 */
-		bool Timer::Kill(const ITask & task)
+		bool Timer::Kill(const std::shared_ptr<ITask> & task)
 		{
 			std::lock_guard<std::mutex> lock(_taskMutex);
 
-			auto find = _taskList.find(&task);
+			auto find = _taskList.find(task);
 
 			if (find == _taskList.end())
 			{
@@ -185,11 +185,11 @@ namespace tinyToolkit
 		 * @return 是否暂停成功
 		 *
 		 */
-		bool Timer::Pause(const ITask & task)
+		bool Timer::Pause(const std::shared_ptr<ITask> & task)
 		{
 			std::lock_guard<std::mutex> lock(_taskMutex);
 
-			auto find = _workList.find(&task);
+			auto find = _workList.find(task);
 
 			if (find == _workList.end())
 			{
@@ -202,7 +202,7 @@ namespace tinyToolkit
 
 			_workList.erase(find);
 
-			_pauseList.insert(std::make_pair(&task, event));
+			_pauseList.insert(std::make_pair(task, event));
 
 			return true;
 		}
@@ -216,11 +216,11 @@ namespace tinyToolkit
 		 * @return 是否恢复成功
 		 *
 		 */
-		bool Timer::Resume(const ITask & task)
+		bool Timer::Resume(const std::shared_ptr<ITask> & task)
 		{
 			std::lock_guard<std::mutex> lock(_taskMutex);
 
-			auto find = _pauseList.find(&task);
+			auto find = _pauseList.find(task);
 
 			if (find == _pauseList.end())
 			{
@@ -235,7 +235,7 @@ namespace tinyToolkit
 
 			_pauseList.erase(find);
 
-			_workList.insert(std::make_pair(&task, event));
+			_workList.insert(std::make_pair(task, event));
 
 			return true;
 		}
@@ -251,7 +251,7 @@ namespace tinyToolkit
 		 * @return 是否启动成功
 		 *
 		 */
-		bool Timer::AddTask(const ITask & task, int64_t count, std::time_t interval)
+		bool Timer::AddTask(const std::shared_ptr<ITask> & task, int64_t count, std::time_t interval)
 		{
 			if (count == 0)
 			{
@@ -260,24 +260,17 @@ namespace tinyToolkit
 
 			std::lock_guard<std::mutex> lock(_taskMutex);
 
-			if (_taskList.find(&task) != _taskList.end())
+			if (_taskList.find(task) != _taskList.end())
 			{
 				return false;
 			}
 
-			auto event = new Event
-			(
-				false,
-				const_cast<ITask *>(&task),
-				count,
-				interval + _tickTime,
-				interval
-			);
+			auto event = new Event(task, count, interval + _tickTime, interval);
 
 			AddEvent(event);
 
-			_taskList.insert(std::make_pair(&task, event));
-			_workList.insert(std::make_pair(&task, event));
+			_taskList.insert(std::make_pair(task, event));
+			_workList.insert(std::make_pair(task, event));
 
 			return true;
 		}
@@ -295,22 +288,7 @@ namespace tinyToolkit
 		 */
 		bool Timer::AddTask(std::function<void()> function, int64_t count, std::time_t interval)
 		{
-			if (count == 0)
-			{
-				return false;
-			}
-
-			std::lock_guard<std::mutex> lock(_taskMutex);
-
-			auto task = new Task(std::move(function));
-			auto event = new Event(true, task, count, interval + _tickTime, interval);
-
-			AddEvent(event);
-
-			_taskList.insert(std::make_pair(task, event));
-			_workList.insert(std::make_pair(task, event));
-
-			return true;
+			return AddTask(std::make_shared<Task>(std::move(function)), count, interval);
 		}
 
 		/**

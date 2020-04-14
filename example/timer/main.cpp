@@ -56,13 +56,13 @@ static void Task()
 			}
 		};
 
-		Task task{ };
+		auto task = std::make_shared<Task>();
 
 		timer::Timer timer{ };
 
 		timer.AddTask(task, -1, 1000);
 
-		while (task.TriggerCount() != 5)
+		while (task->TriggerCount() != 5)
 		{
 			std::this_thread::yield();
 		}

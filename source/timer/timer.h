@@ -76,7 +76,7 @@ namespace tinyToolkit
 			 * @return 是否关闭成功
 			 *
 			 */
-			bool Kill(const ITask & task);
+			bool Kill(const std::shared_ptr<ITask> & task);
 
 			/**
 			 *
@@ -87,7 +87,7 @@ namespace tinyToolkit
 			 * @return 是否暂停成功
 			 *
 			 */
-			bool Pause(const ITask & task);
+			bool Pause(const std::shared_ptr<ITask> & task);
 
 			/**
 			 *
@@ -98,7 +98,7 @@ namespace tinyToolkit
 			 * @return 是否恢复成功
 			 *
 			 */
-			bool Resume(const ITask & task);
+			bool Resume(const std::shared_ptr<ITask> & task);
 
 			/**
 			 *
@@ -111,7 +111,7 @@ namespace tinyToolkit
 			 * @return 是否启动成功
 			 *
 			 */
-			bool AddTask(const ITask & task, int64_t count, std::time_t interval);
+			bool AddTask(const std::shared_ptr<ITask> & task, int64_t count, std::time_t interval);
 
 			/**
 			 *
@@ -212,9 +212,9 @@ namespace tinyToolkit
 			std::vector<Event *> _nearList[TINY_TOOLKIT_TIMER_NEAR_SIZE]{ };
 			std::vector<Event *> _wheelList[TINY_TOOLKIT_TIMER_WHEEL_NUM][TINY_TOOLKIT_TIMER_WHEEL_SIZE]{ };
 
-			std::unordered_map<const ITask *, Event *> _taskList{ };
-			std::unordered_map<const ITask *, Event *> _workList{ };
-			std::unordered_map<const ITask *, Event *> _pauseList{ };
+			std::unordered_map<std::shared_ptr<ITask>, Event *> _taskList{ };
+			std::unordered_map<std::shared_ptr<ITask>, Event *> _workList{ };
+			std::unordered_map<std::shared_ptr<ITask>, Event *> _pauseList{ };
 		};
 	}
 }

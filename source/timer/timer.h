@@ -80,6 +80,17 @@ namespace tinyToolkit
 
 			/**
 			 *
+			 * 是否存在
+			 *
+			 * @param task 任务
+			 *
+			 * @return 是否存在
+			 *
+			 */
+			bool Exist(const std::shared_ptr<ITask> & task);
+
+			/**
+			 *
 			 * 暂停事件
 			 *
 			 * @param task 任务

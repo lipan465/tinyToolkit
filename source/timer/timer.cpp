@@ -167,6 +167,11 @@ namespace tinyToolkit
 
 			auto event = find->second;
 
+			if (event == nullptr)
+			{
+				return false;
+			}
+
 			event->Kill();
 
 			_taskList.erase(event->Task());
@@ -174,6 +179,20 @@ namespace tinyToolkit
 			_pauseList.erase(event->Task());
 
 			return true;
+		}
+
+		/**
+		 *
+		 * 是否存在
+		 *
+		 * @param task 任务
+		 *
+		 * @return 是否存在
+		 *
+		 */
+		bool Timer::Exist(const std::shared_ptr<ITask> & task)
+		{
+			return _taskList.find(task) != _taskList.end();
 		}
 
 		/**
@@ -197,6 +216,11 @@ namespace tinyToolkit
 			}
 
 			auto event = find->second;
+
+			if (event == nullptr)
+			{
+				return false;
+			}
 
 			event->Pause(_tickTime);
 
@@ -229,6 +253,11 @@ namespace tinyToolkit
 
 			auto event = find->second;
 
+			if (event == nullptr)
+			{
+				return false;
+			}
+
 			event->Resume(_tickTime);
 
 			AddEvent(event);
@@ -260,7 +289,7 @@ namespace tinyToolkit
 
 			std::lock_guard<std::mutex> lock(_taskMutex);
 
-			if (_taskList.find(task) != _taskList.end())
+			if (Exist(task))
 			{
 				return false;
 			}

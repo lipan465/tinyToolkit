@@ -15,33 +15,12 @@
 #include "endpoint.h"
 
 
-#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
-#
-#  include <functional>
-#
-#elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_APPLE
-#
-#  include <functional>
-#
-#elif TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_LINUX
-#
-#  include <functional>
-#
-#endif
-
-
 namespace tinyToolkit
 {
 	namespace net
 	{
 		class TINY_TOOLKIT_API ISession
 		{
-			friend class Poller;
-			friend class UDPServerChannel;
-			friend class TCPServerChannel;
-			friend class UDPSessionChannel;
-			friend class TCPSessionChannel;
-
 		public:
 			/**
 			 *
@@ -68,6 +47,15 @@ namespace tinyToolkit
 
 			/**
 			 *
+			 * 设置接收缓存大小
+			 *
+			 * @param size 缓存大小
+			 *
+			 */
+			void SetReceiveCacheSize(std::size_t size);
+
+			/**
+			 *
 			 * 添加消息
 			 *
 			 * @param buffer 内容
@@ -80,30 +68,21 @@ namespace tinyToolkit
 
 			/**
 			 *
+			 * 是否有效
+			 *
+			 * @return 是否有效
+			 *
+			 */
+			bool IsValid();
+
+			/**
+			 *
 			 * 轮询器
 			 *
 			 * @return 轮询器
 			 *
 			 */
 			Poller * Pollers();
-
-			/**
-			 *
-			 * 缓存大小
-			 *
-			 * @return 缓存大小
-			 *
-			 */
-			std::size_t CacheSize() const;
-
-			/**
-			 *
-			 * 剩余消息个数
-			 *
-			 * @return 剩余消息个数
-			 *
-			 */
-			std::size_t RemainMessageCount() const;
 
 			/**
 			 *
@@ -138,12 +117,12 @@ namespace tinyToolkit
 
 			Poller * _poller{ nullptr };
 
-			std::size_t _cacheSize{ 0 };
+			std::size_t _receiveCacheSize{ 0 };
 
 			std::shared_ptr<IChannel> _channel{ };
 		};
 
-		class TINY_TOOLKIT_API TCPSession : public ISession
+		class TINY_TOOLKIT_API ITCPSession : public ISession
 		{
 			friend class Poller;
 			friend class UDPServerChannel;
@@ -159,97 +138,63 @@ namespace tinyToolkit
 			 * 析构函数
 			 *
 			 */
-			~TCPSession() override = default;
+			~ITCPSession() override = default;
 
+			/**
+			 *
+			 * 连接
+			 *
+			 * @param host 目标地址
+			 * @param port 目标端口
+			 *
+			 * @return 是否连接成功
+			 *
+			 */
+			bool Connect(std::string host, uint16_t port);
+
+		protected:
 			/**
 			 *
 			 * 事件错误
 			 *
-			 * @param callback 回调函数
-			 *
 			 */
-			void OnError(std::function<void()> callback);
-
-			/**
-			 *
-			 * 断开连接
-			 *
-			 * @param callback 回调函数
-			 *
-			 */
-			void OnDisconnect(std::function<void()> callback);
-
-			/**
-			 *
-			 * 绑定地址
-			 *
-			 * @param callback 回调函数
-			 *
-			 */
-			void OnBind(std::function<void(bool)> callback);
-
-			/**
-			 *
-			 * 发送数据
-			 *
-			 * @param callback 回调函数
-			 *
-			 */
-			void OnSend(std::function<void(bool)> callback);
-
-			/**
-			 *
-			 * 套接字生成
-			 *
-			 * @param callback 回调函数
-			 *
-			 */
-			void OnSocket(std::function<void(bool)> callback);
+			virtual void OnError();
 
 			/**
 			 *
 			 * 会话连接
 			 *
-			 * @param callback 回调函数
+			 */
+			virtual void OnConnect();
+
+			/**
+			 *
+			 * 断开连接
 			 *
 			 */
-			void OnConnect(std::function<void(bool)> callback);
+			virtual void OnDisconnect();
+
+			/**
+			 *
+			 * 发送数据
+			 *
+			 */
+			virtual void OnSend();
 
 			/**
 			 *
 			 * 接收数据
 			 *
-			 * @param callback 回调函数
+			 * @param buffer 内容
+			 * @param length 长度
+			 *
+			 * @return 偏移长度
 			 *
 			 */
-			void OnReceive(std::function<std::size_t(bool, const char *, std::size_t)> callback);
-
-			/**
-			 *
-			 * 启动
-			 *
-			 * @param host 目标地址
-			 * @param port 目标端口
-			 * @param cache 缓存大小
-			 *
-			 * @return 是否启动成功
-			 *
-			 */
-			bool Launch(std::string host, uint16_t port, std::size_t cache);
-
-		private:
-			std::function<void()> _onError{ };
-			std::function<void()> _onDisconnect{ };
-
-			std::function<void(bool)> _onBind{ };
-			std::function<void(bool)> _onSend{ };
-			std::function<void(bool)> _onSocket{ };
-			std::function<void(bool)> _onConnect{ };
-
-			std::function<std::size_t(bool, const char *, std::size_t)> _onReceive{ };
+			virtual std::size_t OnReceive(const char * buffer, std::size_t length);
 		};
 
-		class TINY_TOOLKIT_API UDPSession : public ISession
+		class TINY_TOOLKIT_API IUDPSession : public ISession
 		{
 			friend class Poller;
 			friend class UDPServerChannel;
@@ -265,94 +210,60 @@ namespace tinyToolkit
 			 * 析构函数
 			 *
 			 */
-			~UDPSession() override = default;
+			~IUDPSession() override = default;
 
+			/**
+			 *
+			 * 连接监听
+			 *
+			 * @param host 目标地址
+			 * @param port 目标端口
+			 *
+			 * @return 是否连接成功
+			 *
+			 */
+			bool Connect(std::string host, uint16_t port);
+
+		protected:
 			/**
 			 *
 			 * 事件错误
 			 *
-			 * @param callback 回调函数
-			 *
 			 */
-			void OnError(std::function<void()> callback);
-
-			/**
-			 *
-			 * 断开连接
-			 *
-			 * @param callback 回调函数
-			 *
-			 */
-			void OnDisconnect(std::function<void()> callback);
-
-			/**
-			 *
-			 * 绑定地址
-			 *
-			 * @param callback 回调函数
-			 *
-			 */
-			void OnBind(std::function<void(bool)> callback);
-
-			/**
-			 *
-			 * 发送数据
-			 *
-			 * @param callback 回调函数
-			 *
-			 */
-			void OnSend(std::function<void(bool)> callback);
-
-			/**
-			 *
-			 * 套接字生成
-			 *
-			 * @param callback 回调函数
-			 *
-			 */
-			void OnSocket(std::function<void(bool)> callback);
+			virtual void OnError();
 
 			/**
 			 *
 			 * 会话连接
 			 *
-			 * @param callback 回调函数
+			 */
+			virtual void OnConnect();
+
+			/**
+			 *
+			 * 断开连接
 			 *
 			 */
-			void OnConnect(std::function<void(bool)> callback);
+			virtual void OnDisconnect();
+
+			/**
+			 *
+			 * 发送数据
+			 *
+			 */
+			virtual void OnSend();
 
 			/**
 			 *
 			 * 接收数据
 			 *
-			 * @param callback 回调函数
+			 * @param buffer 内容
+			 * @param length 长度
+			 *
+			 * @return 偏移长度
 			 *
 			 */
-			void OnReceive(std::function<std::size_t(bool, const char *, std::size_t)> callback);
-
-			/**
-			 *
-			 * 启动
-			 *
-			 * @param host 目标地址
-			 * @param port 目标端口
-			 * @param cache 缓存大小
-			 *
-			 * @return 是否启动成功
-			 *
-			 */
-			bool Launch(std::string host, uint16_t port, std::size_t cache);
-
-		private:
-			std::function<void()> _onError{ };
-			std::function<void()> _onDisconnect{ };
-
-			std::function<void(bool)> _onBind{ };
-			std::function<void(bool)> _onSend{ };
-			std::function<void(bool)> _onSocket{ };
-			std::function<void(bool)> _onConnect{ };
-
-			std::function<std::size_t(bool, const char *, std::size_t)> _onReceive{ };
+			virtual std::size_t OnReceive(const char * buffer, std::size_t length);
 		};
 	}
 }

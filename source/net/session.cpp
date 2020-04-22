@@ -48,6 +48,18 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 设置接收缓存大小
+		 *
+		 * @param size 缓存大小
+		 *
+		 */
+		void ISession::SetReceiveCacheSize(std::size_t size)
+		{
+			_receiveCacheSize = size;
+		}
+
+		/**
+		 *
 		 * 添加消息
 		 *
 		 * @param buffer 内容
@@ -68,6 +80,23 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 是否有效
+		 *
+		 * @return 是否有效
+		 *
+		 */
+		bool ISession::IsValid()
+		{
+			if (_channel == nullptr)
+			{
+				return false;
+			}
+
+			return _channel->Socket() != TINY_TOOLKIT_SOCKET_INVALID;
+		}
+
+		/**
+		 *
 		 * 轮询器
 		 *
 		 * @return 轮询器
@@ -76,40 +105,6 @@ namespace tinyToolkit
 		Poller * ISession::Pollers()
 		{
 			return _poller;
-		}
-
-		/**
-		 *
-		 * 缓存大小
-		 *
-		 * @return 缓存大小
-		 *
-		 */
-		std::size_t ISession::CacheSize() const
-		{
-			if (_channel == nullptr)
-			{
-				return 0;
-			}
-
-			return _channel->CacheSize();
-		}
-
-		/**
-		 *
-		 * 剩余消息个数
-		 *
-		 * @return 剩余消息个数
-		 *
-		 */
-		std::size_t ISession::RemainMessageCount() const
-		{
-			if (_channel == nullptr)
-			{
-				return 0;
-			}
-
-			return _channel->RemainMessageCount();
 		}
 
 		/**
@@ -175,60 +170,27 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 连接
+		 *
+		 * @param host 目标地址
+		 * @param port 目标端口
+		 *
+		 * @return 是否连接成功
+		 *
+		 */
+		bool ITCPSession::Connect(std::string host, uint16_t port)
+		{
+			return Pollers()->LaunchTCPSession(this, std::move(host), port);
+		}
+
+		/**
+		 *
 		 * 事件错误
 		 *
 		 */
-		void TCPSession::OnError(std::function<void()> callback)
+		void ITCPSession::OnError()
 		{
-			_onError = std::move(callback);
-		}
 
-		/**
-		 *
-		 * 断开连接
-		 *
-		 * @param callback 回调函数
-		 *
-		 */
-		void TCPSession::OnDisconnect(std::function<void()> callback)
-		{
-			_onDisconnect = std::move(callback);
-		}
-
-		/**
-		 *
-		 * 绑定地址
-		 *
-		 * @param callback 回调函数
-		 *
-		 */
-		void TCPSession::OnBind(std::function<void(bool)> callback)
-		{
-			_onBind = std::move(callback);
-		}
-
-		/**
-		 *
-		 * 发送数据
-		 *
-		 * @param callback 回调函数
-		 *
-		 */
-		void TCPSession::OnSend(std::function<void(bool)> callback)
-		{
-			_onSend = std::move(callback);
-		}
-
-		/**
-		 *
-		 * 套接字生成
-		 *
-		 * @param callback 回调函数
-		 *
-		 */
-		void TCPSession::OnSocket(std::function<void(bool)> callback)
-		{
-			_onSocket = std::move(callback);
 		}
 
 		/**
@@ -238,37 +200,46 @@ namespace tinyToolkit
 		 * @param callback 回调函数
 		 *
 		 */
-		void TCPSession::OnConnect(std::function<void(bool)> callback)
+		void ITCPSession::OnConnect()
 		{
-			_onConnect = std::move(callback);
+
+		}
+
+		/**
+		 *
+		 * 断开连接
+		 *
+		 */
+		void ITCPSession::OnDisconnect()
+		{
+
+		}
+
+		/**
+		 *
+		 * 发送数据
+		 *
+		 */
+		void ITCPSession::OnSend()
+		{
+
 		}
 
 		/**
 		 *
 		 * 接收数据
 		 *
-		 * @param callback 回调函数
+		 * @param buffer 内容
+		 * @param length 长度
+		 *
+		 * @return 偏移长度
 		 *
 		 */
-		void TCPSession::OnReceive(std::function<std::size_t(bool, const char *, std::size_t)> callback)
+		std::size_t ITCPSession::OnReceive(const char * buffer, std::size_t length)
 		{
-			_onReceive = std::move(callback);
-		}
+			(void)buffer;
 
-		/**
-		 *
-		 * 启动
-		 *
-		 * @param host 目标地址
-		 * @param port 目标端口
-		 * @param cache 缓存大小
-		 *
-		 * @return 是否启动成功
-		 *
-		 */
-		bool TCPSession::Launch(std::string host, uint16_t port, std::size_t cache)
-		{
-			return Pollers()->LaunchTCPSession(this, std::move(host), port, cache);
+			return length;
 		}
 
 
@@ -277,60 +248,27 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 连接
+		 *
+		 * @param host 目标地址
+		 * @param port 目标端口
+		 *
+		 * @return 是否连接成功
+		 *
+		 */
+		bool IUDPSession::Connect(std::string host, uint16_t port)
+		{
+			return Pollers()->LaunchUDPSession(this, std::move(host), port);
+		}
+
+		/**
+		 *
 		 * 事件错误
 		 *
 		 */
-		void UDPSession::OnError(std::function<void()> callback)
+		void IUDPSession::OnError()
 		{
-			_onError = std::move(callback);
-		}
 
-		/**
-		 *
-		 * 断开连接
-		 *
-		 * @param callback 回调函数
-		 *
-		 */
-		void UDPSession::OnDisconnect(std::function<void()> callback)
-		{
-			_onDisconnect = std::move(callback);
-		}
-
-		/**
-		 *
-		 * 绑定地址
-		 *
-		 * @param callback 回调函数
-		 *
-		 */
-		void UDPSession::OnBind(std::function<void(bool)> callback)
-		{
-			_onBind = std::move(callback);
-		}
-
-		/**
-		 *
-		 * 发送数据
-		 *
-		 * @param callback 回调函数
-		 *
-		 */
-		void UDPSession::OnSend(std::function<void(bool)> callback)
-		{
-			_onSend = std::move(callback);
-		}
-
-		/**
-		 *
-		 * 套接字生成
-		 *
-		 * @param callback 回调函数
-		 *
-		 */
-		void UDPSession::OnSocket(std::function<void(bool)> callback)
-		{
-			_onSocket = std::move(callback);
 		}
 
 		/**
@@ -340,37 +278,46 @@ namespace tinyToolkit
 		 * @param callback 回调函数
 		 *
 		 */
-		void UDPSession::OnConnect(std::function<void(bool)> callback)
+		void IUDPSession::OnConnect()
 		{
-			_onConnect = std::move(callback);
+
+		}
+
+		/**
+		 *
+		 * 断开连接
+		 *
+		 */
+		void IUDPSession::OnDisconnect()
+		{
+
+		}
+
+		/**
+		 *
+		 * 发送数据
+		 *
+		 */
+		void IUDPSession::OnSend()
+		{
+
 		}
 
 		/**
 		 *
 		 * 接收数据
 		 *
-		 * @param callback 回调函数
+		 * @param buffer 内容
+		 * @param length 长度
+		 *
+		 * @return 偏移长度
 		 *
 		 */
-		void UDPSession::OnReceive(std::function<std::size_t(bool, const char *, std::size_t)> callback)
+		std::size_t IUDPSession::OnReceive(const char * buffer, std::size_t length)
 		{
-			_onReceive = std::move(callback);
-		}
+			(void)buffer;
 
-		/**
-		 *
-		 * 启动
-		 *
-		 * @param host 目标地址
-		 * @param port 目标端口
-		 * @param cache 缓存大小
-		 *
-		 * @return 是否启动成功
-		 *
-		 */
-		bool UDPSession::Launch(std::string host, uint16_t port, std::size_t cache)
-		{
-			return Pollers()->LaunchUDPSession(this, std::move(host), port, cache);
+			return length;
 		}
 	}
 }

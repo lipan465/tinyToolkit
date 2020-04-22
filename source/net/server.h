@@ -20,12 +20,6 @@ namespace tinyToolkit
 	{
 		class TINY_TOOLKIT_API IServer
 		{
-			friend class Poller;
-			friend class UDPServerChannel;
-			friend class TCPServerChannel;
-			friend class UDPSessionChannel;
-			friend class TCPSessionChannel;
-
 		public:
 			/**
 			 *
@@ -52,21 +46,21 @@ namespace tinyToolkit
 
 			/**
 			 *
+			 * 是否有效
+			 *
+			 * @return 是否有效
+			 *
+			 */
+			bool IsValid();
+
+			/**
+			 *
 			 * 轮询器
 			 *
 			 * @return 轮询器
 			 *
 			 */
 			Poller * Pollers();
-
-			/**
-			 *
-			 * 缓存大小
-			 *
-			 * @return 缓存大小
-			 *
-			 */
-			std::size_t CacheSize() const;
 
 			/**
 			 *
@@ -101,12 +95,10 @@ namespace tinyToolkit
 
 			Poller * _poller{ nullptr };
 
-			std::size_t _cacheSize{ 0 };
-
 			std::shared_ptr<IChannel> _channel{ };
 		};
 
-		class TINY_TOOLKIT_API TCPServer : public IServer
+		class TINY_TOOLKIT_API ITCPServer : public IServer
 		{
 			friend class Poller;
 			friend class UDPServerChannel;
@@ -122,87 +114,46 @@ namespace tinyToolkit
 			 * 析构函数
 			 *
 			 */
-			~TCPServer() override = default;
+			~ITCPServer() override = default;
 
+			/**
+			 *
+			 * 监听
+			 *
+			 * @param host 本地地址
+			 * @param port 本地端口
+			 *
+			 * @return 是否监听成功
+			 *
+			 */
+			bool Listen(std::string host, uint16_t port);
+
+		protected:
 			/**
 			 *
 			 * 事件错误
 			 *
-			 * @param callback 回调函数
-			 *
 			 */
-			void OnError(std::function<void()> callback);
+			virtual void OnError();
 
 			/**
 			 *
 			 * 关闭连接
 			 *
-			 * @param callback 回调函数
-			 *
 			 */
-			void OnShutdown(std::function<void()> callback);
-
-			/**
-			 *
-			 * 绑定地址
-			 *
-			 * @param callback 回调函数
-			 *
-			 */
-			void OnBind(std::function<void(bool)> callback);
-
-			/**
-			 *
-			 * 套接字生成
-			 *
-			 * @param callback 回调函数
-			 *
-			 */
-			void OnSocket(std::function<void(bool)> callback);
-
-			/**
-			 *
-			 * 监听地址
-			 *
-			 * @param callback 回调函数
-			 *
-			 */
-			void OnListen(std::function<void(bool)> callback);
+			virtual void OnShutdown();
 
 			/**
 			 *
 			 * 接收会话
 			 *
-			 * @param callback 回调函数
+			 * @return 会话对象
 			 *
 			 */
-			void OnAccept(std::function<tinyToolkit::net::TCPSession *(bool)> callback);
-
-			/**
-			 *
-			 * 启动
-			 *
-			 * @param host 本地地址
-			 * @param port 本地端口
-			 * @param cache 缓存大小
-			 *
-			 * @return 是否启动成功
-			 *
-			 */
-			bool Launch(std::string host, uint16_t port, std::size_t cache);
-
-		private:
-			std::function<void()> _onError{ };
-			std::function<void()> _onShutdown{ };
-
-			std::function<void(bool)> _onBind{ };
-			std::function<void(bool)> _onSocket{ };
-			std::function<void(bool)> _onListen{ };
-
-			std::function<tinyToolkit::net::TCPSession *(bool)> _onAccept{ };
+			virtual tinyToolkit::net::ITCPSession * OnAccept();
 		};
 
-		class TINY_TOOLKIT_API UDPServer : public IServer
+		class TINY_TOOLKIT_API IUDPServer : public IServer
 		{
 			friend class Poller;
 			friend class UDPServerChannel;
@@ -218,84 +169,43 @@ namespace tinyToolkit
 			 * 析构函数
 			 *
 			 */
-			~UDPServer() override = default;
+			~IUDPServer() override = default;
 
+			/**
+			 *
+			 * 监听
+			 *
+			 * @param host 本地地址
+			 * @param port 本地端口
+			 *
+			 * @return 是否监听成功
+			 *
+			 */
+			bool Listen(std::string host, uint16_t port);
+
+		protected:
 			/**
 			 *
 			 * 事件错误
 			 *
-			 * @param callback 回调函数
-			 *
 			 */
-			void OnError(std::function<void()> callback);
+			virtual void OnError();
 
 			/**
 			 *
 			 * 关闭连接
 			 *
-			 * @param callback 回调函数
-			 *
 			 */
-			void OnShutdown(std::function<void()> callback);
-
-			/**
-			 *
-			 * 绑定地址
-			 *
-			 * @param callback 回调函数
-			 *
-			 */
-			void OnBind(std::function<void(bool)> callback);
-
-			/**
-			 *
-			 * 套接字生成
-			 *
-			 * @param callback 回调函数
-			 *
-			 */
-			void OnSocket(std::function<void(bool)> callback);
-
-			/**
-			 *
-			 * 监听地址
-			 *
-			 * @param callback 回调函数
-			 *
-			 */
-			void OnListen(std::function<void(bool)> callback);
+			virtual void OnShutdown();
 
 			/**
 			 *
 			 * 接收会话
 			 *
-			 * @param callback 回调函数
+			 * @return 会话对象
 			 *
 			 */
-			void OnAccept(std::function<tinyToolkit::net::UDPSession *(bool)> callback);
-
-			/**
-			 *
-			 * 启动
-			 *
-			 * @param host 本地地址
-			 * @param port 本地端口
-			 * @param cache 缓存大小
-			 *
-			 * @return 是否启动成功
-			 *
-			 */
-			bool Launch(std::string host, uint16_t port, std::size_t cache);
-
-		private:
-			std::function<void()> _onError{ };
-			std::function<void()> _onShutdown{ };
-
-			std::function<void(bool)> _onBind{ };
-			std::function<void(bool)> _onSocket{ };
-			std::function<void(bool)> _onListen{ };
-
-			std::function<tinyToolkit::net::UDPSession *(bool)> _onAccept{ };
+			virtual tinyToolkit::net::IUDPSession * OnAccept();
 		};
 	}
 }

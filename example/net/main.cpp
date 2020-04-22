@@ -10,230 +10,360 @@
 #include "main.h"
 
 #include "pool/task.h"
+#include "pool/object.h"
+
+#include "util/time.h"
 #include "util/string.h"
 
 
-template <typename SessionTypeT>
-static void InitializeSession(SessionTypeT & session)
+class TCPServer : public tinyToolkit::net::ITCPServer
 {
-	session.OnError([&]()
+	class Session : public tinyToolkit::net::ITCPSession
 	{
-		util::String::Print
-		(
-			"Session [{}:{}] error\r\n",
-			session.LocalEndpoint().host,
-			session.LocalEndpoint().port
-		);
-	});
+	public:
+		/**
+		 *
+		 * 析构函数
+		 *
+		 */
+		~Session() override = default;
 
-	session.OnDisconnect([&]()
-	{
-		 util::String::Print
-		 (
-		 	"Session [{}:{}] disconnect [{}:{}]\r\n",
-		    session.LocalEndpoint().host,
-		    session.LocalEndpoint().port,
-		    session.PeerEndpoint().host,
-		    session.PeerEndpoint().port
-		 );
-	});
-
-	session.OnBind([&](bool status)
-	{
-		util::String::Print
-		(
-			"Session [{}:{}] bind {}\r\n",
-			session.LocalEndpoint().host,
-			session.LocalEndpoint().port,
-			status ? "success" : "failed"
-		);
-	});
-
-	session.OnSend([&](bool status)
-	{
-		util::String::Print
-		(
-			"Session [{}:{}] send [{}:{}] {}, remain {} message\r\n",
-			session.LocalEndpoint().host,
-			session.LocalEndpoint().port,
-			session.PeerEndpoint().host,
-			session.PeerEndpoint().port,
-			status ? "success" : "failed",
-			session.RemainMessageCount()
-		);
-	});
-
-	session.OnSocket([&](bool status)
-	{
-		util::String::Print
-		(
-			"Session [{}:{}] socket {}\r\n",
-			session.LocalEndpoint().host,
-			session.LocalEndpoint().port,
-			status ? "success" : "failed"
-		);
-	});
-
-	session.OnConnect([&](bool status)
-	{
-		util::String::Print
-		(
-			"Session [{}:{}] connect [{}:{}] {}\r\n",
-			session.LocalEndpoint().host,
-			session.LocalEndpoint().port,
-			session.PeerEndpoint().host,
-			session.PeerEndpoint().port,
-			status ? "success" : "failed"
-		);
-
-		if (status)
+	private:
+		/**
+		 *
+		 * 接收数据
+		 *
+		 * @param buffer 内容
+		 * @param length 长度
+		 *
+		 * @return 偏移长度
+		 *
+		 */
+		std::size_t OnReceive(const char * buffer, std::size_t length) override
 		{
-			session.Send("request server message", 22);
-		}
-	});
-
-	session.OnReceive([&](bool status, const char * buffer, std::size_t length) -> std::size_t
-	{
-		util::String::Print
-		(
-			"Session [{}:{}] receive [{}:{}] {}\r\n",
-			session.LocalEndpoint().host,
-			session.LocalEndpoint().port,
-			session.PeerEndpoint().host,
-			session.PeerEndpoint().port,
-			status ? buffer : "failed"
-		);
-
-		return length;
-	});
-}
-
-
-template <typename ServerTypeT, typename SessionTypeT>
-static void InitializeServer(ServerTypeT & server, std::vector<SessionTypeT *> & sessionPool)
-{
-	server.OnError([&]()
-	{
-		util::String::Print
-		(
-			"Server [{}:{}] error\r\n",
-			server.LocalEndpoint().host,
-			server.LocalEndpoint().port
-		);
-	});
-
-	server.OnShutdown([&]()
-	{
-		util::String::Print
-		(
-			"Server [{}:{}] shutdown\r\n",
-			server.LocalEndpoint().host,
-			server.LocalEndpoint().port
-		);
-
-		for (auto &session : sessionPool)
-		{
-			session->Close();
-
-			delete session;
-		}
-	});
-
-	server.OnBind([&](bool status)
-	{
-		util::String::Print
-		(
-			"Server [{}:{}] bind {}\r\n",
-			server.LocalEndpoint().host,
-			server.LocalEndpoint().port,
-			status ? "success" : "failed"
-		);
-	});
-
-	server.OnSocket([&](bool status)
-	{
-		util::String::Print
-		(
-			"Server [{}:{}] socket {}\r\n",
-			server.LocalEndpoint().host,
-			server.LocalEndpoint().port,
-			status ? "success" : "failed"
-		);
-	});
-
-	server.OnListen([&](bool status)
-	{
-		util::String::Print
-		(
-			"Server [{}:{}] listen {}\r\n",
-			server.LocalEndpoint().host,
-			server.LocalEndpoint().port,
-			status ? "success" : "failed"
-		);
-	});
-
-	server.OnAccept([&](bool status) -> SessionTypeT *
-	{
-		util::String::Print
-		(
-			"Server [{}:{}] accept {}\r\n",
-			server.LocalEndpoint().host,
-			server.LocalEndpoint().port,
-			status ? "success" : "failed"
-		);
-
-		if (!status)
-		{
-			return nullptr;
-		}
-
-		auto * session = new SessionTypeT;
-
-		session->OnSend([session](bool)
-		{
-			if (session->RemainMessageCount() == 0)
-			{
-				session->Close();
-			}
-		});
-
-		session->OnReceive([session](bool result, const char * buffer, std::size_t length) -> std::size_t
-		{
-			util::String::Print
-			(
-				"ServerSession [{}:{}] receive [{}:{}] {}\r\n",
-				session->LocalEndpoint().host,
-				session->LocalEndpoint().port,
-				session->PeerEndpoint().host,
-				session->PeerEndpoint().port,
-				result ? buffer : "failed"
-			);
-
-			if (result)
-			{
-				session->Send("respond server message", 22);
-			}
+			Send(buffer, length);
 
 			return length;
-		});
+		}
+	};
 
-		session->OnDisconnect([session]()
-		{
-			util::String::Print
-			(
-				"ServerSession [{}:{}] disconnect [{}:{}]\r\n",
-				session->LocalEndpoint().host,
-				session->LocalEndpoint().port,
-				session->PeerEndpoint().host,
-				session->PeerEndpoint().port
-			);
-		});
+public:
+	/**
+	 *
+	 * 析构函数
+	 *
+	 */
+	~TCPServer() override = default;
 
-		sessionPool.push_back(session);
+private:
+	/**
+	 *
+	 * 事件错误
+	 *
+	 */
+	void OnError() override
+	{
+		util::String::Print("Service [{}:{}] error\r\n", LocalEndpoint().host, LocalEndpoint().port);
+	}
+
+	/**
+	 *
+	 * 关闭连接
+	 *
+	 */
+	void OnShutdown() override
+	{
+		util::String::Print("Service [{}:{}] shutdown\r\n", LocalEndpoint().host, LocalEndpoint().port);
+
+		_pool.Release();
+	}
+
+	/**
+	 *
+	 * 接收会话
+	 *
+	 * @return 会话对象
+	 *
+	 */
+	tinyToolkit::net::ITCPSession * OnAccept() override
+	{
+		auto session = _pool.Borrow();
+
+		session->SetReceiveCacheSize(1024);
 
 		return session;
-	});
-}
+	}
+
+private:
+	pool::ObjectPool<TCPServer::Session> _pool{ };
+};
+
+
+class UDPServer : public tinyToolkit::net::IUDPServer
+{
+	class Session : public tinyToolkit::net::IUDPSession
+	{
+	public:
+		/**
+		 *
+		 * 析构函数
+		 *
+		 */
+		~Session() override = default;
+
+	private:
+		/**
+		 *
+		 * 接收数据
+		 *
+		 * @param buffer 内容
+		 * @param length 长度
+		 *
+		 * @return 偏移长度
+		 *
+		 */
+		std::size_t OnReceive(const char * buffer, std::size_t length) override
+		{
+			Send(buffer, length);
+
+			return length;
+		}
+	};
+
+public:
+	/**
+	 *
+	 * 析构函数
+	 *
+	 */
+	~UDPServer() override = default;
+
+private:
+	/**
+	 *
+	 * 事件错误
+	 *
+	 */
+	void OnError() override
+	{
+		util::String::Print("Service [{}:{}] error\r\n", LocalEndpoint().host, LocalEndpoint().port);
+	}
+
+	/**
+	 *
+	 * 关闭连接
+	 *
+	 */
+	void OnShutdown() override
+	{
+		util::String::Print("Service [{}:{}] shutdown\r\n", LocalEndpoint().host, LocalEndpoint().port);
+
+		_pool.Release();
+	}
+
+	/**
+	 *
+	 * 接收会话
+	 *
+	 * @return 会话对象
+	 *
+	 */
+	tinyToolkit::net::IUDPSession * OnAccept() override
+	{
+		auto session = _pool.Borrow();
+
+		session->SetReceiveCacheSize(1024);
+
+		return session;
+	}
+
+private:
+	pool::ObjectPool<UDPServer::Session> _pool{ };
+};
+
+
+class TCPSession : public tinyToolkit::net::ITCPSession
+{
+public:
+	/**
+	 *
+	 * 析构函数
+	 *
+	 */
+	~TCPSession() override = default;
+
+private:
+	/**
+	 *
+	 * 事件错误
+	 *
+	 */
+	void OnError() override
+	{
+		util::String::Print("Session [{}:{}] error\r\n", LocalEndpoint().host, LocalEndpoint().port);
+	}
+
+	/**
+	 *
+	 * 会话连接
+	 *
+	 */
+	void OnConnect() override
+	{
+		util::String::Print
+		(
+			"Session [{}:{}] connect [{}:{}]\r\n",
+			LocalEndpoint().host,
+			LocalEndpoint().port,
+			PeerEndpoint().host,
+			PeerEndpoint().port
+		);
+
+		Send("Hello TCP", 9);
+
+		_sTime = util::Time::Milliseconds();
+	}
+
+	/**
+	 *
+	 * 接收数据
+	 *
+	 * @param buffer 内容
+	 * @param length 长度
+	 *
+	 * @return 偏移长度
+	 *
+	 */
+	std::size_t OnReceive(const char * buffer, std::size_t length) override
+	{
+		_length += length;
+
+		if (++_count == 10000)
+		{
+			_eTime = util::Time::Milliseconds();
+			_inter = _eTime - _sTime;
+
+			util::String::Print
+			(
+				"Session [{}:{}] receive [{}:{}] count {}, length {}, time use {}ms, qps {}\n",
+				LocalEndpoint().host,
+				LocalEndpoint().port,
+				PeerEndpoint().host,
+				PeerEndpoint().port,
+				_count,
+				_length,
+				_inter,
+				(_count * 1000) / _inter
+			);
+
+			Close();
+		}
+
+		Send(buffer, length);
+
+		return length;
+	}
+
+private:
+	std::time_t _sTime{ 0 };
+	std::time_t _eTime{ 0 };
+	std::time_t _inter{ 0 };
+
+	std::size_t _count{ 0 };
+	std::size_t _length{ 0 };
+};
+
+
+class UDPSession : public tinyToolkit::net::IUDPSession
+{
+public:
+	/**
+	 *
+	 * 析构函数
+	 *
+	 */
+	~UDPSession() override = default;
+
+private:
+	/**
+	 *
+	 * 事件错误
+	 *
+	 */
+	void OnError() override
+	{
+		util::String::Print("Session [{}:{}] error\r\n", LocalEndpoint().host, LocalEndpoint().port);
+	}
+
+	/**
+	 *
+	 * 会话连接
+	 *
+	 */
+	void OnConnect() override
+	{
+		util::String::Print
+		(
+			"Session [{}:{}] connect [{}:{}]\r\n",
+			LocalEndpoint().host,
+			LocalEndpoint().port,
+			PeerEndpoint().host,
+			PeerEndpoint().port
+		);
+
+		Send("Hello UDP", 9);
+
+		_sTime = util::Time::Milliseconds();
+	}
+
+	/**
+	 *
+	 * 接收数据
+	 *
+	 * @param buffer 内容
+	 * @param length 长度
+	 *
+	 * @return 偏移长度
+	 *
+	 */
+	std::size_t OnReceive(const char * buffer, std::size_t length) override
+	{
+		_length += length;
+
+		if (++_count == 10000)
+		{
+			_eTime = util::Time::Milliseconds();
+			_inter = _eTime - _sTime;
+
+			util::String::Print
+			(
+				"Session [{}:{}] Receive [{}:{}] count {}, length {}, time use {}ms, qps {}\n",
+				LocalEndpoint().host,
+				LocalEndpoint().port,
+				PeerEndpoint().host,
+				PeerEndpoint().port,
+				_count,
+				_length,
+				_inter,
+				(_count * 1000) / _inter
+			);
+
+			Close();
+		}
+
+		Send(buffer, length);
+
+		return length;
+	}
+
+private:
+	std::time_t _sTime{ 0 };
+	std::time_t _eTime{ 0 };
+	std::time_t _inter{ 0 };
+
+	std::size_t _count{ 0 };
+	std::size_t _length{ 0 };
+};
 
 
 static void TCP()
@@ -245,13 +375,9 @@ static void TCP()
 
 	try
 	{
-		net::TCPServer server{ };
+		TCPServer server{ };
 
-		std::vector<net::TCPSession *> sessionPool{ };
-
-		InitializeServer(server, sessionPool);
-
-		if (!server.Launch("0.0.0.0", 10080, 1024))
+		if (!server.Listen("0.0.0.0", 10080))
 		{
 			util::String::Print
 			(
@@ -265,15 +391,15 @@ static void TCP()
 
 		pool.Launch();
 
-		for (int i = 0; i < 8; ++i)
+		for (std::size_t i = 0; i < pool.ThreadSize(); ++i)
 		{
 			pool.AddTask([]()
 	        {
-		         net::TCPSession session;
+		         TCPSession session{ };
 
-		         InitializeSession(session);
+		         session.SetReceiveCacheSize(1024);
 
-	             if (!session.Launch("127.0.0.1", 10080, 1024))
+	             if (!session.Connect("127.0.0.1", 10080))
 	             {
 		             util::String::Print
 		             (
@@ -283,7 +409,10 @@ static void TCP()
 		             );
 	             }
 
-	             std::this_thread::sleep_for(std::chrono::milliseconds(500));
+	             while (session.IsValid())
+	             {
+		             std::this_thread::sleep_for(std::chrono::milliseconds(500));
+	             }
 
 	             session.Close();
 	        });
@@ -309,13 +438,9 @@ static void UDP()
 
 	try
 	{
-		net::UDPServer server{ };
+		UDPServer server{ };
 
-		std::vector<net::UDPSession *> sessionPool{ };
-
-		InitializeServer(server, sessionPool);
-
-		if (!server.Launch("0.0.0.0", 10080, 1024))
+		if (!server.Listen("0.0.0.0", 10080))
 		{
 			util::String::Print
 			(
@@ -329,15 +454,15 @@ static void UDP()
 
 		pool.Launch();
 
-		for (int i = 0; i < 8; ++i)
+		for (std::size_t i = 0; i < pool.ThreadSize(); ++i)
 		{
 			pool.AddTask([]()
 		    {
-				net::UDPSession session;
+				UDPSession session;
 
-			    InitializeSession(session);
+			    session.SetReceiveCacheSize(1024);
 
-				if (!session.Launch("127.0.0.1", 10080, 1024))
+				if (!session.Connect("127.0.0.1", 10080))
 				{
 					util::String::Print
 					(
@@ -347,7 +472,10 @@ static void UDP()
 					);
 				}
 
-				std::this_thread::sleep_for(std::chrono::milliseconds(500));
+			    while (session.IsValid())
+			    {
+				    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+			    }
 
 			    session.Close();
 		    });

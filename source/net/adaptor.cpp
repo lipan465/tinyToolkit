@@ -502,7 +502,7 @@ namespace tinyToolkit
 
 		#else
 
-			auto ret = ip::Socket::RecvFrom
+			context->bytes = ip::Socket::RecvFrom
 			(
 				_socket,
 				context->temp,
@@ -512,14 +512,12 @@ namespace tinyToolkit
 				context
 			);
 
-			if (ret > 0)
+			if (context->bytes == 0)
 			{
-				context->bytes = static_cast<std::size_t>(ret);
+				return TINY_TOOLKIT_SOCKET_ERROR;
 			}
-			else
+			else if (context->bytes < 0)
 			{
-				context->bytes = 0;
-
 				if (errno != EINTR && errno != EAGAIN)
 				{
 					ip::Socket::Close(context->socket);

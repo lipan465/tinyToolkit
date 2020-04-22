@@ -51,14 +51,14 @@ namespace tinyToolkit
 			 * @param adaptor 适配器
 			 *
 			 */
-			UDPSessionChannel(UDPSession * session, std::shared_ptr<UDPAdaptor> adaptor);
+			UDPSessionChannel(IUDPSession * session, std::shared_ptr<UDPAdaptor> adaptor);
 
 			/**
 			 *
 			 * 析构函数
 			 *
 			 */
-			~UDPSessionChannel() override;
+			~UDPSessionChannel() override = default;
 
 			/**
 			 *
@@ -109,24 +109,6 @@ namespace tinyToolkit
 			 *
 			 */
 			bool Append(const void * buffer, std::size_t length) override;
-
-			/**
-			 *
-			 * 缓存大小
-			 *
-			 * @return 缓存大小
-			 *
-			 */
-			std::size_t CacheSize() const override;
-
-			/**
-			 *
-			 * 剩余消息个数
-			 *
-			 * @return 剩余消息个数
-			 *
-			 */
-			std::size_t RemainMessageCount() const override;
 
 			/**
 			 *
@@ -197,7 +179,7 @@ namespace tinyToolkit
 
 		#endif
 
-			UDPSession * _session{ nullptr };
+			IUDPSession * _session{ nullptr };
 
 			std::shared_ptr<UDPAdaptor> _adaptor{ };
 
@@ -217,14 +199,14 @@ namespace tinyToolkit
 			 * @param adaptor 适配器
 			 *
 			 */
-			UDPServerChannel(UDPServer * server, std::shared_ptr<UDPAdaptor> adaptor);
+			UDPServerChannel(IUDPServer * server, std::shared_ptr<UDPAdaptor> adaptor);
 
 			/**
 			 *
 			 * 析构函数
 			 *
 			 */
-			~UDPServerChannel() override;
+			~UDPServerChannel() override = default;
 
 			/**
 			 *
@@ -254,15 +236,6 @@ namespace tinyToolkit
 
 			/**
 			 *
-			 * 缓存大小
-			 *
-			 * @return 缓存大小
-			 *
-			 */
-			std::size_t CacheSize() const override;
-
-			/**
-			 *
 			 * 套接字
 			 *
 			 * @return 套接字
@@ -286,7 +259,7 @@ namespace tinyToolkit
 
 			Context _acceptContext{ };
 
-			UDPServer * _server{ nullptr };
+			IUDPServer * _server{ nullptr };
 
 			std::shared_ptr<UDPAdaptor> _adaptor{ };
 		};

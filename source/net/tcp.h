@@ -51,14 +51,14 @@ namespace tinyToolkit
 			 * @param adaptor 适配器
 			 *
 			 */
-			TCPSessionChannel(TCPSession * session, std::shared_ptr<TCPAdaptor> adaptor);
+			TCPSessionChannel(ITCPSession * session, std::shared_ptr<TCPAdaptor> adaptor);
 
 			/**
 			 *
 			 * 析构函数
 			 *
 			 */
-			~TCPSessionChannel() override;
+			~TCPSessionChannel() override = default;
 
 			/**
 			 *
@@ -109,24 +109,6 @@ namespace tinyToolkit
 			 *
 			 */
 			bool Append(const void * buffer, std::size_t length) override;
-
-			/**
-			 *
-			 * 缓存大小
-			 *
-			 * @return 缓存大小
-			 *
-			 */
-			std::size_t CacheSize() const override;
-
-			/**
-			 *
-			 * 剩余消息个数
-			 *
-			 * @return 剩余消息个数
-			 *
-			 */
-			std::size_t RemainMessageCount() const override;
 
 			/**
 			 *
@@ -197,7 +179,7 @@ namespace tinyToolkit
 
 		#endif
 
-			TCPSession * _session{ nullptr };
+			ITCPSession * _session{ nullptr };
 
 			std::shared_ptr<TCPAdaptor> _adaptor{ };
 
@@ -217,14 +199,14 @@ namespace tinyToolkit
 			 * @param adaptor 适配器
 			 *
 			 */
-			TCPServerChannel(TCPServer * server, std::shared_ptr<TCPAdaptor> adaptor);
+			TCPServerChannel(ITCPServer * server, std::shared_ptr<TCPAdaptor> adaptor);
 
 			/**
 			 *
 			 * 析构函数
 			 *
 			 */
-			~TCPServerChannel() override;
+			~TCPServerChannel() override = default;
 
 			/**
 			 *
@@ -254,15 +236,6 @@ namespace tinyToolkit
 
 			/**
 			 *
-			 * 缓存大小
-			 *
-			 * @return 缓存大小
-			 *
-			 */
-			std::size_t CacheSize() const override;
-
-			/**
-			 *
 			 * 套接字
 			 *
 			 * @return 套接字
@@ -286,7 +259,7 @@ namespace tinyToolkit
 
 			Context _acceptContext{ };
 
-			TCPServer * _server{ nullptr };
+			ITCPServer * _server{ nullptr };
 
 			std::shared_ptr<TCPAdaptor> _adaptor{ };
 		};

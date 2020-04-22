@@ -208,19 +208,16 @@ namespace tinyToolkit
 		 * @param server 服务
 		 * @param host 本地地址
 		 * @param port 本地端口
-		 * @param cache 缓存大小
 		 *
 		 * @return 是否启动成功
 		 *
 		 */
-		bool Poller::LaunchTCPServer(TCPServer * server, std::string host, uint16_t port, std::size_t cache)
+		bool Poller::LaunchTCPServer(ITCPServer * server, std::string host, uint16_t port)
 		{
 			if (!IsValid() || server == nullptr)
 			{
 				return false;
 			}
-
-			server->_cacheSize = cache;
 
 			server->_peerEndpoint.host = "0.0.0.0";
 			server->_peerEndpoint.port = 0;
@@ -232,17 +229,9 @@ namespace tinyToolkit
 
 			if (!adaptor->IsValid())
 			{
-				if (server->_onSocket)
-				{
-					server->_onSocket(false);
-				}
+				server->OnError();
 
 				return false;
-			}
-
-			if (server->_onSocket)
-			{
-				server->_onSocket(true);
 			}
 
 		#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
@@ -251,10 +240,7 @@ namespace tinyToolkit
 			    !adaptor->SetBlock(false) ||
 			    !adaptor->SetReuseAddress(true))
 			{
-				if (server->_onError)
-				{
-					server->_onError();
-				}
+				server->OnError();
 
 				adaptor->Close();
 
@@ -268,10 +254,7 @@ namespace tinyToolkit
 			    !adaptor->SetReusePort(true) ||
 			    !adaptor->SetReuseAddress(true))
 			{
-				if (server->_onError)
-				{
-					server->_onError();
-				}
+				server->OnError();
 
 				adaptor->Close();
 
@@ -282,46 +265,27 @@ namespace tinyToolkit
 
 			if (adaptor->BindV4(server->_localEndpoint) == TINY_TOOLKIT_SOCKET_ERROR)
 			{
-				if (server->_onBind)
-				{
-					server->_onBind(false);
-				}
+				server->OnError();
 
 				adaptor->Close();
 
 				return false;
-			}
-
-			if (server->_onBind)
-			{
-				server->_onBind(true);
 			}
 
 			if (adaptor->Listen(TINY_TOOLKIT_SOCKET_LISTEN_COUNT) == TINY_TOOLKIT_SOCKET_ERROR)
 			{
-				if (server->_onListen)
-				{
-					server->_onListen(false);
-				}
+				server->OnError();
 
 				adaptor->Close();
 
 				return false;
-			}
-
-			if (server->_onListen)
-			{
-				server->_onListen(true);
 			}
 
 			auto channel = std::make_shared<TCPServerChannel>(server, adaptor);
 
 			if (!AppendEvent(adaptor->Socket(), &channel->_acceptContext, true, false))
 			{
-				if (server->_onError)
-				{
-					server->_onError();
-				}
+				server->OnError();
 
 				adaptor->Close();
 
@@ -332,12 +296,9 @@ namespace tinyToolkit
 
 			if (!channel->Accept())
 			{
-				if (server->_onAccept)
-				{
-					server->_onAccept(false);
-				}
+				server->OnError();
 
-				server->Close();
+				adaptor->Close();
 
 				return false;
 			}
@@ -356,19 +317,16 @@ namespace tinyToolkit
 		 * @param server 服务
 		 * @param host 本地地址
 		 * @param port 本地端口
-		 * @param cache 缓存大小
 		 *
 		 * @return 是否启动成功
 		 *
 		 */
-		bool Poller::LaunchUDPServer(UDPServer * server, std::string host, uint16_t port, std::size_t cache)
+		bool Poller::LaunchUDPServer(IUDPServer * server, std::string host, uint16_t port)
 		{
 			if (!IsValid() || server == nullptr)
 			{
 				return false;
 			}
-
-			server->_cacheSize = cache;
 
 			server->_peerEndpoint.host = "0.0.0.0";
 			server->_peerEndpoint.port = 0;
@@ -380,17 +338,9 @@ namespace tinyToolkit
 
 			if (!adaptor->IsValid())
 			{
-				if (server->_onSocket)
-				{
-					server->_onSocket(false);
-				}
+				server->OnError();
 
 				return false;
-			}
-
-			if (server->_onSocket)
-			{
-				server->_onSocket(true);
 			}
 
 		#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
@@ -398,10 +348,7 @@ namespace tinyToolkit
 			if (!adaptor->SetBlock(false) ||
 			    !adaptor->SetReuseAddress(true))
 			{
-				if (server->_onError)
-				{
-					server->_onError();
-				}
+				server->OnError();
 
 				adaptor->Close();
 
@@ -414,10 +361,7 @@ namespace tinyToolkit
 
 			if (::WSAIoctl(adaptor->Socket(), SIO_UDP_CONNRESET, &bNewBehavior, sizeof(bNewBehavior), nullptr, 0, &dwBytesReturned, nullptr, nullptr) == TINY_TOOLKIT_SOCKET_ERROR)
 			{
-				if (server->_onError)
-				{
-					server->_onError();
-				}
+				server->OnError();
 
 				adaptor->Close();
 
@@ -430,10 +374,7 @@ namespace tinyToolkit
 			    !adaptor->SetReusePort(true) ||
 			    !adaptor->SetReuseAddress(true))
 			{
-				if (server->_onError)
-				{
-					server->_onError();
-				}
+				server->OnError();
 
 				adaptor->Close();
 
@@ -444,29 +385,18 @@ namespace tinyToolkit
 
 			if (adaptor->BindV4(server->_localEndpoint) == TINY_TOOLKIT_SOCKET_ERROR)
 			{
-				if (server->_onBind)
-				{
-					server->_onBind(false);
-				}
+				server->OnError();
 
 				adaptor->Close();
 
 				return false;
 			}
 
-			if (server->_onBind)
-			{
-				server->_onBind(true);
-			}
-
 			auto channel = std::make_shared<UDPServerChannel>(server, adaptor);
 
 			if (!AppendEvent(adaptor->Socket(), &channel->_acceptContext, true, false))
 			{
-				if (server->_onError)
-				{
-					server->_onError();
-				}
+				server->OnError();
 
 				adaptor->Close();
 
@@ -477,12 +407,9 @@ namespace tinyToolkit
 
 			if (!channel->Accept())
 			{
-				if (server->_onAccept)
-				{
-					server->_onAccept(false);
-				}
+				server->OnError();
 
-				server->Close();
+				adaptor->Close();
 
 				return false;
 			}
@@ -501,19 +428,16 @@ namespace tinyToolkit
 		 * @param session 会话
 		 * @param host 目标地址
 		 * @param port 目标端口
-		 * @param cache 缓存大小
 		 *
 		 * @return 是否启动成功
 		 *
 		 */
-		bool Poller::LaunchTCPSession(TCPSession * session, std::string host, uint16_t port, std::size_t cache)
+		bool Poller::LaunchTCPSession(ITCPSession * session, std::string host, uint16_t port)
 		{
 			if (!IsValid() || session == nullptr)
 			{
 				return false;
 			}
-
-			session->_cacheSize = cache;
 
 			session->_peerEndpoint.host = std::move(host);
 			session->_peerEndpoint.port = port;
@@ -525,17 +449,9 @@ namespace tinyToolkit
 
 			if (!adaptor->IsValid())
 			{
-				if (session->_onSocket)
-				{
-					session->_onSocket(false);
-				}
+				session->OnError();
 
 				return false;
-			}
-
-			if (session->_onSocket)
-			{
-				session->_onSocket(true);
 			}
 
 		#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
@@ -544,10 +460,7 @@ namespace tinyToolkit
 			    !adaptor->SetBlock(false) ||
 			    !adaptor->SetReuseAddress(true))
 			{
-				if (session->_onError)
-				{
-					session->_onError();
-				}
+				session->OnError();
 
 				adaptor->Close();
 
@@ -556,19 +469,11 @@ namespace tinyToolkit
 
 			if (adaptor->BindV4(session->_localEndpoint) == TINY_TOOLKIT_SOCKET_ERROR)
 			{
-				if (session->_onBind)
-				{
-					session->_onBind(false);
-				}
+				session->OnError();
 
 				adaptor->Close();
 
 				return false;
-			}
-
-			if (session->_onBind)
-			{
-				session->_onBind(true);
 			}
 
 			auto channel = std::make_shared<TCPSessionChannel>(session, adaptor);
@@ -577,10 +482,7 @@ namespace tinyToolkit
 
 			if (!AppendEvent(adaptor->Socket(), &channel->_receiveContext, true, false))
 			{
-				if (session->_onError)
-				{
-					session->_onError();
-				}
+				session->OnError();
 
 				adaptor->Close();
 
@@ -591,12 +493,9 @@ namespace tinyToolkit
 
 			if (ret < 0)
 			{
-				if (session->_onConnect)
-				{
-					session->_onConnect(false);
-				}
+				session->OnError();
 
-				session->Close();
+				adaptor->Close();
 
 				return false;
 			}
@@ -610,10 +509,7 @@ namespace tinyToolkit
 			    !adaptor->SetReusePort(true) ||
 			    !adaptor->SetReuseAddress(true))
 			{
-				if (session->_onError)
-				{
-					session->_onError();
-				}
+				session->OnError();
 
 				adaptor->Close();
 
@@ -628,10 +524,7 @@ namespace tinyToolkit
 
 				if (!AppendEvent(adaptor->Socket(), &channel->_ioContext, true, false))
 				{
-					if (session->_onError)
-					{
-						session->_onError();
-					}
+					session->OnError();
 
 					adaptor->Close();
 
@@ -642,17 +535,11 @@ namespace tinyToolkit
 
 				session->_channel = channel;
 
-				if (session->_onConnect)
-				{
-					session->_onConnect(true);
-				}
+				session->OnConnect();
 			}
 			else if (ret < 0 && errno != EINPROGRESS)
 			{
-				if (session->_onConnect)
-				{
-					session->_onConnect(false);
-				}
+				session->OnError();
 
 				adaptor->Close();
 
@@ -666,10 +553,7 @@ namespace tinyToolkit
 
 				if (!AppendEvent(adaptor->Socket(), &channel->_ioContext, false, true))
 				{
-					if (session->_onError)
-					{
-						session->_onError();
-					}
+					session->OnError();
 
 					adaptor->Close();
 
@@ -691,19 +575,16 @@ namespace tinyToolkit
 		 * @param session 会话
 		 * @param host 目标地址
 		 * @param port 目标端口
-		 * @param cache 缓存大小
 		 *
 		 * @return 是否启动成功
 		 *
 		 */
-		bool Poller::LaunchUDPSession(UDPSession * session, std::string host, uint16_t port, std::size_t cache)
+		bool Poller::LaunchUDPSession(IUDPSession * session, std::string host, uint16_t port)
 		{
 			if (!IsValid() || session == nullptr)
 			{
 				return false;
 			}
-
-			session->_cacheSize = cache;
 
 			session->_peerEndpoint.host = std::move(host);
 			session->_peerEndpoint.port = port;
@@ -715,17 +596,9 @@ namespace tinyToolkit
 
 			if (!adaptor->IsValid())
 			{
-				if (session->_onSocket)
-				{
-					session->_onSocket(false);
-				}
+				session->OnError();
 
 				return false;
-			}
-
-			if (session->_onSocket)
-			{
-				session->_onSocket(true);
 			}
 
 		#if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
@@ -733,10 +606,7 @@ namespace tinyToolkit
 			if (!adaptor->SetBlock(false) ||
 			    !adaptor->SetReuseAddress(true))
 			{
-				if (session->_onError)
-				{
-					session->_onError();
-				}
+				session->OnError();
 
 				adaptor->Close();
 
@@ -749,10 +619,7 @@ namespace tinyToolkit
 
 			if (::WSAIoctl(adaptor->Socket(), SIO_UDP_CONNRESET, &bNewBehavior, sizeof(bNewBehavior), nullptr, 0, &dwBytesReturned, nullptr, nullptr) == TINY_TOOLKIT_SOCKET_ERROR)
 			{
-				if (session->_onError)
-				{
-					session->_onError();
-				}
+				session->OnError();
 
 				adaptor->Close();
 
@@ -765,10 +632,7 @@ namespace tinyToolkit
 			    !adaptor->SetReusePort(true) ||
 			    !adaptor->SetReuseAddress(true))
 			{
-				if (session->_onError)
-				{
-					session->_onError();
-				}
+				session->OnError();
 
 				adaptor->Close();
 
@@ -779,27 +643,16 @@ namespace tinyToolkit
 
 			if (adaptor->BindV4(session->_localEndpoint) == TINY_TOOLKIT_SOCKET_ERROR)
 			{
-				if (session->_onBind)
-				{
-					session->_onBind(false);
-				}
+				session->OnError();
 
 				adaptor->Close();
 
 				return false;
 			}
 
-			if (session->_onBind)
-			{
-				session->_onBind(true);
-			}
-
 			if (adaptor->ConnectV4(session->_peerEndpoint, nullptr) == TINY_TOOLKIT_SOCKET_ERROR)
 			{
-				if (session->_onConnect)
-				{
-					session->_onConnect(false);
-				}
+				session->OnError();
 
 				adaptor->Close();
 
@@ -812,10 +665,7 @@ namespace tinyToolkit
 
 			if (!AppendEvent(adaptor->Socket(), &channel->_receiveContext, true, false))
 			{
-				if (session->_onError)
-				{
-					session->_onError();
-				}
+				session->OnError();
 
 				adaptor->Close();
 
@@ -826,17 +676,11 @@ namespace tinyToolkit
 
 			session->_channel = channel;
 
-			if (session->_onConnect)
-			{
-				session->_onConnect(true);
-			}
+			session->OnConnect();
 
 			if (!channel->Receive())
 			{
-				if (session->_onReceive)
-				{
-					session->_onReceive(false, nullptr, 0);
-				}
+				session->OnError();
 
 				session->Close();
 
@@ -849,10 +693,7 @@ namespace tinyToolkit
 
 			if (!AppendEvent(adaptor->Socket(), &channel->_ioContext, true, false))
 			{
-				if (session->_onError)
-				{
-					session->_onError();
-				}
+				session->OnError();
 
 				adaptor->Close();
 
@@ -863,10 +704,7 @@ namespace tinyToolkit
 
 			session->_channel = channel;
 
-			if (session->_onConnect)
-			{
-				session->_onConnect(true);
-			}
+			session->OnConnect();
 
 		#endif
 

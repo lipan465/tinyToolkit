@@ -67,7 +67,7 @@ namespace tinyToolkit
 
 			char temp[1460]{ 0 };
 
-			std::size_t bytes{ 0 };
+			int32_t bytes{ 0 };
 
 			ICompleter * completer{ nullptr };
 

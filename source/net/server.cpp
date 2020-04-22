@@ -48,6 +48,23 @@ namespace tinyToolkit
 
 		/**
 		 *
+		 * 是否有效
+		 *
+		 * @return 是否有效
+		 *
+		 */
+		bool IServer::IsValid()
+		{
+			if (_channel == nullptr)
+			{
+				return false;
+			}
+
+			return _channel->Socket() != TINY_TOOLKIT_SOCKET_INVALID;
+		}
+
+		/**
+		 *
 		 * 轮询器
 		 *
 		 * @return 轮询器
@@ -56,23 +73,6 @@ namespace tinyToolkit
 		Poller * IServer::Pollers()
 		{
 			return _poller;
-		}
-
-		/**
-		 *
-		 * 缓存大小
-		 *
-		 * @return 缓存大小
-		 *
-		 */
-		std::size_t IServer::CacheSize() const
-		{
-			if (_channel == nullptr)
-			{
-				return 0;
-			}
-
-			return _channel->CacheSize();
 		}
 
 		/**
@@ -138,91 +138,49 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 事件错误
+		 * 监听
 		 *
-		 * @param callback 回调函数
+		 * @param host 本地地址
+		 * @param port 本地端口
+		 *
+		 * @return 是否监听成功
 		 *
 		 */
-		void TCPServer::OnError(std::function<void()> callback)
+		bool ITCPServer::Listen(std::string host, uint16_t port)
 		{
-			_onError = std::move(callback);
+			return Pollers()->LaunchTCPServer(this, std::move(host), port);
+		}
+
+		/**
+		 *
+		 * 事件错误
+		 *
+		 */
+		void ITCPServer::OnError()
+		{
+
 		}
 
 		/**
 		 *
 		 * 关闭连接
 		 *
-		 * @param callback 回调函数
-		 *
 		 */
-		void TCPServer::OnShutdown(std::function<void()> callback)
+		void ITCPServer::OnShutdown()
 		{
-			_onShutdown = std::move(callback);
-		}
 
-		/**
-		 *
-		 * 绑定地址
-		 *
-		 * @param callback 回调函数
-		 *
-		 */
-		void TCPServer::OnBind(std::function<void(bool)> callback)
-		{
-			_onBind = std::move(callback);
-		}
-
-		/**
-		 *
-		 * 套接字生成
-		 *
-		 * @param callback 回调函数
-		 *
-		 */
-		void TCPServer::OnSocket(std::function<void(bool)> callback)
-		{
-			_onSocket = std::move(callback);
-		}
-
-		/**
-		 *
-		 * 监听地址
-		 *
-		 * @param callback 回调函数
-		 *
-		 */
-		void TCPServer::OnListen(std::function<void(bool)> callback)
-		{
-			_onListen = std::move(callback);
 		}
 
 		/**
 		 *
 		 * 接收会话
 		 *
-		 * @param callback 回调函数
+		 * @return 会话对象
 		 *
 		 */
-		void TCPServer::OnAccept(std::function<tinyToolkit::net::TCPSession *(bool)> callback)
+		tinyToolkit::net::ITCPSession * ITCPServer::OnAccept()
 		{
-			_onAccept = std::move(callback);
-		}
-
-		/**
-		 *
-		 * 启动
-		 *
-		 * @param host 本地地址
-		 * @param port 本地端口
-		 * @param cache 缓存大小
-		 * @param poller 轮询器
-		 *
-		 * @return 是否启动成功
-		 *
-		 */
-		bool TCPServer::Launch(std::string host, uint16_t port, std::size_t cache)
-		{
-			return Pollers()->LaunchTCPServer(this, std::move(host), port, cache);
+			return nullptr;
 		}
 
 
@@ -231,90 +189,49 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 事件错误
+		 * 监听
 		 *
-		 * @param callback 回调函数
+		 * @param host 本地地址
+		 * @param port 本地端口
+		 *
+		 * @return 是否监听成功
 		 *
 		 */
-		void UDPServer::OnError(std::function<void()> callback)
+		bool IUDPServer::Listen(std::string host, uint16_t port)
 		{
-			_onError = std::move(callback);
+			return Pollers()->LaunchUDPServer(this, std::move(host), port);
+		}
+
+		/**
+		 *
+		 * 事件错误
+		 *
+		 */
+		void IUDPServer::OnError()
+		{
+
 		}
 
 		/**
 		 *
 		 * 关闭连接
 		 *
-		 * @param callback 回调函数
-		 *
 		 */
-		void UDPServer::OnShutdown(std::function<void()> callback)
+		void IUDPServer::OnShutdown()
 		{
-			_onShutdown = std::move(callback);
-		}
 
-		/**
-		 *
-		 * 绑定地址
-		 *
-		 * @param callback 回调函数
-		 *
-		 */
-		void UDPServer::OnBind(std::function<void(bool)> callback)
-		{
-			_onBind = std::move(callback);
-		}
-
-		/**
-		 *
-		 * 套接字生成
-		 *
-		 * @param callback 回调函数
-		 *
-		 */
-		void UDPServer::OnSocket(std::function<void(bool)> callback)
-		{
-			_onSocket = std::move(callback);
-		}
-
-		/**
-		 *
-		 * 监听地址
-		 *
-		 * @param callback 回调函数
-		 *
-		 */
-		void UDPServer::OnListen(std::function<void(bool)> callback)
-		{
-			_onListen = std::move(callback);
 		}
 
 		/**
 		 *
 		 * 接收会话
 		 *
-		 * @param callback 回调函数
+		 * @return 会话对象
 		 *
 		 */
-		void UDPServer::OnAccept(std::function<tinyToolkit::net::UDPSession *(bool)> callback)
+		tinyToolkit::net::IUDPSession * IUDPServer::OnAccept()
 		{
-			_onAccept = std::move(callback);
-		}
-
-		/**
-		 *
-		 * 启动
-		 *
-		 * @param host 本地地址
-		 * @param port 本地端口
-		 * @param cache 缓存大小
-		 *
-		 * @return 是否启动成功
-		 *
-		 */
-		bool UDPServer::Launch(std::string host, uint16_t port, std::size_t cache)
-		{
-			return Pollers()->LaunchUDPServer(this, std::move(host), port, cache);
+			return nullptr;
 		}
 	}
 }

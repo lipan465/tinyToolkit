@@ -21,7 +21,7 @@ namespace tinyToolkit
 		 * @return 是否有效
 		 *
 		 */
-		bool Endpoint::IsValid()
+		bool Endpoint::IsValid() const
 		{
 			return port != 0 && !host.empty();
 		}

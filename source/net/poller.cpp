@@ -196,7 +196,7 @@ namespace tinyToolkit
 		 * @return 是否有效
 		 *
 		 */
-		bool Poller::IsValid()
+		bool Poller::IsValid() const
 		{
 			return ip::Socket::IsValidPoll(_socket);
 		}

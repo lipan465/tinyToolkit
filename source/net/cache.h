@@ -103,7 +103,7 @@ namespace tinyToolkit
 			 * @return 是否已满
 			 *
 			 */
-			bool Full();
+			bool Full() const;
 
 			/**
 			 *
@@ -112,7 +112,7 @@ namespace tinyToolkit
 			 * @return 是否为空
 			 *
 			 */
-			bool Empty();
+			bool Empty() const;
 
 			/**
 			 *

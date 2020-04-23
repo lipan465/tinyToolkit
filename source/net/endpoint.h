@@ -44,7 +44,7 @@ namespace tinyToolkit
 			 * @return 是否有效
 			 *
 			 */
-			bool IsValid();
+			bool IsValid() const;
 
 		public:
 			uint16_t port{ 0 };

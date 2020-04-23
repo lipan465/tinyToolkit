@@ -52,7 +52,7 @@ namespace tinyToolkit
 			 * @return 是否有数据
 			 *
 			 */
-			virtual bool HasValue() = 0;
+			virtual bool HasValue() const = 0;
 
 			/**
 			 *
@@ -61,7 +61,7 @@ namespace tinyToolkit
 			 * @return 是否有默认值
 			 *
 			 */
-			virtual bool HasDefault() = 0;
+			virtual bool HasDefault() const = 0;
 
 			/**
 			 *
@@ -70,7 +70,7 @@ namespace tinyToolkit
 			 * @return 类型
 			 *
 			 */
-			virtual OPTION_TYPE Type() = 0;
+			virtual OPTION_TYPE Type() const = 0;
 
 			/**
 			 *
@@ -152,7 +152,7 @@ namespace tinyToolkit
 			 * @return 是否有数据
 			 *
 			 */
-			bool HasValue() override
+			bool HasValue() const override
 			{
 				return _value.IsValid();
 			}
@@ -164,7 +164,7 @@ namespace tinyToolkit
 			 * @return 是否有默认值
 			 *
 			 */
-			bool HasDefault() override
+			bool HasDefault() const override
 			{
 				return _default.IsValid();
 			}
@@ -176,7 +176,7 @@ namespace tinyToolkit
 			 * @return 类型
 			 *
 			 */
-			OPTION_TYPE Type() override
+			OPTION_TYPE Type() const override
 			{
 				return _type;
 			}

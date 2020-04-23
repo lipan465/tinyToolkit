@@ -51,11 +51,12 @@ namespace tinyToolkit
 			 * 构造函数
 			 *
 			 * @param name 名称
+			 * @param mode 方式
 			 * @param info 信息
 			 * @param value 数据
 			 *
 			 */
-			DescriptionInfo(const char * name, const char * info, std::shared_ptr<SemanticValue> value);
+			DescriptionInfo(const char * name, const char * mode, const char * info, std::shared_ptr<SemanticValue> value);
 
 			/**
 			 *
@@ -80,7 +81,7 @@ namespace tinyToolkit
 			 * @return 是否有效
 			 *
 			 */
-			bool IsValid();
+			bool IsValid() const;
 
 			/**
 			 *
@@ -89,7 +90,7 @@ namespace tinyToolkit
 			 * @return 是否需要数据
 			 *
 			 */
-			bool IsRequired();
+			bool IsRequired() const;
 
 			/**
 			 *
@@ -99,6 +100,15 @@ namespace tinyToolkit
 			 *
 			 */
 			const std::string & Info() const;
+
+			/**
+			 *
+			 * 方式
+			 *
+			 * @return 方式
+			 *
+			 */
+			const std::string & Mode() const;
 
 			/**
 			 *
@@ -150,6 +160,7 @@ namespace tinyToolkit
 			bool _isValid{ false };
 
 			std::string _info{ };
+			std::string _mode{ };
 			std::string _longName{ };
 			std::string _shortName{ };
 			std::string _optionName{ };
@@ -213,13 +224,14 @@ namespace tinyToolkit
 			 * 重载()操作
 			 *
 			 * @param name 名称
+			 * @param mode 方式
 			 * @param info 信息
 			 * @param value 数据
 			 *
 			 * @return 对象
 			 *
 			 */
-			DescriptionGroup & operator()(const char * name, const char * info, const std::shared_ptr<SemanticValue> & value);
+			DescriptionGroup & operator()(const char * name, const char * mode, const char * info, const std::shared_ptr<SemanticValue> & value);
 
 		private:
 			std::string _caption{ };

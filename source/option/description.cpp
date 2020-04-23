@@ -49,12 +49,14 @@ namespace tinyToolkit
 		 * 构造函数
 		 *
 		 * @param name 名称
+		 * @param mode 方式
 		 * @param info 信息
 		 * @param value 数据
 		 *
 		 */
-		DescriptionInfo::DescriptionInfo(const char * name, const char * info, std::shared_ptr<SemanticValue> value) : _info(info),
-		                                                                                                               _value(std::move(value))
+		DescriptionInfo::DescriptionInfo(const char * name, const char * mode, const char * info, std::shared_ptr<SemanticValue> value) : _info(info),
+		                                                                                                                                  _mode(mode),
+		                                                                                                                                  _value(std::move(value))
 		{
 			SetName(name);
 
@@ -193,7 +195,7 @@ namespace tinyToolkit
 		 * @return 是否有效
 		 *
 		 */
-		bool DescriptionInfo::IsValid()
+		bool DescriptionInfo::IsValid() const
 		{
 			return _isValid;
 		}
@@ -205,7 +207,7 @@ namespace tinyToolkit
 		 * @return 是否需要数据
 		 *
 		 */
-		bool DescriptionInfo::IsRequired()
+		bool DescriptionInfo::IsRequired() const
 		{
 			return _value ? true : false;
 		}
@@ -220,6 +222,18 @@ namespace tinyToolkit
 		const std::string & DescriptionInfo::Info() const
 		{
 			return _info;
+		}
+
+		/**
+		 *
+		 * 方式
+		 *
+		 * @return 方式
+		 *
+		 */
+		const std::string & DescriptionInfo::Mode() const
+		{
+			return _mode;
 		}
 
 		/**
@@ -313,7 +327,7 @@ namespace tinyToolkit
 
 				if (!_longName.empty())
 				{
-					_optionName.append("[").append("--").append(_longName).append("]");
+					_optionName.append(", --").append(_longName);
 				}
 			}
 		}
@@ -391,15 +405,16 @@ namespace tinyToolkit
 		 * 重载()操作
 		 *
 		 * @param name 名称
+		 * @param mode 方式
 		 * @param info 信息
 		 * @param value 数据
 		 *
 		 * @return 对象
 		 *
 		 */
-		DescriptionGroup & DescriptionGroup::operator()(const char * name, const char * info, const std::shared_ptr<SemanticValue> & value)
+		DescriptionGroup & DescriptionGroup::operator()(const char * name, const char * mode, const char * info, const std::shared_ptr<SemanticValue> & value)
 		{
-			_options.push_back(std::make_shared<DescriptionInfo>(name, info, value));
+			_options.push_back(std::make_shared<DescriptionInfo>(name, mode, info, value));
 
 			return *this;
 		}

@@ -135,7 +135,7 @@ namespace tinyToolkit
 			 * @return 是否启动成功
 			 *
 			 */
-			bool AddTask(std::function<void()> function, int64_t count, std::time_t interval);
+			bool AddTask(const std::function<void()> & function, int64_t count, std::time_t interval);
 
 			/**
 			 *
@@ -144,7 +144,7 @@ namespace tinyToolkit
 			 * @return 工作任务个数
 			 *
 			 */
-			std::size_t WorkTaskCount();
+			std::size_t WorkTaskCount() const;
 
 			/**
 			 *
@@ -153,7 +153,7 @@ namespace tinyToolkit
 			 * @return 暂停任务个数
 			 *
 			 */
-			std::size_t PauseTaskCount();
+			std::size_t PauseTaskCount() const;
 
 			/**
 			 *
@@ -162,7 +162,7 @@ namespace tinyToolkit
 			 * @return 定时任务个数
 			 *
 			 */
-			std::size_t TotalTaskCount();
+			std::size_t TotalTaskCount() const;
 
 		protected:
 			/**

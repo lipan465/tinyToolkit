@@ -175,9 +175,16 @@ namespace tinyToolkit
 				{
 					if (iter->Value()->HasDefault())
 					{
-						if (_valueWidth < iter->Value()->Content().size())
+						if (_modeWidth < (iter->Mode().size() + iter->Value()->Content().size() + 11))
 						{
-							_valueWidth = iter->Value()->Content().size();
+							_modeWidth = iter->Mode().size() + iter->Value()->Content().size() + 11;
+						}
+					}
+					else
+					{
+						if (_modeWidth < iter->Mode().size())
+						{
+							_modeWidth = iter->Mode().size();
 						}
 					}
 				}
@@ -198,7 +205,7 @@ namespace tinyToolkit
 		 * @return 是否存在
 		 *
 		 */
-		bool Option::Exits(const std::string & option)
+		bool Option::Exits(const std::string & option) const
 		{
 			auto find = _options.find(option);
 
@@ -219,7 +226,7 @@ namespace tinyToolkit
 		 */
 		std::string Option::Verbose()
 		{
-			std::stringstream stream;
+			std::stringstream stream{ };
 
 			for (auto &group : _groups)
 			{
@@ -236,24 +243,22 @@ namespace tinyToolkit
 					       << option->OptionName()
 					       << "   ";
 
-					std::size_t width = _valueWidth;
+					std::size_t width = _modeWidth;
 
 					if (option->IsRequired())
 					{
-						stream << "arg(";
+						stream << option->Mode();
+
+						width -= option->Mode().size();
 
 						if (option->Value()->HasDefault())
 						{
-							stream << option->Value()->Content();
+							stream << " (default="
+							       << option->Value()->Content()
+							       << ")";
 
-							width -= option->Value()->Content().size();
+							width -= option->Value()->Content().size() + 11;
 						}
-
-						stream << ")";
-					}
-					else
-					{
-						width += 5;
 					}
 
 					if (width > 0)

@@ -135,7 +135,7 @@ namespace tinyToolkit
 			 * @return 活跃对象个数
 			 *
 			 */
-			std::size_t ActiveCount()
+			std::size_t ActiveCount() const
 			{
 				return _usedCount;
 			}

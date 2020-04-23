@@ -94,7 +94,7 @@ namespace tinyToolkit
 			 * @return 是否为空闲状态
 			 *
 			 */
-			bool IsIdle();
+			bool IsIdle() const;
 
 			/**
 			 *
@@ -103,7 +103,7 @@ namespace tinyToolkit
 			 * @return 是否为关闭状态
 			 *
 			 */
-			bool IsClose();
+			bool IsClose() const;
 
 			/**
 			 *
@@ -112,7 +112,7 @@ namespace tinyToolkit
 			 * @return 是否为暂停状态
 			 *
 			 */
-			bool IsPause();
+			bool IsPause() const;
 
 			/**
 			 *
@@ -121,7 +121,7 @@ namespace tinyToolkit
 			 * @return 是否有效
 			 *
 			 */
-			bool IsValid();
+			bool IsValid() const;
 
 			/**
 			 *
@@ -130,7 +130,7 @@ namespace tinyToolkit
 			 * @return 任务个数
 			 *
 			 */
-			std::size_t TaskSize();
+			std::size_t TaskSize() const;
 
 			/**
 			 *
@@ -139,7 +139,7 @@ namespace tinyToolkit
 			 * @return 线程个数
 			 *
 			 */
-			std::size_t ThreadSize();
+			std::size_t ThreadSize() const;
 
 			/**
 			 *

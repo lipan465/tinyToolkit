@@ -120,7 +120,7 @@ namespace tinyToolkit
 			 * @return 个数
 			 *
 			 */
-			std::size_t Size()
+			std::size_t Size() const
 			{
 				return _pool.size();
 			}

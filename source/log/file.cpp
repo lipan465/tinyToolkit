@@ -129,7 +129,7 @@ namespace tinyToolkit
 		 * @return 是否已经打开
 		 *
 		 */
-		bool File::IsOpen()
+		bool File::IsOpen() const
 		{
 			return _file.is_open();
 		}
@@ -155,7 +155,7 @@ namespace tinyToolkit
 		 * @return 大小
 		 *
 		 */
-		std::size_t File::Size()
+		std::size_t File::Size() const
 		{
 			return _size;
 		}
@@ -167,7 +167,7 @@ namespace tinyToolkit
 		 * @return 路径
 		 *
 		 */
-		const std::string & File::Path()
+		const std::string & File::Path() const
 		{
 			return _path;
 		}

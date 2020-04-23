@@ -63,7 +63,7 @@ namespace tinyToolkit
 				 * @return 类型
 				 *
 				 */
-				virtual const std::type_info & Type() = 0;
+				virtual const std::type_info & Type() const = 0;
 			};
 
 			template<typename ValueTypeT>
@@ -109,7 +109,7 @@ namespace tinyToolkit
 				 * @return 类型
 				 *
 				 */
-				const std::type_info & Type() override
+				const std::type_info & Type() const override
 				{
 					return typeid(ValueTypeT);
 				}
@@ -172,7 +172,7 @@ namespace tinyToolkit
 			 *
 			 */
 			template<typename ValueTypeT>
-			bool Is()
+			bool Is() const
 			{
 				return _content->Type() == typeid(ValueTypeT);
 			}
@@ -184,7 +184,7 @@ namespace tinyToolkit
 			 * @return 是否有效
 			 *
 			 */
-			bool IsValid();
+			bool IsValid() const;
 
 			/**
 			 *
@@ -223,7 +223,7 @@ namespace tinyToolkit
 			 * @return 类型
 			 *
 			 */
-			const std::type_info & Type();
+			const std::type_info & Type() const;
 
 			/**
 			 *

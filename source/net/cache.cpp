@@ -155,7 +155,7 @@ namespace tinyToolkit
 		 * @return 是否已满
 		 *
 		 */
-		bool Cache::Full()
+		bool Cache::Full() const
 		{
 			return _size == ContentLength();
 		}
@@ -167,7 +167,7 @@ namespace tinyToolkit
 		 * @return 是否为空
 		 *
 		 */
-		bool Cache::Empty()
+		bool Cache::Empty() const
 		{
 			return _rPos == _wPos;
 		}

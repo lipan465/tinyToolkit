@@ -55,7 +55,7 @@ namespace tinyToolkit
 		 * @return 是否有效
 		 *
 		 */
-		bool Any::IsValid()
+		bool Any::IsValid() const
 		{
 			return _content ? true : false;
 		}
@@ -67,7 +67,7 @@ namespace tinyToolkit
 		 * @return 类型
 		 *
 		 */
-		const std::type_info & Any::Type()
+		const std::type_info & Any::Type() const
 		{
 			return _content ? _content->Type() : typeid(void);
 		}

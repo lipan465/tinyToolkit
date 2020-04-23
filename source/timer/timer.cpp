@@ -315,9 +315,9 @@ namespace tinyToolkit
 		 * @return 是否启动成功
 		 *
 		 */
-		bool Timer::AddTask(std::function<void()> function, int64_t count, std::time_t interval)
+		bool Timer::AddTask(const std::function<void()> & function, int64_t count, std::time_t interval)
 		{
-			return AddTask(std::make_shared<Task>(std::move(function)), count, interval);
+			return AddTask(std::make_shared<Task>(function), count, interval);
 		}
 
 		/**
@@ -327,10 +327,8 @@ namespace tinyToolkit
 		 * @return 工作任务个数
 		 *
 		 */
-		std::size_t Timer::WorkTaskCount()
+		std::size_t Timer::WorkTaskCount() const
 		{
-			std::lock_guard<std::mutex> lock(_taskMutex);
-
 			return _workList.size();
 		}
 
@@ -341,10 +339,8 @@ namespace tinyToolkit
 		 * @return 暂停任务个数
 		 *
 		 */
-		std::size_t Timer::PauseTaskCount()
+		std::size_t Timer::PauseTaskCount() const
 		{
-			std::lock_guard<std::mutex> lock(_taskMutex);
-
 			return _pauseList.size();
 		}
 
@@ -355,10 +351,8 @@ namespace tinyToolkit
 		 * @return 定时任务个数
 		 *
 		 */
-		std::size_t Timer::TotalTaskCount()
+		std::size_t Timer::TotalTaskCount() const
 		{
-			std::lock_guard<std::mutex> lock(_taskMutex);
-
 			return _taskList.size();
 		}
 

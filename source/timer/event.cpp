@@ -192,7 +192,7 @@ namespace tinyToolkit
 		 * @return 是否有效
 		 *
 		 */
-		bool Event::IsValid()
+		bool Event::IsValid() const
 		{
 			return _isValid;
 		}
@@ -204,7 +204,7 @@ namespace tinyToolkit
 		 * @return 是否暂停
 		 *
 		 */
-		bool Event::IsPause()
+		bool Event::IsPause() const
 		{
 			return _isPause;
 		}
@@ -216,7 +216,7 @@ namespace tinyToolkit
 		 * @return 过期时间
 		 *
 		 */
-		std::time_t Event::Expire()
+		std::time_t Event::Expire() const
 		{
 			return _expire;
 		}

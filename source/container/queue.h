@@ -197,8 +197,6 @@ namespace tinyToolkit
 			 */
 			bool Empty() const
 			{
-				std::lock_guard<std::mutex> lock(_mutex);
-
 				return _queue.empty();
 			}
 
@@ -211,8 +209,6 @@ namespace tinyToolkit
 			 */
 			std::size_t Size() const
 			{
-				std::lock_guard<std::mutex> lock(_mutex);
-
 				return _queue.size();
 			}
 

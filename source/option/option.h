@@ -64,7 +64,7 @@ namespace tinyToolkit
 			 * @return 是否存在
 			 *
 			 */
-			bool Exits(const std::string & option);
+			bool Exits(const std::string & option) const;
 
 			/**
 			 *
@@ -115,7 +115,7 @@ namespace tinyToolkit
 			}
 
 		private:
-			std::size_t _valueWidth{ 0 };
+			std::size_t _modeWidth{ 0 };
 			std::size_t _optionWidth{ 0 };
 
 			std::vector<std::shared_ptr<DescriptionGroup>> _groups{ };

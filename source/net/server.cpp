@@ -53,7 +53,7 @@ namespace tinyToolkit
 		 * @return 是否有效
 		 *
 		 */
-		bool IServer::IsValid()
+		bool IServer::IsValid() const
 		{
 			if (_channel == nullptr)
 			{

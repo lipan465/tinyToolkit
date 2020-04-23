@@ -96,24 +96,6 @@ namespace tinyToolkit
 
 			/**
 			 *
-			 * 缓存大小
-			 *
-			 * @return 缓存大小
-			 *
-			 */
-			virtual std::size_t CacheSize() const;
-
-			/**
-			 *
-			 * 剩余消息个数
-			 *
-			 * @return 剩余消息个数
-			 *
-			 */
-			virtual std::size_t RemainMessageCount() const;
-
-			/**
-			 *
 			 * 套接字
 			 *
 			 * @return 套接字

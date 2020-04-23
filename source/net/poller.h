@@ -71,7 +71,7 @@ namespace tinyToolkit
 			 * @return 是否有效
 			 *
 			 */
-			bool IsValid();
+			bool IsValid() const;
 
 			/**
 			 *

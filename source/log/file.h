@@ -86,7 +86,7 @@ namespace tinyToolkit
 			 * @return 是否已经打开
 			 *
 			 */
-			bool IsOpen();
+			bool IsOpen() const;
 
 			/**
 			 *
@@ -104,7 +104,7 @@ namespace tinyToolkit
 			 * @return 大小
 			 *
 			 */
-			std::size_t Size();
+			std::size_t Size() const;
 
 			/**
 			 *
@@ -113,7 +113,7 @@ namespace tinyToolkit
 			 * @return 路径
 			 *
 			 */
-			const std::string & Path();
+			const std::string & Path() const;
 
 		private:
 			std::size_t _size{ 0 };

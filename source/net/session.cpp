@@ -85,7 +85,7 @@ namespace tinyToolkit
 		 * @return 是否有效
 		 *
 		 */
-		bool ISession::IsValid()
+		bool ISession::IsValid() const
 		{
 			if (_channel == nullptr)
 			{

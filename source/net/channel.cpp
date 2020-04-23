@@ -86,30 +86,6 @@ namespace tinyToolkit
 
 		/**
 		 *
-		 * 缓存大小
-		 *
-		 * @return 缓存大小
-		 *
-		 */
-		std::size_t IChannel::CacheSize() const
-		{
-			return 0;
-		}
-
-		/**
-		 *
-		 * 剩余消息个数
-		 *
-		 * @return 剩余消息个数
-		 *
-		 */
-		std::size_t IChannel::RemainMessageCount() const
-		{
-			return 0;
-		}
-
-		/**
-		 *
 		 * 套接字
 		 *
 		 * @return 套接字

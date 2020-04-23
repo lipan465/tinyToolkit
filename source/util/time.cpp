@@ -156,7 +156,7 @@ namespace tinyToolkit
 				std::tm utc   = UTCTm();
 				std::tm local = LocalTm();
 
-				timezone = local.tm_hour - utc.tm_hour;
+				timezone = static_cast<std::time_t>(local.tm_hour - utc.tm_hour);
 
 				if (timezone < -12)
 				{

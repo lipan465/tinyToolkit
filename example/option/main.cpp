@@ -30,21 +30,21 @@ static void Options()
 		("help,h", "help message");
 
 		group_2->AddOption()
-		("float,f", "float message", option::Value<float>())
-		("double,d", "double message", option::Value<double>());
+		("float,f", "value", "float message", option::Value<float>())
+		("double,d", "value", "double message", option::Value<double>());
 
 		group_3->AddOption()
-		("int8_t,i8", "int8_t message", option::Value<int8_t>())
-		("uint8_t,u8", "uint8_t message", option::Value<uint8_t>())
-		("int16_t,i16", "int16_t message", option::Value<int16_t>())
-		("uint16_t,u16", "uint16_t message", option::Value<uint16_t>())
-		("int32_t,i32", "int32_t message", option::Value<int32_t>())
-		("uint32_t,u32", "uint32_t message", option::Value<uint32_t>())
-		("int64_t,i64", "int64_t message", option::Value<int64_t>())
-		("uint64_t,u64", "uint64_t message", option::Value<uint64_t>());
+		("int8_t,i8", "value", "int8_t message", option::Value<int8_t>(1))
+		("uint8_t,u8", "value", "uint8_t message", option::Value<uint8_t>(10))
+		("int16_t,i16", "value", "int16_t message", option::Value<int16_t>(100))
+		("uint16_t,u16", "value", "uint16_t message", option::Value<uint16_t>(1000))
+		("int32_t,i32", "value", "int32_t message", option::Value<int32_t>(10000))
+		("uint32_t,u32", "value", "uint32_t message", option::Value<uint32_t>(100000))
+		("int64_t,i64", "value", "int64_t message", option::Value<int64_t>(1000000))
+		("uint64_t,u64", "value", "uint64_t message", option::Value<uint64_t>(10000000));
 
 		group_4->AddOption()
-		("string,s", "string message", option::Value<std::string>());
+		("string,s", "value", "string message", option::Value<std::string>());
 
 		option.AddDescriptionGroup(group_1);
 		option.AddDescriptionGroup(group_2);

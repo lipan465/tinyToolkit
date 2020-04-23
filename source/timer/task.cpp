@@ -71,7 +71,7 @@ namespace tinyToolkit
 		 * @return 任务次数
 		 *
 		 */
-		int64_t ITask::TotalCount()
+		int64_t ITask::TotalCount() const
 		{
 			return _totalCount;
 		}
@@ -83,7 +83,7 @@ namespace tinyToolkit
 		 * @return 触发次数
 		 *
 		 */
-		int64_t ITask::TriggerCount()
+		int64_t ITask::TriggerCount() const
 		{
 			return _triggerCount;
 		}

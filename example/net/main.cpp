@@ -438,6 +438,8 @@ static void UDP()
 
 	try
 	{
+#if TINY_TOOLKIT_PLATFORM != TINY_TOOLKIT_PLATFORM_WINDOWS
+
 		UDPServer server{ };
 
 		if (!server.Listen("0.0.0.0", 10080))
@@ -484,6 +486,8 @@ static void UDP()
 		pool.Wait();
 
 		server.Close();
+
+#endif
 	}
 	catch (std::exception & e)
 	{

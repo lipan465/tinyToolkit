@@ -11,6 +11,7 @@
 #include "asyncLogger.h"
 
 #include "../util/time.h"
+#include "../util/singleton.h"
 #include "../util/application.h"
 
 
@@ -101,6 +102,18 @@ namespace tinyToolkit
 			ILogger::Write(LOG_OPTION_TYPE::TERMINATE);
 
 			_thread.join();
+		}
+
+		/**
+		 *
+		 * 单例对象
+		 *
+		 * @return 单例对象
+		 *
+		 */
+		AsyncLogger & AsyncLogger::Instance()
+		{
+			return util::Singleton<AsyncLogger>::Instance();
 		}
 
 		/**

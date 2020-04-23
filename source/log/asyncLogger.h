@@ -66,6 +66,15 @@ namespace tinyToolkit
 
 			/**
 			 *
+			 * 单例对象
+			 *
+			 * @return 单例对象
+			 *
+			 */
+			static AsyncLogger & Instance();
+
+			/**
+			 *
 			 * 等待
 			 *
 			 */

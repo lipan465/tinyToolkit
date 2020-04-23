@@ -9,6 +9,8 @@
 
 #include "option.h"
 
+#include "../util/singleton.h"
+
 
 #if TINY_TOOLKIT_PLATFORM == TINY_TOOLKIT_PLATFORM_WINDOWS
 #
@@ -33,6 +35,18 @@ namespace tinyToolkit
 {
 	namespace option
 	{
+		/**
+		 *
+		 * 单例对象
+		 *
+		 * @return 单例对象
+		 *
+		 */
+		Option & Option::Instance()
+		{
+			return util::Singleton<Option>::Instance();
+		}
+
 		/**
 		 *
 		 * 解析

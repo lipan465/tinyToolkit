@@ -62,6 +62,15 @@ namespace tinyToolkit
 
 			/**
 			 *
+			 * 单例对象
+			 *
+			 * @return 单例对象
+			 *
+			 */
+			static Timer & Instance();
+
+			/**
+			 *
 			 * 关闭
 			 *
 			 */

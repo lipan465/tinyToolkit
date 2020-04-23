@@ -38,6 +38,15 @@ namespace tinyToolkit
 		public:
 			/**
 			 *
+			 * 单例对象
+			 *
+			 * @return 单例对象
+			 *
+			 */
+			static Option & Instance();
+
+			/**
+			 *
 			 * 解析
 			 *
 			 * @param argc 选项个数

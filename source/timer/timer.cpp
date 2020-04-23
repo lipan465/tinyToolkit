@@ -9,6 +9,8 @@
 
 #include "timer.h"
 
+#include "../util/singleton.h"
+
 #include "../container/operation.h"
 
 
@@ -133,6 +135,18 @@ namespace tinyToolkit
 					ClearSpokes(spokes);
 				}
 			}
+		}
+
+		/**
+		 *
+		 * 单例对象
+		 *
+		 * @return 单例对象
+		 *
+		 */
+		Timer & Timer::Instance()
+		{
+			return util::Singleton<Timer>::Instance();
 		}
 
 		/**

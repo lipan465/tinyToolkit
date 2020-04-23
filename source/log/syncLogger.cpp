@@ -10,6 +10,7 @@
 #include "syncLogger.h"
 
 #include "../util/time.h"
+#include "../util/singleton.h"
 #include "../util/application.h"
 
 
@@ -37,6 +38,18 @@ namespace tinyToolkit
 		SyncLogger::SyncLogger(std::string name) : ILogger(std::move(name))
 		{
 
+		}
+
+		/**
+		 *
+		 * 单例对象
+		 *
+		 * @return 单例对象
+		 *
+		 */
+		SyncLogger & SyncLogger::Instance()
+		{
+			return util::Singleton<SyncLogger>::Instance();
 		}
 
 		/**
